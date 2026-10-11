@@ -1,6 +1,10 @@
 # vinylyric-tv
 VINYLYRIC MOSTRA LETRAS DAS MUSICAS NATV E NO CELULAR DOS SEUS DISCOS 
 
+## Arquitetura e próximos passos
+
+Decisões e planos do projeto (TV, plugins, coleção, contas, plataformas): [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+
 ## Como abrir no celular (mesma rede Wi-Fi do PC)
 
 1. No PC, sirva a pasta do projeto escutando em todas as interfaces (não só `localhost`):
