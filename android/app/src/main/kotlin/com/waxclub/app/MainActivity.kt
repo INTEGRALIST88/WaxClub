@@ -5,10 +5,35 @@ import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private var multicastLock: WifiManager.MulticastLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
+    private var nsdAnnouncer: PhoneNsdAnnouncer? = null
+
+    /** Canal do anúncio do celular na rede (_waxclub._tcp), usado por lib/services/phone_announcer.dart. */
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.waxclub.app/nsd").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "register" -> {
+                    val serviceType = call.argument<String>("serviceType") ?: "_waxclub._tcp"
+                    val serviceName = call.argument<String>("serviceName") ?: "WaxClub"
+                    val port = call.argument<Int>("port") ?: 8088
+                    val attributes = call.argument<Map<String, String>>("attributes") ?: emptyMap()
+                    val announcer = nsdAnnouncer ?: PhoneNsdAnnouncer(this).also { nsdAnnouncer = it }
+                    result.success(announcer.register(serviceType, serviceName, port, attributes))
+                }
+                "unregister" -> {
+                    nsdAnnouncer?.unregister()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +72,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        nsdAnnouncer?.unregister()
         try {
             multicastLock?.let { if (it.isHeld) it.release() }
             wifiLock?.let { if (it.isHeld) it.release() }

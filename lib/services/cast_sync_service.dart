@@ -8,6 +8,7 @@ import '../models/track_info.dart';
 import 'cast_device_registry.dart';
 import 'cast_frame_parser.dart';
 import 'cast_v2_client.dart';
+import 'phone_announcer.dart';
 import 'tv_web_receiver_html.dart';
 
 export 'cast_device_registry.dart' show CastDevice, CastDeviceRegistry;
@@ -15,6 +16,10 @@ export 'cast_device_registry.dart' show CastDevice, CastDeviceRegistry;
 /// Serviço de transmissão e recepção em tempo real de letras e sincronismo de vinil.
 class CastSyncService extends ChangeNotifier {
   static const int defaultPort = 8088;
+
+  /// Anúncio do celular na rede (_waxclub._tcp) enquanto o servidor da página da TV está no ar.
+  /// Substituível nos testes.
+  PhoneAnnouncer announcer = PhoneAnnouncer();
 
   // ─── CLIENTE GOOGLE CAST V2 (CHROMECAST BUILT-IN NA PORTA 8009 TLS) ───
   final CastV2Client _castV2Client = CastV2Client();
@@ -164,7 +169,9 @@ class CastSyncService extends ChangeNotifier {
     try {
       await getLocalIpAddress();
       _localServer = await HttpServer.bind(InternetAddress.anyIPv4, port);
-      debugPrint('[CastSyncService] 🚀 Servidor Web WaxClub ativo em http://${_localIp ?? '0.0.0.0'}:$port');
+      debugPrint('[CastSyncService] 🚀 Servidor Web WaxClub ativo em http://${_localIp ?? '0.0.0.0'}:${_localServer!.port}');
+      // Apps de TV (ex.: Fire TV) encontram o celular sozinhos pelo anúncio _waxclub._tcp
+      unawaited(announcer.announce(port: _localServer!.port));
 
       _localServer!.listen(
         (HttpRequest request) async {
@@ -935,6 +942,7 @@ class CastSyncService extends ChangeNotifier {
     _registrySub?.cancel();
     _registry.dispose();
     disconnect();
+    unawaited(announcer.withdraw());
     _localServer?.close(force: true);
     _localServer = null;
     super.dispose();

@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.3] — 12/10/2026 (Celular se Anuncia na Rede para os Apps de TV)
+
+### 📣 Anúncio `_waxclub._tcp`
+* Enquanto o servidor da página da TV está no ar (porta 8088), o celular se anuncia na rede local por mDNS/DNS-SD como **`_waxclub._tcp`**, com o nome "WaxClub (<modelo do celular>)". Assim os apps de TV, como o receptor do Fire TV em desenvolvimento (`WaxClubClient`), encontram o celular sozinhos e abrem `http://<ip>:<porta>/` ou o WebSocket `/cast`.
+* Registros TXT: `fn` (nome), `md` (modelo), `v` (versão do protocolo, 1), `app=waxclub`, `ver` (versão do app), `path=/` e `ws=/cast`.
+* Anúncio feito pelo NsdManager do Android (`PhoneNsdAnnouncer.kt`, canal `com.waxclub.app/nsd` na `MainActivity`) e controlado pelo Dart (`lib/services/phone_announcer.dart`): sobe com o servidor e é retirado ao fechar o app.
+
+### 🧪 Qualidade
+* Novo `test/phone_announcer_test.dart`: tipo, porta e campos do anúncio; anúncio ao subir o servidor e retirada ao fechar; app segue normal sem o canal nativo. Suíte: 156 testes verdes.
+
+---
 ## [v1.3.2] — 12/10/2026 (Novo Nome: WaxClub — Vinyl Social Club + Trilhas: Nomes Limpos + Minutagem do Selo)
 
 ### 🏷️ O app passa a se chamar **WaxClub**, com o sufixo **"Vinyl Social Club"**
