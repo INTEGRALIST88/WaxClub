@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VyniLyric TV</title>
+  <title>WaxClub TV — Vinyl Social Club</title>
   <!-- Google Cast Application Framework (CAF) Receiver SDK v3 -->
   <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -414,9 +414,9 @@
 
   <div class="stage">
     <aside class="meta">
-      <div id="title" class="title">VyniLyric</div>
-      <div id="artist" class="artist">Pronto para tocar</div>
-      <div id="album" class="album"></div>
+      <div id="title" class="title">WaxClub</div>
+      <div id="artist" class="artist">Vinyl Social Club</div>
+      <div id="album" class="album">Pronto para tocar</div>
       <div id="next" class="next"><div class="caption">A seguir</div><div id="nextName" class="name"></div></div>
       <div id="pill" class="pill"><span class="dot"></span><span id="pillText">Ouvindo</span></div>
     </aside>
@@ -463,7 +463,7 @@
   <script>
     'use strict';
 
-    const CUSTOM_CHANNEL = 'urn:x-cast:com.vinylyric.sync';
+    const CUSTOM_CHANNEL = 'urn:x-cast:com.waxclub.sync';
     // A posição enviada pelo celular já inclui 0.40s de antecipação; a TV antecipa mais 0.45s para a linha ativa
     const LINE_LEAD_SECONDS = 0.45;
     const SENDER_LEAD_SECONDS = 0.40;
@@ -881,9 +881,9 @@
       paused = true;
       document.body.classList.remove('has-track', 'playing', 'paused');
       el('lines').textContent = '';
-      el('title').textContent = 'VyniLyric';
-      el('artist').textContent = 'Pronto para tocar';
-      el('album').textContent = '';
+      el('title').textContent = 'WaxClub';
+      el('artist').textContent = 'Vinyl Social Club';
+      el('album').textContent = 'Pronto para tocar';
       el('dur').textContent = '';
       el('elapsed').textContent = '0:00';
       el('next').classList.remove('visible');
@@ -972,7 +972,7 @@
         options.skipPlayersLoad = true;
         castContext.start(options);
       } catch (e) {
-        console.warn('[VyniLyric TV] Fora do runtime do Cast:', e);
+        console.warn('[WaxClub TV] Fora do runtime do Cast:', e);
         castContext = null;
       }
     }
@@ -1003,7 +1003,7 @@
         'Fim da demonstração'
       ];
       renderTrack(
-        { title: 'Faixa de Demonstração', artist: 'VyniLyric', album: 'Layout da TV', durationMs: 198000, coverUrl: null, side: 'A' },
+        { title: 'Faixa de Demonstração', artist: 'WaxClub', album: 'Layout da TV', durationMs: 198000, coverUrl: null, side: 'A' },
         demoLines.map((text, i) => ({ ms: 3000 + i * 4000, text }))
       );
       let demoPos = 0;

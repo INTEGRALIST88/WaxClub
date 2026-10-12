@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Esboço — Celular durante a transmissão</title>
+  <style>
+    /* ESBOÇO para avaliação: tela do celular (retrato) enquanto transmite para a TV */
+    :root {
+      --bg: #0b0b10;
+      --surface: #15151d;
+      --surface-2: #1c1c26;
+      --line: rgba(255, 255, 255, 0.07);
+      --text: #f2f2f5;
+      --dim: rgba(242, 242, 245, 0.55);
+      --cyan: #4fe3ff;
+      --purple: #b388ff;
+      --amber: #ffb300;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: #000; }
+    body {
+      display: flex; justify-content: center; align-items: flex-start;
+      font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .phone {
+      width: 100%; max-width: 412px; height: 100vh; max-height: 892px;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* barra de status do aparelho */
+    .status-bar { height: 28px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; font-size: 12px; color: var(--dim); }
+
+    /* AppBar atual do app (mantida) */
+    .appbar { flex: none; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 14px; }
+    .appbar .icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--dim); font-size: 18px; }
+    .appbar .brand { flex: 1; font-weight: 900; font-size: 17px; letter-spacing: -0.3px; }
+    .appbar .brand small { font-size: 10px; color: var(--cyan); margin-left: 6px; font-weight: 700; }
+    .appbar .cast { color: var(--cyan); border: 1.2px solid var(--cyan); background: rgba(79,227,255,0.15); }
+
+    .content { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 4px 14px 14px; min-height: 0; }
+
+    .group-title { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; color: var(--dim); text-transform: uppercase; margin: 2px 2px -4px; }
+
+    /* 1. TV conectada */
+    .tv-strip {
+      flex: none; display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 14px;
+      background: rgba(79,227,255,0.08); border: 1px solid rgba(79,227,255,0.25);
+    }
+    .tv-strip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .tv-strip .name { flex: 1; font-size: 13px; font-weight: 700; }
+    .tv-strip .name span { display: block; font-size: 11px; font-weight: 500; color: var(--dim); }
+    .btn-ghost { font-size: 11.5px; font-weight: 800; color: #ff8a80; border: 1px solid rgba(255,138,128,0.4); border-radius: 10px; padding: 6px 10px; background: transparent; }
+
+    /* 2. Tocando agora */
+    .now {
+      flex: none; padding: 12px; border-radius: 18px;
+      background: linear-gradient(160deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--line);
+    }
+    .now .row { display: flex; gap: 12px; }
+    .cover {
+      width: 108px; height: 108px; border-radius: 12px; flex: none;
+      background: conic-gradient(from 0deg, #ff6b4a, #ffd86b, #4fe3ff, #6b7bff, #c66bff, #ff6b4a);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      display: flex; align-items: flex-end; justify-content: flex-start; padding: 6px;
+      position: relative;
+    }
+    .cover .side { font-size: 11px; font-weight: 900; background: rgba(0,0,0,0.65); padding: 3px 7px; border-radius: 7px; }
+    .cover .tap { position: absolute; top: 6px; right: 6px; font-size: 10px; background: rgba(0,0,0,0.55); border-radius: 6px; padding: 2px 5px; color: var(--dim); }
+    .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+    .meta .title { font-size: 18px; font-weight: 900; line-height: 1.15; letter-spacing: -0.3px; }
+    .meta .artist { font-size: 13.5px; font-weight: 700; color: var(--cyan); }
+    .meta .album { font-size: 12px; color: var(--dim); }
+    .meta .album b { color: var(--text); font-weight: 700; }
+
+    .progress { margin-top: 12px; }
+    .bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 38%; background: linear-gradient(90deg, var(--purple), var(--cyan)); border-radius: 3px; }
+    .times { display: flex; justify-content: space-between; font-size: 11px; color: var(--dim); margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+    .next {
+      margin-top: 10px; display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 12px; background: rgba(179,136,255,0.10); border: 1px solid rgba(179,136,255,0.22);
+    }
+    .next .icon { color: var(--purple); font-size: 16px; }
+    .next .label { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; color: var(--purple); text-transform: uppercase; }
+    .next .song { font-size: 13px; font-weight: 700; }
+    .next .ready { margin-left: auto; font-size: 11px; color: var(--cyan); }
+
+    /* 3. Ajustes */
+    .adjust {
+      flex: 1; min-height: 0; padding: 12px; border-radius: 18px;
+      background: var(--surface); border: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .rpm { display: flex; align-items: center; gap: 12px; }
+    .mini-disc {
+      width: 46px; height: 46px; border-radius: 50%; flex: none;
+      background: repeating-radial-gradient(circle, #111 0 2px, #1d1d24 2px 3px);
+      border: 1.5px solid rgba(179,136,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      animation: spin 1.8s linear infinite;
+    }
+    .mini-disc::after { content: ''; width: 16px; height: 16px; border-radius: 50%; background: var(--cyan); box-shadow: inset 0 0 0 5px #0b0b10; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .rpm .value { font-size: 30px; font-weight: 900; letter-spacing: -1px; }
+    .rpm .value small { font-size: 13px; color: var(--cyan); margin-left: 4px; letter-spacing: 0; }
+    .rpm .info { font-size: 11.5px; color: var(--dim); }
+    .rpm .chips { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .chip { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
+    .chip.amber { color: var(--amber); background: rgba(255,179,0,0.12); border: 1px solid rgba(255,179,0,0.35); }
+    .chip.ok { color: var(--cyan); background: rgba(79,227,255,0.10); border: 1px solid rgba(79,227,255,0.3); }
+
+    .sub { border-top: 1px solid var(--line); padding-top: 10px; }
+    .sub .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .sub .head .t { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; }
+    .sub .head .v { font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .pitch-row { display: flex; align-items: center; gap: 8px; }
+    .step { width: 44px; height: 32px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 12px; font-weight: 800; }
+    .slider { flex: 1; height: 32px; position: relative; display: flex; align-items: center; }
+    .slider::before { content: ''; position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); }
+    .slider .fill { position: absolute; left: 50%; width: 9%; height: 4px; background: var(--purple); border-radius: 2px; }
+    .slider .thumb { position: absolute; left: 59%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px rgba(79,227,255,0.6); }
+    .slider .mid { position: absolute; left: 50%; width: 2px; height: 12px; margin-left: -1px; background: rgba(255,255,255,0.3); }
+    .pitch-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .pill-btn { flex: 1; height: 32px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 11.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .pill-btn.on { color: var(--cyan); border-color: rgba(79,227,255,0.6); background: rgba(79,227,255,0.12); }
+
+    .nudge-row { display: flex; align-items: center; gap: 8px; }
+    .nudge { flex: 1; height: 38px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 13px; font-weight: 800; }
+    .nudge-val { width: 74px; text-align: center; font-size: 12px; color: var(--dim); }
+    .nudge-val b { display: block; font-size: 15px; color: var(--text); }
+
+    /* 4. Ação principal */
+    .actions { flex: none; display: flex; flex-direction: column; gap: 6px; }
+    .main-btn {
+      height: 58px; border-radius: 18px; border: 0;
+      font-size: 15px; font-weight: 900; letter-spacing: 1px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .main-btn.listen { background: var(--purple); color: #fff; box-shadow: 0 6px 22px rgba(179,136,255,0.4); }
+    .main-btn.flip { background: var(--amber); color: #000; animation: pulse 0.9s ease-in-out infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 12px rgba(255,179,0,0.4); } to { transform: scale(1.04); box-shadow: 0 0 30px rgba(255,179,0,0.75); } }
+    .hint { text-align: center; font-size: 11px; color: var(--dim); }
+
+    /* modo compacto para telas baixas (ex.: 360×740): mesmas funções, menos espaço */
+    @media (max-height: 780px) {
+      .status-bar { height: 22px; }
+      .appbar { height: 50px; }
+      .content { gap: 7px; padding-bottom: 10px; }
+      .group-title { display: none; }
+      .tv-strip { padding: 7px 10px; }
+      .now { padding: 10px; }
+      .cover { width: 82px; height: 82px; }
+      .meta .title { font-size: 16px; }
+      .progress { margin-top: 8px; }
+      .next { margin-top: 8px; padding: 6px 9px; }
+      .adjust { padding: 10px; gap: 7px; }
+      .mini-disc { width: 38px; height: 38px; }
+      .rpm .value { font-size: 26px; }
+      .sub { padding-top: 7px; }
+      .sub .head { margin-bottom: 4px; }
+      .step, .pill-btn { height: 28px; }
+      .pitch-actions { margin-top: 6px; }
+      .nudge { height: 32px; }
+      .main-btn { height: 52px; }
+    }
+
+    /* alternador do esboço (só para avaliação) */
+    .demo-switch { position: fixed; bottom: 10px; right: 10px; display: flex; gap: 6px; z-index: 10; }
+    .demo-switch button { font-size: 11px; padding: 6px 9px; border-radius: 8px; border: 1px solid #444; background: #222; color: #eee; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar"><span>10:42</span><span>📶 🔋 82%</span></div>
+
+    <div class="appbar">
+      <div class="icon">ⓘ</div>
+      <div class="brand">WaxClub<small>v1.2.03</small></div>
+      <div class="icon cast">⎚</div>
+    </div>
+
+    <div class="content">
+      <!-- 1. TV -->
+      <div class="tv-strip">
+        <div class="dot"></div>
+        <div class="name">TV Escritório<span>Letra sendo exibida na TV</span></div>
+        <button class="btn-ghost">Desconectar</button>
+      </div>
+
+      <!-- 2. Tocando agora -->
+      <div class="group-title">Tocando agora</div>
+      <div class="now">
+        <div class="row">
+          <div class="cover"><span class="side">LADO A</span><span class="tap">faixas ▸</span></div>
+          <div class="meta">
+            <div class="title">Simple Sincerity</div>
+            <div class="artist">Radish</div>
+            <div class="album"><b>Restraining Bolt</b> · faixa 2 de 12</div>
+          </div>
+        </div>
+        <div class="progress">
+          <div class="bar"><i></i></div>
+          <div class="times"><span>1:24</span><span>3:41</span></div>
+        </div>
+        <div class="next" id="nextBox">
+          <div class="icon">⏭</div>
+          <div><div class="label">A seguir</div><div class="song">Failing and Leaving</div></div>
+          <div class="ready">⚡ letra pronta</div>
+        </div>
+      </div>
+
+      <!-- 3. Ajustes -->
+      <div class="group-title">Ajustes</div>
+      <div class="adjust">
+        <div class="rpm">
+          <div class="mini-disc"></div>
+          <div>
+            <div class="value">33.73<small>RPM</small></div>
+            <div class="info">1.012× · medida em 4 escutas</div>
+          </div>
+          <div class="chips">
+            <span class="chip amber">+1.2%</span>
+            <span class="chip ok">±0.2%</span>
+          </div>
+        </div>
+
+        <div class="sub">
+          <div class="head"><span class="t">Ajuste fino da rotação</span><span class="v">+0.4%</span></div>
+          <div class="pitch-row">
+            <button class="step">−0.1</button>
+            <div class="slider"><div class="mid"></div><div class="fill"></div><div class="thumb"></div></div>
+            <button class="step">+0.1</button>
+          </div>
+          <div class="pitch-actions">
+            <button class="pill-btn">↺ Zerar</button>
+            <button class="pill-btn">🔓 Travar rotação</button>
+          </div>
+        </div>
+
+        <div class="sub">
+          <div class="head"><span class="t">Sincronia da letra</span><span class="v" style="color:var(--dim)">se a letra adiantar ou atrasar</span></div>
+          <div class="nudge-row">
+            <button class="nudge">⏪ −0.5s</button>
+            <div class="nudge-val">ajuste<b>+0.5s</b></div>
+            <button class="nudge">+0.5s ⏩</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Ação principal -->
+      <div class="actions">
+        <button class="main-btn listen" id="mainBtn">🎤 OUVIR / RESSINCRONIZAR</button>
+        <div class="hint" id="hint">Sincronizado pelo microfone · próxima checagem em 42s</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-switch">
+    <button onclick="setState('playing')">Tocando</button>
+    <button onclick="setState('side')">Fim do lado</button>
+  </div>
+
+  <script>
+    function setState(s) {
+      const btn = document.getElementById('mainBtn');
+      const next = document.getElementById('nextBox');
+      if (s === 'side') {
+        btn.className = 'main-btn flip';
+        btn.textContent = '⟳  VIRE O DISCO';
+        document.getElementById('hint').textContent = 'Fim do lado A · toque depois de virar o disco';
+        next.style.background = 'rgba(255,179,0,0.10)';
+        next.style.borderColor = 'rgba(255,179,0,0.35)';
+        next.innerHTML = '<div class="icon" style="color:var(--amber)">⟳</div><div><div class="label" style="color:var(--amber)">Fim do lado A</div><div class="song">Lado B começa com: Dear Aunt Arctica</div></div>';
+      } else {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

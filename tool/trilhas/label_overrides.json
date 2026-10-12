@@ -1,0 +1,10 @@
+{
+  "_info": "Durações e lados lidos no selo do disco (prioridade máxima). Chave: nome do disco no catálogo. Cada faixa: [lado, 'm:ss'] na ordem do disco.",
+  "O Outro Internacional": {
+    "source": "selo Som Livre 590.002 (foto do usuário)",
+    "tracks": [
+      ["A", "3:19"], ["A", "3:20"], ["A", "3:45"], ["A", "2:48"], ["A", "4:00"], ["A", "3:24"], ["A", "3:43"],
+      ["B", "3:47"], ["B", "4:05"], ["B", "3:07"], ["B", "3:22"], ["B", "3:22"], ["B", "3:46"], ["B", "3:20"]
+    ]
+  }
+}

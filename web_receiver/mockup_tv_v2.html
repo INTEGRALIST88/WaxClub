@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaxClub TV — Esboço v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+  <style>
+    /* ESBOÇO para avaliação — não é o receptor de produção (index.html) */
+    :root {
+      --bg: #07070a;
+      --text: #f4f4f6;
+      --accent: #4fe3ff;
+      --line-size: 4.6vh;
+      --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+
+      /* Geometria do disco (em vh, relativa à coluna direita) */
+      /* Proporção de um EP / compacto 7" (175 mm, selo ~90 mm): selo ≈ 51% do diâmetro */
+      --label-r: 19vh;                         /* raio do selo (capa circular) */
+      --disc-r: 37vh;                          /* raio do disco */
+      /* Disco no canto: a borda do selo encosta no topo e na lateral direita da tela */
+      --center-y: var(--label-r);
+      --deck-x: calc(100vw - var(--label-r));
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg); color: var(--text);
+      font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      overflow: hidden; user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ambient {
+      position: fixed; inset: -10vh -10vw;
+      background-size: cover; background-position: center;
+      filter: blur(80px) saturate(1.3); opacity: 0.18;
+    }
+    .shade {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 40% 50%, rgba(7,7,10,0.4) 0%, rgba(7,7,10,0.9) 75%);
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 19vw 1fr 30vw;
+      width: 100vw; height: 100vh;
+    }
+
+    /* ─── ESQUERDA: só texto (a capa agora é o selo do disco) ─── */
+    .meta {
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 1.5vw 9vh 3.5vw; gap: 1vh; min-width: 0;
+    }
+    .meta .title { font-size: 2.7vh; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+    .meta .artist { font-size: 2vh; font-weight: 600; color: var(--accent); }
+    .meta .album { font-size: 1.6vh; color: rgba(244,244,246,0.45); }
+    .meta .time { margin-top: 1.4vh; font-size: 1.7vh; font-weight: 600; color: rgba(244,244,246,0.55); font-variant-numeric: tabular-nums; }
+
+    /* ─── CENTRO: letra centralizada, 3 linhas em destaque ─── */
+    .lyrics {
+      position: relative; overflow: hidden;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+    }
+    .lines {
+      position: absolute; left: 0; right: 0; top: 0;
+      padding: 0 2vw;
+      transition: transform 0.8s var(--ease);
+      will-change: transform;
+    }
+    .line {
+      text-align: center;
+      font-size: var(--line-size);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      padding: 1vh 0;
+      transform-origin: center center;
+      transition: transform 0.7s var(--ease), color 0.6s ease, opacity 0.6s ease;
+      /* padrão: linhas distantes (menores e escuras) */
+      transform: scale(0.62);
+      color: rgba(244,244,246,0.16);
+    }
+    /* distância 2 do centro */
+    .line.d2 { transform: scale(0.76); color: rgba(244,244,246,0.24); }
+    /* as 3 linhas principais: mesmo tamanho, em destaque */
+    .line.d1, .line.d0 { transform: scale(1); color: rgba(244,244,246,0.92); }
+    .line.d0 { color: #ffffff; text-shadow: 0 0 3vh rgba(79,227,255,0.25); }
+    .line.gap { font-size: calc(var(--line-size) * 0.8); }
+
+    /* ─── DIREITA: disco parcial com selo (capa) e agulha ─── */
+    .deck { position: relative; }
+    /* o disco fica atrás de tudo (a letra passa por cima) e mostra a circunferência onde couber */
+    .disc-layer { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+
+    .disc {
+      position: absolute;
+      width: calc(var(--disc-r) * 2); height: calc(var(--disc-r) * 2);
+      left: calc(var(--deck-x) - var(--disc-r));
+      top: calc(var(--center-y) - var(--disc-r));
+      border-radius: 50%;
+      background:
+        /* reflexos fixos do vinil (não giram) */
+        conic-gradient(from 200deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,0.07) 18deg, rgba(255,255,255,0) 40deg,
+                       rgba(255,255,255,0) 180deg, rgba(255,255,255,0.05) 198deg, rgba(255,255,255,0) 220deg),
+        /* sulcos concêntricos */
+        repeating-radial-gradient(circle at center, #111115 0px, #111115 2px, #1c1c22 2px, #1c1c22 3px);
+      box-shadow: 0 0 0 0.5vh #050507, 0 0 0 0.75vh rgba(255,255,255,0.06), 0 1vh 8vh rgba(0,0,0,0.7);
+    }
+    /* véu sobre a área da letra: mantém o disco visível e o texto legível */
+    .disc-veil {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(7,7,10,0.55) 0%, rgba(7,7,10,0.45) 60%, rgba(7,7,10,0) 72%);
+    }
+    /* área já tocada: anel levemente tingido entre a borda e a agulha */
+    .played {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle closest-side at center, transparent var(--needle-r, 100%), rgba(79,227,255,0.07) var(--needle-r, 100%));
+    }
+    /* área lisa de entrada (lead-in) perto da borda e área lisa do selo */
+    .lead-in {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle closest-side at center, transparent calc(var(--disc-r) - 0.9vh), #18181d calc(var(--disc-r) - 0.9vh));
+    }
+    .runout {
+      position: absolute; border-radius: 50%;
+      width: calc((var(--label-r) + 2.2vh) * 2); height: calc((var(--label-r) + 2.2vh) * 2);
+      left: calc(var(--disc-r) - var(--label-r) - 2.2vh); top: calc(var(--disc-r) - var(--label-r) - 2.2vh);
+      background: radial-gradient(circle, #16161b 60%, #121216 100%);
+    }
+
+    .label {
+      position: absolute;
+      width: calc(var(--label-r) * 2); height: calc(var(--label-r) * 2);
+      right: 0;
+      top: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 0 0.35vh rgba(0,0,0,0.6), 0 1vh 3vh rgba(0,0,0,0.6);
+      animation: spin 1.333s linear infinite; /* 45 RPM (EP) */
+    }
+    .label .art {
+      width: 100%; height: 100%;
+      background: conic-gradient(from 0deg, #ff6b4a, #ffb347, #ffd86b, #4fe3ff, #6b7bff, #c66bff, #ff6b4a);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .label .art span { font-weight: 800; font-size: 2.2vh; color: rgba(0,0,0,0.55); letter-spacing: 0.1em; }
+    .label::after { /* furo do eixo */
+      content: ''; position: absolute; left: 50%; top: 50%;
+      width: 1.4vh; height: 1.4vh; margin: -0.7vh 0 0 -0.7vh;
+      border-radius: 50%; background: #07070a; box-shadow: 0 0 0 0.3vh rgba(255,255,255,0.25);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .needle {
+      position: absolute; left: calc(100% - var(--label-r) - 0.6vw); right: -2vw; top: 0; height: 0;
+      will-change: transform;
+    }
+    .needle svg {
+      position: absolute; left: 0; top: -2.6vh; width: 100%; height: 5.2vh; overflow: visible;
+      filter: drop-shadow(0 0.6vh 0.8vh rgba(0,0,0,0.75));
+    }
+    /* tempo da música acompanhando a agulha, à esquerda da ponta */
+    .needle-time {
+      position: absolute; right: calc(100% + 0.9vw); top: -1.7vh;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+      text-shadow: 0 0 1.2vh rgba(0,0,0,0.95);
+    }
+    .needle-time .elapsed { font-size: 2.6vh; font-weight: 800; }
+    .needle-time .dur { font-size: 1.7vh; font-weight: 600; color: rgba(244,244,246,0.5); margin-left: 0.4vw; }
+
+    .badge {
+      position: fixed; top: 2.2vh; left: 50%; transform: translateX(-50%);
+      font-size: 1.4vh; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(244,244,246,0.4); background: rgba(255,255,255,0.05);
+      padding: 0.6vh 1.6vh; border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div id="ambient" class="ambient" style="background-image: conic-gradient(from 0deg, #ff6b4a, #ffd86b, #4fe3ff, #c66bff, #ff6b4a);"></div>
+  <div class="shade"></div>
+  <div class="disc-layer">
+    <div class="disc">
+      <div class="lead-in"></div>
+      <div id="played" class="played"></div>
+      <div class="runout"></div>
+    </div>
+    <div class="disc-veil"></div>
+  </div>
+  <div class="badge">Esboço v2 — para avaliação</div>
+
+  <div class="stage">
+    <aside class="meta">
+      <div class="title">Faixa de Demonstração</div>
+      <div class="artist">WaxClub</div>
+      <div class="album">Esboço da tela da TV</div>
+      <div id="time" class="time">0:00 / 3:18</div>
+    </aside>
+
+    <main id="lyrics" class="lyrics">
+      <div id="lines" class="lines"></div>
+    </main>
+
+    <section id="deck" class="deck">
+      <div class="label"><div class="art"><span>CAPA</span></div></div>
+      <div id="needle" class="needle">
+        <div class="needle-time"><span id="elapsed" class="elapsed">0:00</span><span id="dur" class="dur">/ 3:18</span></div>
+        <svg viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="54" y="17" width="80" height="6" rx="3" fill="#8a8f98"/>
+          <rect x="54" y="17" width="80" height="2" rx="1" fill="#c9ced6" opacity="0.6"/>
+          <path d="M14 9 H58 L64 15 V25 L58 31 H14 Q9 31 9 26 V14 Q9 9 14 9 Z" fill="#2a2d33" stroke="#4a4f58" stroke-width="1"/>
+          <rect x="16" y="13" width="26" height="14" rx="2" fill="#16181c" stroke="#3a3e46" stroke-width="1"/>
+          <rect x="18" y="15" width="6" height="10" rx="1" fill="#4fe3ff" opacity="0.85"/>
+          <circle cx="6" cy="20" r="3.2" fill="#ffffff"/>
+          <circle cx="6" cy="20" r="6" fill="#4fe3ff" opacity="0.25"/>
+        </svg>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    'use strict';
+    const el = (id) => document.getElementById(id);
+    const vh = () => window.innerHeight / 100;
+
+    // Letra de demonstração (texto próprio, não é letra de música real)
+    const demo = [
+      'Esta é uma letra de demonstração', 'para avaliar a nova tela da TV', '',
+      'Três linhas ficam em destaque', 'a anterior, a atual e a próxima',
+      'todas com o mesmo tamanho', 'assim um pequeno atraso no tempo', 'quase não se percebe',
+      '', 'As outras linhas diminuem', 'e escurecem conforme se afastam',
+      'O texto fica sempre centralizado', 'e a agulha sobe pelo disco', 'da borda até o selo girando',
+      '', 'Fim da demonstração'
+    ].map((text, i) => ({ ms: 3000 + i * 4000, text }));
+    const durationSec = 198;
+
+    const container = el('lines');
+    const lineEls = demo.map((l) => {
+      const div = document.createElement('div');
+      div.className = 'line' + (l.text ? '' : ' gap');
+      div.textContent = l.text || '♪';
+      container.appendChild(div);
+      return div;
+    });
+
+    function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+    // Geometria: o centro do disco está em --center-y; a agulha percorre do sulco externo até perto do selo
+    const DISC_R = 37, LABEL_R = 19, CENTER_Y = LABEL_R;      // em vh (mesmos valores do CSS)
+    // A agulha começa no sulco externo (embaixo, junto da borda) e sobe até o fim dos sulcos,
+    // na área lisa em volta do selo — como num compacto 7": sulcos de ~96% a ~61% do raio
+    const OUTER_GROOVE = DISC_R * 0.96, INNER_GROOVE = DISC_R * 0.61;
+    const radiusAt = (frac) => OUTER_GROOVE - frac * (OUTER_GROOVE - INNER_GROOVE);
+
+    let active = -1;
+    function setActive(idx) {
+      if (idx === active) return;
+      active = idx;
+      lineEls.forEach((node, i) => {
+        const d = Math.abs(i - idx);
+        node.classList.toggle('d0', d === 0);
+        node.classList.toggle('d1', d === 1);
+        node.classList.toggle('d2', d === 2);
+      });
+      const focus = lineEls[Math.max(0, idx)];
+      const viewport = el('lyrics').clientHeight;
+      const offset = focus.offsetTop + focus.offsetHeight / 2 - viewport / 2;
+      container.style.transform = 'translate3d(0,' + (-offset) + 'px,0)';
+    }
+
+    // Demonstração acelerada (4x) a partir de 0:00 para ver a agulha subir da borda até o selo
+    const DEMO_SPEED = 4;
+    const start = performance.now();
+    el('dur').textContent = '/ ' + fmt(durationSec);
+    function frame(now) {
+      const pos = (((now - start) / 1000) * DEMO_SPEED) % durationSec;
+      let idx = -1;
+      for (let i = 0; i < demo.length; i++) if (demo[i].ms <= pos * 1000) idx = i;
+      setActive(Math.max(0, idx));
+
+      const frac = pos / durationSec;
+      const r = radiusAt(frac);
+      el('needle').style.transform = 'translate3d(0,' + ((CENTER_Y + r) * vh()) + 'px,0)';
+      el('played').style.setProperty('--needle-r', (r / DISC_R * 100) + '%');
+      el('elapsed').textContent = fmt(pos);
+      el('time').textContent = fmt(pos) + ' / ' + fmt(durationSec);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
