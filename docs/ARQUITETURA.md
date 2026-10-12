@@ -1,6 +1,6 @@
 # VinyLyric — Arquitetura e próximos passos
 
-Atualizado em 2026-10-10. Versão viva (editável) deste documento: https://claude.ai/code/artifact/91a7ba57-17e0-43cd-8d8b-cef2ee818357
+Atualizado em 2026-10-12. Versão viva (editável) deste documento: https://claude.ai/code/artifact/91a7ba57-17e0-43cd-8d8b-cef2ee818357
 
 O VinyLyric deve manter todo o trabalho pesado no app (Flutter + C/C++), falar com a TV pela rede local e usar o servidor da Hostinger só para guardar a coleção e as letras do usuário.
 
@@ -96,6 +96,37 @@ O plano básico roda PHP + MySQL, o que basta para guardar e entregar dados. Tod
 | `vl_letras` | Letra por faixa, com fonte e licença |
 
 A coleção também ajuda o reconhecimento: o app procura primeiro entre as faixas que o usuário tem e pode prever a próxima faixa do lado A ou B. Se o uso crescer, o próximo passo é o plano Premium ou Business, sem mudar nada no app.
+
+## App receptor para Fire TV
+
+Um app Android TV em Kotlin puro: uma WebView em tela cheia que carrega a página da TV servida pelo celular. O `index.html` do `main` já se conecta sozinho a `ws://<endereço>/cast` quando aberto por `http://`, e reconecta a cada 2 segundos.
+
+1. Ao abrir, mostra "Procurando o VinyLyric na rede".
+2. Encontra o celular por NSD (o app do celular se anuncia como `_vinylyric._tcp`); com mais de um celular, pergunta qual usar.
+3. Carrega `http://<ip-do-celular>:<porta>/`; a página faz o resto.
+
+- **Página servida pelo celular:** TV e celular sempre na mesma versão. O APK guarda só a tela de busca e o modo demonstração (`?demo`), útil para a revisão da Amazon.
+- **Configuração de rede:** liberar `http` só para endereços da rede local.
+- **Tela acesa** pelo próprio app (a trava de tela da página pode não funcionar na WebView).
+- **Controle remoto:** Voltar pergunta "Sair do VinyLyric?"; Menu abre trocar de celular e modo demonstração.
+- **Tela inicial da TV:** banner 320×180 e declaração de app de TV, sem exigir tela de toque.
+- **Página:** com `?tv=1`, pular o carregamento do SDK do Google Cast.
+- O mesmo APK roda em TVs Android TV e Google TV de outras marcas.
+
+## Lista de aparelhos
+
+O celular encontra TVs e aparelhos de streaming pela rede mesmo sem o app VinyLyric instalado neles, por SSDP/DIAL e mDNS, e mostra cada um com o que é preciso para transmitir. Protótipo na aba Aparelhos da Jukebox VinyLyric: https://claude.ai/artifact/GJPGdh5cm8fqcUhRTxNSSA
+
+| Aparelho | Estado | Cor | Ao tocar |
+| --- | --- | --- | --- |
+| Chromecast, Google TV | Pronto | Magenta | Transmite pelo Google Cast |
+| Fire TV com o app VinyLyric aberto | Pronto | Magenta | Transmite por WebSocket |
+| Fire TV sem o app (ou com o app fechado) | Instale ou abra o VinyLyric na TV | Coral, piscando | Passo a passo e QR code para instalar |
+| Samsung, LG | Por espelhamento | Azul-aço | Passo a passo e botão para abrir a transmissão de tela do Android (modo tela secundária) |
+
+- **Cores pela forma de transmissão,** diferentes das cores dos plugins (ciano, verde, lilás, âmbar), sempre com o texto do estado ao lado e o selo da marca.
+- **Fire TV sem app:** o celular vê o aparelho pelo DIAL, mas não vê o anúncio do VinyLyric. Sem registro DIAL na Amazon, não dá para distinguir "não instalado" de "fechado".
+- **Limitações:** a TV precisa estar ligada; roteadores com isolamento de clientes ou redes de visitante bloqueiam a busca. No Android, pedir a permissão de multicast. No iOS, a Apple exige o entitlement de multicast, solicitado a ela.
 
 ## Ordem das plataformas
 
@@ -220,6 +251,8 @@ No iOS, o VinyLyric é publicado como app de coleção, com reconhecimento, TV e
 - [ ] Contas: link mágico + Google, exclusão de conta no app
 - [ ] Tela de plugins em jukebox, a partir do protótipo
 - [ ] Compilação automática do APK pelo GitHub Actions
+- [ ] App receptor para Fire TV (Kotlin, WebView, NSD, banner, controle remoto)
+- [ ] Lista de aparelhos com busca SSDP/DIAL e mDNS, cores por forma de transmissão
 
 ## Perguntas em aberto
 
