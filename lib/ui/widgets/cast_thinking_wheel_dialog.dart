@@ -46,7 +46,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
   bool _showBrowserFallback = false;
   bool _showManualIp = false;
   final TextEditingController _ipController = TextEditingController();
-  String _statusMessage = 'Aguardando confirmação da tela...';
+  String _statusMessage = 'Waiting for the screen to confirm...';
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
     if (widget.castService.isClientConfirmed && !_confirmedTriggered) {
       _confirmedTriggered = true;
       setState(() {
-        _statusMessage = 'Tela cliente confirmada! Conexão estabelecida.';
+        _statusMessage = 'Screen confirmed! Connection established.';
       });
 
       _autoDismissTimer = Timer(const Duration(milliseconds: 1200), () {
@@ -99,13 +99,13 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
 
     setState(() {
       _selectedDevice = device;
-      _statusMessage = 'Conectando à ${device.name}...';
+      _statusMessage = 'Connecting to ${device.name}...';
     });
 
     final success = await widget.castService.connectTo(device);
     if (!success && mounted) {
       setState(() {
-        _statusMessage = widget.castService.lastCastError ?? 'A TV não respondeu ou recusou a transmissão.';
+        _statusMessage = widget.castService.lastCastError ?? 'The TV did not respond or refused the cast.';
       });
     }
   }
@@ -115,7 +115,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
     if (ip.isEmpty) return;
 
     setState(() {
-      _statusMessage = 'Verificando dispositivo em $ip:8009...';
+      _statusMessage = 'Checking device at $ip:8009...';
     });
 
     final dev = await widget.castService.addManualIp(ip);
@@ -126,7 +126,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppTheme.surfaceLight,
-            content: Text('Nenhum receptor Cast ativo em $ip porta 8009.', style: const TextStyle(color: Colors.white)),
+            content: Text('No active Cast receiver at $ip port 8009.', style: const TextStyle(color: Colors.white)),
           ),
         );
       }
@@ -138,7 +138,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
     setState(() {
       _selectedDevice = null;
       _showBrowserFallback = false;
-      _statusMessage = 'Aguardando confirmação da tela...';
+      _statusMessage = 'Waiting for the screen to confirm...';
     });
     _startDeviceDiscovery();
   }
@@ -208,7 +208,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                 Icon(Icons.cast, color: AppTheme.neonCyan, size: 22),
                 SizedBox(width: 10),
                 Text(
-                  'TRANSMITIR PARA TV',
+                  'CAST TO TV',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -232,7 +232,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                 else
                   IconButton(
                     icon: const Icon(Icons.refresh, color: AppTheme.neonCyan, size: 20),
-                    tooltip: 'Buscar novamente',
+                    tooltip: 'Search again',
                     onPressed: () => _startDeviceDiscovery(),
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
@@ -276,10 +276,10 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
               Flexible(
                 child: Text(
                   isScanning
-                      ? 'Procurando... ${devices.length} encontrado(s)'
+                      ? 'Searching... ${devices.length} found'
                       : (devices.isNotEmpty
-                          ? '${devices.length} aparelho(s) disponível(is)'
-                          : 'Nenhuma TV encontrada na rede local'),
+                          ? '${devices.length} device(s) available'
+                          : 'No TV found on the local network'),
                   style: TextStyle(
                     fontSize: 12,
                     color: isScanning ? AppTheme.neonCyan : Colors.white70,
@@ -354,7 +354,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                                     children: [
                                       if (dev.isStandBy)
                                         const Text(
-                                          'Em espera • ',
+                                          'Idle • ',
                                           style: TextStyle(fontSize: 11, color: Colors.amber),
                                         ),
                                       if (dev.model != null && dev.model!.isNotEmpty)
@@ -383,7 +383,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
-                                'CONECTAR',
+                                'CONNECT',
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.bold,
@@ -413,12 +413,12 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                 const Icon(Icons.search_off_rounded, size: 36, color: Colors.white38),
                 const SizedBox(height: 8),
                 const Text(
-                  'Nenhuma tela encontrada',
+                  'No screen found',
                   style: TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Certifique-se de que a TV e o celular estão no mesmo Wi-Fi.',
+                  'Make sure the TV and the phone are on the same Wi-Fi.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 11, color: AppTheme.textInactive),
                 ),
@@ -434,7 +434,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           children: [
             OutlinedButton.icon(
               icon: const Icon(Icons.network_check, size: 15),
-              label: const Text('Buscar na rede', style: TextStyle(fontSize: 11.5)),
+              label: const Text('Search network', style: TextStyle(fontSize: 11.5)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.neonCyan,
                 side: const BorderSide(color: AppTheme.neonCyan),
@@ -445,7 +445,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
             const SizedBox(width: 10),
             TextButton.icon(
               icon: const Icon(Icons.edit, size: 15),
-              label: Text(_showManualIp ? 'Ocultar IP' : 'Adicionar por IP', style: const TextStyle(fontSize: 11.5)),
+              label: Text(_showManualIp ? 'Hide IP' : 'Add by IP', style: const TextStyle(fontSize: 11.5)),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white70,
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -487,7 +487,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                 ),
                 onPressed: _handleManualIpSubmit,
-                child: const Text('Adicionar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                child: const Text('Add', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ],
           ),
@@ -500,7 +500,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           onTap: () {
             setState(() {
               _showBrowserFallback = true;
-              _statusMessage = 'Abra o endereço no navegador da sua TV.';
+              _statusMessage = 'Open the address in your TV\'s browser.';
             });
           },
           child: Container(
@@ -516,7 +516,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                 Icon(Icons.public, size: 15, color: Colors.white70),
                 SizedBox(width: 8),
                 Text(
-                  'Sem Chromecast? Transmitir via Navegador',
+                  'No Chromecast? Cast via browser',
                   style: TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500),
                 ),
               ],
@@ -538,7 +538,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
   // FASE 2: RODA DE PENSAMENTO (CONECTANDO)
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildConnectingView(bool isConfirmed, String webUrl) {
-    final targetName = _selectedDevice?.name ?? 'Navegador da TV';
+    final targetName = _selectedDevice?.name ?? 'TV browser';
     final isConnecting = widget.castService.isConnecting;
     final isFailed = !isConfirmed && !isConnecting && !_showBrowserFallback;
 
@@ -643,8 +643,8 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
 
         Text(
           isConfirmed
-              ? 'TELA CONECTADA COM SUCESSO'
-              : (isFailed ? 'FALHA NA CONEXÃO' : 'SINCRONIZANDO COM A TV'),
+              ? 'SCREEN CONNECTED'
+              : (isFailed ? 'CONNECTION FAILED' : 'SYNCING WITH THE TV'),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14.5,
@@ -679,7 +679,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
             child: Column(
               children: [
                 const Text(
-                  'Acesse este endereço no navegador da sua TV:',
+                  'Open this address in your TV\'s browser:',
                   style: TextStyle(fontSize: 11, color: Colors.white70),
                 ),
                 const SizedBox(height: 4),
@@ -704,7 +704,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
             children: [
               ElevatedButton.icon(
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Tentar Novamente'),
+                label: const Text('Try Again'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.neonCyan,
                   foregroundColor: Colors.black,
@@ -719,7 +719,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
               TextButton(
                 onPressed: _resetToDeviceSelection,
                 style: TextButton.styleFrom(foregroundColor: Colors.white70),
-                child: const Text('Trocar TV'),
+                child: const Text('Change TV'),
               ),
             ],
           )
@@ -727,7 +727,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           TextButton(
             onPressed: _resetToDeviceSelection,
             style: TextButton.styleFrom(foregroundColor: Colors.white38),
-            child: const Text('Cancelar e voltar'),
+            child: const Text('Cancel and go back'),
           ),
       ],
     );

@@ -12,7 +12,7 @@ class FlipSideButton extends StatefulWidget {
     super.key,
     required this.onPressed,
     this.wide = false,
-    this.label = 'VIRE O DISCO',
+    this.label = 'FLIP THE RECORD',
   });
 
   @override

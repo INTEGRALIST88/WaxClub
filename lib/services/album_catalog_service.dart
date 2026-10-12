@@ -66,10 +66,10 @@ class AlbumCatalogService {
       try {
         final found = await discogs();
         if (found.isNotEmpty) return AlbumCatalogResult(albums: sort(found), source: 'discogs');
-        notice = 'O Discogs não encontrou discos; mostrando a base MusicBrainz.';
+        notice = 'Discogs found no records; showing MusicBrainz results.';
       } catch (e) {
         debugPrint('[AlbumCatalog] Discogs falhou: $e');
-        notice = 'Discogs indisponível agora; mostrando a base MusicBrainz.';
+        notice = 'Discogs is unavailable right now; showing MusicBrainz results.';
       }
     }
     final found = await musicBrainz();

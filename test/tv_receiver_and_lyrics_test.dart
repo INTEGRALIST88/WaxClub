@@ -56,11 +56,12 @@ void main() {
 
   group('Tela da TV', () {
     test('receptor servido pelo celular é o mesmo layout do receptor oficial do Cast', () {
-      final index = File('web_receiver/index.html').readAsStringSync();
+      // Quebras de linha normalizadas: o Git pode gravar o HTML com CRLF no Windows
+      final index = File('web_receiver/index.html').readAsStringSync().replaceAll('\r\n', '\n');
       final expected = index
           .replaceAll(RegExp(r'^[ \t]*<!-- Google Cast Application Framework.*?-->\r?\n', multiLine: true), '')
           .replaceAll(RegExp(r'^[ \t]*<script src="//www\.gstatic\.com/cast/[^"]*"></script>\r?\n', multiLine: true), '');
-      expect(TvWebReceiverHtml.build(), equals(expected),
+      expect(TvWebReceiverHtml.build().replaceAll('\r\n', '\n'), equals(expected),
           reason: 'Rode tool/sync_tv_receiver.ps1 após editar web_receiver/index.html');
       expect(TvWebReceiverHtml.build(), isNot(contains('cast_receiver_framework')));
     });

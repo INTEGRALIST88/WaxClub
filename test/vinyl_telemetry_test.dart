@@ -17,7 +17,7 @@ void main() {
         trackDurationSeconds: 180.0,
         predictedNextTrackTitle: 'Next Song',
         diagnosticMessage: 'Listening...',
-        sideEndLabel: 'Fim do lado A',
+        sideEndLabel: 'End of side A',
         isUserListening: true,
       );
 
@@ -26,7 +26,7 @@ void main() {
       expect(copy.trackDurationSeconds, 180.0);
       expect(copy.predictedNextTrackTitle, 'Next Song');
       expect(copy.diagnosticMessage, 'Listening...');
-      expect(copy.sideEndLabel, 'Fim do lado A');
+      expect(copy.sideEndLabel, 'End of side A');
       expect(copy.isUserListening, isTrue);
     });
 
@@ -35,7 +35,7 @@ void main() {
         trackDurationSeconds: 240.0,
         predictedNextTrackTitle: 'Track 2',
         diagnosticMessage: 'Calibrating',
-        sideEndLabel: 'Fim do lado B',
+        sideEndLabel: 'End of side B',
         isUserListening: true,
       );
 
@@ -57,7 +57,7 @@ void main() {
     test('updating a value while other is cleared', () {
       const telemetry = VinylTelemetry(
         trackDurationSeconds: 200.0,
-        sideEndLabel: 'Fim do lado A',
+        sideEndLabel: 'End of side A',
       );
 
       final updated = telemetry.copyWith(

@@ -172,7 +172,7 @@ class _LyricsListViewState extends State<LyricsListView> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Toque no microfone para ouvir o som do vinil e sincronizar a letra com compensação de rotação.',
+              'Tap the microphone to listen to your vinyl and sync the lyrics, with turntable speed compensation.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

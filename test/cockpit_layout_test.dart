@@ -93,8 +93,8 @@ void main() {
 
       // Estouro de layout é reportado como exceção pelo framework
       expect(tester.takeException(), isNull);
-      expect(find.text('OUVIR / RESSINCRONIZAR'), findsOneWidget);
-      expect(find.text('Desconectar'), findsOneWidget);
+      expect(find.text('LISTEN / RESYNC'), findsOneWidget);
+      expect(find.text('Disconnect'), findsOneWidget);
 
       // O bloco de ajustes tem rolagem só como proteção: o conteúdo precisa caber sem rolar
       final scrollable = tester.state<ScrollableState>(

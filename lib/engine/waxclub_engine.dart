@@ -400,7 +400,7 @@ class WaxClubEngine extends ChangeNotifier {
     _telemetry = _telemetry.copyWith(
       clearPredictedNext: true,
       nextLyricsReady: false,
-      diagnosticMessage: 'Disco escolhido: "$albumTitle"',
+      diagnosticMessage: 'Record chosen: "$albumTitle"',
     );
     notifyListeners();
     if (_castService.isConnected) {
@@ -572,8 +572,8 @@ class WaxClubEngine extends ChangeNotifier {
     _telemetry = _telemetry.copyWith(
       isPitchLocked: _isPitchLocked,
       diagnosticMessage: _isPitchLocked
-          ? 'Pitch travado em ${_speedFactor.toStringAsFixed(3)}x'
-          : 'Pitch liberado para calibração contínua',
+          ? 'Pitch locked at ${_speedFactor.toStringAsFixed(3)}x'
+          : 'Pitch unlocked for continuous calibration',
     );
     notifyListeners();
     debugPrint('[WaxClubEngine] 🔒 Trava de rotação alterada: $_isPitchLocked');
@@ -660,7 +660,7 @@ class WaxClubEngine extends ChangeNotifier {
       // ═══════════════════════════════════════════════════════════════
       _updateStatus(
         CalibrationStatus.listeningSample1,
-        'Ouvindo áudio via microfone...',
+        'Listening through the microphone...',
         isMicActive: true,
       );
 
@@ -680,11 +680,11 @@ class WaxClubEngine extends ChangeNotifier {
         final retrySeconds = PredictionTuning.robustCheckpoints.last.inSeconds;
         _updateStatus(
           CalibrationStatus.listeningSample1,
-          'Sinal sutil ou ruído: ampliando escuta acústica (${retrySeconds}s)...',
+          'Faint signal or noise: listening longer (${retrySeconds}s)...',
           isMicActive: true,
         );
         _telemetry = _telemetry.copyWith(
-          diagnosticMessage: 'Escuta adaptativa estendida (${retrySeconds}s) ativada',
+          diagnosticMessage: 'Extended listening (${retrySeconds}s) enabled',
           signalQuality: 0.70,
         );
         notifyListeners();
@@ -703,7 +703,7 @@ class WaxClubEngine extends ChangeNotifier {
 
       _updateStatus(
         CalibrationStatus.recognizingSample1,
-        'Identificando música e timestamp...',
+        'Identifying song and position...',
         isMicActive: false,
       );
       // Mock de contingência se solicitado
@@ -725,12 +725,12 @@ class WaxClubEngine extends ChangeNotifier {
         _updateStatus(
           CalibrationStatus.error,
           isNetworkIssue
-              ? 'Falha ao consultar o reconhecimento ($reason). Verifique a internet e toque no microfone novamente.'
-              : 'Música não identificada. Aproxime mais o celular do som e toque no microfone novamente.',
+              ? 'Recognition request failed ($reason). Check your internet connection and tap the microphone again.'
+              : 'Song not identified. Move the phone closer to the speakers and tap the microphone again.',
           isMicActive: false,
         );
         _telemetry = _telemetry.copyWith(
-          diagnosticMessage: 'Nenhum padrão acústico correspondente encontrado',
+          diagnosticMessage: 'No matching audio fingerprint found',
           signalQuality: 0.30,
         );
         notifyListeners();
@@ -738,7 +738,7 @@ class WaxClubEngine extends ChangeNotifier {
       }
 
       _telemetry = _telemetry.copyWith(
-        diagnosticMessage: 'Reconhecimento acústico concluído com sucesso',
+        diagnosticMessage: 'Audio recognition completed',
         signalQuality: 0.98,
       );
       notifyListeners();
@@ -755,7 +755,7 @@ class WaxClubEngine extends ChangeNotifier {
       // ═══════════════════════════════════════════════════════════════
       _updateStatus(
         CalibrationStatus.fetchingLyrics,
-        'Buscando letra e catálogo para "${recognized.title}"...',
+        'Fetching lyrics and tracklist for "${recognized.title}"...',
         isMicActive: false,
       );
 
@@ -796,7 +796,7 @@ class WaxClubEngine extends ChangeNotifier {
       final cachedDisc = _cacheService.findCachedDisc(officialAlbum ?? '', recognized.artist) ??
           _cacheService.findDiscWithTrack(recognized.title, recognized.artist);
 
-      final initialAlbum = cachedDisc?.album ?? officialAlbum ?? 'Álbum';
+      final initialAlbum = cachedDisc?.album ?? officialAlbum ?? 'Album';
       final initialCover = cachedDisc?.coverUrl ?? cachedCover;
       final initialTracklist = cachedDisc?.tracklist ?? const <TrackEntry>[];
 
@@ -865,7 +865,7 @@ class WaxClubEngine extends ChangeNotifier {
     } catch (e) {
       _updateStatus(
         CalibrationStatus.error,
-        'Erro na identificação: $e',
+        'Identification error: $e',
         isMicActive: false,
       );
     } finally {
@@ -991,11 +991,11 @@ class WaxClubEngine extends ChangeNotifier {
           predictedNextTrackTitle: result.next?.title,
           clearPredictedNext: result.next?.title == null,
           nextLyricsReady: _prefetchService.hasLyricsFor(result.next?.title ?? ''),
-          sideEndLabel: result.endOfSide ? 'Fim do lado ${result.sideLabel ?? ""}'.trim() : null,
+          sideEndLabel: result.endOfSide ? 'End of side ${result.sideLabel ?? ""}'.trim() : null,
           clearSideEndLabel: !result.endOfSide,
           diagnosticMessage: result.next != null
-              ? 'Próxima faixa provável: "${result.next!.title}"'
-              : (result.endOfSide ? 'Última faixa do lado ${result.sideLabel ?? ""}' : 'Tracklist consultada'),
+              ? 'Likely next track: "${result.next!.title}"'
+              : (result.endOfSide ? 'Last track of side ${result.sideLabel ?? ""}' : 'Tracklist loaded'),
         );
         notifyListeners();
       },
@@ -1017,7 +1017,7 @@ class WaxClubEngine extends ChangeNotifier {
         predictedNextTrackTitle: result.next?.title,
         clearPredictedNext: result.next?.title == null,
         nextLyricsReady: _prefetchService.hasLyricsFor(result.next?.title ?? ''),
-        sideEndLabel: result.endOfSide ? 'Fim do lado ${result.sideLabel ?? ""}'.trim() : null,
+        sideEndLabel: result.endOfSide ? 'End of side ${result.sideLabel ?? ""}'.trim() : null,
         clearSideEndLabel: !result.endOfSide,
       );
       notifyListeners();
@@ -1032,7 +1032,7 @@ class WaxClubEngine extends ChangeNotifier {
     _tickerTimer?.cancel();
     _updateStatus(
       isHardwareSpeedCalibrated ? CalibrationStatus.calibrated : CalibrationStatus.playingUncalibrated,
-      'Sincronizado • $_speedLabel',
+      'In sync • $_speedLabel',
     );
 
     DateTime lastNotify = DateTime.fromMillisecondsSinceEpoch(0);
@@ -1119,7 +1119,7 @@ class WaxClubEngine extends ChangeNotifier {
 
       _updateStatus(
         CalibrationStatus.resyncingCheck,
-        'Conferindo sincronia pelo microfone...',
+        'Checking sync through the microphone...',
         isMicActive: true,
       );
 
@@ -1153,7 +1153,7 @@ class WaxClubEngine extends ChangeNotifier {
         });
         _updateStatus(
           isHardwareSpeedCalibrated ? CalibrationStatus.calibrated : CalibrationStatus.playingUncalibrated,
-          'Sincronia realinhada (${driftMs >= 0 ? "+" : ""}${driftMs}ms) • $_speedLabel',
+          'Sync realigned (${driftMs >= 0 ? "+" : ""}${driftMs}ms) • $_speedLabel',
           isMicActive: false,
         );
         // A rotação pode ter mudado: recalcula o instante do fim da faixa
@@ -1161,7 +1161,7 @@ class WaxClubEngine extends ChangeNotifier {
       } else {
         _updateStatus(
           isHardwareSpeedCalibrated ? CalibrationStatus.calibrated : CalibrationStatus.playingUncalibrated,
-          'Sincronizado • $_speedLabel',
+          'In sync • $_speedLabel',
           isMicActive: false,
         );
       }
@@ -1169,7 +1169,7 @@ class WaxClubEngine extends ChangeNotifier {
       _syncCheckIndex++;
       _scheduleNextSyncCheck();
     }, onFallback: () {
-      _updateStatus(CalibrationStatus.calibrated, 'Sincronizado • $_speedLabel', isMicActive: false);
+      _updateStatus(CalibrationStatus.calibrated, 'In sync • $_speedLabel', isMicActive: false);
       _syncCheckIndex++;
       _scheduleNextSyncCheck();
     });
@@ -1307,7 +1307,7 @@ class WaxClubEngine extends ChangeNotifier {
       // Status discreto: "confirmando..." sem interromper a exibição
       _updateStatus(
         CalibrationStatus.confirmingPrediction,
-        '▶ ${predicted.title} — confirmando via microfone...',
+        '▶ ${predicted.title} — confirming through the microphone...',
         isMicActive: false,
       );
     } else {
@@ -1532,7 +1532,7 @@ class WaxClubEngine extends ChangeNotifier {
 
       _telemetry = _telemetry.copyWith(
         isMicActive: true,
-        statusMessage: 'Confirmando previsão (tentativa ${attempt + 1}/${retryDelays.length})...',
+        statusMessage: 'Confirming prediction (attempt ${attempt + 1}/${retryDelays.length})...',
       );
       notifyListeners();
 
@@ -1545,8 +1545,8 @@ class WaxClubEngine extends ChangeNotifier {
       if (outcome.silent) {
         final currentElapsed = DateTime.now().difference(startTime).inSeconds;
         _telemetry = _telemetry.copyWith(
-          diagnosticMessage: 'Silêncio detectado — aguardando áudio (${currentElapsed}s)',
-          statusMessage: 'Sem confirmação há ${currentElapsed}s...',
+          diagnosticMessage: 'Silence detected — waiting for audio (${currentElapsed}s)',
+          statusMessage: 'Not confirmed for ${currentElapsed}s...',
         );
         notifyListeners();
         continue;
@@ -1611,7 +1611,7 @@ class WaxClubEngine extends ChangeNotifier {
 
           _updateStatus(
             CalibrationStatus.calibrated,
-            '${_currentTrack!.title} — Confirmada ✓ ($_speedLabel)',
+            '${_currentTrack!.title} — Confirmed ✓ ($_speedLabel)',
             isMicActive: false,
           );
 
@@ -1678,8 +1678,8 @@ class WaxClubEngine extends ChangeNotifier {
       } else {
         final currentElapsed = DateTime.now().difference(startTime).inSeconds;
         _telemetry = _telemetry.copyWith(
-          diagnosticMessage: 'Sem confirmação há ${currentElapsed}s',
-          statusMessage: 'Sem confirmação há ${currentElapsed}s...',
+          diagnosticMessage: 'Not confirmed for ${currentElapsed}s',
+          statusMessage: 'Not confirmed for ${currentElapsed}s...',
         );
         notifyListeners();
       }
@@ -1696,7 +1696,7 @@ class WaxClubEngine extends ChangeNotifier {
     _recordService.cancelRecording();
     _updateStatus(
       CalibrationStatus.idle,
-      'Reprodução encerrada. Microfone desligado.',
+      'Playback ended. Microphone off.',
       isMicActive: false,
     );
   });
@@ -1727,7 +1727,7 @@ class WaxClubEngine extends ChangeNotifier {
 
       _updateStatus(
         CalibrationStatus.listeningNextTrack,
-        'Ouvindo próxima faixa (tentativa ${attempt + 1}/${retryDelays.length})...',
+        'Listening for the next track (attempt ${attempt + 1}/${retryDelays.length})...',
         isMicActive: true,
       );
 
@@ -1739,7 +1739,7 @@ class WaxClubEngine extends ChangeNotifier {
         final curSec = DateTime.now().difference(startTime).inSeconds;
         _updateStatus(
           CalibrationStatus.listeningNextTrack,
-          'Silêncio detectado — aguardando agulha (${curSec}s)...',
+          'Silence detected — waiting for the needle (${curSec}s)...',
           isMicActive: false,
         );
         continue;
@@ -1769,7 +1769,7 @@ class WaxClubEngine extends ChangeNotifier {
       } else {
         final curSec = DateTime.now().difference(startTime).inSeconds;
         _telemetry = _telemetry.copyWith(
-          diagnosticMessage: 'Sem identificação há ${curSec}s',
+          diagnosticMessage: 'Not identified for ${curSec}s',
         );
         notifyListeners();
       }
@@ -1780,7 +1780,7 @@ class WaxClubEngine extends ChangeNotifier {
     _recordService.cancelRecording();
     _updateStatus(
       CalibrationStatus.idle,
-      'Reprodução encerrada ou disco parado. Microfone desligado.',
+      'Playback ended or record stopped. Microphone off.',
       isMicActive: false,
     );
   });
@@ -1804,7 +1804,7 @@ class WaxClubEngine extends ChangeNotifier {
 
     _updateStatus(
       CalibrationStatus.fetchingLyrics,
-      'Buscando letra para "${nextTrack.title}"...',
+      'Fetching lyrics for "${nextTrack.title}"...',
       isMicActive: false,
     );
 
@@ -2014,8 +2014,8 @@ class WaxClubEngine extends ChangeNotifier {
     _logService.log('side_end_reached', {'side': label, 'nextSide': _nextSideLabel});
     _telemetry = _telemetry.copyWith(
       status: CalibrationStatus.waitingEndOfSide,
-      statusMessage: 'Fim do lado $label. Vire o disco para continuar.',
-      sideEndLabel: 'Fim do lado $label',
+      statusMessage: 'End of side $label. Flip the record to continue.',
+      sideEndLabel: 'End of side $label',
       isMicActive: false,
       nextLyricsReady: false,
       predictedNextTrackTitle: null,
@@ -2101,7 +2101,7 @@ class WaxClubEngine extends ChangeNotifier {
     }
     _updateStatus(
       CalibrationStatus.confirmingPrediction,
-      '▶ ${shown.title} — aguardando a agulha...',
+      '▶ ${shown.title} — waiting for the needle...',
       isMicActive: true,
     );
     _sendCastSyncWithTvLookahead();
@@ -2175,7 +2175,7 @@ class WaxClubEngine extends ChangeNotifier {
             DateTime.now().difference(musicStartedAt) >= PredictionTuning.giveUpAfter) {
           debugPrint('[WaxClubEngine] ⚠️ Novo lado sem reconhecimento; mantendo a previsão "${predicted.title}".');
           _logService.log('side_flip_unconfirmed', {'title': predicted.title});
-          _updateStatus(_telemetry.status, '▶ ${predicted.title} (não confirmada)', isMicActive: false);
+          _updateStatus(_telemetry.status, '▶ ${predicted.title} (not confirmed)', isMicActive: false);
           _syncCheckIndex = 0;
           _scheduleNextSyncCheck();
           _scheduleEndOfTrackListener();
@@ -2184,7 +2184,7 @@ class WaxClubEngine extends ChangeNotifier {
         // Agulha nunca chegou: desiste como na espera da virada
         if (musicStartedAt == null && DateTime.now().difference(waitStart) > PredictionTuning.sideFlipMaxWait) {
           _awaitingNeedle = false;
-          _updateStatus(CalibrationStatus.idle, 'Tempo de virada de disco esgotado. Toque para ouvir.', isMicActive: false);
+          _updateStatus(CalibrationStatus.idle, 'Timed out waiting for the record to be flipped. Tap to listen.', isMicActive: false);
           return;
         }
 
@@ -2210,7 +2210,7 @@ class WaxClubEngine extends ChangeNotifier {
         if (outcome.silent) {
           // Ainda sem música: continua parada em 0:00 e escutando (sem gastar consultas ao Shazam)
           if (_awaitingNeedle) {
-            _updateStatus(_telemetry.status, '▶ ${predicted.title} — aguardando a agulha...', isMicActive: false);
+            _updateStatus(_telemetry.status, '▶ ${predicted.title} — waiting for the needle...', isMicActive: false);
             _sendCastSyncWithTvLookahead();
           }
           continue;
@@ -2259,7 +2259,7 @@ class WaxClubEngine extends ChangeNotifier {
         _startPlaybackTicker();
         _updateStatus(
           CalibrationStatus.calibrated,
-          '${predicted.title} — Confirmada ✓ ($_speedLabel)',
+          '${predicted.title} — Confirmed ✓ ($_speedLabel)',
           isMicActive: false,
         );
         _prefetchService.onTrackChanged();
@@ -2285,7 +2285,7 @@ class WaxClubEngine extends ChangeNotifier {
         _sideFlipProbeTimer = null;
         _updateStatus(
           CalibrationStatus.idle,
-          'Tempo de virada de disco esgotado. Toque para ouvir.',
+          'Timed out waiting for the record to be flipped. Tap to listen.',
           isMicActive: false,
         );
         return;
@@ -2298,7 +2298,7 @@ class WaxClubEngine extends ChangeNotifier {
     if (userTriggered) {
       _updateStatus(
         CalibrationStatus.listeningNextTrack,
-        'Ouvindo novo lado do disco...',
+        'Listening to the new side...',
         isMicActive: true,
       );
     }
@@ -2342,10 +2342,10 @@ class WaxClubEngine extends ChangeNotifier {
     } else {
       debugPrint('[WaxClubEngine] 🔇 Sondagem de virada: silêncio ou não reconhecido.');
       if (userTriggered) {
-        final sideLabel = _telemetry.sideEndLabel?.replaceAll('Fim do ', '') ?? 'disco';
+        final sideLabel = _telemetry.sideEndLabel?.replaceAll('End of ', '') ?? 'the record';
         _updateStatus(
           CalibrationStatus.waitingEndOfSide,
-          'Não identificado ainda. Vire o $sideLabel ou tente novamente.',
+          'Not identified yet ($sideLabel ended). Flip the record or try again.',
           isMicActive: false,
         );
       }
@@ -2441,7 +2441,7 @@ class WaxClubEngine extends ChangeNotifier {
     _isPaused = true;
     _updateStatus(
       CalibrationStatus.paused,
-      'Sincronização pausada em ${_formatDuration(_currentPositionSeconds)}',
+      'Sync paused at ${_formatDuration(_currentPositionSeconds)}',
       isMicActive: false,
     );
   }
@@ -2454,10 +2454,10 @@ class WaxClubEngine extends ChangeNotifier {
     // Pausado aguardando a virada do disco: retoma a espera e as sondagens, sem ticker de letra
     if (_waitingEndOfSideEnteredAt != null) {
       _waitingEndOfSideEnteredAt = DateTime.now();
-      final sideLabel = _telemetry.sideEndLabel?.replaceAll('Fim do lado ', '') ?? 'A';
+      final sideLabel = _telemetry.sideEndLabel?.replaceAll('End of side ', '') ?? 'A';
       _updateStatus(
         CalibrationStatus.waitingEndOfSide,
-        'Fim do lado $sideLabel. Vire o disco para continuar.',
+        'End of side $sideLabel. Flip the record to continue.',
         isMicActive: false,
       );
       _scheduleSideFlipProbe(initial: true);
@@ -2527,7 +2527,7 @@ class WaxClubEngine extends ChangeNotifier {
     }
     _updateStatus(
       CalibrationStatus.calibrated,
-      'Rotação Calibrada: ${_speedFactor.toStringAsFixed(3)}x (+1.8%)',
+      'Speed calibrated: ${_speedFactor.toStringAsFixed(3)}x (+1.8%)',
       isMicActive: false,
     );
   }
@@ -2624,7 +2624,7 @@ class WaxClubEngine extends ChangeNotifier {
     );
     _updateStatus(
       CalibrationStatus.idle,
-      'Microfone desligado. Escuta parada.',
+      'Microphone off. Listening stopped.',
       isMicActive: false,
     );
   }

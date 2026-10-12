@@ -213,11 +213,11 @@ class _HomeScreenState extends State<HomeScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Transmissão Ativa na TV',
+                              'Casting to TV',
                               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
                             ),
                             Text(
-                              'Tela: ${_engine.castService.clientDeviceName ?? "TV Sala"}',
+                              'Screen: ${_engine.castService.clientDeviceName ?? "Living room TV"}',
                               style: const TextStyle(fontSize: 12, color: AppTheme.neonCyan),
                             ),
                           ],
@@ -230,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen>
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.link_off, color: Colors.white),
-                      label: const Text('Desconectar da TV'),
+                      label: const Text('Disconnect from TV'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
                         foregroundColor: Colors.white,
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Demonstrações Rápidas (Modo Vinil)',
+                  'Quick Demos (Vinyl Mode)',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Carregue faixas com letras sincronizadas e simulação de pitch mecânico de 1.018x para testes imediatos:',
+                  'Load tracks with synced lyrics and a simulated 1.018x turntable pitch for instant testing:',
                   style: TextStyle(fontSize: 13, color: AppTheme.textInactive),
                 ),
                 const SizedBox(height: 16),
@@ -356,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen>
               const Icon(Icons.speed, color: AppTheme.neonCyan),
               const SizedBox(width: 10),
               const Expanded(
-                child: Text('Compensação de Vinil', style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: Text('Vinyl Compensation', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
               GestureDetector(
                 onLongPress: _exportSessionLogs,
@@ -385,14 +385,14 @@ class _HomeScreenState extends State<HomeScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Como funciona o  ():\n\n'
-                  '1. Captura & Fingerprint (Amostra 1): Reconhece a faixa e o timestamp inicial via algoritmo Shazam.\n\n'
-                  '2. Calibração RPM (Amostra 2 em 15s): Mede a variação de rotação e calcula o Speed Factor exato.\n\n'
-                  '3. Re-sync no meio da música: Verifica se a sincronização está correta na metade da faixa.\n\n'
-                  '4. Modo Contínuo: Ao final da faixa, escuta automaticamente para identificar a próxima música.\n\n'
-                  '5. Prefetch Inteligente: Enquanto a música toca, pré-baixa letras das próximas faixas prováveis do álbum.\n\n'
-                  '6. Cache Local: Memoriza os discos e músicas já tocados para acelerar futuras sessões.\n\n'
-                  'Dica: toque e segure a etiqueta de versão para exportar os logs da sessão.',
+                  'How $kAppName ($kAppTagline) works:\n\n'
+                  '1. Capture & fingerprint: identifies the track and its current position using the Shazam algorithm.\n\n'
+                  '2. Speed calibration: measures your turntable\'s speed deviation and computes the exact speed factor.\n\n'
+                  '3. Mid-song re-sync: checks the lyrics are still in sync while the track plays.\n\n'
+                  '4. Continuous mode: at the end of a track, it listens automatically to identify the next song.\n\n'
+                  '5. Smart prefetch: while a song plays, it downloads lyrics for the album\'s likely next tracks.\n\n'
+                  '6. Local cache: remembers the records and songs you have played to speed up future sessions.\n\n'
+                  'Tip: long-press the version badge to export the session logs.',
                   style: TextStyle(fontSize: 13, color: Colors.white70, height: 1.4),
                 ),
               ],
@@ -417,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: AppTheme.surface,
-          content: Text('Nenhum evento registrado no log desta sessão.', style: TextStyle(color: Colors.white70)),
+          content: Text('No events logged in this session.', style: TextStyle(color: Colors.white70)),
         ),
       );
       return;
@@ -429,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen>
         const SnackBar(
           backgroundColor: AppTheme.surface,
           content: Text(
-            'Logs da sessão copiados para a área de transferência!',
+            'Session logs copied to the clipboard!',
             style: TextStyle(color: AppTheme.neonCyan),
           ),
         ),
@@ -451,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: AppTheme.surface,
-          content: Text('Nenhum disco identificado no momento.', style: TextStyle(color: Colors.white70)),
+          content: Text('No record identified yet.', style: TextStyle(color: Colors.white70)),
         ),
       );
       return;
@@ -562,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen>
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
-                                  '${tracklist.length} faixas do disco',
+                                  '${tracklist.length} tracks on this record',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: AppTheme.textInactive,
@@ -586,7 +586,7 @@ class _HomeScreenState extends State<HomeScreen>
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.swap_horiz, size: 18),
-                      label: const Text('Mudar disco'),
+                      label: const Text('Change record'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.neonCyan,
                         side: const BorderSide(color: AppTheme.carveLight),
@@ -613,13 +613,13 @@ class _HomeScreenState extends State<HomeScreen>
                                 Icon(Icons.queue_music, size: 48, color: AppTheme.textInactive),
                                 SizedBox(height: 12),
                                 Text(
-                                  'Tracklist ainda não sincronizada para este álbum.',
+                                  'No tracklist for this album yet.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: AppTheme.textInactive, fontSize: 14),
                                 ),
                                 SizedBox(height: 6),
                                 Text(
-                                  'A tracklist é obtida automaticamente via catálogo oficial (MusicBrainz) durante o prefetch.',
+                                  'The tracklist is fetched automatically from the official catalog (MusicBrainz) while the song plays.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: Colors.white38, fontSize: 12),
                                 ),
@@ -699,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.4)),
                                       ),
                                       child: const Text(
-                                        'TOCANDO',
+                                        'PLAYING',
                                         style: TextStyle(
                                           color: AppTheme.neonCyan,
                                           fontSize: 9.5,
@@ -717,7 +717,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.4)),
                                       ),
                                       child: const Text(
-                                        'A SEGUIR',
+                                        'UP NEXT',
                                         style: TextStyle(
                                           color: AppTheme.neonPurple,
                                           fontSize: 9.5,
@@ -732,7 +732,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ? Text(
                                       [
                                         if (entry.artist != null) entry.artist!,
-                                        if (entry.side != null && entry.side!.isNotEmpty) 'Lado ${entry.side}',
+                                        if (entry.side != null && entry.side!.isNotEmpty) 'Side ${entry.side}',
                                       ].join(' • '),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -776,7 +776,7 @@ class _HomeScreenState extends State<HomeScreen>
             leadingWidth: 48,
             leading: IconButton(
               icon: const Icon(Icons.info_outline, color: Colors.white70),
-              tooltip: 'Como funciona',
+              tooltip: 'How it works',
               onPressed: _showInfoDialog,
             ),
             title: Row(
@@ -853,7 +853,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       ? _engine.lockedAlbumName!
                                       : ((_engine.currentTrack?.album != null && _engine.currentTrack!.album!.isNotEmpty)
                                           ? _engine.currentTrack!.album!
-                                          : (_engine.currentTrack?.artist ?? 'Álbum Desconhecido')),
+                                          : (_engine.currentTrack?.artist ?? 'Unknown Album')),
                                   style: const TextStyle(
                                     fontSize: 12.5,
                                     color: AppTheme.neonCyan,
@@ -880,7 +880,7 @@ class _HomeScreenState extends State<HomeScreen>
                             )
                           else if (_engine.telemetry.predictedNextTrackTitle != null)
                             Text(
-                              'A seguir: ${_engine.telemetry.predictedNextTrackTitle!}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
+                              'Up next: ${_engine.telemetry.predictedNextTrackTitle!}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
                               style: const TextStyle(
                                 fontSize: 11.5,
                                 color: AppTheme.neonPurple,
@@ -953,7 +953,7 @@ class _HomeScreenState extends State<HomeScreen>
             actions: [
               IconButton(
                 icon: const Icon(Icons.playlist_play, color: AppTheme.neonCyan),
-                tooltip: 'Músicas de Demonstração',
+                tooltip: 'Demo Songs',
                 onPressed: _showDemoSongsSheet,
               ),
               _buildCastButton(),
@@ -1032,7 +1032,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           child: FloatingActionButton(
             onPressed: _onFabPressed,
-            tooltip: isListening ? 'Cancelar escuta (Desligar microfone)' : 'Ouvir som do ambiente',
+            tooltip: isListening ? 'Stop listening (microphone off)' : 'Listen to the room',
             backgroundColor: fabColor,
             child: Icon(
               isListening ? Icons.stop_rounded : Icons.mic,

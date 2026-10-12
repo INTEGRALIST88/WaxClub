@@ -211,7 +211,7 @@ void main() {
     engine.resume();
 
     expect(engine.telemetry.status, equals(CalibrationStatus.waitingEndOfSide));
-    expect(engine.telemetry.statusMessage, contains('Vire o disco'));
+    expect(engine.telemetry.statusMessage, contains('Flip the record'));
     engine.dispose();
   });
 

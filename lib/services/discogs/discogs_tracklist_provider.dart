@@ -23,10 +23,10 @@ class DiscogsTracklistProvider implements TracklistProvider {
         .timeout(const Duration(seconds: 12));
     if (res.statusCode == 429) {
       debugPrint('[Discogs] Limite de consultas atingido (429).');
-      throw Exception('Discogs: muitas consultas seguidas, tente em alguns segundos.');
+      throw Exception('Discogs: too many requests, try again in a few seconds.');
     }
     if (res.statusCode != 200) {
-      throw Exception('Discogs indisponível (HTTP ${res.statusCode}).');
+      throw Exception('Discogs unavailable (HTTP ${res.statusCode}).');
     }
     return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
   }

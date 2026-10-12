@@ -92,7 +92,7 @@ void main() {
 
     test('AudioRecordService usa sempre o microfone interno do aparelho', () {
       final recordService = AudioRecordService();
-      expect(recordService.activeDeviceName, equals('Microfone interno'));
+      expect(recordService.activeDeviceName, equals('Built-in microphone'));
     });
   });
 

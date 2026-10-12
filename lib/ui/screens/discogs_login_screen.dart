@@ -124,10 +124,10 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: Colors.white,
-        title: const Text('Entrar no Discogs', style: TextStyle(fontSize: 17)),
+        title: const Text('Sign in to Discogs', style: TextStyle(fontSize: 17)),
         actions: [
           if (_web != null)
-            IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: 'Recarregar'),
+            IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: 'Reload'),
         ],
       ),
       body: Column(
@@ -141,7 +141,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
               child: Row(
                 children: [
                   Expanded(child: Text(_error!, style: const TextStyle(color: Colors.white, fontSize: 13))),
-                  TextButton(onPressed: _start, child: const Text('Tentar de novo')),
+                  TextButton(onPressed: _start, child: const Text('Try again')),
                 ],
               ),
             ),
@@ -168,7 +168,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Entre na sua conta acima, toque em "Generate new token" e cole o token aqui:',
+              'Sign in to your account above, tap "Generate new token" and paste the token here:',
               style: TextStyle(color: Colors.white70, fontSize: 12.5),
             ),
             const SizedBox(height: 8),
@@ -180,7 +180,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
                       isDense: true,
-                      hintText: 'Token pessoal do Discogs',
+                      hintText: 'Discogs personal token',
                       hintStyle: const TextStyle(color: Colors.white38),
                       filled: true,
                       fillColor: AppTheme.surfaceLight,
@@ -196,7 +196,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                 FilledButton(
                   onPressed: _busy ? null : _savePersonalToken,
                   style: FilledButton.styleFrom(backgroundColor: AppTheme.neonCyan, foregroundColor: Colors.black),
-                  child: const Text('Salvar'),
+                  child: const Text('Save'),
                 ),
               ],
             ),

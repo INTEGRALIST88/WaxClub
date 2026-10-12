@@ -82,17 +82,17 @@ class SessionLogService {
   Future<String> tail({int lines = 200}) async {
     try {
       final file = await _getFile();
-      if (!await file.exists()) return 'Nenhum log registrado ainda.';
+      if (!await file.exists()) return 'No log entries yet.';
 
       final allLines = await file.readAsLines();
-      if (allLines.isEmpty) return 'Arquivo de log vazio.';
+      if (allLines.isEmpty) return 'Log file is empty.';
 
       final takeCount = allLines.length > lines ? lines : allLines.length;
       final tailLines = allLines.sublist(allLines.length - takeCount);
       return tailLines.join('\n');
     } catch (e) {
       debugPrint('[SessionLogService] Erro ao ler tail do log: $e');
-      return 'Erro ao recuperar logs: $e';
+      return 'Could not read logs: $e';
     }
   }
 

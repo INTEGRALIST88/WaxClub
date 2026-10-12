@@ -30,12 +30,12 @@ Future<void> showAlbumPickerSheet(
 
 /// Texto que explica a vantagem de conectar a conta Discogs (exibido ao marcar "Consultar Discogs").
 const String kDiscogsBenefitsText =
-    'O Discogs é a maior base de discos de vinil do mundo, mantida por colecionadores: cada prensagem, '
-    'edição nacional e importada, coletâneas, lados A/B, capas e listas de faixas.\n\n'
-    'Conectando a sua conta, o WaxClub consulta essa base para encontrar exatamente o disco que está '
-    'na sua vitrola — e acerta a ordem das músicas, os lados e a capa.\n\n'
-    'O acesso fica guardado com segurança só neste celular, para as próximas vezes. O app apenas '
-    'consulta o catálogo (não altera a sua coleção) e você pode desconectar quando quiser.';
+    'Discogs is the world\'s largest vinyl database, maintained by collectors: every pressing, '
+    'local and imported edition, compilation, A/B side, cover and tracklist.\n\n'
+    'With your account connected, WaxClub searches it to find the exact record that is '
+    'on your turntable — with the right track order, sides and cover.\n\n'
+    'Your sign-in is stored securely on this phone only, for next time. The app only '
+    'reads the catalog (it never changes your collection) and you can disconnect at any time.';
 
 class AlbumPickerSheet extends StatefulWidget {
   final WaxClubEngine engine;
@@ -92,7 +92,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       if (!mounted || gen != _searchGen) return;
       setState(() {
         _loading = false;
-        _error = 'Não foi possível consultar os discos agora. Verifique a internet.';
+        _error = 'Could not search for records right now. Check your internet connection.';
       });
     }
   }
@@ -118,14 +118,14 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           children: [
             Icon(Icons.album, color: AppTheme.neonCyan),
             SizedBox(width: 10),
-            Expanded(child: Text('Conectar sua conta Discogs', style: TextStyle(color: Colors.white, fontSize: 18))),
+            Expanded(child: Text('Connect your Discogs account', style: TextStyle(color: Colors.white, fontSize: 18))),
           ],
         ),
         content: const SingleChildScrollView(
           child: Text(kDiscogsBenefitsText, style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: AppTheme.neonCyan, foregroundColor: Colors.black),
@@ -142,7 +142,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
     if (connected == true) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
-        content: Text('Discogs conectado como ${auth.username ?? "você"}.', style: const TextStyle(color: Colors.white)),
+        content: Text('Discogs connected as ${auth.username ?? "you"}.', style: const TextStyle(color: Colors.white)),
       ));
       await _reload();
     } else {
@@ -162,7 +162,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       final tracks = await widget.catalog.loadTracklist(album);
       if (!mounted) return;
       if (tracks.isEmpty) {
-        _snack('Não foi possível carregar as faixas deste disco. Tente outro ou outra base.');
+        _snack('Could not load this record\'s tracks. Try another record or source.');
         return;
       }
       if (TracklistMatcher.findIndex(tracks, _title) == -1) {
@@ -170,14 +170,14 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: AppTheme.surface,
-            title: const Text('Música não encontrada no disco', style: TextStyle(color: Colors.white)),
+            title: const Text('Song not found on this record', style: TextStyle(color: Colors.white)),
             content: Text(
-              '"$_title" não aparece na lista de faixas de "${album.albumTitle}". Usar este disco mesmo assim?',
+              '"$_title" is not in the tracklist of "${album.albumTitle}". Use this record anyway?',
               style: const TextStyle(color: Colors.white70),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Voltar')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Usar')),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Back')),
+              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Use')),
             ],
           ),
         );
@@ -197,12 +197,12 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       messenger.showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
         content: Text(
-          'Disco alterado para "${album.albumTitle}". Ele passa a ser o padrão para estas músicas.',
+          'Record changed to "${album.albumTitle}". It is now the default for these songs.',
           style: const TextStyle(color: Colors.white),
         ),
       ));
     } catch (e) {
-      _snack('Não foi possível usar este disco: ${e.toString().replaceFirst('Exception: ', '')}');
+      _snack('Could not use this record: ${e.toString().replaceFirst('Exception: ', '')}');
     } finally {
       if (mounted) setState(() => _applyingId = null);
     }
@@ -239,9 +239,9 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Mudar disco',
+                    const Text('Change record',
                         style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
-                    Text('Discos com "$_title" — $_artist',
+                    Text('Records with "$_title" — $_artist',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.white60, fontSize: 12.5)),
@@ -260,15 +260,15 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           activeColor: AppTheme.neonCyan,
           checkColor: Colors.black,
           controlAffinity: ListTileControlAffinity.leading,
-          title: const Text('Consultar Discogs', style: TextStyle(color: Colors.white, fontSize: 14.5)),
+          title: const Text('Search Discogs', style: TextStyle(color: Colors.white, fontSize: 14.5)),
           subtitle: Text(
             auth.isLoggedIn
-                ? 'Conectado como ${auth.username ?? "sua conta"}'
-                : 'Base mais completa de vinis e coletâneas (requer sua conta)',
+                ? 'Connected as ${auth.username ?? "your account"}'
+                : 'The most complete vinyl and compilation database (requires your account)',
             style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
           secondary: auth.isLoggedIn
-              ? TextButton(onPressed: _logoutDiscogs, child: const Text('Sair', style: TextStyle(color: Colors.white54)))
+              ? TextButton(onPressed: _logoutDiscogs, child: const Text('Sign out', style: TextStyle(color: Colors.white54)))
               : null,
         ),
         // Busca manual
@@ -281,7 +281,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Buscar outro disco (artista, título...)',
+              hintText: 'Search for another record (artist, title...)',
               hintStyle: const TextStyle(color: Colors.white38),
               prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
               suffixIcon: _query.text.isEmpty
@@ -311,7 +311,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
               : _error != null
                   ? _message(Icons.wifi_off, _error!)
                   : albums.isEmpty
-                      ? _message(Icons.album_outlined, 'Nenhum disco encontrado. Tente buscar pelo nome do disco.')
+                      ? _message(Icons.album_outlined, 'No records found. Try searching by the record name.')
                       : ListView.separated(
                           controller: widget.scrollController,
                           itemCount: albums.length,
@@ -335,7 +335,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              r.notice ?? '${r.albums.length} discos • base $name',
+              r.notice ?? '${r.albums.length} records • $name',
               style: TextStyle(color: r.notice != null ? Colors.amber.shade200 : Colors.white38, fontSize: 11.5),
             ),
           ),
@@ -401,12 +401,12 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
               spacing: 5,
               runSpacing: 4,
               children: [
-                if (isCurrent) _chip('Atual', AppTheme.neonCyan),
-                if (a.isVinyl) _chip('Vinil', Colors.amber),
+                if (isCurrent) _chip('Current', AppTheme.neonCyan),
+                if (a.isVinyl) _chip('Vinyl', Colors.amber),
                 if (!a.isVinyl && a.format != null) _chip(a.format!.split(',').first, Colors.white54),
-                if (a.isCompilation) _chip('Coletânea', AppTheme.neonPink),
-                if (a.isLive) _chip('Ao vivo', AppTheme.neonPurple),
-                if (a.editions > 1) _chip('${a.editions} edições', Colors.white38),
+                if (a.isCompilation) _chip('Compilation', AppTheme.neonPink),
+                if (a.isLive) _chip('Live', AppTheme.neonPurple),
+                if (a.editions > 1) _chip('${a.editions} editions', Colors.white38),
               ],
             ),
           ],

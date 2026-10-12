@@ -134,7 +134,7 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 100));
 
       // Verificar que o prefetch detectou que A2 é a última do Lado A
-      expect(engine.telemetry.sideEndLabel, contains('Fim do lado A'));
+      expect(engine.telemetry.sideEndLabel, contains('End of side A'));
 
       // Chamar autoListenNextTrack (término da faixa)
       // Como é fim do lado A, o engine deve entrar em waitingEndOfSide
@@ -205,7 +205,7 @@ void main() {
       expect(engine.currentTrack?.title, equals('Faixa B1'));
       expect(engine.telemetry.status, isNot(CalibrationStatus.waitingEndOfSide));
       // B1 é a última faixa do Lado B neste disco de 2 faixas
-      expect(engine.telemetry.sideEndLabel, equals('Fim do lado B'));
+      expect(engine.telemetry.sideEndLabel, equals('End of side B'));
 
       engine.dispose();
     });

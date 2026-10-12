@@ -259,7 +259,7 @@ void main() {
       final catalog = AlbumCatalogService(auth: auth, discogs: discogs, musicBrainz: mb);
       final result = await catalog.albumsForTrack(title: 'Faixa', artist: 'Banda');
       expect(result.source, 'musicbrainz');
-      expect(result.notice, contains('Discogs indisponível'));
+      expect(result.notice, contains('Discogs is unavailable'));
       expect(result.albums.single.albumTitle, 'Disco Reserva');
       expect(result.albums.single.year, '1998');
     });
@@ -359,14 +359,14 @@ void main() {
       await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 100)));
       await tester.pump();
 
-      expect(find.text('Consultar Discogs'), findsOneWidget);
+      expect(find.text('Search Discogs'), findsOneWidget);
       await tester.tap(find.byType(Checkbox));
       await tester.pumpAndSettle();
-      expect(find.text('Conectar sua conta Discogs'), findsOneWidget);
-      expect(find.textContaining('maior base de discos de vinil'), findsOneWidget);
+      expect(find.text('Connect your Discogs account'), findsOneWidget);
+      expect(find.textContaining('largest vinyl database'), findsOneWidget);
       expect(find.text('OK'), findsOneWidget);
 
-      await tester.tap(find.text('Cancelar'));
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(auth.isEnabled, isFalse);
 

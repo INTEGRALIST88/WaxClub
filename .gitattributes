@@ -1,0 +1,2 @@
+# Páginas da TV sempre com LF (o app embute o mesmo HTML e compara)
+*.html text eol=lf

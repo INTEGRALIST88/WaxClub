@@ -185,12 +185,12 @@ class DiscogsAuthService extends ChangeNotifier {
       },
     ).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
-      throw Exception('Discogs recusou o pedido de login (HTTP ${res.statusCode}).');
+      throw Exception('Discogs rejected the sign-in request (HTTP ${res.statusCode}).');
     }
     final q = Uri.splitQueryString(res.body);
     final token = q['oauth_token'];
     final secret = q['oauth_token_secret'];
-    if (token == null || secret == null) throw Exception('Resposta inesperada do Discogs.');
+    if (token == null || secret == null) throw Exception('Unexpected response from Discogs.');
     return DiscogsRequestToken(token, secret);
   }
 
@@ -214,19 +214,19 @@ class DiscogsAuthService extends ChangeNotifier {
       },
     ).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
-      throw Exception('Discogs não confirmou o login (HTTP ${res.statusCode}).');
+      throw Exception('Discogs did not confirm the sign-in (HTTP ${res.statusCode}).');
     }
     final q = Uri.splitQueryString(res.body);
     final token = q['oauth_token'];
     final secret = q['oauth_token_secret'];
-    if (token == null || secret == null) throw Exception('Resposta inesperada do Discogs.');
+    if (token == null || secret == null) throw Exception('Unexpected response from Discogs.');
     await _saveVerified(DiscogsCredentials(oauthToken: token, oauthTokenSecret: secret));
   }
 
   /// Alternativa sem chaves do app: token pessoal gerado pelo usuário em discogs.com/settings/developers.
   Future<void> loginWithPersonalToken(String token) async {
     final t = token.trim();
-    if (t.isEmpty) throw Exception('Cole o token gerado na sua conta Discogs.');
+    if (t.isEmpty) throw Exception('Paste the token generated in your Discogs account.');
     await _saveVerified(DiscogsCredentials(personalToken: t));
   }
 
@@ -247,8 +247,8 @@ class DiscogsAuthService extends ChangeNotifier {
       Uri.parse('https://api.discogs.com/oauth/identity'),
       headers: {...authHeadersFor(creds)},
     ).timeout(const Duration(seconds: 15));
-    if (res.statusCode == 401) throw Exception('Credenciais do Discogs inválidas.');
-    if (res.statusCode != 200) throw Exception('Discogs indisponível (HTTP ${res.statusCode}).');
+    if (res.statusCode == 401) throw Exception('Invalid Discogs credentials.');
+    if (res.statusCode != 200) throw Exception('Discogs unavailable (HTTP ${res.statusCode}).');
     final data = jsonDecode(res.body) as Map<String, dynamic>;
     return (data['username'] as String?) ?? 'Discogs';
   }

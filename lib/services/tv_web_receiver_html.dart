@@ -8,7 +8,7 @@ class TvWebReceiverHtml {
   static String build() => _html;
 
   static const String _html = r'''<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -423,16 +423,16 @@ class TvWebReceiverHtml {
     <aside class="meta">
       <div id="title" class="title">WaxClub</div>
       <div id="artist" class="artist">Vinyl Social Club</div>
-      <div id="album" class="album">Pronto para tocar</div>
-      <div id="next" class="next"><div class="caption">A seguir</div><div id="nextName" class="name"></div></div>
-      <div id="pill" class="pill"><span class="dot"></span><span id="pillText">Ouvindo</span></div>
+      <div id="album" class="album">Ready to play</div>
+      <div id="next" class="next"><div class="caption">Up next</div><div id="nextName" class="name"></div></div>
+      <div id="pill" class="pill"><span class="dot"></span><span id="pillText">Listening</span></div>
     </aside>
 
     <main id="lyrics" class="lyrics">
       <div id="lines" class="lines"></div>
       <div id="placeholder" class="placeholder visible">
-        <div class="big">Coloque a agulha no disco</div>
-        <div class="small">Toque no microfone do celular para sincronizar a letra</div>
+        <div class="big">Drop the needle on the record</div>
+        <div class="small">Tap the microphone on your phone to sync the lyrics</div>
       </div>
     </main>
 
@@ -460,7 +460,7 @@ class TvWebReceiverHtml {
   <div id="notice" class="notice"></div>
 
   <div id="speed" class="speed">
-    <div class="caption">Rotação medida</div>
+    <div class="caption">Measured speed</div>
     <div id="speedValue" class="value">1.000×</div>
     <div id="speedDetail" class="detail"></div>
   </div>
@@ -710,7 +710,7 @@ class TvWebReceiverHtml {
 
     function renderTrack(track, lines) {
       track = track || {};
-      const title = track.title || 'Música identificada';
+      const title = track.title || 'Song identified';
       const artistKey = norm(track.artist);
       const albumKey = norm(track.album);
       const isNewTrack = lastTrackTitle !== null && norm(title) !== norm(lastTrackTitle);
@@ -766,7 +766,7 @@ class TvWebReceiverHtml {
       const placeholder = el('placeholder');
       if (lyrics.length === 0) {
         placeholder.querySelector('.big').textContent = '♪ Instrumental';
-        placeholder.querySelector('.small').textContent = 'Letra não encontrada para esta faixa';
+        placeholder.querySelector('.small').textContent = 'No lyrics found for this track';
         placeholder.classList.add('visible');
       } else {
         placeholder.classList.remove('visible');
@@ -847,16 +847,16 @@ class TvWebReceiverHtml {
       const status = data.status || '';
       const pill = el('pill');
       if (data.isMicActive) {
-        el('pillText').textContent = 'Ouvindo o disco';
+        el('pillText').textContent = 'Listening to the record';
         pill.classList.add('visible');
       } else {
         pill.classList.remove('visible');
       }
       // Disco virado com a 1ª faixa do novo lado já na tela: letra parada em 0:00 até a agulha tocar
       document.body.classList.toggle('awaiting-needle', !!data.awaitingNeedle);
-      showNotice(status === 'waitingEndOfSide' ? (data.statusMessage || 'Vire o disco')
-        : data.awaitingNeedle ? 'Aguardando a agulha'
-        : (paused ? 'Pausado' : ''));
+      showNotice(status === 'waitingEndOfSide' ? (data.statusMessage || 'Flip the record')
+        : data.awaitingNeedle ? 'Waiting for the needle'
+        : (paused ? 'Paused' : ''));
     }
 
     function showNotice(text) {
@@ -890,7 +890,7 @@ class TvWebReceiverHtml {
       el('lines').textContent = '';
       el('title').textContent = 'WaxClub';
       el('artist').textContent = 'Vinyl Social Club';
-      el('album').textContent = 'Pronto para tocar';
+      el('album').textContent = 'Ready to play';
       el('dur').textContent = '';
       el('elapsed').textContent = '0:00';
       el('next').classList.remove('visible');
@@ -901,8 +901,8 @@ class TvWebReceiverHtml {
       el('pill').classList.remove('visible');
       showNotice('');
       const placeholder = el('placeholder');
-      placeholder.querySelector('.big').textContent = 'Coloque a agulha no disco';
-      placeholder.querySelector('.small').textContent = 'Toque no microfone do celular para sincronizar a letra';
+      placeholder.querySelector('.big').textContent = 'Drop the needle on the record';
+      placeholder.querySelector('.small').textContent = 'Tap the microphone on your phone to sync the lyrics';
       placeholder.classList.add('visible');
     }
 
@@ -1002,19 +1002,19 @@ class TvWebReceiverHtml {
     // ─── MODO DEMONSTRAÇÃO (?demo): visualizar o layout sem o celular ───
     if (isDemo) {
       const demoLines = [
-        'Esta é uma letra de demonstração', 'para conferir o layout da TV', '',
-        'Três linhas ficam em destaque', 'a anterior, a atual e a próxima',
-        'todas com o mesmo tamanho', 'assim um pequeno atraso no tempo', 'quase não se percebe', '',
-        'As outras linhas diminuem', 'e escurecem conforme se afastam',
-        'O texto fica sempre centralizado', 'e a agulha sobe pelo disco', 'da borda até o selo girando', '',
-        'Fim da demonstração'
+        'These are demo lyrics', 'to preview the TV layout', '',
+        'Three lines are highlighted', 'the previous, current and next',
+        'all the same size', 'so a small timing offset', 'is hardly noticeable', '',
+        'The other lines shrink', 'and fade as they move away',
+        'The text is always centered', 'and the needle moves across the record', 'from the edge to the spinning label', '',
+        'End of demo'
       ];
       renderTrack(
-        { title: 'Faixa de Demonstração', artist: 'WaxClub', album: 'Layout da TV', durationMs: 198000, coverUrl: null, side: 'A' },
+        { title: 'Demo Track', artist: 'WaxClub', album: 'TV Layout', durationMs: 198000, coverUrl: null, side: 'A' },
         demoLines.map((text, i) => ({ ms: 3000 + i * 4000, text }))
       );
       let demoPos = 0;
-      const demoSync = (p) => ({ position: p, speedFactor: 1.012, speedStdErr: 0.002, isPaused: false, status: 'calibrated', nextTitle: 'Próxima Faixa da Demonstração' });
+      const demoSync = (p) => ({ position: p, speedFactor: 1.012, speedStdErr: 0.002, isPaused: false, status: 'calibrated', nextTitle: 'Next Demo Track' });
       updateSync(demoSync(demoPos));
       setInterval(() => {
         demoPos += 0.5;

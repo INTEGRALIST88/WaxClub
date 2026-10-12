@@ -89,7 +89,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
           children: [
             _buildTvStrip(compact),
             SizedBox(height: gap),
-            if (!compact) _groupTitle('Tocando agora'),
+            if (!compact) _groupTitle('Now playing'),
             _buildNowPlaying(engine.currentTrack, telemetry, compact),
             SizedBox(height: gap),
             if (!compact) _groupTitle('Ajustes'),
@@ -144,7 +144,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  reconnecting ? 'Reconectando à TV...' : 'Letra sendo exibida na TV',
+                  reconnecting ? 'Reconnecting to the TV...' : 'Lyrics showing on the TV',
                   style: TextStyle(fontSize: 11, color: reconnecting ? _amber : Colors.white54),
                 ),
               ],
@@ -159,7 +159,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
               minimumSize: const Size(0, 32),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Desconectar', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
+            child: const Text('Disconnect', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -212,8 +212,8 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                         ),
                       ),
                       if (side != null && side.isNotEmpty)
-                        Positioned(left: 6, bottom: 6, child: _coverBadge('LADO ${side.toUpperCase()}', bold: true)),
-                      Positioned(right: 6, top: 6, child: _coverBadge('faixas ▸')),
+                        Positioned(left: 6, bottom: 6, child: _coverBadge('SIDE ${side.toUpperCase()}', bold: true)),
+                      Positioned(right: 6, top: 6, child: _coverBadge('tracks ▸')),
                     ],
                   ),
                 ),
@@ -224,14 +224,14 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      track?.title ?? 'Nenhuma música identificada',
+                      track?.title ?? 'No song identified',
                       style: TextStyle(fontSize: compact ? 16 : 18, fontWeight: FontWeight.w900, color: Colors.white, height: 1.15),
                       maxLines: compact ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      track?.artist ?? 'Toque em Ouvir com o disco tocando',
+                      track?.artist ?? 'Tap Listen while the record plays',
                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.neonCyan),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -241,7 +241,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                       Text.rich(
                         TextSpan(children: [
                           TextSpan(text: album, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-                          if (number != null) TextSpan(text: ' · faixa ${number.$1} de ${number.$2}'),
+                          if (number != null) TextSpan(text: ' · track ${number.$1} of ${number.$2}'),
                         ]),
                         style: const TextStyle(fontSize: 12, color: Colors.white54),
                         maxLines: 2,
@@ -315,10 +315,10 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     if (!sideEnd && (next == null || next.isEmpty)) return const SizedBox.shrink();
 
     final color = sideEnd ? _amber : AppTheme.neonPurple;
-    final label = sideEnd ? telemetry.sideEndLabel! : 'A seguir';
+    final label = sideEnd ? telemetry.sideEndLabel! : 'Up next';
     final afterFlip = widget.engine.afterFlipTitle;
     final song = sideEnd
-        ? (afterFlip != null ? 'Próximo lado começa com: $afterFlip' : 'Vire o disco para continuar')
+        ? (afterFlip != null ? 'Next side starts with: $afterFlip' : 'Flip the record to continue')
         : next!;
 
     return Container(
@@ -343,7 +343,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
             ),
           ),
           if (!sideEnd && telemetry.nextLyricsReady)
-            const Text('⚡ letra pronta', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+            const Text('⚡ lyrics ready', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
         ],
       ),
     );
@@ -398,7 +398,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                     style: TextStyle(fontSize: compact ? 25 : 29, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
                   ),
                   Text(
-                    '${factor.toStringAsFixed(3)}× · ${samples > 0 ? 'medida em $samples escutas' : (engine.isHardwareSpeedCalibrated ? 'rotação conhecida' : 'calibrando...')}',
+                    '${factor.toStringAsFixed(3)}× · ${samples > 0 ? 'measured over $samples listens' : (engine.isHardwareSpeedCalibrated ? 'known speed' : 'calibrating...')}',
                     style: const TextStyle(fontSize: 11.5, color: Colors.white54),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -421,7 +421,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
         _divider(compact),
 
         // Ajuste fino da rotação
-        _subHead('Ajuste fino da rotação', '${_manualPitch >= 0 ? '+' : ''}${(_manualPitch * 100).toStringAsFixed(1)}%'),
+        _subHead('Fine speed adjustment', '${_manualPitch >= 0 ? '+' : ''}${(_manualPitch * 100).toStringAsFixed(1)}%'),
         Row(
           children: [
             _stepButton('−0.1', () => _setPitch(_manualPitch - 0.001), compact),
@@ -453,12 +453,12 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
         SizedBox(height: compact ? 4 : 6),
         Row(
           children: [
-            Expanded(child: _pillButton(icon: Icons.restart_alt_rounded, label: 'Zerar', onTap: () => _setPitch(0.0), compact: compact)),
+            Expanded(child: _pillButton(icon: Icons.restart_alt_rounded, label: 'Reset', onTap: () => _setPitch(0.0), compact: compact)),
             const SizedBox(width: 8),
             Expanded(
               child: _pillButton(
                 icon: telemetry.isPitchLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
-                label: telemetry.isPitchLocked ? 'Rotação travada' : 'Travar rotação',
+                label: telemetry.isPitchLocked ? 'Speed locked' : 'Lock speed',
                 active: telemetry.isPitchLocked,
                 onTap: engine.togglePitchLock,
                 compact: compact,
@@ -469,7 +469,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
         _divider(compact),
 
         // Sincronia da letra (nudge)
-        _subHead('Sincronia da letra', 'se a letra adiantar ou atrasar', dimValue: true),
+        _subHead('Lyrics sync', 'if the lyrics run early or late', dimValue: true),
         Row(
           children: [
             Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)),
@@ -477,7 +477,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
               width: 76,
               child: Column(
                 children: [
-                  const Text('ajuste', style: TextStyle(fontSize: 11, color: Colors.white54)),
+                  const Text('offset', style: TextStyle(fontSize: 11, color: Colors.white54)),
                   Text(
                     '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s',
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
@@ -608,11 +608,11 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
 
     String hint;
     if (awaitingFlip) {
-      hint = '${telemetry.sideEndLabel ?? 'Fim do lado'} · toque depois de virar o disco';
+      hint = '${telemetry.sideEndLabel ?? 'End of side'} · tap after flipping the record';
     } else if (isListening) {
-      hint = 'Ouvindo o disco pelo microfone...';
+      hint = 'Listening to the record...';
     } else if (telemetry.countdownSeconds > 0 && engine.currentTrack != null) {
-      hint = 'Sincronizado pelo microfone · próxima checagem em ${telemetry.countdownSeconds}s';
+      hint = 'In sync · next check in ${telemetry.countdownSeconds}s';
     } else {
       hint = telemetry.statusMessage;
     }
@@ -632,7 +632,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
               onPressed: () => isListening ? engine.stop() : engine.startListening(),
               icon: Icon(isListening ? Icons.stop_rounded : Icons.mic_rounded, size: 24),
               label: Text(
-                isListening ? 'OUVINDO... (TOQUE P/ PARAR)' : 'OUVIR / RESSINCRONIZAR',
+                isListening ? 'LISTENING... (TAP TO STOP)' : 'LISTEN / RESYNC',
                 style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, letterSpacing: 0.8),
               ),
             ),

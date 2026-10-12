@@ -144,7 +144,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                           border: Border.all(color: Colors.amber.withOpacity(0.4)),
                         ),
                         child: const Text(
-                          'PAUSADO',
+                          'PAUSED',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -163,8 +163,8 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                         ),
                         child: Text(
                           telemetry.sideEndLabel != null
-                              ? '🔄 ${telemetry.sideEndLabel!.toUpperCase()} — VIRE O DISCO'
-                              : '🔄 FIM DO LADO — VIRE O DISCO',
+                              ? '🔄 ${telemetry.sideEndLabel!.toUpperCase()} — FLIP THE RECORD'
+                              : '🔄 END OF SIDE — FLIP THE RECORD',
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -184,7 +184,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                           border: Border.all(color: AppTheme.neonPurple.withOpacity(0.4)),
                         ),
                         child: const Text(
-                          '🎵 PRÓXIMA FAIXA',
+                          '🎵 NEXT TRACK',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                           border: Border.all(color: Colors.white.withOpacity(0.15)),
                         ),
                         child: const Text(
-                          '⟳ confirmando...',
+                          '⟳ confirming...',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
@@ -241,7 +241,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                         const SizedBox(height: 2),
                         if (telemetry.countdownSeconds > 0)
                           Text(
-                            'Calibrando em ${telemetry.countdownSeconds}s',
+                            'Calibrating in ${telemetry.countdownSeconds}s',
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -253,10 +253,10 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                         else
                           Text(
                             telemetry.isMicActive
-                                ? 'Compensando rotação do vinil'
+                                ? 'Compensating turntable speed'
                                 : (telemetry.status == CalibrationStatus.calibrated
-                                    ? 'Rotação calibrada'
-                                    : 'Aguardando áudio da vitrola'),
+                                    ? 'Speed calibrated'
+                                    : 'Waiting for turntable audio'),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppTheme.textInactive,
@@ -296,7 +296,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                         color: Colors.redAccent,
                         size: 24,
                       ),
-                      tooltip: 'Parar escuta e encerrar',
+                      tooltip: 'Stop listening',
                       onPressed: widget.onStop,
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.redAccent.withValues(alpha: 0.12),
@@ -366,7 +366,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Ajustar tempo:',
+                        'Adjust timing:',
                         style: TextStyle(fontSize: 11, color: AppTheme.textInactive),
                       ),
                       const SizedBox(width: 8),
@@ -468,7 +468,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
           ),
           const SizedBox(width: 5),
           Text(
-            isMicActive ? 'MICROFONE OUVINDO' : 'MICROFONE DESLIGADO',
+            isMicActive ? 'MICROPHONE LISTENING' : 'MICROPHONE OFF',
             style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.bold,

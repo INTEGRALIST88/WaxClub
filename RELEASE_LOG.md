@@ -16,6 +16,13 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
 * **Build com projeto em H:** `kotlin.incremental=false` em `android/gradle.properties`. O cache incremental do Kotlin falha quando o projeto e o cache do Flutter estão em discos diferentes.
 * **Build:** o Gradle passa a ter 4 GB de memória (`android/gradle.properties`). Com o padrão de 512 MB, o empacotamento do APK falhava de vez em quando por falta de memória e deixava despejos `.hprof` de centenas de MB na pasta `android`.
 
+### 🌎 App em inglês
+* Todos os textos que o usuário vê passaram para o **inglês**: menus, botões, painel da transmissão, rodapé, mensagens de status do reconhecimento e da sincronia, diálogos (Change record, Discogs, Cast to TV), mensagem de permissão do microfone, "How it works" e a **tela da TV** ("Up next", "Ready to play", "Waiting for the needle", demonstração). O rótulo de fim de lado passou a "End of side A", e as comparações do motor e do painel acompanharam.
+* Comentários do código e logs internos continuam em português.
+* Corrigido o título do "How it works", que tinha ficado vazio ("Como funciona o  ()") na troca de nome.
+* Os HTML da TV ficam sempre com quebra de linha LF (`.gitattributes`): o Git no Windows gravava CRLF e quebrava a comparação entre a página publicada e a cópia embutida no app.
+* Scripts da tradução: `tool/translate_ui_en.js`, `translate_ui_en_2.js` e `translate_tv_en.js`; levantamento dos textos: `tool/list_ui_strings.js`.
+
 ### 🏷️ Nomes dos discos de trilha corrigidos
 * 43 páginas do site de origem usam como título a posição e a vendagem do ranking de trilhas mais vendidas — o disco aparecia como "7. O Outro internacional: 1.164.299 cópias". Agora: **"O Outro Internacional"**.
 * Todos os nomes foram padronizados sem a palavra "trilha": "Babilônia trilha sonora volume 1" → "Babilônia Volume 1", "Véu de Noiva trilha sonora" → "Véu de Noiva", "Sete Vidas trilha instrumental" → "Sete Vidas Instrumental". O ano entre parênteses só fica quando dois discos teriam o mesmo nome (remakes).
