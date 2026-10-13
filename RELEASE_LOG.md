@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.17] — 13/10/2026 (Só Inglês + Notícias do Artista)
+
+* **Só inglês no app:** o plugin de idioma **English (L1) vem pré-instalado** e fornece todos os menus e textos. Português e Español saíram do app; os outros idiomas serão plugins no **site oficial do WaxClub** (aviso na Jukebox).
+* **Notícias do artista em inglês** junto das curiosidades: manchetes dos últimos 30 dias que citam o artista, pelo RSS público do Google News (grátis, sem chave), com veículo e data ("Latest news", no começo de cada lado). (`NewsService`.)
+* Plugin de IA **A2 "AI translation"**: tradução das notícias e curiosidades (sempre em inglês), que virá pelo site.
+* Pendências anotadas (deixadas para depois pelo usuário): fonte de datas de shows (chave da Ticketmaster Discovery ou app_id da Bandsintown) e a cidade do usuário no app.
+
+---
 ## [v1.3.16] — 13/10/2026 (Curiosidades Animadas do Disco e das Faixas)
 
 * **Curiosidades no lugar da letra:** quando a música não tem letra (sem plugin de letra ou letra não encontrada), aparecem fatos curtos — do **disco** no começo de cada lado e da **faixa** distribuídos ao longo da música. Cada um entra subindo, fica e sai esmaecendo (mesma curva da letra da TV), com "About the record" / "About this track" e a fonte.

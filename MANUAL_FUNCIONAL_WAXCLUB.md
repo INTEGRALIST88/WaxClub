@@ -273,6 +273,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
+| **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |
 | **Curiosidades do disco e das faixas, animadas, quando não há letra (com fonte, em inglês)** | `CuriositiesService` (Wikipedia) + `CuriositiesView`; plugin D2 embutido | ✅ Conforme no celular (v1.3.16); TV e notas do Discogs pendentes |
 | **Modo Manual: verificação no catálogo após o Identify, ▶ cromado, início pelo microfone (só volume), trocas pela minutagem, virar o lado, fim do disco** | `RecognitionCatalogService`, bloco Modo Manual do motor, `ChromePlayButton`, `ManualStartSheet` | ✅ Conforme (v1.3.15) |
 | **Chave MANUAL (botão ligado/desligado) junto dos outros; começa desligada e desliga no fim do disco (último lado)** | `isManualMode`/`setManualMode`, `isLastSideOfRecord` em `_enterWaitingEndOfSide` | ✅ Conforme (v1.3.14) |
@@ -412,6 +414,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 * Separar repositórios: código privado e página pública da TV (GitHub Pages).
 
 ### 6.3 Pendências do lado do usuário
+* Datas de shows pela cidade do usuário: criar a chave da Ticketmaster Discovery API e/ou pedir o app_id da Bandsintown; pedir a cidade no app até a conta existir (deixado para depois em 13/10/2026).
 * Publicar no GitHub (Push origin no GitHub Desktop).
 * Atualizar a URL do receptor no console do Google Cast para `https://integralist88.github.io/WaxClub/`.
 * App da Fire TV (`H:\Github\WaxClubClient`): renomear para WaxClub, anunciar `_waxclub-tv._tcp` e sincronizar o receptor.
