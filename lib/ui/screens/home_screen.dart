@@ -23,6 +23,9 @@ import '../../services/collection_service.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
 import 'record_scan_screen.dart';
+import 'plugin_jukebox_screen.dart';
+import '../widgets/wood_tile_button.dart';
+import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import 'help_screen.dart';
 
@@ -34,8 +37,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final WaxClubEngine _engine;
   late final AnimationController _pulseController;
   Timer? _haloReminderTimer;
@@ -49,6 +51,15 @@ class _HomeScreenState extends State<HomeScreen>
     wikipedia: WikipediaTracklistService(),
   );
   bool _albumCatalogCreated = false;
+
+  /// Chaves dos botões de madeira, para os nomes da apresentação na abertura.
+  final GlobalKey _cameraKey = GlobalKey();
+  final GlobalKey _collectionKey = GlobalKey();
+  final GlobalKey _pluginsKey = GlobalKey();
+  final GlobalKey _helpKey = GlobalKey();
+
+  /// Plugins instalados e ligados (jukebox).
+  final PluginStore _plugins = PluginStore();
 
   /// Coleção do usuário no Discogs (adicionar discos reconhecidos pela câmera).
   late final DiscogsCollectionService _discogsCollection = DiscogsCollectionService(auth: _discogsAuth);
@@ -160,9 +171,7 @@ class _HomeScreenState extends State<HomeScreen>
         final glowValue = shouldGlow ? _pulseController.value : 0.0;
         final borderColor = isConnected
             ? AppTheme.cream
-            : (shouldGlow
-                ? AppTheme.cream.withValues(alpha: 0.5 + (glowValue * 0.5))
-                : Colors.white38);
+            : (shouldGlow ? AppTheme.cream.withValues(alpha: 0.5 + (glowValue * 0.5)) : Colors.white38);
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
@@ -348,11 +357,17 @@ class _HomeScreenState extends State<HomeScreen>
     ));
   }
 
+  /// Jukebox de plugins (idiomas, exibição, IA).
+  void _openPlugins() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => PluginJukeboxScreen(store: _plugins)));
+  }
+
   /// Adiciona (ou retira) da coleção o disco que está tocando.
   Future<void> _toggleCurrentInCollection() async {
     final track = _engine.currentTrack;
     if (track == null) return;
-    final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? track.title);
+    final album =
+        (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? track.title);
     final artist = _engine.lockedAlbumArtist ?? track.artist;
     final messenger = ScaffoldMessenger.of(context);
     if (_collection.contains(album, artist)) {
@@ -466,9 +481,7 @@ class _HomeScreenState extends State<HomeScreen>
       builder: (ctx) {
         final albumName = (_engine.lockedAlbumName != null && _engine.lockedAlbumName!.isNotEmpty)
             ? _engine.lockedAlbumName!
-            : ((current.album != null && current.album!.isNotEmpty)
-                ? current.album!
-                : current.title);
+            : ((current.album != null && current.album!.isNotEmpty) ? current.album! : current.title);
         final artistName = _engine.lockedAlbumArtist ?? current.artist;
 
         return DraggableScrollableSheet(
@@ -574,7 +587,8 @@ class _HomeScreenState extends State<HomeScreen>
                             final albumKey = (_engine.lockedAlbumName?.isNotEmpty ?? false)
                                 ? _engine.lockedAlbumName!
                                 : (current.album ?? current.title);
-                            final inCollection = _collection.contains(albumKey, _engine.lockedAlbumArtist ?? current.artist);
+                            final inCollection =
+                                _collection.contains(albumKey, _engine.lockedAlbumArtist ?? current.artist);
                             return FilledButton.icon(
                               icon: Icon(inCollection ? Icons.check_circle : Icons.library_add, size: 18),
                               label: Text(inCollection ? l10n.inCollection : l10n.addToCollection),
@@ -593,19 +607,19 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.swap_horiz, size: 18),
-                      label: Text(l10n.changeRecord),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.cream,
-                        side: const BorderSide(color: AppTheme.carveLight),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _openAlbumPicker();
-                      },
-                    ),
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.swap_horiz, size: 18),
+                          label: Text(l10n.changeRecord),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.cream,
+                            side: const BorderSide(color: AppTheme.carveLight),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            _openAlbumPicker();
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -659,9 +673,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 ? '${(entry.lengthMs! ~/ 60000)}:${((entry.lengthMs! % 60000) ~/ 1000).toString().padLeft(2, '0')}'
                                 : null;
 
-                            final posLabel = entry.number != null && entry.number!.isNotEmpty
-                                ? entry.number!
-                                : '${entry.position}';
+                            final posLabel =
+                                entry.number != null && entry.number!.isNotEmpty ? entry.number! : '${entry.position}';
 
                             return ListTile(
                               dense: true,
@@ -690,9 +703,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     child: Text(
                                       entry.title,
                                       style: TextStyle(
-                                        color: isCurrent
-                                            ? AppTheme.cream
-                                            : (isNext ? Colors.white : Colors.white70),
+                                        color: isCurrent ? AppTheme.cream : (isNext ? Colors.white : Colors.white70),
                                         fontWeight: (isCurrent || isNext) ? FontWeight.bold : FontWeight.normal,
                                         fontSize: 14,
                                       ),
@@ -777,8 +788,7 @@ class _HomeScreenState extends State<HomeScreen>
       animation: _engine,
       builder: (context, _) {
         final telemetry = _engine.telemetry;
-        final isListening = telemetry.isUserListening ||
-            telemetry.status == CalibrationStatus.listeningSample1;
+        final isListening = telemetry.isUserListening || telemetry.status == CalibrationStatus.listeningSample1;
         final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
         // Microfone cromado no centro da barra inferior
         final micSize = isLandscape ? 50.0 : 62.0;
@@ -788,268 +798,318 @@ class _HomeScreenState extends State<HomeScreen>
             ? null
             : telemetry.statusMessage;
 
-        return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            toolbarHeight: 74,
-            flexibleSpace: const _WoodTopPanel(),
-            leadingWidth: 48,
-            leading: IconButton(
-              icon: const Icon(Icons.help_outline, color: AppTheme.cream),
-              tooltip: l10n.help,
-              onPressed: _openHelp,
-            ),
-            title: Row(
-              children: [
-                GestureDetector(
-                  onTap: _showAlbumTracklistModal,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-                    child: ((_engine.lockedAlbumCoverUrl ?? _engine.currentTrack?.coverUrl) != null &&
-                            (_engine.lockedAlbumCoverUrl ?? _engine.currentTrack?.coverUrl)!.isNotEmpty)
-                        ? ClipRRect(
-                            key: ValueKey(_engine.lockedAlbumCoverUrl ?? _engine.currentTrack!.coverUrl),
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              (_engine.lockedAlbumCoverUrl ?? _engine.currentTrack!.coverUrl)!,
-                              width: 42,
-                              height: 42,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset(
-                                'assets/icon/app_icon.png',
-                                width: 42,
-                                height: 42,
-                                fit: BoxFit.cover,
+        // Tela estreita (celular em pé): sem o texto ao lado do logo, só os botões
+        final compactBar = MediaQuery.sizeOf(context).width < 600;
+        final logoSize = compactBar ? 46.0 : 50.0;
+        final tileSize = compactBar ? 36.0 : 40.0;
+
+        return Stack(
+          children: [
+            Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: AppBar(
+                toolbarHeight: 74,
+                flexibleSpace: const _WoodTopPanel(),
+                // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
+                leadingWidth: logoSize + 22,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 14),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: _showAlbumTracklistModal,
+                      onLongPress: _exportSessionLogs,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                        child: ((_engine.lockedAlbumCoverUrl ?? _engine.currentTrack?.coverUrl) != null &&
+                                (_engine.lockedAlbumCoverUrl ?? _engine.currentTrack?.coverUrl)!.isNotEmpty)
+                            ? ClipRRect(
+                                key: ValueKey(_engine.lockedAlbumCoverUrl ?? _engine.currentTrack!.coverUrl),
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  (_engine.lockedAlbumCoverUrl ?? _engine.currentTrack!.coverUrl)!,
+                                  width: logoSize,
+                                  height: logoSize,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Image.asset(
+                                    'assets/icon/app_icon.png',
+                                    width: logoSize,
+                                    height: logoSize,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              )
+                            : ClipRRect(
+                                key: const ValueKey('default_logo'), // l10n-ignore
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  'assets/icon/app_icon.png',
+                                  width: logoSize,
+                                  height: logoSize,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.album, color: AppTheme.cream, size: 40),
+                                ),
                               ),
-                            ),
-                          )
-                        : ClipRRect(
-                            key: const ValueKey('default_logo'), // l10n-ignore
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              'assets/icon/app_icon.png',
-                              width: 42,
-                              height: 42,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.album, color: AppTheme.cream, size: 40),
-                            ),
-                          ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _engine.currentTrack != null ? _showAlbumTracklistModal : null,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_engine.currentTrack != null) ...[
-                          // Linha 1: Nome da Música (+20% em destaque)
-                          Text(
-                            _engine.currentTrack!.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 17.5,
-                              color: Colors.white,
-                              letterSpacing: -0.3,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          // Linha 2: Nome do Disco (com ícone de disco neon se travado)
-                          Row(
-                            children: [
-                              if (_engine.isAlbumLocked) ...[
-                                const Icon(Icons.album, size: 13, color: AppTheme.cream),
-                                const SizedBox(width: 4),
-                              ],
-                              Expanded(
-                                child: Text(
-                                  (_engine.lockedAlbumName != null && _engine.lockedAlbumName!.isNotEmpty)
-                                      ? _engine.lockedAlbumName!
-                                      : ((_engine.currentTrack?.album != null && _engine.currentTrack!.album!.isNotEmpty)
-                                          ? _engine.currentTrack!.album!
-                                          : (_engine.currentTrack?.artist ?? l10n.unknownAlbum)),
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    color: AppTheme.cream,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          // Linha 3: "A seguir:" / Fim do lado / Artista
-                          if (_engine.telemetry.sideEndLabel != null)
-                            Text(
-                              _engine.telemetry.sideEndLabel!,
-                              style: const TextStyle(
-                                fontSize: 11.5,
-                                color: Colors.amber,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          else if (_engine.telemetry.predictedNextTrackTitle != null)
-                            Text(
-                              '${l10n.upNextTitle(_engine.telemetry.predictedNextTrackTitle!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
-                              style: const TextStyle(
-                                fontSize: 11.5,
-                                color: AppTheme.orange,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          else if (_engine.currentTrack != null)
-                            Text(
-                              _engine.currentTrack!.artist,
-                              style: const TextStyle(
-                                fontSize: 11.0,
-                                color: Colors.white60,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                        ] else ...[
-                          Row(
-                            children: [
-                              const Text(
-                                kAppName,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 17,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              GestureDetector(
-                                onLongPress: _exportSessionLogs,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.cream.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: AppTheme.cream.withValues(alpha: 0.3)),
-                                  ),
-                                  child: const Text(
-                                    'v$kAppVersion',
-                                    style: TextStyle(
-                                      fontSize: 9.5,
-                                      color: AppTheme.cream,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
+                titleSpacing: 12,
+                title: compactBar
+                    ? null
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: _engine.currentTrack != null ? _showAlbumTracklistModal : null,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_engine.currentTrack != null) ...[
+                                    // Linha 1: Nome da Música (+20% em destaque)
+                                    Text(
+                                      _engine.currentTrack!.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 17.5,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                ),
+                                    const SizedBox(height: 2),
+                                    // Linha 2: Nome do Disco (com ícone de disco neon se travado)
+                                    Row(
+                                      children: [
+                                        if (_engine.isAlbumLocked) ...[
+                                          const Icon(Icons.album, size: 13, color: AppTheme.cream),
+                                          const SizedBox(width: 4),
+                                        ],
+                                        Expanded(
+                                          child: Text(
+                                            (_engine.lockedAlbumName != null && _engine.lockedAlbumName!.isNotEmpty)
+                                                ? _engine.lockedAlbumName!
+                                                : ((_engine.currentTrack?.album != null &&
+                                                        _engine.currentTrack!.album!.isNotEmpty)
+                                                    ? _engine.currentTrack!.album!
+                                                    : (_engine.currentTrack?.artist ?? l10n.unknownAlbum)),
+                                            style: const TextStyle(
+                                              fontSize: 12.5,
+                                              color: AppTheme.cream,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    // Linha 3: "A seguir:" / Fim do lado / Artista
+                                    if (_engine.telemetry.sideEndLabel != null)
+                                      Text(
+                                        _engine.telemetry.sideEndLabel!,
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          color: Colors.amber,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    else if (_engine.telemetry.predictedNextTrackTitle != null)
+                                      Text(
+                                        '${l10n.upNextTitle(_engine.telemetry.predictedNextTrackTitle!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          color: AppTheme.orange,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    else if (_engine.currentTrack != null)
+                                      Text(
+                                        _engine.currentTrack!.artist,
+                                        style: const TextStyle(
+                                          fontSize: 11.0,
+                                          color: Colors.white60,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ] else ...[
+                                    Row(
+                                      children: [
+                                        // O nome tem prioridade: só a versão encolhe quando falta espaço
+                                        Text(
+                                          kAppName,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: compactBar ? 15 : 17,
+                                            letterSpacing: -0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        // Versão: some primeiro quando falta espaço
+                                        Flexible(
+                                          child: GestureDetector(
+                                            onLongPress: _exportSessionLogs,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                              decoration: BoxDecoration(
+                                                color: AppTheme.cream.withValues(alpha: 0.15),
+                                                borderRadius: BorderRadius.circular(5),
+                                                border: Border.all(color: AppTheme.cream.withValues(alpha: 0.3)),
+                                              ),
+                                              child: const Text(
+                                                'v$kAppVersion',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.clip,
+                                                softWrap: false,
+                                                style: TextStyle(
+                                                  fontSize: 9.5,
+                                                  color: AppTheme.cream,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Text(
+                                      kAppTagline,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        color: AppTheme.textInactive,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ),
-                          const Text(
-                            kAppTagline,
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              color: AppTheme.textInactive,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
+                      ),
+                actions: [
+                  // Botões de madeira; na abertura do app, o nome de cada um aparece embaixo e some (IntroLabelsLayer)
+                  WoodTileButton(
+                    asset: 'assets/images/btn_camera.png',
+                    label: l10n.camera,
+                    onPressed: _openRecordScan,
+                    size: tileSize,
+                    key: _cameraKey,
+                  ),
+                  WoodTileButton(
+                    asset: 'assets/images/btn_collection.png',
+                    label: l10n.myCollection,
+                    onPressed: _openCollection,
+                    size: tileSize,
+                    key: _collectionKey,
+                  ),
+                  WoodTileButton(
+                    asset: 'assets/images/btn_plugins.png',
+                    label: l10n.plugins,
+                    onPressed: _openPlugins,
+                    size: tileSize,
+                    key: _pluginsKey,
+                  ),
+                  WoodTileButton(
+                    asset: 'assets/images/btn_help.png',
+                    label: l10n.help,
+                    onPressed: _openHelp,
+                    size: tileSize,
+                    key: _helpKey,
+                  ),
+                  _buildCastButton(),
+                  const SizedBox(width: 4),
+                ],
+              ),
+              // REGRA ESTRITA: Durante a transmissão para TV, o celular NUNCA exibe as letras;
+              // permanece 100% como mesa de controle e cockpit analógico do vinil.
+              body: _engine.castService.isCastActive
+                  ? SafeArea(
+                      child: VinylControlCockpit(
+                        engine: _engine,
+                        onOpenCastDialog: _showCastDialog,
+                        onDisconnectCast: () => _engine.disconnectCast(),
+                        onCoverTap: _showAlbumTracklistModal,
+                      ),
+                    )
+                  : Stack(
+                      children: [
+                        // Fundo em madeira escura com veio (entorno da letra)
+                        const Positioned.fill(child: WoodBackground()),
+
+                        // Lista vertical de letras sincronizadas
+                        Positioned.fill(
+                          child: LyricsListView(
+                            lyrics: _engine.lyrics,
+                            activeIndex: _engine.activeLineIndex,
+                            onSeek: (seconds) => _engine.seekTo(seconds),
+                            emptyState: _engine.currentTrack == null
+                                ? HomeGreeting(
+                                    name: _profile.displayName,
+                                    seed: _greetingSeed,
+                                    onEditName: _editName,
+                                    bottomReserve: awaitingFlip ? 84 : 8,
+                                    statusLine: statusLine,
+                                  )
+                                : null,
+                          ),
+                        ),
+
+                        // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
+                        // Fim do lado: "Flip the record" acima da barra (o microfone fica na barra)
+                        if (awaitingFlip)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 14,
+                            child: Center(child: FlipSideButton(onPressed: () => _engine.flipSide())),
+                          ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.photo_camera_outlined, color: AppTheme.cream),
-                tooltip: l10n.cameraTooltip,
-                onPressed: _openRecordScan,
-              ),
-              IconButton(
-                icon: const Icon(Icons.library_music_outlined, color: AppTheme.cream),
-                tooltip: l10n.myCollection,
-                onPressed: _openCollection,
-              ),
-              _buildCastButton(),
-              const SizedBox(width: 4),
-            ],
-          ),
-          // REGRA ESTRITA: Durante a transmissão para TV, o celular NUNCA exibe as letras;
-          // permanece 100% como mesa de controle e cockpit analógico do vinil.
-          body: _engine.castService.isCastActive
-              ? SafeArea(
-                  child: VinylControlCockpit(
-                    engine: _engine,
-                    onOpenCastDialog: _showCastDialog,
-                    onDisconnectCast: () => _engine.disconnectCast(),
-                    onCoverTap: _showAlbumTracklistModal,
-                  ),
-                )
-              : Stack(
-                  children: [
-                    // Fundo em madeira escura com veio (entorno da letra)
-                    const Positioned.fill(child: WoodBackground()),
-
-                    // Lista vertical de letras sincronizadas
-                    Positioned.fill(
-                      child: LyricsListView(
-                        lyrics: _engine.lyrics,
-                        activeIndex: _engine.activeLineIndex,
-                        onSeek: (seconds) => _engine.seekTo(seconds),
-                        emptyState: _engine.currentTrack == null
-                            ? HomeGreeting(
-                                name: _profile.displayName,
-                                seed: _greetingSeed,
-                                onEditName: _editName,
-                                bottomReserve: awaitingFlip ? 84 : 8,
-                                statusLine: statusLine,
-                              )
-                            : null,
-                      ),
+              bottomNavigationBar: _engine.castService.isCastActive
+                  ? null
+                  : VinylStatusFooter(
+                      telemetry: telemetry,
+                      track: _engine.currentTrack,
+                      onPitchAdjust: (val) => _engine.setManualPitchAdjustment(val),
+                      onNudge: (val) => _engine.nudgeSync(val),
+                      onPlayPause: () => _engine.togglePlayPause(),
+                      onStop: () => _engine.stop(),
+                      onListenAgain: () => _engine.startListening(),
+                      isListening: isListening,
+                      onMicPressed: _onFabPressed,
+                      micSize: micSize,
                     ),
-
-
-                    // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
-                    // Fim do lado: "Flip the record" acima da barra (o microfone fica na barra)
-                    if (awaitingFlip)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 14,
-                        child: Center(child: FlipSideButton(onPressed: () => _engine.flipSide())),
-                      ),
-                  ],
-                ),
-          bottomNavigationBar: _engine.castService.isCastActive
-              ? null
-              : VinylStatusFooter(
-                  telemetry: telemetry,
-                  track: _engine.currentTrack,
-                  onPitchAdjust: (val) => _engine.setManualPitchAdjustment(val),
-                  onNudge: (val) => _engine.nudgeSync(val),
-                  onPlayPause: () => _engine.togglePlayPause(),
-                  onStop: () => _engine.stop(),
-                  onListenAgain: () => _engine.startListening(),
-                  isListening: isListening,
-                  onMicPressed: _onFabPressed,
-                  micSize: micSize,
-                ),
+            ),
+            // Nomes dos botões na abertura (esquerda → direita), por cima de tudo
+            Positioned.fill(
+              child: IntroLabelsLayer(specs: [
+                IntroLabelSpec(anchor: _cameraKey, text: l10n.camera, delay: Duration.zero, above: true),
+                IntroLabelSpec(
+                    anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 1200)),
+                IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 2400), above: true),
+                IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 3600)),
+              ]),
+            ),
+          ],
         );
       },
     );
   }
-
 }
 
 /// Painel de nogueira em destaque atrás da barra superior: o mesmo acabamento do rodapé, um tom

@@ -1989,6 +1989,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.'**
   String get helpCamera2;
+
+  /// No description provided for @jukeboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin Jukebox'**
+  String get jukeboxTitle;
+
+  /// No description provided for @jukeboxLede.
+  ///
+  /// In en, this message translates to:
+  /// **'Every plugin is a 7\" single. The vinyl color tells the kind; the code on the strip selects it. Type a code on the keypad or tap a record.'**
+  String get jukeboxLede;
+
+  /// No description provided for @jukeboxChooseSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a selection: letter + number.'**
+  String get jukeboxChooseSelection;
+
+  /// No description provided for @jukeboxNowNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'{category}: now the number.'**
+  String jukeboxNowNumber(String category);
+
+  /// No description provided for @jukeboxPressSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Press Select.'**
+  String get jukeboxPressSelect;
+
+  /// No description provided for @jukeboxStartWithLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with the letter of the category.'**
+  String get jukeboxStartWithLetter;
+
+  /// No description provided for @jukeboxTypeCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a letter and a number, e.g. L1.'**
+  String get jukeboxTypeCode;
+
+  /// No description provided for @jukeboxNoSuchCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection {code} does not exist.'**
+  String jukeboxNoSuchCode(String code);
+
+  /// No description provided for @jukeboxClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get jukeboxClear;
+
+  /// No description provided for @jukeboxSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get jukeboxSelect;
+
+  /// No description provided for @jukeboxOnThePlatter.
+  ///
+  /// In en, this message translates to:
+  /// **'On the platter'**
+  String get jukeboxOnThePlatter;
+
+  /// No description provided for @jukeboxNothingPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'No record here yet.'**
+  String get jukeboxNothingPlaying;
+
+  /// No description provided for @jukeboxSelectionStrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection strips'**
+  String get jukeboxSelectionStrips;
+
+  /// No description provided for @jukeboxAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get jukeboxAll;
+
+  /// No description provided for @jukeboxCrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Record crate'**
+  String get jukeboxCrate;
+
+  /// No description provided for @jukeboxCrateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugins not installed yet. Each one shows its source and license before going into the jukebox.'**
+  String get jukeboxCrateHint;
+
+  /// No description provided for @jukeboxComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get jukeboxComingSoon;
+
+  /// No description provided for @jukeboxOnPlatter.
+  ///
+  /// In en, this message translates to:
+  /// **'On the platter'**
+  String get jukeboxOnPlatter;
+
+  /// No description provided for @jukeboxComingSoonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon: this plugin is not available yet.'**
+  String get jukeboxComingSoonHint;
+
+  /// No description provided for @jukeboxLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Built in and always on for now.'**
+  String get jukeboxLockedHint;
+
+  /// No description provided for @jukeboxExclusiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Only one {category} plugin plays at a time: choose another to switch.'**
+  String jukeboxExclusiveHint(String category);
+
+  /// No description provided for @jukeboxIsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On the platter: this plugin is on.'**
+  String get jukeboxIsOn;
+
+  /// No description provided for @jukeboxIsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: tap the button to put it on the platter.'**
+  String get jukeboxIsOff;
+
+  /// No description provided for @jukeboxTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Put on the platter'**
+  String get jukeboxTurnOn;
+
+  /// No description provided for @jukeboxTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off the platter'**
+  String get jukeboxTurnOff;
+
+  /// No description provided for @jukeboxLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get jukeboxLicense;
+
+  /// No description provided for @jukeboxAiNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'AI content is always marked as AI-generated. Audio never leaves your phone without your consent.'**
+  String get jukeboxAiNotice;
+
+  /// No description provided for @pluginCatLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get pluginCatLanguage;
+
+  /// No description provided for @pluginCatDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get pluginCatDisplay;
+
+  /// No description provided for @pluginCatAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get pluginCatAi;
+
+  /// No description provided for @pluginRuleLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'One at a time'**
+  String get pluginRuleLanguage;
+
+  /// No description provided for @pluginRuleDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Several at once'**
+  String get pluginRuleDisplay;
+
+  /// No description provided for @pluginRuleAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Several; marked as AI-generated'**
+  String get pluginRuleAi;
+
+  /// No description provided for @pluginAuthorBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built in'**
+  String get pluginAuthorBuiltIn;
+
+  /// No description provided for @pluginAuthorWaxClub.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxClub'**
+  String get pluginAuthorWaxClub;
+
+  /// No description provided for @pluginLicenseOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official translation'**
+  String get pluginLicenseOfficial;
+
+  /// No description provided for @pluginLicenseLyrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics from the sources you enable'**
+  String get pluginLicenseLyrics;
+
+  /// No description provided for @pluginLicenseCuriosities.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources cited: Discogs, Wikipedia, Wikidata'**
+  String get pluginLicenseCuriosities;
+
+  /// No description provided for @pluginLicenseAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated text, always marked'**
+  String get pluginLicenseAi;
+
+  /// No description provided for @pluginEnglishName.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get pluginEnglishName;
+
+  /// No description provided for @pluginEnglishDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The app in English. It is the default language and the base for the other language plugins.'**
+  String get pluginEnglishDesc;
+
+  /// No description provided for @pluginPortugueseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Português (Brasil)'**
+  String get pluginPortugueseName;
+
+  /// No description provided for @pluginSpanishName.
+  ///
+  /// In en, this message translates to:
+  /// **'Español'**
+  String get pluginSpanishName;
+
+  /// No description provided for @pluginLanguagePackDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation of the whole app. Language plugins contain only text, no code.'**
+  String get pluginLanguagePackDesc;
+
+  /// No description provided for @pluginLyricsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced lyrics'**
+  String get pluginLyricsName;
+
+  /// No description provided for @pluginLyricsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.'**
+  String get pluginLyricsDesc;
+
+  /// No description provided for @pluginCuriositiesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Record curiosities'**
+  String get pluginCuriositiesName;
+
+  /// No description provided for @pluginCuriositiesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Short facts about the record and each track, rising and fading as the music plays. Shown when there are no lyrics.'**
+  String get pluginCuriositiesDesc;
+
+  /// No description provided for @pluginAiCuriositiesName.
+  ///
+  /// In en, this message translates to:
+  /// **'AI curiosities'**
+  String get pluginAiCuriositiesName;
+
+  /// No description provided for @pluginAiCuriositiesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.'**
+  String get pluginAiCuriositiesDesc;
+
+  /// No description provided for @pluginAiTranslateName.
+  ///
+  /// In en, this message translates to:
+  /// **'AI lyrics translation'**
+  String get pluginAiTranslateName;
+
+  /// No description provided for @pluginAiTranslateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Translates the lyrics line by line into your language while the record plays.'**
+  String get pluginAiTranslateDesc;
+
+  /// No description provided for @helpPlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugins (jukebox)'**
+  String get helpPlugins;
+
+  /// No description provided for @helpPlugins1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the puzzle icon at the top of the screen. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.'**
+  String get helpPlugins1;
+
+  /// No description provided for @helpPlugins2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use.'**
+  String get helpPlugins2;
+
+  /// No description provided for @plugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugins'**
+  String get plugins;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
 }
 
 class _AppLocalizationsDelegate

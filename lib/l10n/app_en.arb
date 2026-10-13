@@ -890,5 +890,83 @@
   "guideDone": "Got it",
   "helpCamera": "Identify a record with the camera",
   "helpCamera1": "Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.",
-  "helpCamera2": "Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song."
+  "helpCamera2": "Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.",
+  "jukeboxTitle": "Plugin Jukebox",
+  "jukeboxLede": "Every plugin is a 7\" single. The vinyl color tells the kind; the code on the strip selects it. Type a code on the keypad or tap a record.",
+  "jukeboxChooseSelection": "Choose a selection: letter + number.",
+  "jukeboxNowNumber": "{category}: now the number.",
+  "@jukeboxNowNumber": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "jukeboxPressSelect": "Press Select.",
+  "jukeboxStartWithLetter": "Start with the letter of the category.",
+  "jukeboxTypeCode": "Type a letter and a number, e.g. L1.",
+  "jukeboxNoSuchCode": "Selection {code} does not exist.",
+  "@jukeboxNoSuchCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "jukeboxClear": "Clear",
+  "jukeboxSelect": "Select",
+  "jukeboxOnThePlatter": "On the platter",
+  "jukeboxNothingPlaying": "No record here yet.",
+  "jukeboxSelectionStrips": "Selection strips",
+  "jukeboxAll": "All",
+  "jukeboxCrate": "Record crate",
+  "jukeboxCrateHint": "Plugins not installed yet. Each one shows its source and license before going into the jukebox.",
+  "jukeboxComingSoon": "Coming soon",
+  "jukeboxOnPlatter": "On the platter",
+  "jukeboxComingSoonHint": "Coming soon: this plugin is not available yet.",
+  "jukeboxLockedHint": "Built in and always on for now.",
+  "jukeboxExclusiveHint": "In use. Only one {category} plugin plays at a time: choose another to switch.",
+  "@jukeboxExclusiveHint": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "jukeboxIsOn": "On the platter: this plugin is on.",
+  "jukeboxIsOff": "Off: tap the button to put it on the platter.",
+  "jukeboxTurnOn": "Put on the platter",
+  "jukeboxTurnOff": "Take off the platter",
+  "jukeboxLicense": "License",
+  "jukeboxAiNotice": "AI content is always marked as AI-generated. Audio never leaves your phone without your consent.",
+  "pluginCatLanguage": "Language",
+  "pluginCatDisplay": "Display",
+  "pluginCatAi": "AI",
+  "pluginRuleLanguage": "One at a time",
+  "pluginRuleDisplay": "Several at once",
+  "pluginRuleAi": "Several; marked as AI-generated",
+  "pluginAuthorBuiltIn": "Built in",
+  "pluginAuthorWaxClub": "WaxClub",
+  "pluginLicenseOfficial": "Official translation",
+  "pluginLicenseLyrics": "Lyrics from the sources you enable",
+  "pluginLicenseCuriosities": "Sources cited: Discogs, Wikipedia, Wikidata",
+  "pluginLicenseAi": "AI-generated text, always marked",
+  "pluginEnglishName": "English",
+  "pluginEnglishDesc": "The app in English. It is the default language and the base for the other language plugins.",
+  "pluginPortugueseName": "Português (Brasil)",
+  "pluginSpanishName": "Español",
+  "pluginLanguagePackDesc": "Translation of the whole app. Language plugins contain only text, no code.",
+  "pluginLyricsName": "Synced lyrics",
+  "pluginLyricsDesc": "Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.",
+  "pluginCuriositiesName": "Record curiosities",
+  "pluginCuriositiesDesc": "Short facts about the record and each track, rising and fading as the music plays. Shown when there are no lyrics.",
+  "pluginAiCuriositiesName": "AI curiosities",
+  "pluginAiCuriositiesDesc": "Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.",
+  "pluginAiTranslateName": "AI lyrics translation",
+  "pluginAiTranslateDesc": "Translates the lyrics line by line into your language while the record plays.",
+  "helpPlugins": "Plugins (jukebox)",
+  "helpPlugins1": "Tap the puzzle icon at the top of the screen. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.",
+  "helpPlugins2": "Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use.",
+  "plugins": "Plugins",
+  "camera": "Camera"
 }

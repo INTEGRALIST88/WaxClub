@@ -1189,4 +1189,194 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpCamera2 =>
       'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.';
+
+  @override
+  String get jukeboxTitle => 'Plugin Jukebox';
+
+  @override
+  String get jukeboxLede =>
+      'Every plugin is a 7\" single. The vinyl color tells the kind; the code on the strip selects it. Type a code on the keypad or tap a record.';
+
+  @override
+  String get jukeboxChooseSelection => 'Choose a selection: letter + number.';
+
+  @override
+  String jukeboxNowNumber(String category) {
+    return '$category: now the number.';
+  }
+
+  @override
+  String get jukeboxPressSelect => 'Press Select.';
+
+  @override
+  String get jukeboxStartWithLetter => 'Start with the letter of the category.';
+
+  @override
+  String get jukeboxTypeCode => 'Type a letter and a number, e.g. L1.';
+
+  @override
+  String jukeboxNoSuchCode(String code) {
+    return 'Selection $code does not exist.';
+  }
+
+  @override
+  String get jukeboxClear => 'Clear';
+
+  @override
+  String get jukeboxSelect => 'Select';
+
+  @override
+  String get jukeboxOnThePlatter => 'On the platter';
+
+  @override
+  String get jukeboxNothingPlaying => 'No record here yet.';
+
+  @override
+  String get jukeboxSelectionStrips => 'Selection strips';
+
+  @override
+  String get jukeboxAll => 'All';
+
+  @override
+  String get jukeboxCrate => 'Record crate';
+
+  @override
+  String get jukeboxCrateHint =>
+      'Plugins not installed yet. Each one shows its source and license before going into the jukebox.';
+
+  @override
+  String get jukeboxComingSoon => 'Coming soon';
+
+  @override
+  String get jukeboxOnPlatter => 'On the platter';
+
+  @override
+  String get jukeboxComingSoonHint =>
+      'Coming soon: this plugin is not available yet.';
+
+  @override
+  String get jukeboxLockedHint => 'Built in and always on for now.';
+
+  @override
+  String jukeboxExclusiveHint(String category) {
+    return 'In use. Only one $category plugin plays at a time: choose another to switch.';
+  }
+
+  @override
+  String get jukeboxIsOn => 'On the platter: this plugin is on.';
+
+  @override
+  String get jukeboxIsOff => 'Off: tap the button to put it on the platter.';
+
+  @override
+  String get jukeboxTurnOn => 'Put on the platter';
+
+  @override
+  String get jukeboxTurnOff => 'Take off the platter';
+
+  @override
+  String get jukeboxLicense => 'License';
+
+  @override
+  String get jukeboxAiNotice =>
+      'AI content is always marked as AI-generated. Audio never leaves your phone without your consent.';
+
+  @override
+  String get pluginCatLanguage => 'Language';
+
+  @override
+  String get pluginCatDisplay => 'Display';
+
+  @override
+  String get pluginCatAi => 'AI';
+
+  @override
+  String get pluginRuleLanguage => 'One at a time';
+
+  @override
+  String get pluginRuleDisplay => 'Several at once';
+
+  @override
+  String get pluginRuleAi => 'Several; marked as AI-generated';
+
+  @override
+  String get pluginAuthorBuiltIn => 'Built in';
+
+  @override
+  String get pluginAuthorWaxClub => 'WaxClub';
+
+  @override
+  String get pluginLicenseOfficial => 'Official translation';
+
+  @override
+  String get pluginLicenseLyrics => 'Lyrics from the sources you enable';
+
+  @override
+  String get pluginLicenseCuriosities =>
+      'Sources cited: Discogs, Wikipedia, Wikidata';
+
+  @override
+  String get pluginLicenseAi => 'AI-generated text, always marked';
+
+  @override
+  String get pluginEnglishName => 'English';
+
+  @override
+  String get pluginEnglishDesc =>
+      'The app in English. It is the default language and the base for the other language plugins.';
+
+  @override
+  String get pluginPortugueseName => 'Português (Brasil)';
+
+  @override
+  String get pluginSpanishName => 'Español';
+
+  @override
+  String get pluginLanguagePackDesc =>
+      'Translation of the whole app. Language plugins contain only text, no code.';
+
+  @override
+  String get pluginLyricsName => 'Synced lyrics';
+
+  @override
+  String get pluginLyricsDesc =>
+      'Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.';
+
+  @override
+  String get pluginCuriositiesName => 'Record curiosities';
+
+  @override
+  String get pluginCuriositiesDesc =>
+      'Short facts about the record and each track, rising and fading as the music plays. Shown when there are no lyrics.';
+
+  @override
+  String get pluginAiCuriositiesName => 'AI curiosities';
+
+  @override
+  String get pluginAiCuriositiesDesc =>
+      'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.';
+
+  @override
+  String get pluginAiTranslateName => 'AI lyrics translation';
+
+  @override
+  String get pluginAiTranslateDesc =>
+      'Translates the lyrics line by line into your language while the record plays.';
+
+  @override
+  String get helpPlugins => 'Plugins (jukebox)';
+
+  @override
+  String get helpPlugins1 =>
+      'Tap the puzzle icon at the top of the screen. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.';
+
+  @override
+  String get helpPlugins2 =>
+      'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use.';
+
+  @override
+  String get plugins => 'Plugins';
+
+  @override
+  String get camera => 'Camera';
 }

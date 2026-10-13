@@ -243,6 +243,12 @@ lib/
 * **Fluxo:** [`record_found_flow.dart`](lib/ui/screens/record_found_flow.dart): "Add to collection?" → `CollectionEntryScreen` (nota, graus do Discogs em [`discogs_grades.dart`](lib/services/discogs/discogs_grades.dart), observações, opção de adicionar no Discogs por [`discogs_collection_service.dart`](lib/services/discogs/discogs_collection_service.dart)) → `WaxClubEngine.prepareScannedRecord` (lista de faixas no cache + disco padrão de todas as faixas; aplica na hora se uma faixa dele já toca) → "Let's listen?" (sim = `startListening`).
 * **Compilação:** `flutter build apk --release --target-platform android-arm,android-arm64`; `android/app/proguard-rules.pro` com `-dontwarn` dos reconhecedores não latinos do ML Kit.
 
+### 3.10.4 Jukebox de Plugins e Botões de Madeira (v1.3.12)
+* **Modelo:** [`plugin_catalog.dart`](lib/services/plugins/plugin_catalog.dart): `PluginCategory` (letra, cor, `exclusive`; Language/Display/AI), `PluginInfo` (código = letra + número, `builtIn`/`installable`/`comingSoon`, `locked`), `PluginCatalog.builtIn` e `PluginStore` (instalados e ligados, regra de um idioma por vez, travados sempre ligados, `waxclub_plugins.json`).
+* **Tela:** [`plugin_jukebox_screen.dart`](lib/ui/screens/plugin_jukebox_screen.dart) (gabinete com arco de neon, vitrine, mostrador, teclado, prato, cartelas, caixote, legenda, detalhes) e [`seven_inch_record.dart`](lib/ui/widgets/seven_inch_record.dart) (o compacto).
+* **Barra superior:** logo/capa no `leading` (toque = lista de faixas, toque longo = copiar logs); título só com a tela larga (≥ 600 dp); botões [`WoodTileButton`](lib/ui/widgets/wood_tile_button.dart) com as artes `assets/images/btn_camera.png`, `btn_collection.png`, `btn_plugins.png`, `btn_help.png`.
+* **Nomes na abertura:** `IntroLabelsLayer` fica por cima do Scaffold (a barra corta o que passa da altura dela), mede a posição de cada botão pela `GlobalKey` e mostra `IntroWipeLabel` (revela e apaga da esquerda para a direita) numa linha do tempo única (`AnimationBehavior.preserve`), alternando acima/abaixo.
+
 ### 3.11 Módulo 11: Trilhas Sonoras de Novelas (v1.3.1)
 * **Arquivos:** [`lib/services/soundtrack_catalog.dart`](lib/services/soundtrack_catalog.dart) e `assets/catalog/trilhas_novelas.json`.
 * **Origem dos dados:** levantamento do site Teledramaturgia / Observatório da TV (índices de trilhas da Globo por período, Malhação, séries/minisséries, Record, SBT, Band, Manchete, Excelsior e Tupi): disco, emissora, ano e faixas com artista. Capas apenas dos LPs (até 1993), baixadas uma vez, recomprimidas (até 400 px, JPEG 82) e hospedadas no GitHub Pages do WaxClub (covers/ (raiz do repositório), publicada como covers/ no repositório INTEGRALIST88/WaxClub); trilhas em CD ficam sem capa própria (vale a do Shazam). Scripts: 	ool/trilhas/crawl.js, durations.js, covers.js, esize_covers.ps1, elink_covers.js. Durações por faixa obtidas na Deezer (reserva iTunes). O script de geração fica fora do app (ferramenta de build).
@@ -258,6 +264,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Página de plugins em jukebox (Language, Display, AI; discos coloridos; botão ao lado de My Collection)** | `PluginJukeboxScreen` + `PluginStore` + `SevenInchRecord` | ✅ Conforme (v1.3.12) |
+| **Botões de madeira (câmera, coleção, plugins, ajuda) com nomes na abertura; logo à esquerda; sem texto em pé** | `WoodTileButton` + `IntroLabelsLayer` | ✅ Conforme (v1.3.12) |
 | **Reconhecimento do disco pela câmera (guia, código de barras, nº de catálogo, prensagem, coleção, "Let's listen?")** | `RecordScanScreen` + `record_found_flow.dart` + `prepareScannedRecord` | ✅ Conforme (v1.3.11) |
 | **Textos da interface em arquivos de tradução (.arb)** | `lib/l10n/app_en.arb` + gen-l10n; teste reprova texto fixo em `lib/ui` | ✅ Conforme (v1.3.10) |
 | **Aviso de microfone ocupado por outro app** | `MicBusyService` + `MicStatusChannel.kt`; mensagem `statusMicBusy` | ✅ Conforme (v1.3.10) |

@@ -1,0 +1,629 @@
+import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
+import '../../services/plugins/plugin_catalog.dart';
+import '../theme/app_theme.dart';
+import '../widgets/seven_inch_record.dart';
+
+/// Página de plugins em forma de jukebox: cada plugin é um compacto de 7" cuja cor diz a categoria
+/// (Language, Display, AI...). Seleciona-se pelo código da cartela (teclado da jukebox) ou tocando no disco.
+class PluginJukeboxScreen extends StatefulWidget {
+  final PluginStore store;
+  const PluginJukeboxScreen({super.key, required this.store});
+
+  @override
+  State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
+}
+
+class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
+  static const Color _bg = Color(0xFF0E0B12);
+  static const Color _panel = Color(0xFF18131E);
+  static const Color _panel2 = Color(0xFF221B2A);
+  static const Color _line = Color(0xFF3A3045);
+  static const Color _muted = Color(0xFFA99FB5);
+  static const Color _stripColor = Color(0xFFF3EAD6);
+  static const Color _ink = Color(0xFF2B2231);
+  static const Color _amber = Color(0xFFF6B74A);
+
+  PluginStore get _store => widget.store;
+  String _typed = '';
+  String? _message;
+  String? _selectedId;
+  PluginCategory? _filter;
+
+  @override
+  void initState() {
+    super.initState();
+    _store.load();
+  }
+
+  void _press(String key) {
+    setState(() {
+      if (key == 'clear') { // l10n-ignore
+        _typed = '';
+        _message = null;
+        return;
+      }
+      final cat = PluginCategory.fromLetter(key);
+      if (cat != null) {
+        _typed = key;
+        _message = l10n.jukeboxNowNumber(cat.label);
+      } else if (_typed.length == 1) {
+        _typed += key;
+        _message = l10n.jukeboxPressSelect;
+      } else {
+        _message = l10n.jukeboxStartWithLetter;
+      }
+    });
+  }
+
+  void _selectTyped() {
+    if (_typed.length < 2) {
+      setState(() => _message = l10n.jukeboxTypeCode);
+      return;
+    }
+    final code = _typed;
+    setState(() => _typed = '');
+    final p = _store.byCode(code);
+    if (p == null) {
+      setState(() => _message = l10n.jukeboxNoSuchCode(code));
+      return;
+    }
+    _open(p);
+  }
+
+  Future<void> _open(PluginInfo p) async {
+    setState(() {
+      _selectedId = p.id;
+      _message = '${p.code} · ${p.name}';
+    });
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: _panel,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => _PluginSheet(store: _store, plugin: p),
+    );
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _bg,
+      appBar: AppBar(
+        backgroundColor: _bg,
+        foregroundColor: AppTheme.cream,
+        title: Text(l10n.jukeboxTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+      ),
+      body: AnimatedBuilder(
+        animation: _store,
+        builder: (context, _) => ListView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+          children: [
+            Text(l10n.jukeboxLede, style: const TextStyle(color: _muted, height: 1.4)),
+            const SizedBox(height: 16),
+            _cabinet(),
+            const SizedBox(height: 22),
+            _sectionTitle(l10n.jukeboxOnThePlatter),
+            _platter(),
+            const SizedBox(height: 22),
+            _sectionTitle(l10n.jukeboxSelectionStrips),
+            _filters(),
+            const SizedBox(height: 10),
+            _strips(),
+            if (_store.notInstalled().isNotEmpty) ...[
+              const SizedBox(height: 22),
+              _sectionTitle(l10n.jukeboxCrate),
+              Text(l10n.jukeboxCrateHint, style: const TextStyle(color: _muted, fontSize: 13)),
+              const SizedBox(height: 10),
+              _crate(),
+            ],
+            const SizedBox(height: 22),
+            _legend(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
+      );
+
+  // ---------- Gabinete: vitrine, mostrador e teclado ----------
+  Widget _cabinet() {
+    final installed = _store.installed();
+    return CustomPaint(
+      painter: _NeonArchPainter(),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 22, 14, 16),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(150), bottom: Radius.circular(18)),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4A2E1C), Color(0xFF2A1A10), Color(0xFF1A110B)],
+          ),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            const Text('WAXCLUB', // l10n-ignore
+                style: TextStyle(color: AppTheme.cream, fontSize: 15, letterSpacing: 6, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 10),
+            // Vitrine com os compactos instalados
+            Container(
+              padding: const EdgeInsets.fromLTRB(6, 22, 6, 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B0910),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(110), bottom: Radius.circular(10)),
+                border: Border.all(color: _line),
+                gradient: RadialGradient(
+                  center: const Alignment(0, -1),
+                  radius: 1.2,
+                  colors: [PluginCategory.ai.color.withValues(alpha: 0.18), const Color(0xFF0B0910)],
+                ),
+              ),
+              child: SizedBox(
+                height: 118,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  itemCount: installed.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, i) {
+                    final p = installed[i];
+                    final on = _store.isActive(p);
+                    final selected = _selectedId == p.id;
+                    return GestureDetector(
+                      onTap: () => _open(p),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedSlide(
+                            offset: selected ? const Offset(0, -0.05) : Offset.zero,
+                            duration: const Duration(milliseconds: 300),
+                            child: SevenInchRecord(color: p.category.color, code: p.code, size: 80, glow: on || selected),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(p.code,
+                              style: TextStyle(
+                                color: on ? Colors.white : _muted,
+                                fontFamily: 'monospace', // l10n-ignore
+                                fontWeight: on ? FontWeight.w800 : FontWeight.w500,
+                              )),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            // Mostrador
+            Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 380),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(color: const Color(0xFF050407), borderRadius: BorderRadius.circular(10), border: Border.all(color: _line)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_typed.isNotEmpty ? _typed[0] : '_'} ${_typed.length > 1 ? _typed[1] : '_'}',
+                    style: const TextStyle(
+                      color: _amber,
+                      fontSize: 26,
+                      letterSpacing: 5,
+                      fontFamily: 'monospace', // l10n-ignore
+                      fontWeight: FontWeight.w700,
+                      shadows: [Shadow(color: Color(0x99F6B74A), blurRadius: 10)],
+                    ),
+                  ),
+                  Text(_message ?? l10n.jukeboxChooseSelection, style: const TextStyle(color: _muted, fontSize: 13)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            _keypad(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _keypad() {
+    Widget key(String label, VoidCallback onTap, {Color? top, Color? bottom, Color textColor = _ink, int flex = 1}) {
+      return Expanded(
+        flex: flex,
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: onTap,
+              child: Ink(
+                height: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [top ?? const Color(0xFFFBF6EA), bottom ?? const Color(0xFFDDD2BB)],
+                  ),
+                  boxShadow: const [BoxShadow(color: Color(0xFF8E8170), offset: Offset(0, 3))],
+                ),
+                child: Center(
+                  child: Text(label,
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'monospace', // l10n-ignore
+                        fontSize: label.length > 2 ? 13 : 16,
+                      )),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final letters = [
+      for (final c in PluginCategory.values)
+        key(c.letter, () => _press(c.letter),
+            top: Color.lerp(c.color, Colors.white, 0.75), bottom: Color.lerp(c.color, Colors.white, 0.35)),
+    ];
+    final digits = [for (var i = 1; i <= 9; i++) '$i'];
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 380),
+      child: Column(
+        children: [
+          Row(children: letters),
+          Row(children: [for (final d in digits.sublist(0, 5)) key(d, () => _press(d))]),
+          Row(children: [for (final d in digits.sublist(5)) key(d, () => _press(d)), key('0', () => _press('0'))]),
+          Row(children: [
+            key(l10n.jukeboxClear, () => _press('clear'), flex: 2), // l10n-ignore
+            key(l10n.jukeboxSelect, _selectTyped,
+                flex: 3, top: const Color(0xFFFF9D7A), bottom: const Color(0xFFE8673F), textColor: Colors.white),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  // ---------- No prato ----------
+  Widget _platter() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: _panel, borderRadius: BorderRadius.circular(14), border: Border.all(color: _line)),
+      child: Column(
+        children: [
+          for (final c in PluginCategory.values)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 112,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(c.label, style: TextStyle(color: c.color, fontWeight: FontWeight.w800)),
+                        Text(c.rule, style: const TextStyle(color: _muted, fontSize: 11.5)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _store.activeIn(c).isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(l10n.jukeboxNothingPlaying, style: const TextStyle(color: _muted, fontSize: 13)),
+                          )
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final p in _store.activeIn(c))
+                                GestureDetector(
+                                  onTap: () => _open(p),
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+                                    decoration: BoxDecoration(color: _panel2, borderRadius: BorderRadius.circular(999)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SevenInchRecord(color: c.color, code: p.code, size: 40, spinning: true),
+                                        const SizedBox(width: 8),
+                                        Flexible(child: Text(p.name, style: const TextStyle(color: Colors.white, fontSize: 13))),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ---------- Cartelas ----------
+  Widget _filters() {
+    Widget chip(String label, PluginCategory? c) {
+      final on = _filter == c;
+      return ChoiceChip(
+        selected: on,
+        onSelected: (_) => setState(() => _filter = c),
+        showCheckmark: false,
+        backgroundColor: _panel,
+        selectedColor: _panel2,
+        side: BorderSide(color: on ? (c?.color ?? Colors.white) : _line),
+        avatar: c == null ? null : CircleAvatar(radius: 5, backgroundColor: c.color),
+        label: Text(label, style: TextStyle(color: on ? Colors.white : _muted, fontSize: 13)),
+      );
+    }
+
+    return Wrap(spacing: 8, runSpacing: 8, children: [
+      chip(l10n.jukeboxAll, null),
+      for (final c in PluginCategory.values) chip(c.label, c),
+    ]);
+  }
+
+  Widget _strips() {
+    final list = _store.catalog.where((p) => _store.isInstalled(p) && (_filter == null || p.category == _filter)).toList();
+    return Column(children: [for (final p in list) _strip(p)]);
+  }
+
+  Widget _strip(PluginInfo p) {
+    final on = _store.isActive(p);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: _stripColor,
+        borderRadius: BorderRadius.circular(4),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _open(p),
+          child: Container(
+            decoration: BoxDecoration(border: on ? Border.all(color: p.category.color, width: 3) : null, borderRadius: BorderRadius.circular(4)),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 56,
+                    color: p.category.color,
+                    alignment: Alignment.center,
+                    child: Text(p.code,
+                        style: const TextStyle(color: _ink, fontSize: 18, fontWeight: FontWeight.w900, fontFamily: 'monospace')), // l10n-ignore
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: Text(p.name, style: const TextStyle(color: _ink, fontWeight: FontWeight.w800, fontSize: 14.5))),
+                              _badge(p),
+                            ],
+                          ),
+                          Text(p.author, style: const TextStyle(color: _ink, fontSize: 12)),
+                          Text(p.license, style: const TextStyle(color: Color(0xFF6B5D48), fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _badge(PluginInfo p) {
+    final String text;
+    final Color bg;
+    final Color fg;
+    if (p.isComingSoon) {
+      text = l10n.jukeboxComingSoon;
+      bg = const Color(0xFF6B5D48);
+      fg = _stripColor;
+    } else if (_store.isActive(p)) {
+      text = l10n.jukeboxOnPlatter;
+      bg = _ink;
+      fg = _stripColor;
+    } else {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
+      child: Text(text.toUpperCase(), style: TextStyle(color: fg, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+    );
+  }
+
+  // ---------- Caixote (em breve / para instalar) ----------
+  Widget _crate() {
+    final list = _store.notInstalled();
+    return LayoutBuilder(builder: (context, c) {
+      final cols = c.maxWidth > 560 ? 3 : 2;
+      final w = (c.maxWidth - (cols - 1) * 10) / cols;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          for (final p in list)
+            SizedBox(
+              width: w,
+              child: Material(
+                color: _panel2,
+                borderRadius: BorderRadius.circular(10),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => _open(p),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          SevenInchRecord(color: p.category.color, code: p.code, size: 46, dimmed: p.isComingSoon),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(p.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
+                        ]),
+                        const SizedBox(height: 6),
+                        Text('${p.category.label} · ${p.isComingSoon ? l10n.jukeboxComingSoon : p.author}',
+                            style: const TextStyle(color: _muted, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _legend() {
+    return Wrap(
+      spacing: 18,
+      runSpacing: 10,
+      children: [
+        for (final c in PluginCategory.values)
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            SevenInchRecord(color: c.color, code: '', size: 22),
+            const SizedBox(width: 8),
+            Text('${c.letter} · ${c.label}', style: const TextStyle(color: _muted, fontSize: 13)),
+          ]),
+      ],
+    );
+  }
+}
+
+/// Detalhes de um plugin: disco grande, categoria, autor, licença, descrição e o botão de ligar/desligar.
+class _PluginSheet extends StatefulWidget {
+  final PluginStore store;
+  final PluginInfo plugin;
+  const _PluginSheet({required this.store, required this.plugin});
+
+  @override
+  State<_PluginSheet> createState() => _PluginSheetState();
+}
+
+class _PluginSheetState extends State<_PluginSheet> {
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.plugin;
+    final store = widget.store;
+    final on = store.isActive(p);
+    final String status;
+    if (p.isComingSoon) {
+      status = l10n.jukeboxComingSoonHint;
+    } else if (p.locked) {
+      status = l10n.jukeboxLockedHint;
+    } else if (p.category.exclusive && on) {
+      status = l10n.jukeboxExclusiveHint(p.category.label);
+    } else {
+      status = on ? l10n.jukeboxIsOn : l10n.jukeboxIsOff;
+    }
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SevenInchRecord(color: p.category.color, code: p.code, size: 96, spinning: on, dimmed: p.isComingSoon, glow: on),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.name, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 2),
+                      Text('${p.code} · ${p.category.label}', style: TextStyle(color: p.category.color, fontWeight: FontWeight.w700)),
+                      Text(p.author, style: const TextStyle(color: Colors.white60, fontSize: 13)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(p.description, style: const TextStyle(color: Colors.white70, height: 1.45)),
+            const SizedBox(height: 10),
+            Text('${l10n.jukeboxLicense}: ${p.license}', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+            if (p.category == PluginCategory.ai)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(l10n.jukeboxAiNotice, style: const TextStyle(color: Color(0xFFF6B74A), fontSize: 13)),
+              ),
+            const SizedBox(height: 14),
+            Text(status, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            if (store.canToggle(p))
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () async {
+                    await store.toggle(p);
+                    if (mounted) setState(() {});
+                  },
+                  child: Text(on ? l10n.jukeboxTurnOff : l10n.jukeboxTurnOn),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Arco de neon colorido em volta do gabinete da jukebox.
+class _NeonArchPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndCorners(
+      rect.deflate(1.5),
+      topLeft: const Radius.circular(150),
+      topRight: const Radius.circular(150),
+      bottomLeft: const Radius.circular(18),
+      bottomRight: const Radius.circular(18),
+    );
+    final colors = [
+      PluginCategory.display.color,
+      PluginCategory.ai.color,
+      const Color(0xFFF6B74A),
+      PluginCategory.language.color,
+    ];
+    final shader = SweepGradient(colors: [...colors, colors.first]).createShader(rect);
+    canvas.drawRRect(rrect, Paint()
+      ..shader = shader
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+    canvas.drawRRect(rrect, Paint()
+      ..shader = shader
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3);
+  }
+
+  @override
+  bool shouldRepaint(covariant _NeonArchPainter oldDelegate) => false;
+}

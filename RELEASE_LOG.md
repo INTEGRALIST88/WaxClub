@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.12] — 13/10/2026 (Jukebox de Plugins + Botões de Madeira)
+
+* **Plugin Jukebox** (botão de plugue ao lado de My Collection): cada plugin é um compacto de 7" em vinil colorido, desenhado em código (`SevenInchRecord`: sulcos, brilho, selo com o código de seleção, furo de 45 rpm; gira no prato). Categorias com cor e letra: **Language** (verde, L1…, um por vez), **Display** (ciano, D1…, vários), **AI** (lilás, A1…, vários, conteúdo marcado como IA). Novas categorias entram acrescentando um item em `PluginCategory`.
+  * Gabinete da jukebox em madeira com arco de neon, vitrine com os compactos instalados, mostrador e **teclado de seleção** (letra + número + Select), "On the platter" (discos girando), cartelas com filtro por categoria, caixote com os que vêm em breve, legenda e detalhes de cada plugin (licença, aviso de IA, ligar/desligar).
+  * Catálogo inicial: L1 English e D1 Synced lyrics (embutidos, no prato); em breve: Português (Brasil), Español, Record curiosities, AI curiosities, AI lyrics translation. Estado guardado no aparelho (`PluginStore`, `waxclub_plugins.json`).
+* **Botões de madeira** (arte do usuário, recortada com `tool/icon/WoodTileCrop.cs`): câmera, estante (My Collection), plugue (Plugins) e "?" (Help, que saiu do canto esquerdo). O logo foi para a esquerda, maior; **em pé, sem o texto ao lado do logo** (nome, versão e música só aparecem deitado).
+* **Apresentação na abertura:** o nome de cada botão aparece e some da esquerda para a direita, um botão por vez, alternando acima e abaixo (Camera acima, My Collection abaixo, Plugins acima, Help abaixo). Uma linha do tempo única mantém a sequência mesmo se a abertura travar a tela; a duração é preservada mesmo com as animações do sistema desligadas.
+* Ajuda: tópico "Plugins (jukebox)". Novos testes: `plugin_jukebox_test.dart`, `wood_tile_button_test.dart` e o modo em pé no `widget_test.dart`.
+
+---
 ## [v1.3.11] — 13/10/2026 (Reconhecimento do Disco pela Câmera)
 
 * **Ícone de câmera na barra superior**, ao lado de My Collection: abre "Identify your record".
