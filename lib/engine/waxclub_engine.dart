@@ -301,6 +301,34 @@ class WaxClubEngine extends ChangeNotifier {
   /// Tracklist oficial completa do disco travado.
   List<TrackEntry> get lockedTracklist => List.unmodifiable(_lockedTracklist);
 
+  /// O lado [side] é o último do disco (maior letra de lado na lista de faixas: B num LP simples,
+  /// D num duplo). Sem lados na lista, não dá para saber: `false`.
+  static bool isLastSideOfRecord(List<TrackEntry> tracklist, String side) {
+    final sides = tracklist.map((e) => e.side?.toUpperCase()).whereType<String>().where((s) => s.isNotEmpty).toSet();
+    if (sides.isEmpty) return false;
+    final last = sides.reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
+    return side.toUpperCase() == last;
+  }
+
+  /// Chave MANUAL (Modo Manual: letra pela minutagem, sem Shazam). Começa desligada e volta a
+  /// desligada quando o disco termina (fim da última música do último lado).
+  bool _manualMode = false;
+  bool get isManualMode => _manualMode;
+
+  void setManualMode(bool on) {
+    if (_manualMode == on) return;
+    _manualMode = on;
+    _logService.log('manual_mode', {'on': on});
+    notifyListeners();
+  }
+
+  void _resetManualMode(String reason) {
+    if (!_manualMode) return;
+    _manualMode = false;
+    _logService.log('manual_mode', {'on': false, 'reason': reason});
+    notifyListeners();
+  }
+
   /// Trava o nome, capa, artista e tracklist do disco para a sessão.
   void _lockAlbum({
     required String albumName,
@@ -2097,6 +2125,9 @@ class WaxClubEngine extends ChangeNotifier {
         : (label.length == 1 ? String.fromCharCode(label.codeUnitAt(0) + 1) : null);
     _sideFlipAnnounced = false;
     _logService.log('side_end_reached', {'side': label, 'nextSide': _nextSideLabel});
+    // Fim do último lado (B num LP simples, D num duplo...): acabou o disco, a chave MANUAL desliga
+    final record = _lockedTracklist.isNotEmpty ? _lockedTracklist : _prefetchService.currentDiscTracklist;
+    if (isLastSideOfRecord(record, label)) _resetManualMode('record_finished');
     _telemetry = _telemetry.copyWith(
       status: CalibrationStatus.waitingEndOfSide,
       statusMessage: l10n.statusEndOfSideFlip(label),

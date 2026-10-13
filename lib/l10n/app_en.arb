@@ -971,5 +971,11 @@
   "camera": "Identify",
   "helpTopBar": "The top bar",
   "helpTopBar1": "At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.",
-  "helpTopBar2": "The wooden buttons, from left to right: Identify (camera), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV."
+  "helpTopBar2": "The wooden buttons, from left to right: Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.",
+  "manual": "Manual",
+  "manualOnHint": "Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.",
+  "manualOffHint": "Manual mode off: WaxClub recognizes the songs automatically.",
+  "helpManual": "Manual mode",
+  "helpManual1": "For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).",
+  "helpManual2": "The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album)."
 }

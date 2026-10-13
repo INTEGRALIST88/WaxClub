@@ -1389,5 +1389,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpTopBar2 =>
-      'The wooden buttons, from left to right: Identify (camera), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.';
+      'The wooden buttons, from left to right: Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.';
+
+  @override
+  String get manual => 'Manual';
+
+  @override
+  String get manualOnHint =>
+      'Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.';
+
+  @override
+  String get manualOffHint =>
+      'Manual mode off: WaxClub recognizes the songs automatically.';
+
+  @override
+  String get helpManual => 'Manual mode';
+
+  @override
+  String get helpManual1 =>
+      'For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).';
+
+  @override
+  String get helpManual2 =>
+      'The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album).';
 }

@@ -264,6 +264,7 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Chave MANUAL (botão ligado/desligado) junto dos outros; começa desligada e desliga no fim do disco (último lado)** | `isManualMode`/`setManualMode`, `isLastSideOfRecord` em `_enterWaitingEndOfSide` | ✅ Conforme (v1.3.14) |
 | **Primeiro botão chamado "Identify" e ajuda com as novidades (barra superior, Identify, coleção, plugins)** | `l10n.camera` = "Identify"; `help_screen.dart` com o tópico "The top bar" | ✅ Conforme (v1.3.13) |
 | **Página de plugins em jukebox (Language, Display, AI; discos coloridos; botão ao lado de My Collection)** | `PluginJukeboxScreen` + `PluginStore` + `SevenInchRecord` | ✅ Conforme (v1.3.12) |
 | **Botões de madeira (câmera, coleção, plugins, ajuda) com nomes na abertura; logo à esquerda; sem texto em pé** | `WoodTileButton` + `IntroLabelsLayer` | ✅ Conforme (v1.3.12) |
@@ -377,7 +378,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 
 ### 6.1 Cronograma definido pelo usuário
 
-**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera (feito) → 1.3.12 Plugin Jukebox e botões de madeira (feito) → 1.3.13 botão "Identify" e ajuda (feito) → 1.3.14 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.15 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
+**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera (feito) → 1.3.12 Plugin Jukebox e botões de madeira (feito) → 1.3.13 botão "Identify" e ajuda (feito) → 1.3.14 chave MANUAL (feito) → 1.3.15 verificação no catálogo do Shazam + escuta pela minutagem + ▶ cromado → 1.3.16 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
 1. **Conta + coleção:** login por link mágico (e-mail) e Google, conta opcional, API PHP + MySQL na Hostinger. Na conta: coleção, discos padrão de "Change record" e histórico de audições (tabela de audições; disco conta 1 vez por sessão de 2 h, qualquer faixa ouvida). Perfil social: apelido, e-mail, país e cidade obrigatórios; campos opcionais com visibilidade por campo; 18+. Social v1: perfil público com coleção, seguir, mural "ouvindo agora", busca por cidade/país.
 2. **Sincronização com o Discogs nos dois sentidos**, feita pelo celular com o token do usuário. Campos da coleção seguem o Discogs (release_id obrigatório; nota 1–5, estado do disco/capa e observações opcionais).
 3. ~~Textos da interface em arquivos `.arb`~~ — **feito na v1.3.10**.
@@ -387,7 +388,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
    * Reconhecimento só gratuito: código de barras, nº de catálogo, texto da capa (ML Kit no aparelho), comparação visual com as capas candidatas, índice local de capas conhecidas, contracapa, digitar.
    * Depois do reconhecimento: confirmar a prensagem → "Add to collection?" (termina o cadastro) → "Let's listen?" Sim/Não.
    * Verifica se o disco está no catálogo de reconhecimento do Shazam (≈ Apple Music, via iTunes por código de barras ou artista + álbum, faixa a faixa). Se estiver, segue no automático com o disco travado; se não, avisa e liga o Modo Manual.
-   * Chave **MANUAL** na barra superior: começa desligada e volta a desligada sempre que o disco muda.
+   * Chave **MANUAL** na barra superior (feita na v1.3.14): começa desligada e desliga sozinha quando o disco termina (fim da última música do último lado: B num LP simples, último lado num duplo).
    * No Manual, o microfone cromado vira um **▶ cromado**. O microfone só mede volume para achar o começo da música e os silêncios entre faixas; sem microfone, o usuário toca ▶ quando a música começa.
    * Minutagem do LP: Discogs da prensagem → outras prensagens em vinil → MusicBrainz (vinil) → Wikipedia → outras fontes do LP. Durações digitais só em último caso. Não contar com o selo. Minutagem medida pelo microfone tem prioridade e será compartilhada.
    * Letra por plugin opcional; sem plugin ou sem letra, **curiosidades** curtas do disco e das faixas (sempre em inglês), animadas (sobem e esmaecem) no celular e na TV, guardadas no aparelho e depois no banco (tabela compartilhada).

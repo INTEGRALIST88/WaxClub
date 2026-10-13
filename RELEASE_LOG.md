@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.14] — 13/10/2026 (Chave MANUAL na Barra Superior)
+
+* **Chave "Manual"** de madeira (arte do usuário, um único botão com as imagens dos estados ligado/desligado: `btn_manual_on.png` / `btn_manual_off.png`), entre Identify e My Collection. Toque liga/desliga, com aviso.
+* **Regra:** começa **desligada** e **desliga sozinha quando o disco termina**, ao acabar a última música do último lado (lado B num LP simples; último lado num disco duplo). Não desliga ao trocar de disco. `WaxClubEngine.isManualMode` / `setManualMode`; o fim do disco é detectado no fim de lado (`isLastSideOfRecord`: maior letra de lado na lista de faixas).
+* A escuta pela minutagem (sem Shazam), com o ▶ cromado, chega na 1.3.15; por enquanto a chave guarda a escolha.
+* Nome "Manual" na apresentação da abertura (Identify acima, Manual abaixo, My Collection acima, Plugins abaixo, Help acima). Em pé, os botões ficam com 34 dp para os cinco caberem.
+* Ajuda: tópico "Manual mode" e "The top bar" com o novo botão. Novo `test/manual_switch_test.dart`.
+
+---
 ## [v1.3.13] — 13/10/2026 (Botão "Identify" + Ajuda Atualizada)
 
 * O primeiro botão de madeira (câmera) passa a se chamar **"Identify"** (identificar o disco), no nome da abertura e na dica ao segurar.

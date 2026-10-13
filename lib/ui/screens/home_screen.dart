@@ -54,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   /// Chaves dos botões de madeira, para os nomes da apresentação na abertura.
   final GlobalKey _cameraKey = GlobalKey();
+  final GlobalKey _manualKey = GlobalKey();
   final GlobalKey _collectionKey = GlobalKey();
   final GlobalKey _pluginsKey = GlobalKey();
   final GlobalKey _helpKey = GlobalKey();
@@ -355,6 +356,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
       ),
     ));
+  }
+
+  /// Liga/desliga a chave MANUAL. A escuta pela minutagem (sem Shazam) chega na próxima versão;
+  /// por enquanto a chave guarda a escolha e desliga sozinha quando o disco termina.
+  void _toggleManualMode() {
+    final on = !_engine.isManualMode;
+    _engine.setManualMode(on);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text(on ? l10n.manualOnHint : l10n.manualOffHint, style: const TextStyle(color: Colors.white)),
+      ));
   }
 
   /// Jukebox de plugins (idiomas, exibição, IA).
@@ -801,7 +815,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         // Tela estreita (celular em pé): sem o texto ao lado do logo, só os botões
         final compactBar = MediaQuery.sizeOf(context).width < 600;
         final logoSize = compactBar ? 46.0 : 50.0;
-        final tileSize = compactBar ? 36.0 : 40.0;
+        final tileSize = compactBar ? 34.0 : 40.0;
 
         return Stack(
           children: [
@@ -1010,6 +1024,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     size: tileSize,
                     key: _cameraKey,
                   ),
+                  // Chave MANUAL (mesmo botão, imagem do estado ligado/desligado)
+                  WoodTileButton(
+                    asset: _engine.isManualMode ? 'assets/images/btn_manual_on.png' : 'assets/images/btn_manual_off.png',
+                    label: l10n.manual,
+                    onPressed: _toggleManualMode,
+                    size: tileSize,
+                    key: _manualKey,
+                  ),
                   WoodTileButton(
                     asset: 'assets/images/btn_collection.png',
                     label: l10n.myCollection,
@@ -1098,11 +1120,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             // Nomes dos botões na abertura (esquerda → direita), por cima de tudo
             Positioned.fill(
               child: IntroLabelsLayer(specs: [
+                // Um botão por vez, da esquerda para a direita, alternando acima/abaixo
                 IntroLabelSpec(anchor: _cameraKey, text: l10n.camera, delay: Duration.zero, above: true),
+                IntroLabelSpec(anchor: _manualKey, text: l10n.manual, delay: const Duration(milliseconds: 1200)),
                 IntroLabelSpec(
-                    anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 1200)),
-                IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 2400), above: true),
-                IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 3600)),
+                    anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 2400), above: true),
+                IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 3600)),
+                IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 4800), above: true),
               ]),
             ),
           ],

@@ -2347,8 +2347,44 @@ abstract class AppLocalizations {
   /// No description provided for @helpTopBar2.
   ///
   /// In en, this message translates to:
-  /// **'The wooden buttons, from left to right: Identify (camera), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.'**
+  /// **'The wooden buttons, from left to right: Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.'**
   String get helpTopBar2;
+
+  /// No description provided for @manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manual;
+
+  /// No description provided for @manualOnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.'**
+  String get manualOnHint;
+
+  /// No description provided for @manualOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode off: WaxClub recognizes the songs automatically.'**
+  String get manualOffHint;
+
+  /// No description provided for @helpManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode'**
+  String get helpManual;
+
+  /// No description provided for @helpManual1.
+  ///
+  /// In en, this message translates to:
+  /// **'For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).'**
+  String get helpManual1;
+
+  /// No description provided for @helpManual2.
+  ///
+  /// In en, this message translates to:
+  /// **'The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album).'**
+  String get helpManual2;
 }
 
 class _AppLocalizationsDelegate
