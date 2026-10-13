@@ -142,6 +142,8 @@ lib/
   4. **Ajuste Fino de Rotação (Pitch):** Slider de $-5.0\%$ a $+5.0\%$ com precisão de $0.1\%$, botões rápidos de micro-passo (`[-0.1%]`, `[+0.1%]`), botão de `Reset (0.0%)` e botões de `Nudge` (`-0.5s`, `+0.5s`).
   5. **Botão de Microfone Ampliado:** Botão ergonômico largo no rodapé para início/interrupção imediata da captura e calibração.
 
+* **Letra no celular (sem transmitir), no estilo da TV (v1.3.8):** [`lib/ui/widgets/lyrics_list_view.dart`](lib/ui/widgets/lyrics_list_view.dart) replica o `web_receiver/index.html`: fonte Inter 800 (`assets/fonts/Inter-Variable.ttf`), centralizada, caixa alta só para alfabeto latino (`isLatinText`), escalas 1 / 1 / 0,76 / 0,62 e opacidades 1 / 0,92 / 0,24 / 0,16 por distância da linha atual (`scaleFor` / `opacityFor`), linha atual centralizada, bordas esmaecendo (ShaderMask 0–18% e 82–100%), curva cubic-bezier(0.22, 0.8, 0.24, 1), "♪" nos trechos sem letra.
+
 ### 3.7 Módulo 7: Descoberta, Transmissão e Web Receiver (Cast)
 * **Arquivos:** [`lib/services/cast_sync_service.dart`](lib/services/cast_sync_service.dart), [`lib/services/cast_v2_client.dart`](lib/services/cast_v2_client.dart), [`lib/services/tv_web_receiver_html.dart`](lib/services/tv_web_receiver_html.dart) e [`lib/ui/widgets/cast_thinking_wheel_dialog.dart`](lib/ui/widgets/cast_thinking_wheel_dialog.dart)
 * **Ecossistema Google Cast Oficial (Application ID `27687E0B`):**
@@ -239,6 +241,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Letra no celular com a mesma fonte e apresentação da TV** | `lyrics_list_view.dart` com Inter 800, caixa alta latina, 3 linhas em destaque, 76%/62%, esmaecimento e linha atual centralizada | ✅ Conforme (v1.3.8) |
+| **Ícone do app com o rótulo "WaxClub / VINYL SOCIAL CLUB"** | `app_icon.png` gerado da arte original mantendo o selo (`WaxClubWoodIcon.cs`, keepLabel) | ✅ Conforme (v1.3.8) |
 | **Ícone de Transmissão presente** | Implementado no topo esquerdo com estados vazado/conectado | ✅ Conforme |
 | **Numeração de Versão progressiva a cada build** | Série 1.3 (`v1.3.2+2302`; próximas 1.3.3, 1.3.4...) | ✅ Conforme |
 | **Celular se anuncia na rede (`_waxclub._tcp`) para apps de TV** | NsdManager (`PhoneNsdAnnouncer.kt`) + `phone_announcer.dart`; TXT com `ws=/cast`, `path=/`, versão | ✅ Conforme (v1.3.3) |

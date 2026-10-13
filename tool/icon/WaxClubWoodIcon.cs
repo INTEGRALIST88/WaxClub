@@ -1,5 +1,5 @@
-// Ícone do WaxClub em madeira (a partir da arte do usuário): recorta o quadrado de madeira, redesenha o
-// selo do disco SEM texto (creme + faixa laranja, balão de conversa e pessoas), escurece levemente a
+// Ícone do WaxClub em madeira (a partir da arte do usuário): recorta o quadrado de madeira, mantém o
+// selo do disco com o texto (com keepLabel=false, redesenha o selo SEM texto: creme + faixa laranja, balão e pessoas), escurece levemente a
 // borda do disco (encaixe entalhado) e deixa os cantos transparentes.
 // Uso (PowerShell): Add-Type -Path WaxClubWoodIcon.cs -ReferencedAssemblies System.Drawing
 //                   [WaxClubWoodIcon]::Render("arte.png", "saida.png", 1024)
@@ -26,7 +26,10 @@ public static class WaxClubWoodIcon
         return Rectangle.FromLTRB(left, top, right + 1, bottom + 1);
     }
 
-    public static void Render(string src, string output, int size)
+    public static void Render(string src, string output, int size) { Render(src, output, size, true); }
+
+    // keepLabel: mantém o selo original da arte ("WaxClub" / "VINYL SOCIAL CLUB"); false redesenha o selo sem texto
+    public static void Render(string src, string output, int size, bool keepLabel)
     {
         using (var art = new Bitmap(src))
         {
@@ -53,6 +56,8 @@ public static class WaxClubWoodIcon
                         using (var pen = new Pen(Color.FromArgb(10, 40, 18, 6), 2.2f + i * 1.6f))
                             g.DrawEllipse(pen, dx - dr - i, dy - dr - i, 2 * (dr + i), 2 * (dr + i));
 
+                    if (!keepLabel)
+                    {
                     // Selo sem texto
                     using (var clip = new GraphicsPath())
                     {
@@ -99,6 +104,7 @@ public static class WaxClubWoodIcon
                         person(px - 15, py + 2, 0.85f);
                         person(px + 15, py + 2, 0.85f);
                         person(px, py, 1.05f);
+                    }
                     }
                 }
 

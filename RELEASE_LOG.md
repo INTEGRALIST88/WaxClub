@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.8] — 13/10/2026 (Letra no Celular no Estilo da TV + Ícone com o Rótulo de Volta)
+
+* **Letra no próprio app igual à da TV:** fonte **Inter** peso 800 (embutida em `assets/fonts/`, licença OFL), centralizada e em **caixa alta** quando o texto é em alfabeto latino (outros alfabetos ficam como estão). Três linhas em destaque do mesmo tamanho (anterior, atual e próxima), a atual em branco com brilho laranja; a 2ª linha de distância em 76% e apagada, as demais em 62% e quase invisíveis. A linha atual fica sempre no centro da área visível, com as bordas esmaecendo, e as transições seguem a mesma curva da TV. Trechos sem letra mostram "♪". O tamanho da letra acompanha a altura da tela.
+* **Ícone do app:** voltou o rótulo da arte original, com "WaxClub" e "VINYL SOCIAL CLUB" (na v1.3.5 o rótulo tinha sido redesenhado sem texto por engano). `tool/icon/WaxClubWoodIcon.cs` agora mantém o rótulo por padrão; ícones do Android regenerados.
+* Novo `test/lyrics_tv_style_test.dart` (caixa alta só para alfabeto latino, tamanhos/cores por distância, fonte Inter 800 centralizada).
+
+---
 ## [v1.3.7] — 12/10/2026 (Microfone Cromado no Centro da Barra Inferior)
 
 * O botão de ouvir passou a ser **só o microfone cromado** (extraído da arte, sem a madeira: `assets/images/mic_chrome.png`, por `tool/icon/ChromeMicExtract.cs`), no **centro da barra inferior**. Ouvindo, um halo laranja pulsa atrás dele e aparece o selo vermelho de parar.
