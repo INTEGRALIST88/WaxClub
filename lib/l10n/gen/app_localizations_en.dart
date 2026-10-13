@@ -1396,7 +1396,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualOnHint =>
-      'Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.';
+      'Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.';
 
   @override
   String get manualOffHint =>
@@ -1407,9 +1407,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpManual1 =>
-      'For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).';
+      'For records the recognition system does not know. With the Manual switch on, the microphone button becomes a chrome ▶: tap it, pick the track where the needle starts and drop the needle. The microphone only measures the volume to find the start; then the lyrics and track changes follow the record\'s track timing.';
 
   @override
   String get helpManual2 =>
-      'The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album).';
+      'At the end of a side, flip the record and tap ▶. In the tracklist you can tap a track to jump to it. After Identify, WaxClub checks the recognition system and turns Manual mode on by itself when the record is not there. The switch starts off and turns off when the record ends (last song of the last side).';
+
+  @override
+  String get manualModeOffStatus => 'Manual mode off.';
+
+  @override
+  String manualWaitingNeedle(String number, String title) {
+    return '▶ $number $title — drop the needle: the lyrics start with the music.';
+  }
+
+  @override
+  String get manualNeedleTimeout =>
+      'The music did not start. Tap ▶ when the needle is on the record.';
+
+  @override
+  String manualPlaying(String number, String title) {
+    return 'Manual • $number $title';
+  }
+
+  @override
+  String get manualNoDuration =>
+      'Manual • track length unknown: tap the next track in the tracklist when it starts.';
+
+  @override
+  String get manualRecordEnded => 'End of the record. Manual mode off.';
+
+  @override
+  String manualFlipAndPlay(String side) {
+    return 'End of side $side. Flip the record and tap ▶.';
+  }
+
+  @override
+  String get manualStartTitle => 'Where does the needle start?';
+
+  @override
+  String get manualUseMic => 'Detect the start with the microphone';
+
+  @override
+  String get manualUseMicHint =>
+      'The microphone only measures the volume to find where the music starts. No song recognition.';
+
+  @override
+  String get manualNoMicHint =>
+      'The lyrics start as soon as you pick the track.';
+
+  @override
+  String manualMissingDurations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count tracks have no length: tap them in the tracklist when they start.',
+      one: '1 track has no length: tap it in the tracklist when it starts.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get manualNoRecord =>
+      'Identify the record first: Manual mode follows its tracklist.';
+
+  @override
+  String get manualPlayTooltip => 'Start (Manual mode)';
+
+  @override
+  String get manualStopTooltip => 'Stop (Manual mode)';
+
+  @override
+  String get manualNextSideTooltip => 'Start the next side';
+
+  @override
+  String get catalogChecking => 'Checking the recognition system...';
+
+  @override
+  String get catalogNotFoundTitle => 'Not in the recognition system';
+
+  @override
+  String get catalogNotFoundBody =>
+      'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.';
 }

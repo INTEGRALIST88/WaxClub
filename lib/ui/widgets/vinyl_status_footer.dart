@@ -21,6 +21,9 @@ class VinylStatusFooter extends StatefulWidget {
   final VoidCallback? onMicPressed;
   final double micSize;
 
+  /// Substitui o microfone cromado no centro (ex.: o ▶ cromado do Modo Manual).
+  final Widget? centerButton;
+
   const VinylStatusFooter({
     super.key,
     required this.telemetry,
@@ -33,6 +36,7 @@ class VinylStatusFooter extends StatefulWidget {
     this.isListening = false,
     this.onMicPressed,
     this.micSize = 60,
+    this.centerButton,
   });
 
   @override
@@ -140,7 +144,12 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
                     ),
                     ),
                   ),
-                  if (widget.onMicPressed != null)
+                  if (widget.centerButton != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: widget.centerButton,
+                    )
+                  else if (widget.onMicPressed != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: WoodMicButton(

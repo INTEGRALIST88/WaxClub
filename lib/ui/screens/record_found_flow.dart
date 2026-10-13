@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../engine/waxclub_engine.dart';
+import '../../services/recognition_catalog_service.dart';
 import '../../l10n/l10n.dart';
 import '../../models/track_entry.dart';
 import '../../services/collection_service.dart';
@@ -18,6 +20,7 @@ Future<bool> runRecordFoundFlow(
   required DiscogsCollectionService? discogsCollection,
   required ReleaseCandidate release,
   required List<TrackEntry> tracklist,
+  RecognitionCatalogService? catalog,
 }) async {
   final artist = release.artistName ?? '';
   final already = collection.contains(release.albumTitle, artist);
@@ -73,6 +76,23 @@ Future<bool> runRecordFoundFlow(
   );
   if (!context.mounted) return false;
 
+  // O disco está no catálogo de reconhecimento? Se não estiver, avisa e liga o Modo Manual
+  final check = await _checkRecognitionCatalog(context, catalog ?? RecognitionCatalogService(), release, tracklist);
+  if (!context.mounted) return false;
+  if (check != null && !check.found) {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: Text(l10n.catalogNotFoundTitle, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800)),
+        content: Text(l10n.catalogNotFoundBody, style: const TextStyle(color: Colors.white70, height: 1.4)),
+        actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok))],
+      ),
+    );
+    engine.setManualMode(true);
+    if (!context.mounted) return false;
+  }
+
   final listen = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -86,6 +106,42 @@ Future<bool> runRecordFoundFlow(
     ),
   );
   return listen == true;
+}
+
+/// Consulta o catálogo de reconhecimento mostrando "Checking..."; nulo se não deu para consultar.
+Future<CatalogCheckResult?> _checkRecognitionCatalog(
+  BuildContext context,
+  RecognitionCatalogService service,
+  ReleaseCandidate release,
+  List<TrackEntry> tracklist,
+) async {
+  final future = service.check(
+    barcode: release.barcode,
+    artist: release.artistName ?? '',
+    album: release.albumTitle,
+    tracklist: tracklist,
+  );
+  unawaited(showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) {
+      future.whenComplete(() {
+        if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+      });
+      return AlertDialog(
+        backgroundColor: AppTheme.surface,
+        content: Row(children: [
+          const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.orange)),
+          const SizedBox(width: 16),
+          Expanded(child: Text(l10n.catalogChecking, style: const TextStyle(color: Colors.white))),
+        ]),
+      );
+    },
+  ));
+  final result = await future;
+  // dá tempo do diálogo fechar antes do próximo
+  await Future<void>.delayed(const Duration(milliseconds: 150));
+  return result;
 }
 
 /// Capa, título, artista e os dados da prensagem (ano, país, gravadora, nº de catálogo, formato).

@@ -2,6 +2,20 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.15] — 13/10/2026 (Modo Manual: Letra pela Minutagem, sem Shazam)
+
+* **Verificação no catálogo de reconhecimento** depois do Identify (`RecognitionCatalogService`): consulta grátis ao iTunes (catálogo ≈ Apple Music, o mesmo do reconhecimento) pelo código de barras ou por artista + álbum e confere faixa a faixa (encontrado = pelo menos metade das faixas). Fora do catálogo: aviso "This record was not found in the recognition system. Switching to Manual mode." e a chave MANUAL liga. Sem rede: segue no automático.
+* **Modo Manual funcionando:** com a chave ligada, o microfone vira o **▶ cromado** (`ChromePlayButton`, desenhado em código; ▶ iniciar, ■ parar, ▶ pulsando para o próximo lado).
+  * Toque no ▶ → "Where does the needle start?": faixas por lado com a duração e a opção "Detect the start with the microphone" (padrão).
+  * Com o microfone: a letra fica em 0:00 e o app **só mede o volume** (nenhuma consulta ao Shazam) até a música começar; a letra corre a partir do primeiro som. Sem o microfone: começa na hora.
+  * As trocas de faixa seguem a **minutagem do LP** (Discogs/MusicBrainz/Wikipedia) com 2 s de tempo morto entre faixas e a rotação do toca-discos.
+  * Fim do lado: "End of side A. Flip the record and tap ▶." → o ▶ começa a 1ª faixa do novo lado (de novo esperando a agulha).
+  * Fim do disco (última música do último lado): a chave MANUAL desliga sozinha.
+  * Na lista de faixas, tocar numa faixa pula para ela. Faixa sem duração: aviso para tocar na próxima faixa quando ela começar. Sem disco identificado, o ▶ abre o Identify.
+* O disco escolhido no Identify fica travado (lista de faixas do Modo Manual). Desligar a chave encerra a escuta manual; a escuta automática não roda durante o Modo Manual (sem checagens pelo Shazam).
+* Ajuda: "Manual mode" atualizado. Novo `test/manual_mode_test.dart` (catálogo pelo código de barras/busca/sem rede; lado A → virar → lado B → fim do disco com a chave desligando; zero consultas ao Shazam).
+
+---
 ## [v1.3.14] — 13/10/2026 (Chave MANUAL na Barra Superior)
 
 * **Chave "Manual"** de madeira (arte do usuário, um único botão com as imagens dos estados ligado/desligado: `btn_manual_on.png` / `btn_manual_off.png`), entre Identify e My Collection. Toque liga/desliga, com aviso.

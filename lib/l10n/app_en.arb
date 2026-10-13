@@ -973,9 +973,62 @@
   "helpTopBar1": "At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.",
   "helpTopBar2": "The wooden buttons, from left to right: Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.",
   "manual": "Manual",
-  "manualOnHint": "Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.",
+  "manualOnHint": "Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.",
   "manualOffHint": "Manual mode off: WaxClub recognizes the songs automatically.",
   "helpManual": "Manual mode",
-  "helpManual1": "For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).",
-  "helpManual2": "The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album)."
+  "helpManual1": "For records the recognition system does not know. With the Manual switch on, the microphone button becomes a chrome ▶: tap it, pick the track where the needle starts and drop the needle. The microphone only measures the volume to find the start; then the lyrics and track changes follow the record's track timing.",
+  "helpManual2": "At the end of a side, flip the record and tap ▶. In the tracklist you can tap a track to jump to it. After Identify, WaxClub checks the recognition system and turns Manual mode on by itself when the record is not there. The switch starts off and turns off when the record ends (last song of the last side).",
+  "manualModeOffStatus": "Manual mode off.",
+  "manualWaitingNeedle": "▶ {number} {title} — drop the needle: the lyrics start with the music.",
+  "@manualWaitingNeedle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "manualNeedleTimeout": "The music did not start. Tap ▶ when the needle is on the record.",
+  "manualPlaying": "Manual • {number} {title}",
+  "@manualPlaying": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "manualNoDuration": "Manual • track length unknown: tap the next track in the tracklist when it starts.",
+  "manualRecordEnded": "End of the record. Manual mode off.",
+  "manualFlipAndPlay": "End of side {side}. Flip the record and tap ▶.",
+  "@manualFlipAndPlay": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "manualStartTitle": "Where does the needle start?",
+  "manualUseMic": "Detect the start with the microphone",
+  "manualUseMicHint": "The microphone only measures the volume to find where the music starts. No song recognition.",
+  "manualNoMicHint": "The lyrics start as soon as you pick the track.",
+  "manualMissingDurations": "{count, plural, =1{1 track has no length: tap it in the tracklist when it starts.} other{{count} tracks have no length: tap them in the tracklist when they start.}}",
+  "@manualMissingDurations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manualNoRecord": "Identify the record first: Manual mode follows its tracklist.",
+  "manualPlayTooltip": "Start (Manual mode)",
+  "manualStopTooltip": "Stop (Manual mode)",
+  "manualNextSideTooltip": "Start the next side",
+  "catalogChecking": "Checking the recognition system...",
+  "catalogNotFoundTitle": "Not in the recognition system",
+  "catalogNotFoundBody": "This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record."
 }

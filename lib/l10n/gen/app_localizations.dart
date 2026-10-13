@@ -2359,7 +2359,7 @@ abstract class AppLocalizations {
   /// No description provided for @manualOnHint.
   ///
   /// In en, this message translates to:
-  /// **'Manual mode on. Lyrics that follow the track timing (no Shazam) arrive in the next version. The switch turns off by itself when the record ends.'**
+  /// **'Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.'**
   String get manualOnHint;
 
   /// No description provided for @manualOffHint.
@@ -2377,14 +2377,128 @@ abstract class AppLocalizations {
   /// No description provided for @helpManual1.
   ///
   /// In en, this message translates to:
-  /// **'For records the recognition system does not know. With the Manual switch on, the lyrics follow the track timing of the record instead of listening for each song (coming in the next version).'**
+  /// **'For records the recognition system does not know. With the Manual switch on, the microphone button becomes a chrome ▶: tap it, pick the track where the needle starts and drop the needle. The microphone only measures the volume to find the start; then the lyrics and track changes follow the record\'s track timing.'**
   String get helpManual1;
 
   /// No description provided for @helpManual2.
   ///
   /// In en, this message translates to:
-  /// **'The switch starts off and turns off by itself when the record ends, after the last song of the last side (side B on a single LP, the last side on a double album).'**
+  /// **'At the end of a side, flip the record and tap ▶. In the tracklist you can tap a track to jump to it. After Identify, WaxClub checks the recognition system and turns Manual mode on by itself when the record is not there. The switch starts off and turns off when the record ends (last song of the last side).'**
   String get helpManual2;
+
+  /// No description provided for @manualModeOffStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode off.'**
+  String get manualModeOffStatus;
+
+  /// No description provided for @manualWaitingNeedle.
+  ///
+  /// In en, this message translates to:
+  /// **'▶ {number} {title} — drop the needle: the lyrics start with the music.'**
+  String manualWaitingNeedle(String number, String title);
+
+  /// No description provided for @manualNeedleTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The music did not start. Tap ▶ when the needle is on the record.'**
+  String get manualNeedleTimeout;
+
+  /// No description provided for @manualPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual • {number} {title}'**
+  String manualPlaying(String number, String title);
+
+  /// No description provided for @manualNoDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual • track length unknown: tap the next track in the tracklist when it starts.'**
+  String get manualNoDuration;
+
+  /// No description provided for @manualRecordEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'End of the record. Manual mode off.'**
+  String get manualRecordEnded;
+
+  /// No description provided for @manualFlipAndPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'End of side {side}. Flip the record and tap ▶.'**
+  String manualFlipAndPlay(String side);
+
+  /// No description provided for @manualStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where does the needle start?'**
+  String get manualStartTitle;
+
+  /// No description provided for @manualUseMic.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect the start with the microphone'**
+  String get manualUseMic;
+
+  /// No description provided for @manualUseMicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The microphone only measures the volume to find where the music starts. No song recognition.'**
+  String get manualUseMicHint;
+
+  /// No description provided for @manualNoMicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The lyrics start as soon as you pick the track.'**
+  String get manualNoMicHint;
+
+  /// No description provided for @manualMissingDurations.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 track has no length: tap it in the tracklist when it starts.} other{{count} tracks have no length: tap them in the tracklist when they start.}}'**
+  String manualMissingDurations(int count);
+
+  /// No description provided for @manualNoRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify the record first: Manual mode follows its tracklist.'**
+  String get manualNoRecord;
+
+  /// No description provided for @manualPlayTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start (Manual mode)'**
+  String get manualPlayTooltip;
+
+  /// No description provided for @manualStopTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop (Manual mode)'**
+  String get manualStopTooltip;
+
+  /// No description provided for @manualNextSideTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the next side'**
+  String get manualNextSideTooltip;
+
+  /// No description provided for @catalogChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the recognition system...'**
+  String get catalogChecking;
+
+  /// No description provided for @catalogNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the recognition system'**
+  String get catalogNotFoundTitle;
+
+  /// No description provided for @catalogNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.'**
+  String get catalogNotFoundBody;
 }
 
 class _AppLocalizationsDelegate

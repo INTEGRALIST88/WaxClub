@@ -24,6 +24,8 @@ import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
 import 'record_scan_screen.dart';
 import 'plugin_jukebox_screen.dart';
+import '../widgets/chrome_play_button.dart';
+import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
@@ -371,6 +373,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ));
   }
 
+  /// ▶ cromado do Modo Manual: parar, começar o próximo lado (depois de virar) ou escolher onde a agulha começa.
+  Future<void> _onManualPressed() async {
+    if (_engine.isManualPlaying) {
+      _engine.stopManual();
+      return;
+    }
+    if (_engine.manualPendingIndex != null) {
+      await _engine.startManualPending();
+      return;
+    }
+    final tracks = _engine.manualRecordTracklist;
+    if (tracks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text(l10n.manualNoRecord, style: const TextStyle(color: Colors.white)),
+      ));
+      await _openRecordScan();
+      return;
+    }
+    final choice = await showManualStartSheet(context, tracks, album: _engine.lockedAlbumName);
+    if (choice == null || !mounted) return;
+    await _engine.startManualPlayback(trackIndex: choice.trackIndex, useMic: choice.useMic);
+  }
+
   /// Jukebox de plugins (idiomas, exibição, IA).
   void _openPlugins() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => PluginJukeboxScreen(store: _plugins)));
@@ -446,7 +472,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     ));
     if (listen == true && mounted && !_engine.telemetry.isUserListening) {
-      _engine.startListening();
+      // Disco fora do catálogo de reconhecimento: o Modo Manual já foi ligado no fluxo
+      if (_engine.isManualMode) {
+        await _onManualPressed();
+      } else {
+        _engine.startListening();
+      }
     }
   }
 
@@ -692,6 +723,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                             return ListTile(
                               dense: true,
+                              // Modo Manual: tocar numa faixa pula para ela (começa agora)
+                              onTap: _engine.isManualMode
+                                  ? () {
+                                      final i = TracklistMatcher.findIndex(_engine.manualRecordTracklist, entry.title);
+                                      if (i < 0) return;
+                                      Navigator.of(context).pop();
+                                      _engine.manualJumpTo(i);
+                                    }
+                                  : null,
                               tileColor: isCurrent
                                   ? AppTheme.cream.withValues(alpha: 0.12)
                                   : (isNext ? AppTheme.orange.withValues(alpha: 0.08) : null),
@@ -1115,6 +1155,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       isListening: isListening,
                       onMicPressed: _onFabPressed,
                       micSize: micSize,
+                      // Modo Manual: o microfone vira o ▶ cromado
+                      centerButton: _engine.isManualMode
+                          ? ChromePlayButton(
+                              size: micSize,
+                              state: _engine.isManualPlaying
+                                  ? ChromeButtonState.stop
+                                  : (_engine.manualPendingIndex != null ? ChromeButtonState.flip : ChromeButtonState.play),
+                              tooltip: _engine.isManualPlaying
+                                  ? l10n.manualStopTooltip
+                                  : (_engine.manualPendingIndex != null ? l10n.manualNextSideTooltip : l10n.manualPlayTooltip),
+                              onPressed: _onManualPressed,
+                            )
+                          : null,
                     ),
             ),
             // Nomes dos botões na abertura (esquerda → direita), por cima de tudo

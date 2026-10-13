@@ -319,6 +319,7 @@ class WaxClubEngine extends ChangeNotifier {
     if (_manualMode == on) return;
     _manualMode = on;
     _logService.log('manual_mode', {'on': on});
+    if (!on && (isManualPlaying || _manualPendingIndex != null)) _stopManual(l10n.manualModeOffStatus);
     notifyListeners();
   }
 
@@ -400,6 +401,10 @@ class WaxClubEngine extends ChangeNotifier {
       for (final e in tracklist) TrackInfo(title: e.title, artist: e.artist ?? artist, offsetSeconds: 0.0),
     ], albumTitle, source: 'user');
     if (_isDisposed) return;
+    // Disco escolhido pela câmera fica travado: é a lista de faixas do Modo Manual
+    _lockAlbum(albumName: albumTitle, coverUrl: coverUrl, artist: artist, tracklist: tracklist);
+    _lockedAlbumSource = 'user';
+    notifyListeners();
     _logService.log('record_scanned', {'album': albumTitle, 'artist': artist, 'source': source, 'tracks': tracklist.length});
     debugPrint('[WaxClubEngine] 📷 Disco reconhecido pela câmera: "$albumTitle" ($source, ${tracklist.length} faixas).');
 
@@ -740,6 +745,7 @@ class WaxClubEngine extends ChangeNotifier {
 
   /// Inicia o ciclo completo de escuta e calibração de vinil (Smart Listening Scheduler).
   Future<void> startListening({bool useMockIfRecognitionFails = false}) async {
+    _clearManualState();
     _resetState();
     _sessionHistory.clear();
     _sessionConfirmedTitles.clear();
@@ -1199,6 +1205,7 @@ class WaxClubEngine extends ChangeNotifier {
   void _scheduleNextSyncCheck({int? delaySeconds}) {
     _syncCheckTimer?.cancel();
     _countdownTimer?.cancel();
+    if (isManualPlaying) return; // Modo Manual: sem checagens pelo Shazam
     if (_isDisposed || _isPaused || _currentTrack == null || _tStart == null) return;
 
     const delays = PredictionTuning.syncCheckDelaysSeconds;
@@ -1286,6 +1293,10 @@ class WaxClubEngine extends ChangeNotifier {
   /// Agenda o reconhecimento imediato da próxima faixa ao terminar a música atual.
   void _scheduleEndOfTrackListener() {
     _endOfTrackTimer?.cancel();
+    if (isManualPlaying) {
+      _scheduleManualAdvance(); // Modo Manual: a troca de faixa vem da minutagem
+      return;
+    }
 
     if (!_continuousMode) {
       debugPrint('[WaxClubEngine] Modo contínuo desativado — sem auto-listen.');
@@ -2603,6 +2614,242 @@ class WaxClubEngine extends ChangeNotifier {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // MODO MANUAL: letra e trocas de faixa pela minutagem do disco, sem Shazam.
+  // O microfone só mede o volume para achar o começo da música (agulha no disco).
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Tempo morto entre faixas no vinil (será aprendido com a minutagem medida).
+  @visibleForTesting
+  static double manualGapSeconds = 2.0;
+
+  List<TrackEntry> _manualTracks = [];
+  int _manualIndex = -1;
+  int? _manualPendingIndex;
+  bool _manualUseMic = true;
+  Timer? _manualAdvanceTimer;
+
+  /// Uma faixa do disco está tocando pelo Modo Manual (ou esperando a agulha).
+  bool get isManualPlaying => _manualIndex >= 0;
+
+  /// Faixa (índice na lista do disco) que começa ao tocar ▶ depois de virar o disco.
+  int? get manualPendingIndex => _manualPendingIndex;
+
+  /// Índice da faixa atual no Modo Manual (-1 se parado).
+  int get manualTrackIndex => _manualIndex;
+
+  /// Lista de faixas do disco usada no Modo Manual (o disco travado/escolhido).
+  List<TrackEntry> get manualRecordTracklist => List.unmodifiable(
+      _lockedTracklist.isNotEmpty ? _lockedTracklist : _prefetchService.currentDiscTracklist);
+
+  /// Começa o disco na faixa [trackIndex]. Com [useMic], a letra fica parada em 0:00 até o microfone
+  /// ouvir a música começar; sem microfone, começa na hora. Retorna `false` sem lista de faixas.
+  Future<bool> startManualPlayback({required int trackIndex, bool useMic = true}) async {
+    final tracks = manualRecordTracklist;
+    if (tracks.isEmpty || trackIndex < 0 || trackIndex >= tracks.length) return false;
+    _cancelAutomaticFlow();
+    if (!_manualMode) {
+      _manualMode = true;
+      _logService.log('manual_mode', {'on': true, 'reason': 'manual_start'});
+    }
+    _manualTracks = List.of(tracks);
+    _manualUseMic = useMic;
+    _manualPendingIndex = null;
+    _isPaused = false;
+    _telemetry = _telemetry.copyWith(isUserListening: true, clearSideEndLabel: true, sideEndLabel: null);
+    final mySession = _sessionId;
+    final ok = await _manualShowTrack(trackIndex, mySession);
+    if (!ok || _sessionId != mySession || _isDisposed) return false;
+    _logService.log('manual_start', {'track': _currentTrack?.title, 'index': trackIndex, 'mic': useMic});
+    if (useMic) {
+      unawaited(_manualAwaitOnset(mySession));
+    } else {
+      _manualStartAt(DateTime.now());
+    }
+    return true;
+  }
+
+  /// Toque no ▶ depois de virar o disco: começa a próxima faixa (a 1ª do novo lado).
+  Future<bool> startManualPending() async {
+    final i = _manualPendingIndex;
+    if (i == null) return false;
+    return startManualPlayback(trackIndex: i, useMic: _manualUseMic);
+  }
+
+  /// Pula para a faixa [trackIndex] começando agora (sem esperar o microfone).
+  Future<bool> manualJumpTo(int trackIndex) => startManualPlayback(trackIndex: trackIndex, useMic: false);
+
+  /// Encerra a escuta manual (a chave continua como estiver).
+  void stopManual() => _stopManual(l10n.statusMicOffStopped);
+
+  void _cancelAutomaticFlow() {
+    _sessionId++;
+    _recordService.cancelRecording();
+    _tickerTimer?.cancel();
+    _tickerTimer = null;
+    _syncCheckTimer?.cancel();
+    _countdownTimer?.cancel();
+    _endOfTrackTimer?.cancel();
+    _sideFlipProbeTimer?.cancel();
+    _sideFlipProbeTimer = null;
+    _waitingEndOfSideEnteredAt = null;
+    _awaitingNeedle = false;
+    _manualAdvanceTimer?.cancel();
+  }
+
+  void _clearManualState() {
+    _manualAdvanceTimer?.cancel();
+    _manualAdvanceTimer = null;
+    _manualIndex = -1;
+    _manualPendingIndex = null;
+    _manualTracks = [];
+  }
+
+  void _stopManual(String message) {
+    _sessionId++;
+    _recordService.cancelRecording();
+    _tickerTimer?.cancel();
+    _tickerTimer = null;
+    _clearManualState();
+    _telemetry = _telemetry.copyWith(isUserListening: false, clearSideEndLabel: true, sideEndLabel: null);
+    _updateStatus(CalibrationStatus.idle, message, isMicActive: false);
+  }
+
+  /// Mostra a faixa [i] em 0:00 (letra carregada, relógio parado).
+  Future<bool> _manualShowTrack(int i, int mySession) async {
+    final e = _manualTracks[i];
+    final artist = e.artist ?? _lockedAlbumArtist ?? _currentTrack?.artist ?? '';
+    final track = TrackInfo(
+      title: e.title,
+      artist: artist,
+      album: _lockedAlbumName,
+      durationMs: e.lengthMs,
+      coverUrl: _lockedAlbumCoverUrl,
+      offsetSeconds: 0.0,
+      isAlbumLocked: isAlbumLocked,
+    );
+    _manualIndex = i;
+    final shown = await _showPredictedTrack(track, mySession, startTicker: false);
+    if (shown == null) return false;
+    // Duração pela minutagem do disco (LP primeiro); a do provedor de letras só se faltar
+    final lp = (e.lengthMs ?? 0) > 0 ? e.lengthMs! / 1000.0 : null;
+    if (lp != null) _trackDurationSeconds = lp;
+    _telemetry = _telemetry.copyWith(trackDurationSeconds: _trackDurationSeconds);
+    _updateStatus(
+      CalibrationStatus.playingUncalibrated,
+      l10n.manualWaitingNeedle(e.number ?? '${i + 1}', e.title),
+      isMicActive: _manualUseMic,
+    );
+    return true;
+  }
+
+  /// Escuta só o volume (sem Shazam) até a música começar e inicia a letra no primeiro som.
+  Future<void> _manualAwaitOnset(int mySession) async {
+    final waitStart = DateTime.now();
+    while (_sessionId == mySession && !_isDisposed) {
+      if (DateTime.now().difference(waitStart) > PredictionTuning.sideFlipMaxWait) {
+        _stopManual(l10n.manualNeedleTimeout);
+        return;
+      }
+      _telemetry = _telemetry.copyWith(isMicActive: true);
+      notifyListeners();
+      final outcome = await _captureLevelOnly();
+      if (_sessionId != mySession || _isDisposed) return;
+      if (outcome.cancelled) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        continue;
+      }
+      if (outcome.silent) continue;
+      _telemetry = _telemetry.copyWith(isMicActive: false);
+      _manualStartAt(outcome.soundOnset ?? outcome.captureStart);
+      return;
+    }
+  }
+
+  /// Captura curta só para medir o volume (nenhuma consulta ao Shazam).
+  Future<CaptureOutcome> _captureLevelOnly({Duration chunk = const Duration(milliseconds: 1500)}) async {
+    AudioLevelReport? report;
+    final requestedAt = DateTime.now();
+    final captureStart = await _recordService.recordProgressive(
+      checkpoints: [chunk],
+      priority: RecordPriority.user,
+      onCheckpoint: (wav, _) async {
+        report = AudioLevelAnalyzer.analyze(wav, referenceMusicDb: _referenceMusicDb);
+        return true;
+      },
+    );
+    final start = captureStart ?? _recordService.lastRecordStartTime ?? requestedAt;
+    final r = report;
+    if (captureStart == null && r == null) return CaptureOutcome(captureStart: start, silent: true, cancelled: true);
+    return CaptureOutcome(captureStart: start, silent: r == null || r.isSilent, report: r);
+  }
+
+  /// A música começou em [onset]: a letra corre a partir dali e a troca de faixa é agendada.
+  void _manualStartAt(DateTime onset) {
+    final now = DateTime.now();
+    final elapsed = math.max(0.0, now.difference(onset).inMilliseconds / 1000.0);
+    _baseOffset = elapsed * effectiveSpeedFactor;
+    _currentPositionSeconds = _baseOffset;
+    _tStart = now;
+    _startPlaybackTicker();
+    final e = _manualTracks[_manualIndex];
+    _updateStatus(
+      CalibrationStatus.calibrated,
+      (_trackDurationSeconds ?? 0) > 0 ? l10n.manualPlaying(e.number ?? '${_manualIndex + 1}', e.title) : l10n.manualNoDuration,
+      isMicActive: false,
+    );
+    if (_castService.isConnected && _currentTrack != null) {
+      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+    }
+    _scheduleManualAdvance();
+  }
+
+  /// Agenda a próxima faixa para o fim desta (minutagem + tempo morto entre faixas).
+  void _scheduleManualAdvance() {
+    _manualAdvanceTimer?.cancel();
+    final d = _trackDurationSeconds;
+    if (!isManualPlaying || _tStart == null || _isPaused || d == null || d <= 0) return;
+    final seconds = (d - _currentPositionSeconds) / effectiveSpeedFactor + manualGapSeconds;
+    final mySession = _sessionId;
+    _manualAdvanceTimer = Timer(Duration(milliseconds: (math.max(0.0, seconds) * 1000).round()), () {
+      if (_sessionId == mySession && !_isDisposed) _manualAdvance(mySession);
+    });
+  }
+
+  /// Fim da faixa: próxima faixa do mesmo lado, fim do lado (virar o disco) ou fim do disco.
+  Future<void> _manualAdvance(int mySession) async {
+    final i = _manualIndex;
+    if (i < 0) return;
+    final next = i + 1;
+    final side = _manualTracks[i].side;
+    final atEnd = next >= _manualTracks.length;
+    final nextSide = atEnd ? null : _manualTracks[next].side;
+    final sideEnds = !atEnd && side != null && nextSide != null && side.isNotEmpty && nextSide != side;
+
+    if (atEnd || (side != null && isLastSideOfRecord(_manualTracks, side) && sideEnds)) {
+      // Acabou a última música do último lado: fim do disco, a chave MANUAL desliga
+      _logService.log('manual_record_end', {'last': _manualTracks[i].title});
+      _resetManualMode('record_finished');
+      _stopManual(l10n.manualRecordEnded);
+      return;
+    }
+    if (sideEnds) {
+      _tickerTimer?.cancel();
+      _tickerTimer = null;
+      _manualPendingIndex = next;
+      _manualIndex = -1;
+      final label = side;
+      _logService.log('manual_side_end', {'side': label, 'next': _manualTracks[next].title});
+      _telemetry = _telemetry.copyWith(sideEndLabel: _sideEndLabelFor(label));
+      _updateStatus(CalibrationStatus.waitingEndOfSide, l10n.manualFlipAndPlay(label), isMicActive: false);
+      return;
+    }
+    // Mesmo lado: a próxima faixa começa agora (o tempo morto já passou)
+    final ok = await _manualShowTrack(next, mySession);
+    if (!ok || _sessionId != mySession || _isDisposed) return;
+    _manualStartAt(DateTime.now());
+  }
+
   /// Carrega manualmente uma música com letra (.lrc) para demonstração e testes imediatos.
   Future<void> loadManualTrack({
     required String title,
@@ -2720,6 +2967,7 @@ class WaxClubEngine extends ChangeNotifier {
   /// Para IMEDIATAMENTE a escuta, cancela gravação do microfone e reseta a sessão.
   void stop() {
     _sessionId++;
+    _clearManualState();
     _resetState();
     _recordService.cancelRecording();
     _prefetchService.clearSession();
