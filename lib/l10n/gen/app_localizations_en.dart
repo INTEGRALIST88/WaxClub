@@ -1322,17 +1322,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginEnglishDesc =>
-      'The app in English. It is the default language and the base for the other language plugins.';
-
-  @override
-  String get pluginPortugueseName => 'Português (Brasil)';
-
-  @override
-  String get pluginSpanishName => 'Español';
-
-  @override
-  String get pluginLanguagePackDesc =>
-      'Translation of the whole app. Language plugins contain only text, no code.';
+      'Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.';
 
   @override
   String get pluginLyricsName => 'Synced lyrics';
@@ -1346,7 +1336,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginCuriositiesDesc =>
-      'Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.';
+      'Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.';
 
   @override
   String get pluginAiCuriositiesName => 'AI curiosities';
@@ -1356,18 +1346,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.';
 
   @override
-  String get pluginAiTranslateName => 'AI lyrics translation';
+  String get pluginAiTranslateName => 'AI translation';
 
   @override
   String get pluginAiTranslateDesc =>
-      'Translates the lyrics line by line into your language while the record plays.';
+      'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.';
 
   @override
   String get helpPlugins => 'Plugins (jukebox)';
 
   @override
   String get helpPlugins1 =>
-      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.';
+      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI. English comes preinstalled; other languages will be available on the official WaxClub website.';
 
   @override
   String get helpPlugins2 =>
@@ -1506,9 +1496,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCuriosities1 =>
-      'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).';
+      'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).';
 
   @override
   String get helpCuriosities2 =>
       'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).';
+
+  @override
+  String get curiosityLatestNews => 'Latest news';
+
+  @override
+  String newsSourceDate(String source, String date) {
+    return '$source · $date';
+  }
+
+  @override
+  String get jukeboxMoreLanguages =>
+      'More languages will be available as plugins on the official WaxClub website.';
 }

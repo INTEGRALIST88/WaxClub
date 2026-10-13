@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../l10n/l10n.dart';
 import '../../services/curiosities_service.dart';
 import '../theme/app_theme.dart';
 
+/// Tipo do item mostrado: sobre o disco, sobre a faixa ou notícia do artista.
+enum CuriosityKind { record, track, news }
+
 /// Uma curiosidade na linha do tempo da faixa: aparece em [start] e fica [length] segundos.
 class CuriositySlot {
   final Curiosity curiosity;
-  final bool aboutRecord;
+  final CuriosityKind kind;
   final double start;
   final double length;
-  const CuriositySlot(this.curiosity, this.aboutRecord, this.start, this.length);
+  const CuriositySlot(this.curiosity, this.kind, this.start, this.length);
+
+  bool get aboutRecord => kind == CuriosityKind.record;
 }
 
 /// Curiosidades no lugar da letra (sem plugin de letra ou letra não encontrada): as do disco no começo
@@ -37,9 +43,11 @@ class CuriositiesView extends StatelessWidget {
 
   /// Distribui as curiosidades ao longo da faixa.
   static List<CuriositySlot> schedule(RecordCuriosities c, {double? duration, bool sideStart = false}) {
-    final items = <(Curiosity, bool)>[
-      if (sideStart || c.track.isEmpty) ...c.album.map((x) => (x, true)),
-      ...c.track.map((x) => (x, false)),
+    // Começo do lado: disco, notícias e faixa; no meio do lado, só a faixa (ou o disco, se a faixa não tiver)
+    final items = <(Curiosity, CuriosityKind)>[
+      if (sideStart || c.track.isEmpty) ...c.album.map((x) => (x, CuriosityKind.record)),
+      if (sideStart || (c.track.isEmpty && c.album.isEmpty)) ...c.news.map((x) => (x, CuriosityKind.news)),
+      ...c.track.map((x) => (x, CuriosityKind.track)),
     ];
     if (items.isEmpty) return const [];
     if (duration == null || duration <= _lead * 2 + 4) {
@@ -107,7 +115,12 @@ class CuriositiesView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  (slot.aboutRecord ? l10n.curiosityAboutRecord : l10n.curiosityAboutTrack).toUpperCase(),
+                  switch (slot.kind) {
+                    CuriosityKind.record => l10n.curiosityAboutRecord,
+                    CuriosityKind.track => l10n.curiosityAboutTrack,
+                    CuriosityKind.news => l10n.curiosityLatestNews,
+                  }
+                      .toUpperCase(),
                   style: const TextStyle(color: AppTheme.orange, fontSize: 12.5, fontWeight: FontWeight.w800, letterSpacing: 2),
                 ),
                 const SizedBox(height: 12),
@@ -125,7 +138,12 @@ class CuriositiesView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(l10n.curiositySource(slot.curiosity.source), style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                Text(
+                  slot.curiosity.date != null
+                      ? l10n.newsSourceDate(slot.curiosity.source, DateFormat('d MMM y', 'en').format(slot.curiosity.date!.toLocal())) // l10n-ignore
+                      : l10n.curiositySource(slot.curiosity.source),
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
               ],
             ),
           ),

@@ -16,6 +16,11 @@ const _rumours = 'Rumours is the eleventh studio album by British-American rock 
 const _dreams = 'Dreams is a song by Fleetwood Mac, written by Stevie Nicks and released as a single in 1977. '
     'It became the band\'s only number one hit in the United States. It is short.';
 
+const _rss = '<rss><channel>'
+    '<item><title>Fleetwood Mac album returns to the charts - Forbes</title><link>https://x/1</link><pubDate>Mon, 21 Sep 2026 07:00:00 GMT</pubDate><source url="https://forbes.com">Forbes</source></item>'
+    '<item><title>Unrelated story &amp; more - Site</title><pubDate>Mon, 21 Sep 2026 07:00:00 GMT</pubDate><source url="x">Site</source></item>'
+    '</channel></rss>';
+
 void main() {
   test('escolhe frases curtas e informativas, na ordem do texto, começando pela definição', () {
     final facts = CuriositiesService.pickFacts(_rumours, max: 3);
@@ -31,6 +36,7 @@ void main() {
     var calls = 0;
     final client = MockClient((req) async {
       calls++;
+      if (req.url.host == 'news.google.com') return http.Response(_rss, 200);
       final q = req.url.queryParameters;
       if (q['list'] == 'search') {
         final isSong = q['srsearch']!.contains('song');
@@ -59,12 +65,15 @@ void main() {
     expect(c.album.first.source, 'Wikipedia');
     expect(c.album.first.url, contains('Rumours'));
     expect(c.track.first.text, contains('Stevie Nicks'));
+    expect(c.news.single.text, 'Fleetwood Mac album returns to the charts', reason: 'só manchetes que citam o artista');
+    expect(c.news.single.source, 'Forbes');
+    expect(c.news.single.date, DateTime.utc(2026, 9, 21, 7));
 
     // segunda vez: vem do aparelho, sem rede
     final again = CuriositiesService(client: MockClient((_) async => throw Exception('offline')), directory: dir);
     final c2 = await again.forTrack(artist: 'Fleetwood Mac', album: 'Rumours', track: 'Dreams');
     expect(c2.album.length, c.album.length);
-    expect(calls, 4);
+    expect(calls, 5);
     await dir.delete(recursive: true);
   });
 

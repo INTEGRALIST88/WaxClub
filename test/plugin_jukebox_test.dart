@@ -80,7 +80,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Select'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.textContaining('The app in English'), findsOneWidget);
+    expect(find.textContaining('menus and texts of the app in English'), findsOneWidget);
     expect(find.textContaining('Only one Language plugin plays at a time'), findsOneWidget);
   });
 }

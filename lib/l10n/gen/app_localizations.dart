@@ -2233,26 +2233,8 @@ abstract class AppLocalizations {
   /// No description provided for @pluginEnglishDesc.
   ///
   /// In en, this message translates to:
-  /// **'The app in English. It is the default language and the base for the other language plugins.'**
+  /// **'Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.'**
   String get pluginEnglishDesc;
-
-  /// No description provided for @pluginPortugueseName.
-  ///
-  /// In en, this message translates to:
-  /// **'Português (Brasil)'**
-  String get pluginPortugueseName;
-
-  /// No description provided for @pluginSpanishName.
-  ///
-  /// In en, this message translates to:
-  /// **'Español'**
-  String get pluginSpanishName;
-
-  /// No description provided for @pluginLanguagePackDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Translation of the whole app. Language plugins contain only text, no code.'**
-  String get pluginLanguagePackDesc;
 
   /// No description provided for @pluginLyricsName.
   ///
@@ -2275,7 +2257,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginCuriositiesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
+  /// **'Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
   String get pluginCuriositiesDesc;
 
   /// No description provided for @pluginAiCuriositiesName.
@@ -2293,13 +2275,13 @@ abstract class AppLocalizations {
   /// No description provided for @pluginAiTranslateName.
   ///
   /// In en, this message translates to:
-  /// **'AI lyrics translation'**
+  /// **'AI translation'**
   String get pluginAiTranslateName;
 
   /// No description provided for @pluginAiTranslateDesc.
   ///
   /// In en, this message translates to:
-  /// **'Translates the lyrics line by line into your language while the record plays.'**
+  /// **'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.'**
   String get pluginAiTranslateDesc;
 
   /// No description provided for @helpPlugins.
@@ -2311,7 +2293,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpPlugins1.
   ///
   /// In en, this message translates to:
-  /// **'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.'**
+  /// **'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI. English comes preinstalled; other languages will be available on the official WaxClub website.'**
   String get helpPlugins1;
 
   /// No description provided for @helpPlugins2.
@@ -2527,7 +2509,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCuriosities1.
   ///
   /// In en, this message translates to:
-  /// **'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).'**
+  /// **'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).'**
   String get helpCuriosities1;
 
   /// No description provided for @helpCuriosities2.
@@ -2535,6 +2517,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).'**
   String get helpCuriosities2;
+
+  /// No description provided for @curiosityLatestNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest news'**
+  String get curiosityLatestNews;
+
+  /// No description provided for @newsSourceDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} · {date}'**
+  String newsSourceDate(String source, String date);
+
+  /// No description provided for @jukeboxMoreLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'More languages will be available as plugins on the official WaxClub website.'**
+  String get jukeboxMoreLanguages;
 }
 
 class _AppLocalizationsDelegate

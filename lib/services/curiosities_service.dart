@@ -3,14 +3,18 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'news_service.dart';
 import 'tracklist_matcher.dart';
 
 /// Uma curiosidade curta, sempre com a fonte.
 class Curiosity {
   final String text;
-  final String source; // "Wikipedia", "Discogs"
+  final String source; // "Wikipedia", ou o veículo da notícia
   final String? url;
-  const Curiosity(this.text, this.source, {this.url});
+
+  /// Data (notícias).
+  final DateTime? date;
+  const Curiosity(this.text, this.source, {this.url, this.date});
 
   Map<String, dynamic> toJson() => {'text': text, 'source': source, if (url != null) 'url': url};
   factory Curiosity.fromJson(Map<String, dynamic> j) =>
@@ -21,8 +25,11 @@ class Curiosity {
 class RecordCuriosities {
   final List<Curiosity> album;
   final List<Curiosity> track;
-  const RecordCuriosities({this.album = const [], this.track = const []});
-  bool get isEmpty => album.isEmpty && track.isEmpty;
+
+  /// Notícias recentes sobre o artista (em inglês), com veículo e data.
+  final List<Curiosity> news;
+  const RecordCuriosities({this.album = const [], this.track = const [], this.news = const []});
+  bool get isEmpty => album.isEmpty && track.isEmpty && news.isEmpty;
 }
 
 /// Busca curiosidades curtas sobre o disco e as faixas (sempre em inglês) na Wikipedia e nas notas do
@@ -36,12 +43,14 @@ class CuriositiesService {
 
   final http.Client _client;
   final Directory? _directory;
+  final NewsService _news;
   final Map<String, List<Curiosity>> _cache = {};
   bool _loaded = false;
 
-  CuriositiesService({http.Client? client, Directory? directory})
+  CuriositiesService({http.Client? client, Directory? directory, NewsService? news})
       : _client = client ?? http.Client(),
-        _directory = directory;
+        _directory = directory,
+        _news = news ?? NewsService(client: client);
 
   static String _albumKey(String artist, String album) => 'album|${TracklistMatcher.key(artist, album)}';
   static String _trackKey(String artist, String track) => 'track|${TracklistMatcher.key(artist, track)}';
@@ -56,7 +65,12 @@ class CuriositiesService {
     await _load();
     final a = await _albumFacts(artist, album, discogsNotes);
     final t = await _trackFacts(artist, track);
-    return RecordCuriosities(album: a, track: t);
+    final n = await _news.forArtist(artist);
+    return RecordCuriosities(
+      album: a,
+      track: t,
+      news: [for (final x in n) Curiosity(x.title, x.publisher, url: x.link, date: x.date)],
+    );
   }
 
   Future<List<Curiosity>> _albumFacts(String artist, String album, String? notes) async {
@@ -220,5 +234,8 @@ class CuriositiesService {
     }
   }
 
-  void dispose() => _client.close();
+  void dispose() {
+    _client.close();
+    _news.dispose();
+  }
 }

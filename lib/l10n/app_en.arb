@@ -952,20 +952,17 @@
   "pluginLicenseCuriosities": "Source cited: Wikipedia (CC BY-SA)",
   "pluginLicenseAi": "AI-generated text, always marked",
   "pluginEnglishName": "English",
-  "pluginEnglishDesc": "The app in English. It is the default language and the base for the other language plugins.",
-  "pluginPortugueseName": "Português (Brasil)",
-  "pluginSpanishName": "Español",
-  "pluginLanguagePackDesc": "Translation of the whole app. Language plugins contain only text, no code.",
+  "pluginEnglishDesc": "Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.",
   "pluginLyricsName": "Synced lyrics",
   "pluginLyricsDesc": "Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.",
   "pluginCuriositiesName": "Record curiosities",
-  "pluginCuriositiesDesc": "Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.",
+  "pluginCuriositiesDesc": "Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.",
   "pluginAiCuriositiesName": "AI curiosities",
   "pluginAiCuriositiesDesc": "Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.",
-  "pluginAiTranslateName": "AI lyrics translation",
-  "pluginAiTranslateDesc": "Translates the lyrics line by line into your language while the record plays.",
+  "pluginAiTranslateName": "AI translation",
+  "pluginAiTranslateDesc": "Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.",
   "helpPlugins": "Plugins (jukebox)",
-  "helpPlugins1": "Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.",
+  "helpPlugins1": "Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI. English comes preinstalled; other languages will be available on the official WaxClub website.",
   "helpPlugins2": "Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.",
   "plugins": "Plugins",
   "camera": "Identify",
@@ -1042,6 +1039,19 @@
     }
   },
   "helpCuriosities": "Curiosities",
-  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).",
-  "helpCuriosities2": "Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities)."
+  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).",
+  "helpCuriosities2": "Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).",
+  "curiosityLatestNews": "Latest news",
+  "newsSourceDate": "{source} · {date}",
+  "@newsSourceDate": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "jukeboxMoreLanguages": "More languages will be available as plugins on the official WaxClub website."
 }

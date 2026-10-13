@@ -118,6 +118,15 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
               const SizedBox(height: 10),
               _crate(),
             ],
+            const SizedBox(height: 16),
+            // Só o English vem com o app; os outros idiomas virão pelo site oficial
+            Row(
+              children: [
+                SevenInchRecord(color: PluginCategory.language.color, code: '', size: 26),
+                const SizedBox(width: 10),
+                Expanded(child: Text(l10n.jukeboxMoreLanguages, style: const TextStyle(color: _muted, fontSize: 13))),
+              ],
+            ),
             const SizedBox(height: 22),
             _legend(),
           ],
