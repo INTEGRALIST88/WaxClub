@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.13] — 13/10/2026 (Botão "Identify" + Ajuda Atualizada)
+
+* O primeiro botão de madeira (câmera) passa a se chamar **"Identify"** (identificar o disco), no nome da abertura e na dica ao segurar.
+* **Ajuda atualizada:** novo tópico "The top bar" (logo/capa à esquerda, o que aparece deitado, os botões Identify, My Collection, Plugins e Help, os nomes na abertura); "Identify a record" (guia da câmera, só vinil, cadastro e "Let's listen?"); My Collection e Plugins citam os botões de madeira; "Change record" aponta a capa no canto superior esquerdo.
+* Cronograma: o Modo Manual (verificação no catálogo do Shazam + chave MANUAL + ▶ cromado) passa a ser a 1.3.14.
+
+---
 ## [v1.3.12] — 13/10/2026 (Jukebox de Plugins + Botões de Madeira)
 
 * **Plugin Jukebox** (botão de plugue ao lado de My Collection): cada plugin é um compacto de 7" em vinil colorido, desenhado em código (`SevenInchRecord`: sulcos, brilho, selo com o código de seleção, furo de 45 rpm; gira no prato). Categorias com cor e letra: **Language** (verde, L1…, um por vez), **Display** (ciano, D1…, vários), **AI** (lilás, A1…, vários, conteúdo marcado como IA). Novas categorias entram acrescentando um item em `PluginCategory`.

@@ -264,6 +264,7 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Primeiro botão chamado "Identify" e ajuda com as novidades (barra superior, Identify, coleção, plugins)** | `l10n.camera` = "Identify"; `help_screen.dart` com o tópico "The top bar" | ✅ Conforme (v1.3.13) |
 | **Página de plugins em jukebox (Language, Display, AI; discos coloridos; botão ao lado de My Collection)** | `PluginJukeboxScreen` + `PluginStore` + `SevenInchRecord` | ✅ Conforme (v1.3.12) |
 | **Botões de madeira (câmera, coleção, plugins, ajuda) com nomes na abertura; logo à esquerda; sem texto em pé** | `WoodTileButton` + `IntroLabelsLayer` | ✅ Conforme (v1.3.12) |
 | **Reconhecimento do disco pela câmera (guia, código de barras, nº de catálogo, prensagem, coleção, "Let's listen?")** | `RecordScanScreen` + `record_found_flow.dart` + `prepareScannedRecord` | ✅ Conforme (v1.3.11) |
@@ -376,7 +377,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 
 ### 6.1 Cronograma definido pelo usuário
 
-**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera (feito) → 1.3.12 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.13 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
+**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera (feito) → 1.3.12 Plugin Jukebox e botões de madeira (feito) → 1.3.13 botão "Identify" e ajuda (feito) → 1.3.14 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.15 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
 1. **Conta + coleção:** login por link mágico (e-mail) e Google, conta opcional, API PHP + MySQL na Hostinger. Na conta: coleção, discos padrão de "Change record" e histórico de audições (tabela de audições; disco conta 1 vez por sessão de 2 h, qualquer faixa ouvida). Perfil social: apelido, e-mail, país e cidade obrigatórios; campos opcionais com visibilidade por campo; 18+. Social v1: perfil público com coleção, seguir, mural "ouvindo agora", busca por cidade/país.
 2. **Sincronização com o Discogs nos dois sentidos**, feita pelo celular com o token do usuário. Campos da coleção seguem o Discogs (release_id obrigatório; nota 1–5, estado do disco/capa e observações opcionais).
 3. ~~Textos da interface em arquivos `.arb`~~ — **feito na v1.3.10**.

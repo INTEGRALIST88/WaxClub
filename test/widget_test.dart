@@ -34,7 +34,7 @@ void main() {
 
     expect(tester.takeException(), isNull, reason: 'nada pode estourar na barra superior');
     expect(find.text('Vinyl Social Club'), findsNothing, reason: 'o texto ao lado do logo só aparece deitado');
-    for (final name in ['Camera', 'My Collection', 'Plugins', 'Help']) {
+    for (final name in ['Identify', 'My Collection', 'Plugins', 'Help']) {
       expect(find.byTooltip(name), findsOneWidget, reason: 'botão $name');
     }
   });

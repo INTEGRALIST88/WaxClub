@@ -282,7 +282,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpChangeRecord1 =>
-      'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.';
+      'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top left of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.';
 
   @override
   String get helpChangeRecord2 =>
@@ -293,7 +293,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCollection1 =>
-      'Tap the cover of the record that is playing and choose \"Add to collection\". Open your collection with the records icon at the top of the screen.';
+      'Tap My Collection (the bookshelf button) to open your records. Add the record that is playing by tapping its cover and choosing \"Add to collection\", or add any record with Identify.';
 
   @override
   String get helpCollection2 =>
@@ -1022,7 +1022,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can\'t hear the record. Close that app and tap the microphone again.';
 
   @override
-  String get cameraTooltip => 'Identify a record with the camera';
+  String get cameraTooltip => 'Identify a record';
 
   @override
   String get scanTitle => 'Identify your record';
@@ -1180,15 +1180,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideDone => 'Got it';
 
   @override
-  String get helpCamera => 'Identify a record with the camera';
+  String get helpCamera => 'Identify a record';
 
   @override
   String get helpCamera1 =>
-      'Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.';
+      'Tap Identify (the camera button). Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album. The first time, a short guide shows where to point the camera.';
 
   @override
   String get helpCamera2 =>
-      'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.';
+      'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.';
 
   @override
   String get jukeboxTitle => 'Plugin Jukebox';
@@ -1368,15 +1368,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPlugins1 =>
-      'Tap the puzzle icon at the top of the screen. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.';
+      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.';
 
   @override
   String get helpPlugins2 =>
-      'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use.';
+      'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.';
 
   @override
   String get plugins => 'Plugins';
 
   @override
-  String get camera => 'Camera';
+  String get camera => 'Identify';
+
+  @override
+  String get helpTopBar => 'The top bar';
+
+  @override
+  String get helpTopBar1 =>
+      'At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.';
+
+  @override
+  String get helpTopBar2 =>
+      'The wooden buttons, from left to right: Identify (camera), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.';
 }

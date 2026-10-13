@@ -547,7 +547,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpChangeRecord1.
   ///
   /// In en, this message translates to:
-  /// **'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.'**
+  /// **'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top left of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.'**
   String get helpChangeRecord1;
 
   /// No description provided for @helpChangeRecord2.
@@ -565,7 +565,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCollection1.
   ///
   /// In en, this message translates to:
-  /// **'Tap the cover of the record that is playing and choose \"Add to collection\". Open your collection with the records icon at the top of the screen.'**
+  /// **'Tap My Collection (the bookshelf button) to open your records. Add the record that is playing by tapping its cover and choosing \"Add to collection\", or add any record with Identify.'**
   String get helpCollection1;
 
   /// No description provided for @helpCollection2.
@@ -1693,7 +1693,7 @@ abstract class AppLocalizations {
   /// No description provided for @cameraTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Identify a record with the camera'**
+  /// **'Identify a record'**
   String get cameraTooltip;
 
   /// No description provided for @scanTitle.
@@ -1975,19 +1975,19 @@ abstract class AppLocalizations {
   /// No description provided for @helpCamera.
   ///
   /// In en, this message translates to:
-  /// **'Identify a record with the camera'**
+  /// **'Identify a record'**
   String get helpCamera;
 
   /// No description provided for @helpCamera1.
   ///
   /// In en, this message translates to:
-  /// **'Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.'**
+  /// **'Tap Identify (the camera button). Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album. The first time, a short guide shows where to point the camera.'**
   String get helpCamera1;
 
   /// No description provided for @helpCamera2.
   ///
   /// In en, this message translates to:
-  /// **'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.'**
+  /// **'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.'**
   String get helpCamera2;
 
   /// No description provided for @jukeboxTitle.
@@ -2311,13 +2311,13 @@ abstract class AppLocalizations {
   /// No description provided for @helpPlugins1.
   ///
   /// In en, this message translates to:
-  /// **'Tap the puzzle icon at the top of the screen. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.'**
+  /// **'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI.'**
   String get helpPlugins1;
 
   /// No description provided for @helpPlugins2.
   ///
   /// In en, this message translates to:
-  /// **'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use.'**
+  /// **'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.'**
   String get helpPlugins2;
 
   /// No description provided for @plugins.
@@ -2329,8 +2329,26 @@ abstract class AppLocalizations {
   /// No description provided for @camera.
   ///
   /// In en, this message translates to:
-  /// **'Camera'**
+  /// **'Identify'**
   String get camera;
+
+  /// No description provided for @helpTopBar.
+  ///
+  /// In en, this message translates to:
+  /// **'The top bar'**
+  String get helpTopBar;
+
+  /// No description provided for @helpTopBar1.
+  ///
+  /// In en, this message translates to:
+  /// **'At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.'**
+  String get helpTopBar1;
+
+  /// No description provided for @helpTopBar2.
+  ///
+  /// In en, this message translates to:
+  /// **'The wooden buttons, from left to right: Identify (camera), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.'**
+  String get helpTopBar2;
 }
 
 class _AppLocalizationsDelegate
