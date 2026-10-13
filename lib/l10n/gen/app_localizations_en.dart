@@ -1312,7 +1312,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginLicenseLyrics => 'Lyrics from the sources you enable';
 
   @override
-  String get pluginLicenseCuriosities => 'Source cited: Wikipedia (CC BY-SA)';
+  String get pluginLicenseCuriosities =>
+      'Sources cited: Wikipedia (CC BY-SA), Discogs, news outlets';
 
   @override
   String get pluginLicenseAi => 'AI-generated text, always marked';
@@ -1336,7 +1337,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginCuriositiesDesc =>
-      'Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.';
+      'Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.';
 
   @override
   String get pluginAiCuriositiesName => 'AI curiosities';
@@ -1496,7 +1497,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCuriosities1 =>
-      'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).';
+      'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays, on the phone and on the TV. Everything is in English and shows its source (Wikipedia, the Discogs pressing notes, or the news outlet and date).';
 
   @override
   String get helpCuriosities2 =>
@@ -1529,4 +1530,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get secondScreenHint =>
       'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.';
+
+  @override
+  String get manualSuggestion =>
+      'Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?';
+
+  @override
+  String get manualSuggestionAction => 'Manual mode';
 }

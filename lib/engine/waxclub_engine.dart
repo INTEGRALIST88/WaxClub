@@ -310,6 +310,27 @@ class WaxClubEngine extends ChangeNotifier {
     return side.toUpperCase() == last;
   }
 
+  /// Segundos de música ouvida sem reconhecimento (escutas seguidas que falharam com som presente).
+  double _unrecognizedMusicSeconds = 0;
+  bool _manualSuggested = false;
+
+  /// O automático passou ~90 s ouvindo música sem reconhecer: sugerir o Modo Manual.
+  bool get manualSuggested => _manualSuggested;
+
+  void dismissManualSuggestion() {
+    if (!_manualSuggested) return;
+    _manualSuggested = false;
+    notifyListeners();
+  }
+
+  void _countUnrecognizedMusic(double seconds) {
+    _unrecognizedMusicSeconds += seconds;
+    if (!_manualMode && !_manualSuggested && _unrecognizedMusicSeconds >= PredictionTuning.giveUpAfter.inSeconds) {
+      _manualSuggested = true;
+      _logService.log('manual_suggested', {'seconds': _unrecognizedMusicSeconds});
+    }
+  }
+
   /// Chave MANUAL (Modo Manual: letra pela minutagem, sem Shazam). Começa desligada e volta a
   /// desligada quando o disco termina (fim da última música do último lado).
   bool _manualMode = false;
@@ -776,6 +797,8 @@ class WaxClubEngine extends ChangeNotifier {
       if (_sessionId != mySession || _isDisposed) return;
       var captureTime = first.captureStart;
       TrackInfo? recognized = first.track;
+      var heardMusic = !first.silent && !first.cancelled;
+      var listenedSeconds = PredictionTuning.fastFirstCheckpoints.last.inMilliseconds / 1000.0;
 
       // Se a primeira escuta falhar, aciona uma segunda escuta (trecho novo, direto pelos marcos longos)
       if (recognized == null && !useMockIfRecognitionFails) {
@@ -797,6 +820,8 @@ class WaxClubEngine extends ChangeNotifier {
           useSilenceGate: false,
         );
         if (_sessionId != mySession || _isDisposed) return;
+        heardMusic = heardMusic || (!retry.silent && !retry.cancelled);
+        listenedSeconds += retrySeconds;
         if (retry.track != null) {
           captureTime = retry.captureStart;
           recognized = retry.track;
@@ -836,6 +861,8 @@ class WaxClubEngine extends ChangeNotifier {
           'peaks': _shazamService.lastPeaksCount,
         });
         final isNetworkIssue = reason != null && reason != 'no_match';
+        // Música tocando e o reconhecimento não acha: depois de ~90 s, sugere o Modo Manual
+        if (heardMusic && !isNetworkIssue) _countUnrecognizedMusic(listenedSeconds);
         _updateStatus(
           CalibrationStatus.error,
           isNetworkIssue
@@ -851,6 +878,7 @@ class WaxClubEngine extends ChangeNotifier {
         return;
       }
 
+      _unrecognizedMusicSeconds = 0;
       _telemetry = _telemetry.copyWith(
         diagnosticMessage: 'Audio recognition completed',
         signalQuality: 0.98,
@@ -2302,6 +2330,7 @@ class WaxClubEngine extends ChangeNotifier {
             DateTime.now().difference(musicStartedAt) >= PredictionTuning.giveUpAfter) {
           debugPrint('[WaxClubEngine] ⚠️ Novo lado sem reconhecimento; mantendo a previsão "${predicted.title}".');
           _logService.log('side_flip_unconfirmed', {'title': predicted.title});
+          _countUnrecognizedMusic(PredictionTuning.giveUpAfter.inSeconds.toDouble());
           _updateStatus(_telemetry.status, l10n.statusNotConfirmed(predicted.title), isMicActive: false);
           _syncCheckIndex = 0;
           _scheduleNextSyncCheck();

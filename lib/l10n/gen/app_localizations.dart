@@ -2215,7 +2215,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginLicenseCuriosities.
   ///
   /// In en, this message translates to:
-  /// **'Source cited: Wikipedia (CC BY-SA)'**
+  /// **'Sources cited: Wikipedia (CC BY-SA), Discogs, news outlets'**
   String get pluginLicenseCuriosities;
 
   /// No description provided for @pluginLicenseAi.
@@ -2257,7 +2257,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginCuriositiesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
+  /// **'Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.'**
   String get pluginCuriositiesDesc;
 
   /// No description provided for @pluginAiCuriositiesName.
@@ -2509,7 +2509,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCuriosities1.
   ///
   /// In en, this message translates to:
-  /// **'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).'**
+  /// **'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays, on the phone and on the TV. Everything is in English and shows its source (Wikipedia, the Discogs pressing notes, or the news outlet and date).'**
   String get helpCuriosities1;
 
   /// No description provided for @helpCuriosities2.
@@ -2559,6 +2559,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.'**
   String get secondScreenHint;
+
+  /// No description provided for @manualSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?'**
+  String get manualSuggestion;
+
+  /// No description provided for @manualSuggestionAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode'**
+  String get manualSuggestionAction;
 }
 
 class _AppLocalizationsDelegate

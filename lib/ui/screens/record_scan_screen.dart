@@ -295,9 +295,19 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
     final scanner = _scanner;
     if (scanner == null) return const SizedBox.shrink();
     return LayoutBuilder(builder: (context, c) {
-      final w = c.maxWidth * 0.8;
-      final h = (w * 0.45).clamp(90.0, 180.0);
-      final window = Rect.fromCenter(center: Offset(c.maxWidth / 2, c.maxHeight * 0.42), width: w, height: h);
+      // Deitado: moldura à esquerda, dica, sugestão e lanterna numa coluna à direita (a altura é pouca)
+      final landscape = c.maxWidth > c.maxHeight * 1.2;
+      final Rect window;
+      if (landscape) {
+        final w = (c.maxWidth * 0.52).clamp(200.0, 560.0);
+        final h = (c.maxHeight * 0.48).clamp(70.0, 180.0);
+        window = Rect.fromCenter(center: Offset(16 + w / 2, c.maxHeight * 0.48), width: w, height: h);
+      } else {
+        final w = c.maxWidth * 0.8;
+        final h = (w * 0.45).clamp(90.0, 180.0);
+        window = Rect.fromCenter(center: Offset(c.maxWidth / 2, c.maxHeight * 0.42), width: w, height: h);
+      }
+      final sideLeft = window.right + 20; // coluna à direita (deitado)
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -314,20 +324,20 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
           ),
           IgnorePointer(child: CustomPaint(painter: _ScanWindowPainter(window))),
           Positioned(
-            left: 20,
-            right: 20,
-            top: window.bottom + 18,
+            left: landscape ? sideLeft : 20,
+            right: landscape ? 16 : 20,
+            top: landscape ? window.top : window.bottom + 18,
             child: Text(
               l10n.scanBarcodeHint,
-              textAlign: TextAlign.center,
+              textAlign: landscape ? TextAlign.start : TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600, shadows: [Shadow(blurRadius: 6)]),
             ),
           ),
           if (_suggestCatalog)
             Positioned(
-              left: 16,
+              left: landscape ? sideLeft : 16,
               right: 16,
-              bottom: 76,
+              bottom: landscape ? 72 : 76,
               child: Material(
                 color: AppTheme.surface.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(14),
@@ -350,8 +360,8 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
             ),
           Positioned(
             bottom: 16,
-            left: 0,
-            right: 0,
+            left: landscape ? sideLeft : 0,
+            right: landscape ? null : 0,
             child: Center(
               child: IconButton.filledTonal(
                 tooltip: l10n.scanTorch,

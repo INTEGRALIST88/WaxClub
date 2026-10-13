@@ -123,6 +123,13 @@ class DiscogsTracklistProvider implements TracklistProvider {
     return out;
   }
 
+  /// Notas da prensagem (texto livre dos colecionadores: gravação, créditos, histórias), se houver.
+  Future<String?> fetchReleaseNotes(String releaseId) async {
+    final data = await _get('/releases/$releaseId', const {});
+    final notes = data?['notes'];
+    return (notes is String && notes.trim().isNotEmpty) ? notes : null;
+  }
+
   @override
   Future<List<TrackEntry>> loadTracklist(ReleaseCandidate candidate) async {
     final data = await _get('/releases/${candidate.releaseId}', const {});

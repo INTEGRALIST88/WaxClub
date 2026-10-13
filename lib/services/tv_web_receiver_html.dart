@@ -239,6 +239,24 @@ class TvWebReceiverHtml {
       pointer-events: none;
     }
     .placeholder.visible { opacity: 1; }
+
+    /* Curiosidades e notícias (sem letra): entram subindo, ficam e saem esmaecendo */
+    .curio {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 6vw;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+    .curio .kind { font-size: 1.9vh; font-weight: 800; letter-spacing: 0.3em; color: #C2602F; text-transform: uppercase; margin-bottom: 2.2vh; }
+    .curio .text { font-size: 4.2vh; font-weight: 700; line-height: 1.35; color: #fff; max-width: 70vw; text-shadow: 0 0 3vh rgba(194, 96, 47, 0.35); }
+    .curio .source { font-size: 1.8vh; color: rgba(244, 244, 246, 0.42); margin-top: 2.2vh; }
     .placeholder .big { font-size: 6vh; font-weight: 800; letter-spacing: -0.02em; }
     .placeholder .small { font-size: 2.64vh; color: rgba(244, 244, 246, 0.45); }
 
@@ -430,6 +448,7 @@ class TvWebReceiverHtml {
 
     <main id="lyrics" class="lyrics">
       <div id="lines" class="lines"></div>
+      <div id="curio" class="curio"><div id="curioKind" class="kind"></div><div id="curioText" class="text"></div><div id="curioSource" class="source"></div></div>
       <div id="placeholder" class="placeholder visible">
         <div class="big">Drop the needle on the record</div>
         <div class="small">Tap the microphone on your phone to sync the lyrics</div>
@@ -497,6 +516,67 @@ class TvWebReceiverHtml {
     let paused = true;
     let hasTrack = false;
     let lastPlayedUpdate = 0;
+
+    // ─── CURIOSIDADES (sem letra) ───
+    let curioSlots = [];      // [{ kind, text, source, date, start, length }]
+    let curioShown = null;
+    const CURIO_LEAD = 3, CURIO_MAX = 12, CURIO_CYCLE = 10;
+    const CURIO_KIND = { record: 'About the record', track: 'About this track', news: 'Latest news' };
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    function scheduleCuriosities(items, sideStart) {
+      const pick = (k) => items.filter((i) => i.kind === k);
+      const record = pick('record'), track = pick('track'), news = pick('news');
+      const list = [
+        ...((sideStart || !track.length) ? record : []),
+        ...((sideStart || (!track.length && !record.length)) ? news : []),
+        ...track,
+      ];
+      if (!list.length) return [];
+      if (!(durationSec > CURIO_LEAD * 2 + 4)) {
+        return list.map((it, i) => Object.assign({}, it, { start: CURIO_LEAD + i * CURIO_CYCLE, length: CURIO_CYCLE }));
+      }
+      const slot = (durationSec - CURIO_LEAD * 2) / list.length;
+      const len = Math.min(slot, CURIO_MAX);
+      return list.map((it, i) => Object.assign({}, it, { start: CURIO_LEAD + i * slot, length: len }));
+    }
+
+    let curioItems = [], curioSideStart = false;
+    function setCuriosities(data) {
+      curioItems = Array.isArray(data.items) ? data.items.filter((i) => i && typeof i.text === 'string') : [];
+      curioSideStart = !!data.sideStart;
+      curioSlots = scheduleCuriosities(curioItems, curioSideStart);
+      curioShown = null;
+      if (!lyrics.length && curioSlots.length) el('placeholder').classList.remove('visible');
+    }
+
+    function renderCuriosity(realPos) {
+      const box = el('curio');
+      if (lyrics.length || !curioSlots.length) { box.style.opacity = 0; return; }
+      let p = realPos;
+      if (!(durationSec > 0)) {
+        const last = curioSlots[curioSlots.length - 1];
+        const total = last.start + last.length - CURIO_LEAD;
+        if (p > CURIO_LEAD && total > 0) p = CURIO_LEAD + ((p - CURIO_LEAD) % total);
+      }
+      const slot = curioSlots.find((s) => p >= s.start && p < s.start + s.length);
+      if (!slot) { box.style.opacity = 0; return; }
+      if (curioShown !== slot) {
+        curioShown = slot;
+        el('curioKind').textContent = CURIO_KIND[slot.kind] || '';
+        el('curioText').textContent = slot.text;
+        const d = slot.date ? new Date(slot.date) : null;
+        const when = d && !isNaN(d) ? ' · ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() : '';
+        el('curioSource').textContent = slot.kind === 'news' ? (slot.source || '') + when : 'Source: ' + (slot.source || '');
+      }
+      const t = (p - slot.start) / slot.length;
+      const ease = (x) => 1 - Math.pow(1 - x, 3);
+      let opacity = 1, dy = 0;
+      if (t < 0.15) { const k = ease(t / 0.15); opacity = k; dy = 4 * (1 - k); }
+      else if (t > 0.85) { const k = ease((t - 0.85) / 0.15); opacity = 1 - k; dy = -2 * k; }
+      box.style.opacity = opacity;
+      box.style.transform = 'translate3d(0, ' + dy + 'vh, 0)';
+    }
 
     // ─── RELÓGIO LOCAL: interpola a posição a 60fps entre os pacotes do celular ───
     function positionAt(now) {
@@ -746,6 +826,7 @@ class TvWebReceiverHtml {
       lastAlbumKey = albumKey || lastAlbumKey;
 
       lyrics = Array.isArray(lines) ? lines.filter(l => typeof l.ms === 'number') : [];
+      curioItems = []; curioSlots = []; curioShown = null; el('curio').style.opacity = 0;
       const container = el('lines');
       container.textContent = '';
       lineEls = lyrics.map((l) => {
@@ -802,6 +883,7 @@ class TvWebReceiverHtml {
         const r = radiusAt(frac);
         el('needle').style.transform = 'translate3d(0, ' + ((CENTER_Y + r) * vh()) + 'px, 0)';
         el('elapsed').textContent = formatTime(realPos);
+        renderCuriosity(realPos);
         // O anel "já tocado" redesenha uma área grande: atualiza 4x por segundo
         if (now - lastPlayedUpdate > 250) {
           lastPlayedUpdate = now;
@@ -886,6 +968,7 @@ class TvWebReceiverHtml {
       activeIndex = -2;
       durationSec = 0;
       paused = true;
+      curioItems = []; curioSlots = []; curioShown = null; el('curio').style.opacity = 0;
       document.body.classList.remove('has-track', 'playing', 'paused');
       el('lines').textContent = '';
       el('title').textContent = 'WaxClub';
@@ -914,6 +997,8 @@ class TvWebReceiverHtml {
         updateSync(data);
       } else if (data.type === 'side_flip') {
         onSideFlip(data);
+      } else if (data.type === 'curiosities') {
+        setCuriosities(data);
       } else if (data.type === 'stop') {
         resetView();
       } else if (data.type === 'connect_ws' && data.wsUrl && location.protocol === 'http:') {

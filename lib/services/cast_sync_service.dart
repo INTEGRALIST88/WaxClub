@@ -1,3 +1,4 @@
+import 'curiosities_service.dart';
 import 'second_screen_service.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -988,6 +989,27 @@ class CastSyncService extends ChangeNotifier {
 
   /// Avisa a TV que o disco está sendo virado: ela levanta a agulha e anima o giro do disco,
   /// trocando a letra do lado no selo para [nextSide] ("B", por exemplo).
+  /// Curiosidades e notícias da faixa (em inglês) para a TV mostrar quando não há letra.
+  /// [sideStart]: 1ª faixa do lado (as do disco e as notícias entram antes das da faixa).
+  void sendCuriosities(RecordCuriosities c, {bool sideStart = false}) {
+    if (!isConnected) return;
+    Map<String, dynamic> item(Curiosity x, String kind) => {
+          'kind': kind,
+          'text': x.text,
+          'source': x.source,
+          if (x.date != null) 'date': x.date!.toUtc().toIso8601String(),
+        };
+    _sendPacket({
+      'type': 'curiosities',
+      'sideStart': sideStart,
+      'items': [
+        for (final x in c.album) item(x, 'record'),
+        for (final x in c.news) item(x, 'news'),
+        for (final x in c.track) item(x, 'track'),
+      ],
+    });
+  }
+
   void sendSideFlip({String? nextSide}) {
     if (!isConnected) return;
     _sendPacket({

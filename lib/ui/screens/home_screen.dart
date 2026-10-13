@@ -409,30 +409,90 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   /// Curiosidades do disco e da faixa no lugar da letra, quando não há letra e o plugin
   /// "Record curiosities" (D2) está no prato. Busca na primeira vez (fica guardado no aparelho).
-  Widget? _curiositiesOrNull() {
+  String? _curiositiesSentKey;
+
+  bool get _curiositiesOn =>
+      _plugins.catalog.any((p) => p.id == 'display.curiosities' && _plugins.isActive(p)); // l10n-ignore
+
+  /// 1ª faixa do lado: as curiosidades do disco (e as notícias) entram antes das da faixa.
+  bool get _isSideStart {
     final track = _engine.currentTrack;
-    final curiositiesOn = _plugins.catalog.any((p) => p.id == 'display.curiosities' && _plugins.isActive(p)); // l10n-ignore
-    if (track == null || !curiositiesOn) return null;
+    if (track == null) return false;
+    final list = _engine.lockedTracklist;
+    final i = TracklistMatcher.findIndex(list, track.title);
+    return i <= 0 || (list[i].side != null && list[i].side != list[i - 1].side);
+  }
+
+  /// Busca as curiosidades da faixa atual (uma vez por faixa) e, transmitindo, envia para a TV.
+  /// Roda a cada redesenho, com ou sem TV (durante a transmissão o celular mostra o painel).
+  void _ensureCuriosities() {
+    final track = _engine.currentTrack;
+    if (track == null || !_curiositiesOn) return;
     final album = _engine.lockedAlbumName ?? track.album ?? '';
     final artist = _engine.lockedAlbumArtist ?? track.artist;
     final key = '$album|$artist|${track.title}'; // l10n-ignore
     if (key != _curiositiesKey) {
       _curiositiesKey = key;
       _curiosities = null;
-      _curiositiesService.forTrack(artist: track.artist, album: album, track: track.title).then((c) {
+      () async {
+        final notes = await _discogsNotesFor(album);
+        return _curiositiesService.forTrack(artist: track.artist, album: album, track: track.title, discogsNotes: notes);
+      }()
+          .then((c) {
         if (mounted && _curiositiesKey == key) setState(() => _curiosities = c);
       });
-      // o disco pode ter outro artista creditado (coletâneas): também busca o do disco
-      if (artist != track.artist) {
-        _curiositiesService.forTrack(artist: artist, album: album, track: track.title);
-      }
     }
     final c = _curiosities;
+    final cast = _engine.castService;
+    if (c != null && !c.isEmpty && cast.isConnected && _curiositiesSentKey != '$key|${cast.connectedClientCount}') {
+      _curiositiesSentKey = '$key|${cast.connectedClientCount}';
+      cast.sendCuriosities(c, sideStart: _isSideStart);
+    }
+    if (!cast.isConnected) _curiositiesSentKey = null;
+  }
+
+  /// O automático não reconhece a música há ~90 s: oferece o Modo Manual (letra pela minutagem).
+  void _offerManualMode() {
+    _engine.dismissManualSuggestion();
+    if (_engine.isManualMode) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        duration: const Duration(seconds: 12),
+        content: Text(l10n.manualSuggestion, style: const TextStyle(color: Colors.white)),
+        action: SnackBarAction(
+          label: l10n.manualSuggestionAction,
+          textColor: AppTheme.orange,
+          onPressed: () async {
+            _engine.stop();
+            _engine.setManualMode(true);
+            await _onManualPressed();
+          },
+        ),
+      ));
+    });
+  }
+
+  /// Notas da prensagem no Discogs, quando o disco atual veio do Discogs e a conta está conectada.
+  Future<String?> _discogsNotesFor(String album) async {
+    if (album.isEmpty) return null;
+    final target = TracklistMatcher.normalize(album);
+    for (final d in _engine.cacheService.getAllDiscs()) {
+      if (d.tracklistSource == 'discogs' && d.releaseId != null && TracklistMatcher.normalize(d.album) == target) { // l10n-ignore
+        _albumCatalogCreated = true;
+        return _albumCatalog.discogsNotes(d.releaseId!);
+      }
+    }
+    return null;
+  }
+
+  Widget? _curiositiesOrNull() {
+    if (_engine.currentTrack == null || !_curiositiesOn) return null;
+    _ensureCuriosities();
+    final c = _curiosities;
     if (c == null || c.isEmpty) return null;
-    // 1ª faixa do lado: as curiosidades do disco entram antes
-    final list = _engine.lockedTracklist;
-    final i = TracklistMatcher.findIndex(list, track.title);
-    final sideStart = i <= 0 || (list[i].side != null && list[i].side != list[i - 1].side);
+    final sideStart = _isSideStart;
     return CuriositiesView(
       curiosities: c,
       positionSeconds: _engine.telemetry.currentPositionSeconds,
@@ -966,6 +1026,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         // Tela estreita (celular em pé): sem o texto ao lado do logo, só os botões
         final compactBar = MediaQuery.sizeOf(context).width < 600;
         final logoSize = compactBar ? 46.0 : 50.0;
+        _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
+        if (_engine.manualSuggested) _offerManualMode();
         final tileSize = compactBar ? 34.0 : 40.0;
 
         return Stack(

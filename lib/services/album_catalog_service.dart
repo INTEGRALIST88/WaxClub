@@ -83,6 +83,18 @@ class AlbumCatalogService {
     );
   }
 
+  /// Notas da prensagem no Discogs (para as curiosidades); nulo sem a conta conectada ou sem notas.
+  Future<String?> discogsNotes(String releaseId) async {
+    await auth.load();
+    if (!auth.isEnabled) return null;
+    try {
+      return await _discogs.fetchReleaseNotes(releaseId);
+    } catch (e) {
+      debugPrint('[AlbumCatalog] Notas do Discogs indisponíveis: $e');
+      return null;
+    }
+  }
+
   /// Da edição mais antiga (original) para a mais nova.
   static List<ReleaseCandidate> _byYear(List<ReleaseCandidate> list) {
     int year(ReleaseCandidate c) => int.tryParse(c.year ?? '') ?? 9999;

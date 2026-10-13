@@ -277,6 +277,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Em pé: música, banda · disco e "a seguir" abaixo do disco na barra superior** | `AppBar.bottom` com `_portraitTrackInfo` quando `compactBar` e há faixa | ✅ Conforme (v1.3.19) |
+| **Curiosidades/notícias também na TV; notas do Discogs; sugestão do Modo Manual após ~90 s; Identify deitado** | Pacote `curiosities` (`CastSyncService.sendCuriosities` + página da TV), `AlbumCatalogService.discogsNotes`, `manualSuggested`, layout deitado em `record_scan_screen.dart` | ✅ Conforme (v1.3.19) |
 | **TVs Samsung/LG sem Chromecast por Smart View / Miracast: letra na TV, painel no celular (sem navegador, sem app na TV)** | Android `Presentation` (`SecondScreenController.kt`) + `SecondScreenService` | ✅ Conforme (v1.3.18) |
 | **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
 | **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |

@@ -949,14 +949,14 @@
   "pluginAuthorWaxClub": "WaxClub",
   "pluginLicenseOfficial": "Official translation",
   "pluginLicenseLyrics": "Lyrics from the sources you enable",
-  "pluginLicenseCuriosities": "Source cited: Wikipedia (CC BY-SA)",
+  "pluginLicenseCuriosities": "Sources cited: Wikipedia (CC BY-SA), Discogs, news outlets",
   "pluginLicenseAi": "AI-generated text, always marked",
   "pluginEnglishName": "English",
   "pluginEnglishDesc": "Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.",
   "pluginLyricsName": "Synced lyrics",
   "pluginLyricsDesc": "Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.",
   "pluginCuriositiesName": "Record curiosities",
-  "pluginCuriositiesDesc": "Short facts about the record and each track, plus recent news about the artist, always in English with the source, rising and fading as the music plays. Shown when there are no lyrics.",
+  "pluginCuriositiesDesc": "Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.",
   "pluginAiCuriositiesName": "AI curiosities",
   "pluginAiCuriositiesDesc": "Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.",
   "pluginAiTranslateName": "AI translation",
@@ -1039,7 +1039,7 @@
     }
   },
   "helpCuriosities": "Curiosities",
-  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays. Everything is in English and shows its source (Wikipedia, or the news outlet and date).",
+  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays, on the phone and on the TV. Everything is in English and shows its source (Wikipedia, the Discogs pressing notes, or the news outlet and date).",
   "helpCuriosities2": "Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).",
   "curiosityLatestNews": "Latest news",
   "newsSourceDate": "{source} · {date}",
@@ -1064,5 +1064,7 @@
     }
   },
   "secondScreenDefaultName": "Smart View",
-  "secondScreenHint": "Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone."
+  "secondScreenHint": "Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.",
+  "manualSuggestion": "Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?",
+  "manualSuggestionAction": "Manual mode"
 }

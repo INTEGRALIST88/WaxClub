@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.19] — 13/10/2026 (Barra em Pé com a Música + Pacote de Melhorias)
+
+* **Barra superior em pé:** com música tocando, uma faixa abaixo do disco mostra a **música** (destaque), **banda · disco** e **"Up next"** (ou o fim do lado); tocar abre a lista de faixas. Sem música, a barra continua compacta; deitado, nada muda.
+* **Curiosidades e notícias também na TV** (Chromecast, Fire TV e a segunda tela do Smart View): pacote `curiosities` enviado pelo celular; a página da TV mostra o cartão (subindo e esmaecendo) quando a faixa não tem letra, na mesma agenda do celular (disco e notícias no começo do lado, faixa ao longo da música). As curiosidades passam a ser buscadas também durante a transmissão.
+* **Notas da prensagem do Discogs** como segunda fonte das curiosidades (disco escolhido pelo Discogs, com a conta conectada).
+* **Sugestão do Modo Manual:** depois de ~90 s de música ouvida sem reconhecimento (escutas seguidas que falharam com som), aparece "Not recognized for a while... switch to Manual mode?" com o botão que liga o Manual e abre a escolha da faixa.
+* **Identify deitado:** na tela do código de barras, moldura à esquerda e dica, sugestão e lanterna numa coluna à direita (antes ficavam cortadas embaixo).
+* Novos testes: `portrait_track_info_test.dart`, `tv_curiosities_test.dart` (225 no total).
+* **Publicar no GitHub Pages** (Push) para o Chromecast mostrar as curiosidades; na segunda tela do Smart View a página vem do próprio celular.
+
+---
 ## [v1.3.18] — 13/10/2026 (Segunda Tela por Smart View / Miracast)
 
 * **TVs sem Chromecast (Samsung, LG...) pelo espelhamento do celular:** ao espelhar com Smart View, "Transmitir" ou "Tela sem fio" (Miracast), o Android cria uma tela de apresentação e o WaxClub mostra nela **só a letra** (mesma página da TV, servida pelo próprio celular em `http://127.0.0.1:8088`), enquanto o **celular vira o painel de controle**. Abre sozinho ao espelhar; desconectar pelo painel tira a letra da TV até o próximo espelhamento. Sem app na TV e sem o navegador da TV. (`SecondScreenController.kt` com Android `Presentation` + WebView; `SecondScreenService`.)
