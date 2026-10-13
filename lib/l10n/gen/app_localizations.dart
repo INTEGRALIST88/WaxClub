@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpTv3.
   ///
   /// In en, this message translates to:
-  /// **'No Chromecast? Choose \"Cast via browser\" and open the address shown in your TV\'s browser.'**
+  /// **'Samsung, LG and other TVs without Chromecast: mirror your phone with Smart View, Cast or Wireless display (Miracast). WaxClub turns the TV into a second screen with only the lyrics, and the phone becomes the control panel.'**
   String get helpTv3;
 
   /// No description provided for @helpTv4.
@@ -2535,6 +2535,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More languages will be available as plugins on the official WaxClub website.'**
   String get jukeboxMoreLanguages;
+
+  /// No description provided for @secondScreenMirror.
+  ///
+  /// In en, this message translates to:
+  /// **'No Chromecast? Mirror with Smart View / Miracast'**
+  String get secondScreenMirror;
+
+  /// No description provided for @secondScreenShowOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the lyrics on {name}'**
+  String secondScreenShowOn(String name);
+
+  /// No description provided for @secondScreenDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart View'**
+  String get secondScreenDefaultName;
+
+  /// No description provided for @secondScreenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.'**
+  String get secondScreenHint;
 }
 
 class _AppLocalizationsDelegate

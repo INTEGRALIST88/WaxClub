@@ -40,6 +40,36 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        // Segunda tela do Smart View/Miracast (letra na TV, controles no celular): lib/services/second_screen_service.dart
+        val screenChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.waxclub.app/second_screen")
+        val screen = SecondScreenController(this, screenChannel).also { secondScreen = it }
+        screen.start()
+        screenChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "state" -> result.success(screen.state())
+                "show" -> result.success(screen.show(call.argument<String>("url") ?: "http://127.0.0.1:8088/"))
+                "hide" -> {
+                    screen.dismiss()
+                    result.success(null)
+                }
+                "openCastSettings" -> result.success(openCastSettings())
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    private var secondScreen: SecondScreenController? = null
+
+    /** Abre a tela do sistema para espelhar a tela (Smart View / Transmitir / Miracast). */
+    private fun openCastSettings(): Boolean {
+        for (action in listOf("android.settings.CAST_SETTINGS", "android.settings.WIFI_DISPLAY_SETTINGS")) {
+            try {
+                startActivity(android.content.Intent(action).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                return true
+            } catch (_: Exception) {
+            }
+        }
+        return false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +109,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        secondScreen?.stop()
         nsdAnnouncer?.unregister()
         try {
             multicastLock?.let { if (it.isHeld) it.release() }

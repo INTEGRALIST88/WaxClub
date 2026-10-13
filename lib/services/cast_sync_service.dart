@@ -1,3 +1,4 @@
+import 'second_screen_service.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -20,6 +21,9 @@ class CastSyncService extends ChangeNotifier {
   /// Anúncio do celular na rede (_waxclub._tcp) enquanto o servidor da página da TV está no ar.
   /// Substituível nos testes.
   PhoneAnnouncer announcer = PhoneAnnouncer();
+
+  /// Segunda tela do Smart View / Miracast (letra na TV, controles no celular).
+  final SecondScreenService secondScreen = SecondScreenService();
 
   // ─── CLIENTE GOOGLE CAST V2 (CHROMECAST BUILT-IN NA PORTA 8009 TLS) ───
   final CastV2Client _castV2Client = CastV2Client();
@@ -255,6 +259,10 @@ class CastSyncService extends ChangeNotifier {
   /// Executa uma varredura silenciosa em background após iniciar o app.
   void runInitialBackgroundDiscovery() {
     startLocalServer();
+    secondScreen.ensureServer = () async {
+      await startLocalServer();
+    };
+    unawaited(secondScreen.init());
 
     _discoveryTimer?.cancel();
     _discoveryTimer = Timer(const Duration(milliseconds: 2500), () async {
@@ -886,6 +894,7 @@ class CastSyncService extends ChangeNotifier {
     // Desconexão explícita encerra qualquer tentativa de reconexão automática
     _isReconnecting = false;
     _chromecastHost = null;
+    if (secondScreen.isShowing) await secondScreen.hide(byUser: stopTvApp);
     if (stopTvApp && isConnected) {
       _sendPacket({'type': 'stop'});
     }

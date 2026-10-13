@@ -312,7 +312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpTv3 =>
-      'No Chromecast? Choose \"Cast via browser\" and open the address shown in your TV\'s browser.';
+      'Samsung, LG and other TVs without Chromecast: mirror your phone with Smart View, Cast or Wireless display (Miracast). WaxClub turns the TV into a second screen with only the lyrics, and the phone becomes the control panel.';
 
   @override
   String get helpTv4 => 'The phone and the TV must be on the same Wi-Fi.';
@@ -1513,4 +1513,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get jukeboxMoreLanguages =>
       'More languages will be available as plugins on the official WaxClub website.';
+
+  @override
+  String get secondScreenMirror =>
+      'No Chromecast? Mirror with Smart View / Miracast';
+
+  @override
+  String secondScreenShowOn(String name) {
+    return 'Show the lyrics on $name';
+  }
+
+  @override
+  String get secondScreenDefaultName => 'Smart View';
+
+  @override
+  String get secondScreenHint =>
+      'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.';
 }

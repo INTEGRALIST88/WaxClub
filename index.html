@@ -977,13 +977,15 @@
       }
     }
 
-    // ─── TRANSPORTE 2: navegador da TV conectado ao servidor local do celular ───
+    // ─── TRANSPORTE 2: tela conectada ao servidor local do celular (segunda tela do Smart View/Miracast) ───
+    // ?name= dá o nome mostrado no painel do celular (ex.: "Smart View")
+    const screenName = new URLSearchParams(location.search).get('name') || 'TV';
     let socket = null;
     function connectWebSocket(url) {
       try {
         if (socket) socket.close();
         socket = new WebSocket(url);
-        socket.onopen = () => socket.send(JSON.stringify({ type: 'client_ready', deviceName: 'Navegador da TV' }));
+        socket.onopen = () => socket.send(JSON.stringify({ type: 'client_ready', deviceName: screenName }));
         socket.onmessage = (ev) => { try { handlePacket(JSON.parse(ev.data)); } catch (_) {} };
         socket.onclose = () => setTimeout(() => connectWebSocket(url), 2000);
       } catch (_) {}

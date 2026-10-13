@@ -495,14 +495,18 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
         ],
 
         const SizedBox(height: 12),
-        // Alternativa via navegador
+        // Smart View / Miracast: a TV espelhada vira a segunda tela (só a letra; controles no celular)
         InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {
-            setState(() {
-              _showBrowserFallback = true;
-              _statusMessage = l10n.openAddressInBrowser;
-            });
+          onTap: () async {
+            final screen = widget.castService.secondScreen;
+            if (screen.isAvailable) {
+              await screen.show();
+              if (mounted) Navigator.of(context).pop();
+            } else {
+              await screen.openCastSettings();
+              if (mounted) setState(() => _statusMessage = l10n.secondScreenHint);
+            }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -514,11 +518,15 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.public, size: 15, color: Colors.white70),
-                SizedBox(width: 8),
-                Text(
-                  l10n.castViaBrowser,
-                  style: TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500),
+                const Icon(Icons.screen_share_outlined, size: 15, color: Colors.white70),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    widget.castService.secondScreen.isAvailable
+                        ? l10n.secondScreenShowOn(widget.castService.secondScreen.displayName ?? l10n.secondScreenDefaultName)
+                        : l10n.secondScreenMirror,
+                    style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),

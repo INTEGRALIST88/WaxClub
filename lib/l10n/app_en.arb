@@ -187,7 +187,7 @@
   "helpTv": "Showing the lyrics on the TV",
   "helpTv1": "Tap the cast icon. Chromecast and Google TV devices appear automatically.",
   "helpTv2": "Fire TV: open the WaxClub app on the TV first; it appears in the list. If it does not, use \"Add by IP\" with the address shown on the TV.",
-  "helpTv3": "No Chromecast? Choose \"Cast via browser\" and open the address shown in your TV's browser.",
+  "helpTv3": "Samsung, LG and other TVs without Chromecast: mirror your phone with Smart View, Cast or Wireless display (Miracast). WaxClub turns the TV into a second screen with only the lyrics, and the phone becomes the control panel.",
   "helpTv4": "The phone and the TV must be on the same Wi-Fi.",
   "helpTroubleshooting": "Troubleshooting",
   "helpTroubleshooting1": "Song not recognized: move the phone closer to the speakers and try again. Some rare records are not in the recognition catalog.",
@@ -1053,5 +1053,16 @@
       }
     }
   },
-  "jukeboxMoreLanguages": "More languages will be available as plugins on the official WaxClub website."
+  "jukeboxMoreLanguages": "More languages will be available as plugins on the official WaxClub website.",
+  "secondScreenMirror": "No Chromecast? Mirror with Smart View / Miracast",
+  "secondScreenShowOn": "Show the lyrics on {name}",
+  "@secondScreenShowOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "secondScreenDefaultName": "Smart View",
+  "secondScreenHint": "Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone."
 }
