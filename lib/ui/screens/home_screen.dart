@@ -35,7 +35,10 @@ import 'help_screen.dart';
 
 /// Tela principal do aplicativo WaxClub.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// Motor injetado nos testes (no app, a tela cria o seu).
+  final WaxClubEngine? engine;
+
+  const HomeScreen({super.key, this.engine});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -78,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _engine = WaxClubEngine();
+    _engine = widget.engine ?? WaxClubEngine();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -435,6 +438,73 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       positionSeconds: _engine.telemetry.currentPositionSeconds,
       durationSeconds: _engine.telemetry.trackDurationSeconds,
       sideStart: sideStart,
+    );
+  }
+
+  /// Faixa de informações da barra superior com o celular em pé: música (destaque), banda · disco e
+  /// a próxima faixa (ou o fim do lado). Tocar abre a lista de faixas do disco.
+  Widget _portraitTrackInfo() {
+    final track = _engine.currentTrack!;
+    final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? '');
+    final artistAlbum = [track.artist, album].where((s) => s.trim().isNotEmpty).join(' · ');
+    final sideEnd = _engine.telemetry.sideEndLabel;
+    final next = _engine.telemetry.predictedNextTrackTitle;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _showAlbumTracklistModal,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    track.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      if (_engine.isAlbumLocked) ...[
+                        const Icon(Icons.album, size: 13, color: AppTheme.cream),
+                        const SizedBox(width: 4),
+                      ],
+                      Expanded(
+                        child: Text(
+                          artistAlbum,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: AppTheme.cream, fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (sideEnd != null || next != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      sideEnd ??
+                          '${l10n.upNextTitle(next!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: sideEnd != null ? Colors.amber : AppTheme.orange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const Icon(Icons.queue_music_rounded, color: Colors.white38, size: 22),
+          ],
+        ),
+      ),
     );
   }
 
@@ -905,6 +975,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               appBar: AppBar(
                 toolbarHeight: 74,
                 flexibleSpace: const _WoodTopPanel(),
+                // Em pé, com música tocando: música, banda · disco e "a seguir" numa faixa abaixo do disco
+                bottom: (compactBar && _engine.currentTrack != null)
+                    ? PreferredSize(preferredSize: const Size.fromHeight(64), child: _portraitTrackInfo())
+                    : null,
                 // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
                 leadingWidth: logoSize + 22,
                 leading: Padding(
