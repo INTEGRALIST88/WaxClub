@@ -258,6 +258,10 @@ lib/
 * **Serviço:** [`curiosities_service.dart`](lib/services/curiosities_service.dart): busca o artigo (`list=search`, título igual + artista no título ou no trecho), lê o texto (`prop=extracts&explaintext`, só a introdução para faixas) e escolhe frases com `pickFacts` (40–220 caracteres, pontuação por palavras-chave, anos e números; a 1ª frase é a definição). Até 5 do disco e 2 por faixa; cache em `waxclub_curiosities.json`.
 * **Tela:** [`curiosities_view.dart`](lib/ui/widgets/curiosities_view.dart): `schedule` (3 s de espera, espaço igual ao longo da duração, no máximo 12 s cada; sem duração, uma a cada 10 s em ciclo) e `visibleAt`; animação de 15% entrando e 15% saindo. Na tela principal, `_curiositiesOrNull` entra como `emptyState` da letra quando há faixa, não há letra e o plugin D2 está ligado; as do disco só na 1ª faixa do lado.
 
+### 3.10.7 Segunda Tela por Smart View / Miracast (v1.3.18)
+* **Android:** [`SecondScreenController.kt`](android/app/src/main/kotlin/com/waxclub/app/SecondScreenController.kt) — `DisplayManager.DISPLAY_CATEGORY_PRESENTATION` + `DisplayListener`; `LyricsPresentation` (Presentation com WebView, tela sempre acesa) carrega a página da TV do servidor local. Canal `com.waxclub.app/second_screen`: `state`, `show(url)`, `hide`, `openCastSettings` (`android.settings.CAST_SETTINGS` / `WIFI_DISPLAY_SETTINGS`); eventos `state` para o Flutter.
+* **Flutter:** [`second_screen_service.dart`](lib/services/second_screen_service.dart), dono: `CastSyncService.secondScreen` (iniciado em `runInitialBackgroundDiscovery`). Ao surgir a tela, mostra `http://127.0.0.1:8088/?name=<tela>`; a página conecta por WebSocket como qualquer tela e o celular entra no modo painel (`isCastActive`). `disconnect(stopTvApp: true)` esconde a letra e marca `dismissedByUser` até a tela sumir.
+
 ### 3.11 Módulo 11: Trilhas Sonoras de Novelas (v1.3.1)
 * **Arquivos:** [`lib/services/soundtrack_catalog.dart`](lib/services/soundtrack_catalog.dart) e `assets/catalog/trilhas_novelas.json`.
 * **Origem dos dados:** levantamento do site Teledramaturgia / Observatório da TV (índices de trilhas da Globo por período, Malhação, séries/minisséries, Record, SBT, Band, Manchete, Excelsior e Tupi): disco, emissora, ano e faixas com artista. Capas apenas dos LPs (até 1993), baixadas uma vez, recomprimidas (até 400 px, JPEG 82) e hospedadas no GitHub Pages do WaxClub (covers/ (raiz do repositório), publicada como covers/ no repositório INTEGRALIST88/WaxClub); trilhas em CD ficam sem capa própria (vale a do Shazam). Scripts: 	ool/trilhas/crawl.js, durations.js, covers.js, esize_covers.ps1, elink_covers.js. Durações por faixa obtidas na Deezer (reserva iTunes). O script de geração fica fora do app (ferramenta de build).
@@ -273,6 +277,7 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **TVs Samsung/LG sem Chromecast por Smart View / Miracast: letra na TV, painel no celular (sem navegador, sem app na TV)** | Android `Presentation` (`SecondScreenController.kt`) + `SecondScreenService` | ✅ Conforme (v1.3.18) |
 | **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
 | **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |
 | **Curiosidades do disco e das faixas, animadas, quando não há letra (com fonte, em inglês)** | `CuriositiesService` (Wikipedia) + `CuriositiesView`; plugin D2 embutido | ✅ Conforme no celular (v1.3.16); TV e notas do Discogs pendentes |

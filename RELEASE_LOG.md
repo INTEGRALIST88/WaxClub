@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.18] — 13/10/2026 (Segunda Tela por Smart View / Miracast)
+
+* **TVs sem Chromecast (Samsung, LG...) pelo espelhamento do celular:** ao espelhar com Smart View, "Transmitir" ou "Tela sem fio" (Miracast), o Android cria uma tela de apresentação e o WaxClub mostra nela **só a letra** (mesma página da TV, servida pelo próprio celular em `http://127.0.0.1:8088`), enquanto o **celular vira o painel de controle**. Abre sozinho ao espelhar; desconectar pelo painel tira a letra da TV até o próximo espelhamento. Sem app na TV e sem o navegador da TV. (`SecondScreenController.kt` com Android `Presentation` + WebView; `SecondScreenService`.)
+* O botão "Cast via browser" saiu: no lugar, **"No Chromecast? Mirror with Smart View / Miracast"** (abre a tela do sistema para escolher a TV) ou **"Show the lyrics on [TV]"** quando já está espelhando.
+* A página da TV recebe o nome da tela por `?name=` (antes mandava "Navegador da TV" fixo, em português).
+* Ajuda (TV) atualizada. Novo `test/second_screen_test.dart`. Teste sem TV: Opções do desenvolvedor → "Simular telas secundárias".
+
+---
 ## [v1.3.17] — 13/10/2026 (Só Inglês + Notícias do Artista)
 
 * **Só inglês no app:** o plugin de idioma **English (L1) vem pré-instalado** e fornece todos os menus e textos. Português e Español saíram do app; os outros idiomas serão plugins no **site oficial do WaxClub** (aviso na Jukebox).
