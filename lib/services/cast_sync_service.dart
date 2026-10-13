@@ -385,6 +385,8 @@ class CastSyncService extends ChangeNotifier {
           } catch (_) {}
         }
       }
+      // Apps WaxClub de TV (ex.: Fire TV): servidor WebSocket próprio anunciado na rede
+      await _discoverTvApps(mdnsClient, localIps);
     } catch (e) {
       debugPrint('[CastSyncService] Aviso na busca mDNS: $e');
     } finally {
@@ -435,8 +437,9 @@ class CastSyncService extends ChangeNotifier {
     }
   }
 
-  /// Adiciona um IP digitado manualmente pelo usuário no diálogo de TVs.
-  Future<CastDevice?> addManualIp(String rawIp) async {
+  /// Adiciona um IP digitado manualmente pelo usuário no diálogo de TVs: primeiro um Chromecast
+  /// (porta 8009); se não houver, um app WaxClub de TV (servidor WebSocket na [tvAppPort]).
+  Future<CastDevice?> addManualIp(String rawIp, {int tvAppPort = defaultPort}) async {
     final cleanIp = rawIp.trim();
     if (!RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$').hasMatch(cleanIp)) {
       return null;
@@ -453,7 +456,91 @@ class CastSyncService extends ChangeNotifier {
         return dev;
       }
     } catch (_) {}
+
+    // Sem Chromecast: app WaxClub de TV (ex.: Fire TV) com o servidor WebSocket no ar?
+    try {
+      final s = await Socket.connect(cleanIp, tvAppPort, timeout: const Duration(milliseconds: 1200));
+      s.destroy();
+      final dev = tvAppDevice(ip: cleanIp, port: tvAppPort);
+      _registry.upsert(dev);
+      return dev;
+    } catch (_) {}
     return null;
+  }
+
+  /// Tipos de serviço anunciados pelos apps WaxClub de TV (o nome antigo fica até o app da TV ser renomeado).
+  static const List<String> tvAppServiceTypes = ['_waxclub-tv._tcp.local', '_vinylyric._tcp.local'];
+
+  /// Aparelho de um app WaxClub de TV, a partir do anúncio na rede (TXT "fn=nome", "md=modelo").
+  /// Não é Chromecast: a conexão é pelo WebSocket do próprio app ([connectToHost]).
+  static CastDevice tvAppDevice({required String ip, required int port, String? txt}) {
+    String? name;
+    String? model;
+    for (final line in (txt ?? '').split('\n')) {
+      if (line.startsWith('fn=')) name = line.substring(3).trim();
+      if (line.startsWith('md=')) model = line.substring(3).trim();
+    }
+    return CastDevice(
+      id: 'tvapp:$ip:$port',
+      name: (name != null && name.isNotEmpty) ? name : 'WaxClub TV ($ip)',
+      host: ip,
+      port: port,
+      isChromecast: false,
+      model: (model != null && model.isNotEmpty) ? 'WaxClub TV app · $model' : 'WaxClub TV app',
+      lastSeen: DateTime.now(),
+    );
+  }
+
+  /// Procura na rede os apps WaxClub de TV ([tvAppServiceTypes]) e os registra na lista de aparelhos.
+  Future<void> _discoverTvApps(MDnsClient mdnsClient, Set<String> localIps) async {
+    for (final serviceType in tvAppServiceTypes) {
+      final processed = <String>{};
+      try {
+        await for (final PtrResourceRecord ptr in mdnsClient
+            .lookup<PtrResourceRecord>(ResourceRecordQuery.serverPointer(serviceType))
+            .timeout(const Duration(seconds: 3), onTimeout: (sink) => sink.close())) {
+          if (!processed.add(ptr.domainName)) continue;
+
+          String txt = '';
+          try {
+            await for (final TxtResourceRecord t in mdnsClient
+                .lookup<TxtResourceRecord>(ResourceRecordQuery.text(ptr.domainName))
+                .timeout(const Duration(milliseconds: 1500), onTimeout: (s) => s.close())) {
+              txt = t.text;
+              break;
+            }
+          } catch (_) {}
+
+          String? target;
+          int? port;
+          try {
+            await for (final SrvResourceRecord srv in mdnsClient
+                .lookup<SrvResourceRecord>(ResourceRecordQuery.service(ptr.domainName))
+                .timeout(const Duration(milliseconds: 1500), onTimeout: (s) => s.close())) {
+              target = srv.target;
+              port = srv.port;
+              break;
+            }
+          } catch (_) {}
+          if (target == null || port == null) continue;
+
+          try {
+            await for (final IPAddressResourceRecord ip in mdnsClient
+                .lookup<IPAddressResourceRecord>(ResourceRecordQuery.addressIPv4(target))
+                .timeout(const Duration(milliseconds: 1500), onTimeout: (s) => s.close())) {
+              final hostIp = ip.address.address;
+              if (localIps.contains(hostIp)) break;
+              final dev = tvAppDevice(ip: hostIp, port: port, txt: txt);
+              debugPrint('[CastSyncService] 📺 App de TV encontrado: ${dev.name} ($hostIp:$port, $serviceType)');
+              _registry.upsert(dev);
+              break;
+            }
+          } catch (_) {}
+        }
+      } catch (e) {
+        debugPrint('[CastSyncService] Aviso na busca de apps de TV ($serviceType): $e');
+      }
+    }
   }
 
   /// Consulta metadados oficiais via Eureka (8008) e status CastV2 estruturado com CastFrameParser (8009).

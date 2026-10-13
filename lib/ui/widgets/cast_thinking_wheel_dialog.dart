@@ -115,7 +115,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
     if (ip.isEmpty) return;
 
     setState(() {
-      _statusMessage = 'Checking device at $ip:8009...';
+      _statusMessage = 'Looking for a Chromecast or WaxClub TV app at $ip...';
     });
 
     final dev = await widget.castService.addManualIp(ip);
@@ -126,7 +126,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppTheme.surfaceLight,
-            content: Text('No active Cast receiver at $ip port 8009.', style: const TextStyle(color: Colors.white)),
+            content: Text('No Chromecast or WaxClub TV app found at $ip.', style: const TextStyle(color: Colors.white)),
           ),
         );
       }

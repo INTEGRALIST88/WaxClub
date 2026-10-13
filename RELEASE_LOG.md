@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.4] — 12/10/2026 (Celular Encontra e Conecta no App WaxClub do Fire TV)
+
+### 📺 Apps WaxClub de TV na lista "Cast to TV"
+* Além dos Chromecasts, a busca procura os apps WaxClub de TV que se anunciam na rede: `_waxclub-tv._tcp` (nome definitivo) e `_vinylyric._tcp` (nome atual do app do Fire TV, `WaxClubClient`). Cada um aparece com o nome e o modelo anunciados (ex.: "WaxClub TV app · AFTKA").
+* Ao tocar, o celular conecta pelo WebSocket do próprio app de TV (`ws://<ip>:<porta>/cast`): handshake `client_ready` → `server_ack`, e depois `track_loaded`, `sync_update`, `side_flip` e `stop`, o mesmo protocolo do `ReceiverServer` do app da TV.
+* **Add by IP:** sem Chromecast no endereço (porta 8009), testa o servidor do app de TV (porta 8088) e conecta nele.
+
+### 🧪 Qualidade
+* Novo `test/tv_app_connection_test.dart`: aparelho a partir do anúncio; "Add by IP" com um servidor que imita o app do Fire TV (handshake, faixa enviada, `stop` ao desconectar); endereço sem servidor não entra na lista.
+
+---
 ## [v1.3.3] — 12/10/2026 (Celular se Anuncia na Rede para os Apps de TV)
 
 ### 📣 Anúncio `_waxclub._tcp`
