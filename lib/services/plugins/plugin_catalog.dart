@@ -138,10 +138,10 @@ class PluginCatalog {
           category: PluginCategory.display,
           number: 2,
           name: l10n.pluginCuriositiesName,
-          author: l10n.pluginAuthorWaxClub,
+          author: l10n.pluginAuthorBuiltIn,
           license: l10n.pluginLicenseCuriosities,
           description: l10n.pluginCuriositiesDesc,
-          availability: PluginAvailability.comingSoon,
+          availability: PluginAvailability.builtIn,
         ),
         PluginInfo(
           id: 'ai.curiosities',
@@ -208,6 +208,15 @@ class PluginStore extends ChangeNotifier {
   List<PluginInfo> activeIn(PluginCategory c) => catalog.where((p) => p.category == c && isActive(p)).toList();
   List<PluginInfo> notInstalled() => catalog.where((p) => !isInstalled(p)).toList();
 
+  void _applyLanguageDefault() {
+    for (final c in PluginCategory.values.where((c) => c.exclusive)) {
+      final hasActive = _active.any((id) => catalog.any((p) => p.id == id && p.category == c));
+      if (hasActive) continue;
+      final builtIn = catalog.where((p) => p.category == c && p.isBuiltIn).toList();
+      if (builtIn.isNotEmpty) _active.add(builtIn.first.id);
+    }
+  }
+
   void _applyDefaults() {
     // Embutidos começam ligados; o idioma padrão é o primeiro embutido da categoria
     for (final c in PluginCategory.values) {
@@ -268,12 +277,20 @@ class PluginStore extends ChangeNotifier {
           ..clear()
           ..addAll((j['installed'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains));
         final active = (j['active'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains).toSet();
-        // Travados continuam sempre ligados
+        // Embutidos que o usuário já conhecia respeitam o que ele escolheu; embutidos novos (de uma
+        // versão nova do app) entram ligados. Travados continuam sempre ligados.
+        // Arquivo da 1.3.12 (sem a lista): os embutidos daquela versão eram English e Synced lyrics
+        final seen = j.containsKey('seenBuiltIns')
+            ? (j['seenBuiltIns'] as List<dynamic>).whereType<String>().toSet()
+            : const {'lang.en', 'display.lyrics'};
         _active
           ..clear()
           ..addAll(active)
-          ..addAll(catalog.where((p) => p.locked).map((p) => p.id));
-        _applyDefaults();
+          ..addAll(catalog.where((p) => p.locked).map((p) => p.id))
+          ..addAll(catalog.where((p) =>
+              p.isBuiltIn && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
+        // Idioma: se nenhum ativo, o padrão
+        _applyLanguageDefault();
       }
     } catch (e) {
       debugPrint('[PluginStore] Arquivo de plugins ilegível: $e');
@@ -286,7 +303,12 @@ class PluginStore extends ChangeNotifier {
     try {
       final f = await _file();
       if (f == null) return;
-      await f.writeAsString(jsonEncode({'version': 1, 'installed': _installed.toList(), 'active': _active.toList()}));
+      await f.writeAsString(jsonEncode({
+        'version': 2,
+        'installed': _installed.toList(),
+        'active': _active.toList(),
+        'seenBuiltIns': catalog.where((p) => p.isBuiltIn).map((p) => p.id).toList(),
+      }));
     } catch (e) {
       debugPrint('[PluginStore] Falha ao salvar os plugins: $e');
     }

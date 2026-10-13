@@ -2275,7 +2275,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginCuriositiesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Short facts about the record and each track, rising and fading as the music plays. Shown when there are no lyrics.'**
+  /// **'Short facts about the record and each track, taken from Wikipedia and Discogs with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
   String get pluginCuriositiesDesc;
 
   /// No description provided for @pluginAiCuriositiesName.
@@ -2499,6 +2499,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.'**
   String get catalogNotFoundBody;
+
+  /// No description provided for @curiosityAboutRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'About the record'**
+  String get curiosityAboutRecord;
+
+  /// No description provided for @curiosityAboutTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'About this track'**
+  String get curiosityAboutTrack;
+
+  /// No description provided for @curiositySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {source}'**
+  String curiositySource(String source);
+
+  /// No description provided for @helpCuriosities.
+  ///
+  /// In en, this message translates to:
+  /// **'Curiosities'**
+  String get helpCuriosities;
+
+  /// No description provided for @helpCuriosities1.
+  ///
+  /// In en, this message translates to:
+  /// **'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia or Discogs).'**
+  String get helpCuriosities1;
+
+  /// No description provided for @helpCuriosities2.
+  ///
+  /// In en, this message translates to:
+  /// **'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).'**
+  String get helpCuriosities2;
 }
 
 class _AppLocalizationsDelegate

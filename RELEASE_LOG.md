@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.16] — 13/10/2026 (Curiosidades Animadas do Disco e das Faixas)
+
+* **Curiosidades no lugar da letra:** quando a música não tem letra (sem plugin de letra ou letra não encontrada), aparecem fatos curtos — do **disco** no começo de cada lado e da **faixa** distribuídos ao longo da música. Cada um entra subindo, fica e sai esmaecendo (mesma curva da letra da TV), com "About the record" / "About this track" e a fonte.
+* **Fontes, sempre em inglês:** artigo do álbum e da música na **Wikipedia** (conferindo o artista) e notas da prensagem do **Discogs**. As frases são escolhidas do próprio texto da fonte (definição, gravação, lançamento, paradas, vendas, prêmios...) — nada é inventado; o resumo por IA virá como plugin (A1). Guardadas no aparelho (`waxclub_curiosities.json`): na próxima vez funcionam sem internet. (`CuriositiesService`, `CuriositiesView`.)
+* **Plugin D2 "Record curiosities"** passa a vir com o app, no prato por padrão; pode ser desligado na Jukebox. Plugins embutidos novos entram ligados, mas a escolha do usuário é respeitada nas próximas aberturas (`seenBuiltIns`).
+* **Lista de testes com disco de verdade** registrada no documento do cronograma (18 itens, para quando o usuário puder testar).
+* Ajuda: tópico "Curiosities". Novo `test/curiosities_test.dart`.
+* Pendente: curiosidades também na TV (página do receptor).
+
+---
 ## [v1.3.15] — 13/10/2026 (Modo Manual: Letra pela Minutagem, sem Shazam)
 
 * **Verificação no catálogo de reconhecimento** depois do Identify (`RecognitionCatalogService`): consulta grátis ao iTunes (catálogo ≈ Apple Music, o mesmo do reconhecimento) pelo código de barras ou por artista + álbum e confere faixa a faixa (encontrado = pelo menos metade das faixas). Fora do catálogo: aviso "This record was not found in the recognition system. Switching to Manual mode." e a chave MANUAL liga. Sem rede: segue no automático.

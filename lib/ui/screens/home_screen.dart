@@ -24,6 +24,8 @@ import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
 import 'record_scan_screen.dart';
 import 'plugin_jukebox_screen.dart';
+import '../widgets/curiosities_view.dart';
+import '../../services/curiosities_service.dart';
 import '../widgets/chrome_play_button.dart';
 import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
@@ -395,6 +397,45 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final choice = await showManualStartSheet(context, tracks, album: _engine.lockedAlbumName);
     if (choice == null || !mounted) return;
     await _engine.startManualPlayback(trackIndex: choice.trackIndex, useMic: choice.useMic);
+  }
+
+  // ---------- Curiosidades (sem letra) ----------
+  final CuriositiesService _curiositiesService = CuriositiesService();
+  RecordCuriosities? _curiosities;
+  String? _curiositiesKey;
+
+  /// Curiosidades do disco e da faixa no lugar da letra, quando não há letra e o plugin
+  /// "Record curiosities" (D2) está no prato. Busca na primeira vez (fica guardado no aparelho).
+  Widget? _curiositiesOrNull() {
+    final track = _engine.currentTrack;
+    final curiositiesOn = _plugins.catalog.any((p) => p.id == 'display.curiosities' && _plugins.isActive(p)); // l10n-ignore
+    if (track == null || !curiositiesOn) return null;
+    final album = _engine.lockedAlbumName ?? track.album ?? '';
+    final artist = _engine.lockedAlbumArtist ?? track.artist;
+    final key = '$album|$artist|${track.title}'; // l10n-ignore
+    if (key != _curiositiesKey) {
+      _curiositiesKey = key;
+      _curiosities = null;
+      _curiositiesService.forTrack(artist: track.artist, album: album, track: track.title).then((c) {
+        if (mounted && _curiositiesKey == key) setState(() => _curiosities = c);
+      });
+      // o disco pode ter outro artista creditado (coletâneas): também busca o do disco
+      if (artist != track.artist) {
+        _curiositiesService.forTrack(artist: artist, album: album, track: track.title);
+      }
+    }
+    final c = _curiosities;
+    if (c == null || c.isEmpty) return null;
+    // 1ª faixa do lado: as curiosidades do disco entram antes
+    final list = _engine.lockedTracklist;
+    final i = TracklistMatcher.findIndex(list, track.title);
+    final sideStart = i <= 0 || (list[i].side != null && list[i].side != list[i - 1].side);
+    return CuriositiesView(
+      curiosities: c,
+      positionSeconds: _engine.telemetry.currentPositionSeconds,
+      durationSeconds: _engine.telemetry.trackDurationSeconds,
+      sideStart: sideStart,
+    );
   }
 
   /// Jukebox de plugins (idiomas, exibição, IA).
@@ -1127,7 +1168,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     bottomReserve: awaitingFlip ? 84 : 8,
                                     statusLine: statusLine,
                                   )
-                                : null,
+                                : _curiositiesOrNull(),
                           ),
                         ),
 

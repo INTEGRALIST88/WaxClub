@@ -1347,7 +1347,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginCuriositiesDesc =>
-      'Short facts about the record and each track, rising and fading as the music plays. Shown when there are no lyrics.';
+      'Short facts about the record and each track, taken from Wikipedia and Discogs with the source, rising and fading as the music plays. Shown when there are no lyrics.';
 
   @override
   String get pluginAiCuriositiesName => 'AI curiosities';
@@ -1490,4 +1490,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get catalogNotFoundBody =>
       'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.';
+
+  @override
+  String get curiosityAboutRecord => 'About the record';
+
+  @override
+  String get curiosityAboutTrack => 'About this track';
+
+  @override
+  String curiositySource(String source) {
+    return 'Source: $source';
+  }
+
+  @override
+  String get helpCuriosities => 'Curiosities';
+
+  @override
+  String get helpCuriosities1 =>
+      'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia or Discogs).';
+
+  @override
+  String get helpCuriosities2 =>
+      'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).';
 }

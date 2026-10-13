@@ -56,9 +56,9 @@ void main() {
 
     await store.install(_theme);
     await store.toggle(_theme);
-    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D9']);
+    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2', 'D9']);
     await store.toggle(_theme);
-    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1']);
+    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2']);
   });
 
   testWidgets('jukebox: discos por categoria e seleção pelo teclado abre o plugin', (tester) async {
