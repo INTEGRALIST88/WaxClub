@@ -119,7 +119,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     return WoodPanel(
       radius: 14,
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: compact ? 6 : 8),
-      glow: AppTheme.neonCyan,
+      glow: AppTheme.cream,
       child: Row(
         children: [
           Container(
@@ -127,8 +127,8 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: reconnecting ? _amber : AppTheme.neonCyan,
-              boxShadow: [BoxShadow(color: (reconnecting ? _amber : AppTheme.neonCyan).withValues(alpha: 0.8), blurRadius: 8)],
+              color: reconnecting ? _amber : AppTheme.cream,
+              boxShadow: [BoxShadow(color: (reconnecting ? _amber : AppTheme.cream).withValues(alpha: 0.8), blurRadius: 8)],
             ),
           ),
           const SizedBox(width: 10),
@@ -232,7 +232,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                     const SizedBox(height: 3),
                     Text(
                       track?.artist ?? 'Tap Listen while the record plays',
-                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.neonCyan),
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.cream),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -258,9 +258,9 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               trackHeight: 4,
-              activeTrackColor: AppTheme.neonCyan,
+              activeTrackColor: AppTheme.cream,
               inactiveTrackColor: Colors.white12,
-              thumbColor: AppTheme.neonPurple,
+              thumbColor: AppTheme.orange,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
             ),
@@ -305,7 +305,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
   Widget _fallbackCover() {
     return Container(
       color: AppTheme.surfaceLight,
-      child: const Center(child: Icon(Icons.album_rounded, size: 42, color: AppTheme.neonCyan)),
+      child: const Center(child: Icon(Icons.album_rounded, size: 42, color: AppTheme.cream)),
     );
   }
 
@@ -314,7 +314,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     final next = telemetry.predictedNextTrackTitle;
     if (!sideEnd && (next == null || next.isEmpty)) return const SizedBox.shrink();
 
-    final color = sideEnd ? _amber : AppTheme.neonPurple;
+    final color = sideEnd ? _amber : AppTheme.orange;
     final label = sideEnd ? telemetry.sideEndLabel! : 'Up next';
     final afterFlip = widget.engine.afterFlipTitle;
     final song = sideEnd
@@ -343,7 +343,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
             ),
           ),
           if (!sideEnd && telemetry.nextLyricsReady)
-            const Text('⚡ lyrics ready', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+            const Text('⚡ lyrics ready', style: TextStyle(fontSize: 11, color: AppTheme.cream)),
         ],
       ),
     );
@@ -373,13 +373,13 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: const Color(0xFF131016),
-                  border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.5), width: 1.5),
+                  border: Border.all(color: AppTheme.orange.withValues(alpha: 0.5), width: 1.5),
                 ),
                 child: Center(
                   child: Container(
                     width: 16,
                     height: 16,
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.neonCyan),
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.cream),
                     child: const Center(child: CircleAvatar(radius: 3, backgroundColor: Colors.black)),
                   ),
                 ),
@@ -393,7 +393,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
                   Text.rich(
                     TextSpan(children: [
                       TextSpan(text: rpm.toStringAsFixed(2)),
-                      const TextSpan(text: ' RPM', style: TextStyle(fontSize: 13, color: AppTheme.neonCyan, letterSpacing: 0)),
+                      const TextSpan(text: ' RPM', style: TextStyle(fontSize: 13, color: AppTheme.cream, letterSpacing: 0)),
                     ]),
                     style: TextStyle(fontSize: compact ? 25 : 29, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
                   ),
@@ -409,10 +409,10 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _chip('${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(1)}%', pct.abs() > 0.8 ? _amber : AppTheme.neonCyan),
+                _chip('${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(1)}%', pct.abs() > 0.8 ? _amber : AppTheme.cream),
                 if (stdErr != null) ...[
                   const SizedBox(height: 4),
-                  _chip('±${(stdErr * 100).toStringAsFixed(1)}%', AppTheme.neonCyan),
+                  _chip('±${(stdErr * 100).toStringAsFixed(1)}%', AppTheme.cream),
                 ],
               ],
             ),
@@ -429,9 +429,9 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 4,
-                  activeTrackColor: AppTheme.neonPurple,
+                  activeTrackColor: AppTheme.orange,
                   inactiveTrackColor: Colors.white12,
-                  thumbColor: AppTheme.neonCyan,
+                  thumbColor: AppTheme.cream,
                   thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                 ),
                 // o Slider reserva 48px por padrão; limitado para o painel caber sem rolagem
@@ -547,11 +547,11 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
   }
 
   Widget _pillButton({required IconData icon, required String label, required VoidCallback onTap, bool active = false, required bool compact}) {
-    final color = active ? AppTheme.neonCyan : Colors.white;
+    final color = active ? AppTheme.cream : Colors.white;
     return _woodTap(
       onTap: onTap,
       height: compact ? 28 : 32,
-      glow: active ? AppTheme.neonCyan : null,
+      glow: active ? AppTheme.cream : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -623,11 +623,11 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
             height: compact ? 50 : 56,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isListening ? Colors.redAccent : AppTheme.neonPurple,
+                backgroundColor: isListening ? Colors.redAccent : AppTheme.orange,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 elevation: 6,
-                shadowColor: (isListening ? Colors.redAccent : AppTheme.neonPurple).withValues(alpha: 0.6),
+                shadowColor: (isListening ? Colors.redAccent : AppTheme.orange).withValues(alpha: 0.6),
               ),
               onPressed: () => isListening ? engine.stop() : engine.startListening(),
               icon: Icon(isListening ? Icons.stop_rounded : Icons.mic_rounded, size: 24),

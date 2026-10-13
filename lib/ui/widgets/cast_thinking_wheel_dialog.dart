@@ -172,13 +172,13 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: isConfirmed ? AppTheme.neonCyan : Colors.white12,
+            color: isConfirmed ? AppTheme.cream : Colors.white12,
             width: isConfirmed ? 1.8 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: isConfirmed
-                  ? AppTheme.neonCyan.withValues(alpha: 0.25)
+                  ? AppTheme.cream.withValues(alpha: 0.25)
                   : Colors.black.withValues(alpha: 0.7),
               blurRadius: 30,
               spreadRadius: 2,
@@ -205,7 +205,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           children: [
             const Row(
               children: [
-                Icon(Icons.cast, color: AppTheme.neonCyan, size: 22),
+                Icon(Icons.cast, color: AppTheme.cream, size: 22),
                 SizedBox(width: 10),
                 Text(
                   'CAST TO TV',
@@ -226,12 +226,12 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppTheme.neonCyan,
+                      color: AppTheme.cream,
                     ),
                   )
                 else
                   IconButton(
-                    icon: const Icon(Icons.refresh, color: AppTheme.neonCyan, size: 20),
+                    icon: const Icon(Icons.refresh, color: AppTheme.cream, size: 20),
                     tooltip: 'Search again',
                     onPressed: () => _startDeviceDiscovery(),
                     visualDensity: VisualDensity.compact,
@@ -257,11 +257,11 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: isScanning
-                ? AppTheme.neonCyan.withValues(alpha: 0.1)
+                ? AppTheme.cream.withValues(alpha: 0.1)
                 : AppTheme.surfaceLight,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isScanning ? AppTheme.neonCyan.withValues(alpha: 0.25) : Colors.white10,
+              color: isScanning ? AppTheme.cream.withValues(alpha: 0.25) : Colors.white10,
             ),
           ),
           child: Row(
@@ -270,7 +270,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
               Icon(
                 isScanning ? Icons.radar : Icons.devices,
                 size: 16,
-                color: isScanning ? AppTheme.neonCyan : Colors.white70,
+                color: isScanning ? AppTheme.cream : Colors.white70,
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -282,7 +282,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                           : 'No TV found on the local network'),
                   style: TextStyle(
                     fontSize: 12,
-                    color: isScanning ? AppTheme.neonCyan : Colors.white70,
+                    color: isScanning ? AppTheme.cream : Colors.white70,
                     fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -310,7 +310,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                     border: Border.all(
                       color: dev.isStandBy
                           ? Colors.amber.withValues(alpha: 0.3)
-                          : AppTheme.neonCyan.withValues(alpha: 0.3),
+                          : AppTheme.cream.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Material(
@@ -325,14 +325,14 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: (dev.isAudioOnly ? Colors.deepPurple : AppTheme.neonCyan)
+                                color: (dev.isAudioOnly ? AppTheme.rust : AppTheme.cream)
                                     .withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 dev.isAudioOnly ? Icons.speaker_rounded : Icons.tv_rounded,
                                 size: 20,
-                                color: dev.isAudioOnly ? Colors.purpleAccent : AppTheme.neonCyan,
+                                color: dev.isAudioOnly ? AppTheme.orange : AppTheme.cream,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -379,7 +379,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: AppTheme.neonCyan,
+                                color: AppTheme.cream,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
@@ -436,8 +436,8 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
               icon: const Icon(Icons.network_check, size: 15),
               label: const Text('Search network', style: TextStyle(fontSize: 11.5)),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.neonCyan,
-                side: const BorderSide(color: AppTheme.neonCyan),
+                foregroundColor: AppTheme.cream,
+                side: const BorderSide(color: AppTheme.cream),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               ),
               onPressed: () => _startDeviceDiscovery(forceSubnet: true),
@@ -482,7 +482,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
               const SizedBox(width: 8),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.neonCyan,
+                  backgroundColor: AppTheme.cream,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                 ),
@@ -549,7 +549,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppTheme.neonCyan, size: 20),
+              icon: const Icon(Icons.arrow_back, color: AppTheme.cream, size: 20),
               tooltip: 'Voltar',
               onPressed: _resetToDeviceSelection,
               visualDensity: VisualDensity.compact,
@@ -610,15 +610,15 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isConfirmed
-                          ? AppTheme.neonCyan
+                          ? AppTheme.cream
                           : (isFailed ? Colors.redAccent : Colors.white24),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: (isConfirmed
-                                ? AppTheme.neonCyan
-                                : (isFailed ? Colors.redAccent : Colors.purple))
+                                ? AppTheme.cream
+                                : (isFailed ? Colors.redAccent : AppTheme.orange))
                             .withValues(alpha: 0.3),
                         blurRadius: 18,
                       ),
@@ -629,7 +629,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                         ? Icons.check_circle_rounded
                         : (isFailed ? Icons.error_outline_rounded : Icons.tv_rounded),
                     color: isConfirmed
-                        ? AppTheme.neonCyan
+                        ? AppTheme.cream
                         : (isFailed ? Colors.redAccent : Colors.white),
                     size: 34,
                   ),
@@ -651,7 +651,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
             fontWeight: FontWeight.bold,
             letterSpacing: 0.8,
             color: isConfirmed
-                ? AppTheme.neonCyan
+                ? AppTheme.cream
                 : (isFailed ? Colors.redAccent : Colors.white),
           ),
         ),
@@ -672,9 +672,9 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppTheme.neonCyan.withValues(alpha: 0.1),
+              color: AppTheme.cream.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.cream.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [
@@ -688,7 +688,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.neonCyan,
+                    color: AppTheme.cream,
                   ),
                 ),
               ],
@@ -706,7 +706,7 @@ class _CastThinkingWheelDialogState extends State<CastThinkingWheelDialog>
                 icon: const Icon(Icons.refresh, size: 16),
                 label: const Text('Try Again'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.neonCyan,
+                  backgroundColor: AppTheme.cream,
                   foregroundColor: Colors.black,
                 ),
                 onPressed: () {
@@ -756,12 +756,12 @@ class _ThinkingWheelPainter extends CustomPainter {
 
     final sweepGradient = SweepGradient(
       colors: isConfirmed
-          ? [AppTheme.neonCyan.withValues(alpha: 0.0), AppTheme.neonCyan]
+          ? [AppTheme.cream.withValues(alpha: 0.0), AppTheme.cream]
           : (isFailed
               ? [Colors.redAccent.withValues(alpha: 0.0), Colors.redAccent]
               : [
-                  AppTheme.neonPurple.withValues(alpha: 0.0),
-                  AppTheme.neonCyan,
+                  AppTheme.orange.withValues(alpha: 0.0),
+                  AppTheme.cream,
                 ]),
     );
 

@@ -10,11 +10,15 @@ class LyricsListView extends StatefulWidget {
   final int activeIndex;
   final Function(double seconds)? onSeek;
 
+  /// Conteúdo exibido quando não há letra (ex.: a saudação da tela principal).
+  final Widget? emptyState;
+
   const LyricsListView({
     super.key,
     required this.lyrics,
     required this.activeIndex,
     this.onSeek,
+    this.emptyState,
   });
 
   @override
@@ -54,7 +58,7 @@ class _LyricsListViewState extends State<LyricsListView> {
   @override
   Widget build(BuildContext context) {
     if (widget.lyrics.isEmpty) {
-      return _buildEmptyState();
+      return widget.emptyState ?? _buildEmptyState();
     }
 
     return ScrollablePositionedList.builder(
@@ -88,7 +92,7 @@ class _LyricsListViewState extends State<LyricsListView> {
         onTap: () {
           widget.onSeek?.call(line.timestamp.inMilliseconds / 1000.0);
         },
-        splashColor: AppTheme.neonPurple.withOpacity(0.2),
+        splashColor: AppTheme.orange.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
@@ -102,11 +106,11 @@ class _LyricsListViewState extends State<LyricsListView> {
             shadows: isActive
                 ? [
                     Shadow(
-                      color: AppTheme.neonPurple.withOpacity(0.6),
+                      color: AppTheme.orange.withOpacity(0.6),
                       blurRadius: 18,
                     ),
                     Shadow(
-                      color: AppTheme.neonCyan.withOpacity(0.4),
+                      color: AppTheme.cream.withOpacity(0.4),
                       blurRadius: 28,
                     ),
                   ]
@@ -130,7 +134,7 @@ class _LyricsListViewState extends State<LyricsListView> {
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.neonPurple.withOpacity(0.35),
+                  color: AppTheme.orange.withOpacity(0.35),
                   blurRadius: 30,
                   spreadRadius: 4,
                 ),
@@ -139,11 +143,11 @@ class _LyricsListViewState extends State<LyricsListView> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(28),
               child: Image.asset(
-                'assets/icon/app_icon.jpg',
+                'assets/icon/app_icon.png',
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
                   color: AppTheme.surface,
-                  child: const Icon(Icons.album, size: 70, color: AppTheme.neonPurple),
+                  child: const Icon(Icons.album, size: 70, color: AppTheme.orange),
                 ),
               ),
             ),
@@ -164,7 +168,7 @@ class _LyricsListViewState extends State<LyricsListView> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppTheme.neonCyan,
+              color: AppTheme.cream,
               letterSpacing: 2.2,
             ),
           ),

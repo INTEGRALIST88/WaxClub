@@ -1,37 +1,38 @@
 import 'package:flutter/material.dart';
 
-/// Tema visual escuro do WaxClub: madeira escura entalhada no entorno e nos controles,
-/// mantendo as cores de destaque (ciano/roxo do ícone) e as cores da letra.
+/// Tema visual do WaxClub, na paleta do ícone: nogueira (madeira entalhada), vinil preto e o selo
+/// do disco em creme e laranja queimado.
 ///
-/// Paleta de madeira (mesma família da tela da TV, #120C08):
-/// ébano (fundo) → nogueira escura (painéis) → nogueira (elevado); bordas do entalhe com
-/// nogueira inglesa (#3E2B23) na luz e quase-preto (#070403) na sombra.
+/// Madeira: ébano (fundo) → nogueira escura (painéis) → nogueira (elevado); bordas do entalhe com
+/// nogueira clara na luz e quase-preto na sombra. Destaques: creme do selo e laranja do selo.
 class AppTheme {
-  static const Color background = Color(0xFF120C08); // ébano
-  static const Color surface = Color(0xFF1E140D); // nogueira escura
-  static const Color surfaceLight = Color(0xFF2B1D13); // nogueira (elevado)
+  static const Color background = Color(0xFF160F0A); // ébano quente
+  static const Color surface = Color(0xFF24170F); // nogueira escura
+  static const Color surfaceLight = Color(0xFF342216); // nogueira (elevado)
 
   // Entalhe: sombra na borda de cima/esquerda, luz na borda de baixo/direita
-  static const Color carveLight = Color(0xFF3E2B23); // nogueira inglesa
-  static const Color carveShadow = Color(0xFF070403);
-  static const Color woodGrain = Color(0xFF2E1E14); // veio da madeira
+  static const Color carveLight = Color(0xFF4A3122); // nogueira clara
+  static const Color carveShadow = Color(0xFF080503);
+  static const Color woodGrain = Color(0xFF3A2618); // veio da madeira
+  static const Color wood = Color(0xFF8A5532); // nogueira do ícone
 
-  static const Color neonCyan = Color(0xFF00E5FF);
-  static const Color neonPurple = Color(0xFFA855F7);
-  static const Color neonPink = Color(0xFFFF2A85);
+  // Selo do disco (ícone)
+  static const Color cream = Color(0xFFEBD5B0); // creme do selo: destaques e títulos
+  static const Color orange = Color(0xFFC2602F); // laranja queimado: ações principais
+  static const Color rust = Color(0xFF8E3B1E); // ferrugem: alertas suaves e detalhes
 
   static const Color textActive = Colors.white;
-  static const Color textInactive = Color(0x55FFFFFF);
-  static const Color textPast = Color(0x33FFFFFF);
+  static const Color textInactive = Color(0x66F3E6D0);
+  static const Color textPast = Color(0x3DF3E6D0);
 
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: background,
-      primaryColor: neonPurple,
+      primaryColor: orange,
       colorScheme: const ColorScheme.dark(
-        primary: neonPurple,
-        secondary: neonCyan,
+        primary: orange,
+        secondary: cream,
         surface: surface,
       ),
       fontFamily: 'Roboto',
@@ -41,7 +42,7 @@ class AppTheme {
         centerTitle: false,
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: neonPurple,
+        backgroundColor: orange,
         foregroundColor: Colors.white,
         elevation: 8,
       ),

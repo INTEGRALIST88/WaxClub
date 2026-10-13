@@ -116,7 +116,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
         backgroundColor: AppTheme.surface,
         title: const Row(
           children: [
-            Icon(Icons.album, color: AppTheme.neonCyan),
+            Icon(Icons.album, color: AppTheme.cream),
             SizedBox(width: 10),
             Expanded(child: Text('Connect your Discogs account', style: TextStyle(color: Colors.white, fontSize: 18))),
           ],
@@ -128,7 +128,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: AppTheme.neonCyan, foregroundColor: Colors.black),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.cream, foregroundColor: Colors.black),
             child: const Text('OK'),
           ),
         ],
@@ -233,7 +233,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           padding: const EdgeInsets.fromLTRB(16, 4, 8, 0),
           child: Row(
             children: [
-              const Icon(Icons.swap_horiz, color: AppTheme.neonCyan),
+              const Icon(Icons.swap_horiz, color: AppTheme.cream),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -257,7 +257,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           dense: true,
           value: auth.isEnabled,
           onChanged: (v) => _toggleDiscogs(v ?? false),
-          activeColor: AppTheme.neonCyan,
+          activeColor: AppTheme.cream,
           checkColor: Colors.black,
           controlAffinity: ListTileControlAffinity.leading,
           title: const Text('Search Discogs', style: TextStyle(color: Colors.white, fontSize: 14.5)),
@@ -307,7 +307,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
         const Divider(color: Colors.white12, height: 1),
         Expanded(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: AppTheme.neonCyan))
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.cream))
               : _error != null
                   ? _message(Icons.wifi_off, _error!)
                   : albums.isEmpty
@@ -370,7 +370,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
 
     return ListTile(
       onTap: applying ? null : () => _choose(a),
-      tileColor: isCurrent ? AppTheme.neonCyan.withValues(alpha: 0.10) : null,
+      tileColor: isCurrent ? AppTheme.cream.withValues(alpha: 0.10) : null,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(6),
@@ -401,11 +401,11 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
               spacing: 5,
               runSpacing: 4,
               children: [
-                if (isCurrent) _chip('Current', AppTheme.neonCyan),
+                if (isCurrent) _chip('Current', AppTheme.cream),
                 if (a.isVinyl) _chip('Vinyl', Colors.amber),
                 if (!a.isVinyl && a.format != null) _chip(a.format!.split(',').first, Colors.white54),
-                if (a.isCompilation) _chip('Compilation', AppTheme.neonPink),
-                if (a.isLive) _chip('Live', AppTheme.neonPurple),
+                if (a.isCompilation) _chip('Compilation', AppTheme.rust),
+                if (a.isLive) _chip('Live', AppTheme.orange),
                 if (a.editions > 1) _chip('${a.editions} editions', Colors.white38),
               ],
             ),
@@ -413,14 +413,14 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
         ),
       ),
       trailing: applying
-          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.neonCyan))
+          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.cream))
           : const Icon(Icons.chevron_right, color: Colors.white38),
     );
   }
 
   Widget _coverPlaceholder() => Container(
         color: AppTheme.surfaceLight,
-        child: const Icon(Icons.album, color: AppTheme.neonCyan),
+        child: const Icon(Icons.album, color: AppTheme.cream),
       );
 
   Widget _chip(String text, Color color) => Container(

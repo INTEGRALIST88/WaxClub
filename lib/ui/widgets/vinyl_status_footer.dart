@@ -157,9 +157,9 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.neonCyan.withValues(alpha: 0.12),
+                          color: AppTheme.cream.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.4)),
+                          border: Border.all(color: AppTheme.cream.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           telemetry.sideEndLabel != null
@@ -168,7 +168,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.neonCyan,
+                            color: AppTheme.cream,
                             letterSpacing: 0.5,
                           ),
                           maxLines: 1,
@@ -179,16 +179,16 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.neonPurple.withOpacity(0.12),
+                          color: AppTheme.orange.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.neonPurple.withOpacity(0.4)),
+                          border: Border.all(color: AppTheme.orange.withOpacity(0.4)),
                         ),
                         child: const Text(
                           '🎵 NEXT TRACK',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.neonPurple,
+                            color: AppTheme.orange,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -245,7 +245,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.neonCyan,
+                              color: AppTheme.cream,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -276,7 +276,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                     IconButton(
                       icon: Icon(
                         telemetry.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                        color: AppTheme.neonCyan,
+                        color: AppTheme.cream,
                         size: 26,
                       ),
                       tooltip: telemetry.isPaused ? 'Continuar' : 'Pausar',
@@ -333,9 +333,9 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                       Expanded(
                         child: SliderTheme(
                           data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: AppTheme.neonPurple,
+                            activeTrackColor: AppTheme.orange,
                             inactiveTrackColor: Colors.white12,
-                            thumbColor: AppTheme.neonCyan,
+                            thumbColor: AppTheme.cream,
                             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
                             trackHeight: 2,
                           ),
@@ -380,7 +380,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppTheme.carveLight),
                           ),
-                          child: const Text('-1.0s', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+                          child: const Text('-1.0s', style: TextStyle(fontSize: 11, color: AppTheme.cream)),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -394,7 +394,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppTheme.carveLight),
                           ),
-                          child: const Text('-0.5s', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+                          child: const Text('-0.5s', style: TextStyle(fontSize: 11, color: AppTheme.cream)),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -408,7 +408,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppTheme.carveLight),
                           ),
-                          child: const Text('+0.5s', style: TextStyle(fontSize: 11, color: AppTheme.neonPink)),
+                          child: const Text('+0.5s', style: TextStyle(fontSize: 11, color: AppTheme.rust)),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -422,7 +422,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppTheme.carveLight),
                           ),
-                          child: const Text('+1.0s', style: TextStyle(fontSize: 11, color: AppTheme.neonPink)),
+                          child: const Text('+1.0s', style: TextStyle(fontSize: 11, color: AppTheme.rust)),
                         ),
                       ),
                     ],
@@ -532,10 +532,10 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.black,
-              border: Border.all(color: AppTheme.neonPurple.withOpacity(0.6), width: 1.5),
+              border: Border.all(color: AppTheme.orange.withOpacity(0.6), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.neonPurple.withOpacity(0.3),
+                  color: AppTheme.orange.withOpacity(0.3),
                   blurRadius: 8,
                 ),
               ],
@@ -566,7 +566,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                   height: 14,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.neonCyan,
+                    color: AppTheme.cream,
                   ),
                   child: Center(
                     child: Container(
@@ -597,7 +597,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
         color: isCalibrated ? AppTheme.surfaceLight : Colors.black26,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isCalibrated ? AppTheme.neonCyan : Colors.white12,
+          color: isCalibrated ? AppTheme.cream : Colors.white12,
           width: 1,
         ),
       ),
@@ -622,7 +622,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: pitchText.startsWith('+') ? AppTheme.neonCyan : AppTheme.neonPink,
+                  color: pitchText.startsWith('+') ? AppTheme.cream : AppTheme.rust,
                 ),
               ),
             ],

@@ -2,6 +2,28 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.5] — 12/10/2026 (Telas Novas: Saudação, Coleção, Ajuda + Visual Madeira e Creme/Laranja)
+
+### 🏠 Tela principal
+* Sem música tocando, a tela mostra o ícone e uma **saudação com o nome do usuário**, que varia com a hora e a cada abertura: "Good afternoon, Gustavo!", "Let's go, Gustavo!", "Gustavo, today is a great day to listen to some music.". Na primeira vez, o botão "What should we call you?" pede o nome (tocar na saudação permite trocar). O nome fica no aparelho até existir a conta WaxClub.
+* O botão **Quick Demos** saiu. No lugar do antigo "How it works" entrou o ícone de **ajuda**.
+
+### 💿 My Collection
+* Novo ícone de **coleção** na barra superior abre a tela "My Collection": discos com capa, artista, **quantas vezes foram ouvidos** e **quando**, ordenáveis por tocados recentemente, mais tocados, adicionados recentemente e A–Z. O detalhe mostra a lista de faixas, primeira e última audição e o **histórico com data e hora** de cada faixa ouvida.
+* **Add to collection** na janela de faixas (toque na capa), ao lado de "Change record".
+* Audições: cada faixa ouvida é registrada; qualquer faixa conta o disco **uma vez por sessão** (nova sessão após 2 h sem ouvi-lo). Os campos da coleção já seguem o modelo do servidor e do Discogs (nota, estado do disco e da capa, observações, número do lançamento no Discogs).
+
+### ❓ Help
+* Manual em tópicos: Getting started, Listening and syncing, Flipping the record, Turntable speed, Lyrics running early or late, Change record and Discogs, Your collection, Showing the lyrics on the TV e Troubleshooting. O toque longo na versão continua copiando os logs da sessão.
+
+### 🪵 Ícone e cores
+* **Ícone novo** a partir da arte do usuário: toca-discos em madeira com o disco encaixado (borda levemente entalhada), braço e selo creme e laranja com balão de conversa e pessoas, **sem texto**, com cantos transparentes (`tool/icon/WaxClubWoodIcon.cs`).
+* **Paleta do ícone em todo o app:** creme do selo (`#EBD5B0`) nos destaques, laranja queimado (`#C2602F`) nas ações, ferrugem (`#8E3B1E`) nos detalhes e nogueira mais quente no fundo e nos painéis, no lugar do ciano, roxo e rosa neon.
+
+### 🧪 Qualidade
+* Novo `test/home_collection_help_test.dart`: saudação por nome e horário, contagem por sessão, coleção e nome salvos e recarregados, telas de coleção e ajuda. Suíte: 168 testes verdes.
+
+---
 ## [v1.3.4] — 12/10/2026 (Celular Encontra e Conecta no App WaxClub do Fire TV)
 
 ### 📺 Apps WaxClub de TV na lista "Cast to TV"

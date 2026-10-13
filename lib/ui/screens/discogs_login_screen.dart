@@ -132,7 +132,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       ),
       body: Column(
         children: [
-          if (_loadingPage || _busy) const LinearProgressIndicator(minHeight: 2, color: AppTheme.neonCyan),
+          if (_loadingPage || _busy) const LinearProgressIndicator(minHeight: 2, color: AppTheme.cream),
           if (_error != null)
             Container(
               width: double.infinity,
@@ -147,7 +147,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
             ),
           Expanded(
             child: _web == null
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.neonCyan))
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.cream))
                 : WebViewWidget(controller: _web!),
           ),
           if (!_oauth) _personalTokenPanel(),
@@ -195,7 +195,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                 const SizedBox(width: 10),
                 FilledButton(
                   onPressed: _busy ? null : _savePersonalToken,
-                  style: FilledButton.styleFrom(backgroundColor: AppTheme.neonCyan, foregroundColor: Colors.black),
+                  style: FilledButton.styleFrom(backgroundColor: AppTheme.cream, foregroundColor: Colors.black),
                   child: const Text('Save'),
                 ),
               ],

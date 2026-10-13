@@ -242,6 +242,7 @@ lib/
 | **Ícone de Transmissão presente** | Implementado no topo esquerdo com estados vazado/conectado | ✅ Conforme |
 | **Numeração de Versão progressiva a cada build** | Série 1.3 (`v1.3.2+2302`; próximas 1.3.3, 1.3.4...) | ✅ Conforme |
 | **Celular se anuncia na rede (`_waxclub._tcp`) para apps de TV** | NsdManager (`PhoneNsdAnnouncer.kt`) + `phone_announcer.dart`; TXT com `ws=/cast`, `path=/`, versão | ✅ Conforme (v1.3.3) |
+| **Saudação com nome, My Collection, Help, ícone em madeira e paleta creme/laranja** | `home_greeting.dart`, `collection_service.dart` + `collection_screen.dart`, `help_screen.dart`, `user_profile_store.dart`, `app_theme.dart` (cream/orange/rust) | ✅ Conforme (v1.3.5) |
 | **Conexão com apps WaxClub de TV (Fire TV)** | Busca `_waxclub-tv._tcp`/`_vinylyric._tcp`, conexão WebSocket (`connectToHost`), Add by IP testa 8009 e 8088 | ✅ Conforme (v1.3.4) |
 | **Nomes limpos e minutagem do selo nas trilhas** | Títulos padronizados; durações e lados do selo via Discogs + foto do selo | ✅ Conforme (v1.3.2) |
 | **"Mudar disco" com todos os discos da música e padrão do usuário** | Janela de escolha com busca; disco escolhido travado e gravado como preferido | ✅ Conforme (v1.3.1) |

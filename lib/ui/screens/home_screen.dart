@@ -16,6 +16,11 @@ import '../widgets/vinyl_status_footer.dart';
 import '../widgets/cast_thinking_wheel_dialog.dart';
 import '../widgets/flip_side_button.dart';
 import '../widgets/album_picker_sheet.dart';
+import '../widgets/home_greeting.dart';
+import '../../services/collection_service.dart';
+import '../../services/user_profile_store.dart';
+import 'collection_screen.dart';
+import 'help_screen.dart';
 
 /// Tela principal do aplicativo WaxClub.
 class HomeScreen extends StatefulWidget {
@@ -38,6 +43,12 @@ class _HomeScreenState extends State<HomeScreen>
   late final AlbumCatalogService _albumCatalog = AlbumCatalogService(auth: _discogsAuth);
   bool _albumCatalogCreated = false;
 
+  /// Nome do usuário (saudação) e coleção local com o histórico de audições.
+  final UserProfileStore _profile = UserProfileStore();
+  final CollectionService _collection = CollectionService();
+  final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
+  String? _lastPlayKey;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +59,10 @@ class _HomeScreenState extends State<HomeScreen>
     );
 
     _engine.castService.addListener(_onCastServiceStateChanged);
+    _engine.addListener(_recordPlayIfNew);
+    _profile.addListener(_onProfileChanged);
+    _profile.load();
+    _collection.load();
     _engine.castService.runInitialBackgroundDiscovery();
 
     // Lembrete periódico a cada 1 minuto (60 segundos)
@@ -98,6 +113,10 @@ class _HomeScreenState extends State<HomeScreen>
     _haloReminderTimer?.cancel();
     _initialPulseTimer?.cancel();
     _engine.castService.removeListener(_onCastServiceStateChanged);
+    _engine.removeListener(_recordPlayIfNew);
+    _profile.removeListener(_onProfileChanged);
+    _profile.dispose();
+    _collection.dispose();
     if (_portraitLocked) SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _pulseController.dispose();
     if (_albumCatalogCreated) _albumCatalog.dispose();
@@ -130,9 +149,9 @@ class _HomeScreenState extends State<HomeScreen>
         // Pulsação suave de brilho circular ao redor do botão
         final glowValue = shouldGlow ? _pulseController.value : 0.0;
         final borderColor = isConnected
-            ? AppTheme.neonCyan
+            ? AppTheme.cream
             : (shouldGlow
-                ? AppTheme.neonCyan.withValues(alpha: 0.5 + (glowValue * 0.5))
+                ? AppTheme.cream.withValues(alpha: 0.5 + (glowValue * 0.5))
                 : Colors.white38);
 
         return Padding(
@@ -145,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen>
               boxShadow: shouldGlow
                   ? [
                       BoxShadow(
-                        color: AppTheme.neonCyan.withValues(alpha: 0.45 * glowValue),
+                        color: AppTheme.cream.withValues(alpha: 0.45 * glowValue),
                         blurRadius: 9.0 * glowValue,
                         spreadRadius: 2.2 * glowValue,
                       ),
@@ -154,9 +173,9 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             child: Material(
               color: isConnected
-                  ? AppTheme.neonCyan.withValues(alpha: 0.2)
+                  ? AppTheme.cream.withValues(alpha: 0.2)
                   : (shouldGlow
-                      ? AppTheme.neonCyan.withValues(alpha: 0.15 * glowValue)
+                      ? AppTheme.cream.withValues(alpha: 0.15 * glowValue)
                       : Colors.white.withValues(alpha: 0.12)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -173,11 +192,11 @@ class _HomeScreenState extends State<HomeScreen>
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.neonCyan),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.cream),
                         )
                       : Icon(
                           isConnected ? Icons.cast_connected : Icons.cast,
-                          color: (isConnected || shouldGlow) ? AppTheme.neonCyan : Colors.white,
+                          color: (isConnected || shouldGlow) ? AppTheme.cream : Colors.white,
                           size: 21,
                         ),
                 ),
@@ -206,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.cast_connected, color: AppTheme.neonCyan, size: 28),
+                      const Icon(Icons.cast_connected, color: AppTheme.cream, size: 28),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -218,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                             Text(
                               'Screen: ${_engine.castService.clientDeviceName ?? "Living room TV"}',
-                              style: const TextStyle(fontSize: 12, color: AppTheme.neonCyan),
+                              style: const TextStyle(fontSize: 12, color: AppTheme.cream),
                             ),
                           ],
                         ),
@@ -261,152 +280,89 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  void _showDemoSongsSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppTheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Quick Demos (Vinyl Mode)',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Load tracks with synced lyrics and a simulated 1.018x turntable pitch for instant testing:',
-                  style: TextStyle(fontSize: 13, color: AppTheme.textInactive),
-                ),
-                const SizedBox(height: 16),
-                _buildDemoItem(
-                  title: 'Bohemian Rhapsody',
-                  artist: 'Queen',
-                  offset: 15.0,
-                ),
-                _buildDemoItem(
-                  title: 'Dreams',
-                  artist: 'Fleetwood Mac',
-                  offset: 8.0,
-                ),
-                _buildDemoItem(
-                  title: 'Hotel California',
-                  artist: 'Eagles',
-                  offset: 20.0,
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void _onProfileChanged() {
+    if (mounted) setState(() {});
   }
 
-  Widget _buildDemoItem({
-    required String title,
-    required String artist,
-    required double offset,
-  }) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceLight,
-          borderRadius: BorderRadius.circular(10),
+  /// Registra cada faixa nova nas audições (qualquer faixa conta o disco, uma vez por sessão).
+  void _recordPlayIfNew() {
+    final track = _engine.currentTrack;
+    if (track == null) return;
+    final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? '');
+    if (album.isEmpty) return;
+    final artist = _engine.lockedAlbumArtist ?? track.artist;
+    final key = '$album|$artist|${track.title}';
+    if (key == _lastPlayKey) return;
+    _lastPlayKey = key;
+    _collection.recordTrackPlay(album: album, artist: artist, track: track.title, trackArtist: track.artist);
+  }
+
+  Future<void> _editName() async {
+    final controller = TextEditingController(text: _profile.displayName ?? '');
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text('What should we call you?', style: TextStyle(color: AppTheme.cream)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(hintText: 'Your name', hintStyle: TextStyle(color: Colors.white38)),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
         ),
-        child: const Icon(Icons.music_note, color: AppTheme.neonCyan),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.orange, foregroundColor: Colors.white),
+            child: const Text('Save'),
+          ),
+        ],
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-      subtitle: Text(artist, style: const TextStyle(color: AppTheme.textInactive)),
-      trailing: const Icon(Icons.play_arrow, color: AppTheme.neonPurple),
-      onTap: () {
-        Navigator.pop(context);
-        _engine.loadManualTrack(
-          title: title,
-          artist: artist,
-          startOffsetSeconds: offset,
-        );
-      },
     );
+    if (name != null) await _profile.setDisplayName(name);
   }
 
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppTheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              const Icon(Icons.speed, color: AppTheme.neonCyan),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text('Vinyl Compensation', style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-              GestureDetector(
-                onLongPress: _exportSessionLogs,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppTheme.neonCyan.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
-                  ),
-                  child: const Text(
-                    'v$kAppVersion',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.neonCyan,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: const SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'How $kAppName ($kAppTagline) works:\n\n'
-                  '1. Capture & fingerprint: identifies the track and its current position using the Shazam algorithm.\n\n'
-                  '2. Speed calibration: measures your turntable\'s speed deviation and computes the exact speed factor.\n\n'
-                  '3. Mid-song re-sync: checks the lyrics are still in sync while the track plays.\n\n'
-                  '4. Continuous mode: at the end of a track, it listens automatically to identify the next song.\n\n'
-                  '5. Smart prefetch: while a song plays, it downloads lyrics for the album\'s likely next tracks.\n\n'
-                  '6. Local cache: remembers the records and songs you have played to speed up future sessions.\n\n'
-                  'Tip: long-press the version badge to export the session logs.',
-                  style: TextStyle(fontSize: 13, color: Colors.white70, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Entendido', style: TextStyle(color: AppTheme.neonPurple)),
-            ),
-          ],
-        );
-      },
-    );
+  void _openHelp() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => HelpScreen(onExportLogs: _exportSessionLogs)));
+  }
+
+  void _openCollection() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CollectionScreen(
+        collection: _collection,
+        tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
+      ),
+    ));
+  }
+
+  /// Adiciona (ou retira) da coleção o disco que está tocando.
+  Future<void> _toggleCurrentInCollection() async {
+    final track = _engine.currentTrack;
+    if (track == null) return;
+    final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? track.title);
+    final artist = _engine.lockedAlbumArtist ?? track.artist;
+    final messenger = ScaffoldMessenger.of(context);
+    if (_collection.contains(album, artist)) {
+      await _collection.remove(album, artist);
+      messenger.showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text('"$album" removed from your collection.', style: const TextStyle(color: Colors.white)),
+      ));
+    } else {
+      await _collection.add(CollectionItem(
+        album: album,
+        artist: artist,
+        coverUrl: _engine.lockedAlbumCoverUrl ?? track.coverUrl,
+        addedAt: DateTime.now(),
+      ));
+      messenger.showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text('"$album" added to your collection.', style: const TextStyle(color: Colors.white)),
+      ));
+    }
   }
 
   /// Exporta os últimos eventos de log da sessão para a área de transferência.
@@ -430,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen>
           backgroundColor: AppTheme.surface,
           content: Text(
             'Session logs copied to the clipboard!',
-            style: TextStyle(color: AppTheme.neonCyan),
+            style: TextStyle(color: AppTheme.cream),
           ),
         ),
       );
@@ -523,14 +479,14 @@ class _HomeScreenState extends State<HomeScreen>
                                   width: 56,
                                   height: 56,
                                   color: AppTheme.surfaceLight,
-                                  child: const Icon(Icons.album, color: AppTheme.neonCyan),
+                                  child: const Icon(Icons.album, color: AppTheme.cream),
                                 ),
                               )
                             : Container(
                                 width: 56,
                                 height: 56,
                                 color: AppTheme.surfaceLight,
-                                child: const Icon(Icons.album, color: AppTheme.neonCyan),
+                                child: const Icon(Icons.album, color: AppTheme.cream),
                               ),
                       ),
                       const SizedBox(width: 14),
@@ -553,7 +509,7 @@ class _HomeScreenState extends State<HomeScreen>
                               artistName,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: AppTheme.neonCyan,
+                                color: AppTheme.cream,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -582,13 +538,38 @@ class _HomeScreenState extends State<HomeScreen>
                 // Disco errado (ex.: coletânea)? O usuário escolhe o disco certo, que vira o padrão
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-                  child: SizedBox(
-                    width: double.infinity,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: StatefulBuilder(
+                          builder: (context, setSheetState) {
+                            final albumKey = (_engine.lockedAlbumName?.isNotEmpty ?? false)
+                                ? _engine.lockedAlbumName!
+                                : (current.album ?? current.title);
+                            final inCollection = _collection.contains(albumKey, _engine.lockedAlbumArtist ?? current.artist);
+                            return FilledButton.icon(
+                              icon: Icon(inCollection ? Icons.check_circle : Icons.library_add, size: 18),
+                              label: Text(inCollection ? 'In collection' : 'Add to collection'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: inCollection ? AppTheme.surfaceLight : AppTheme.orange,
+                                foregroundColor: inCollection ? AppTheme.cream : Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: () async {
+                                await _toggleCurrentInCollection();
+                                setSheetState(() {});
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.swap_horiz, size: 18),
                       label: const Text('Change record'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.neonCyan,
+                        foregroundColor: AppTheme.cream,
                         side: const BorderSide(color: AppTheme.carveLight),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -597,6 +578,8 @@ class _HomeScreenState extends State<HomeScreen>
                         _openAlbumPicker();
                       },
                     ),
+                      ),
+                    ],
                   ),
                 ),
                 const Divider(color: Colors.white12),
@@ -655,19 +638,19 @@ class _HomeScreenState extends State<HomeScreen>
                             return ListTile(
                               dense: true,
                               tileColor: isCurrent
-                                  ? AppTheme.neonCyan.withValues(alpha: 0.12)
-                                  : (isNext ? AppTheme.neonPurple.withValues(alpha: 0.08) : null),
+                                  ? AppTheme.cream.withValues(alpha: 0.12)
+                                  : (isNext ? AppTheme.orange.withValues(alpha: 0.08) : null),
                               leading: Container(
                                 width: 38,
                                 alignment: Alignment.center,
                                 child: isCurrent
-                                    ? const Icon(Icons.graphic_eq, color: AppTheme.neonCyan, size: 22)
+                                    ? const Icon(Icons.graphic_eq, color: AppTheme.cream, size: 22)
                                     : (isNext
-                                        ? const Icon(Icons.skip_next_rounded, color: AppTheme.neonPurple, size: 20)
+                                        ? const Icon(Icons.skip_next_rounded, color: AppTheme.orange, size: 20)
                                         : Text(
                                             posLabel,
                                             style: TextStyle(
-                                              color: isCurrent ? AppTheme.neonCyan : AppTheme.textInactive,
+                                              color: isCurrent ? AppTheme.cream : AppTheme.textInactive,
                                               fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
                                               fontSize: 13,
                                             ),
@@ -680,7 +663,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       entry.title,
                                       style: TextStyle(
                                         color: isCurrent
-                                            ? AppTheme.neonCyan
+                                            ? AppTheme.cream
                                             : (isNext ? Colors.white : Colors.white70),
                                         fontWeight: (isCurrent || isNext) ? FontWeight.bold : FontWeight.normal,
                                         fontSize: 14,
@@ -694,14 +677,14 @@ class _HomeScreenState extends State<HomeScreen>
                                       margin: const EdgeInsets.only(left: 6),
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.neonCyan.withValues(alpha: 0.2),
+                                        color: AppTheme.cream.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.4)),
+                                        border: Border.all(color: AppTheme.cream.withValues(alpha: 0.4)),
                                       ),
                                       child: const Text(
                                         'PLAYING',
                                         style: TextStyle(
-                                          color: AppTheme.neonCyan,
+                                          color: AppTheme.cream,
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -712,14 +695,14 @@ class _HomeScreenState extends State<HomeScreen>
                                       margin: const EdgeInsets.only(left: 6),
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.neonPurple.withValues(alpha: 0.2),
+                                        color: AppTheme.orange.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.4)),
+                                        border: Border.all(color: AppTheme.orange.withValues(alpha: 0.4)),
                                       ),
                                       child: const Text(
                                         'UP NEXT',
                                         style: TextStyle(
-                                          color: AppTheme.neonPurple,
+                                          color: AppTheme.orange,
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -743,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ? Text(
                                       durationStr,
                                       style: TextStyle(
-                                        color: isCurrent ? AppTheme.neonCyan : AppTheme.textInactive,
+                                        color: isCurrent ? AppTheme.cream : AppTheme.textInactive,
                                         fontSize: 12,
                                       ),
                                     )
@@ -775,9 +758,9 @@ class _HomeScreenState extends State<HomeScreen>
             toolbarHeight: 74,
             leadingWidth: 48,
             leading: IconButton(
-              icon: const Icon(Icons.info_outline, color: Colors.white70),
-              tooltip: 'How it works',
-              onPressed: _showInfoDialog,
+              icon: const Icon(Icons.help_outline, color: AppTheme.cream),
+              tooltip: 'Help',
+              onPressed: _openHelp,
             ),
             title: Row(
               children: [
@@ -797,7 +780,7 @@ class _HomeScreenState extends State<HomeScreen>
                               height: 42,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Image.asset(
-                                'assets/icon/app_icon.jpg',
+                                'assets/icon/app_icon.png',
                                 width: 42,
                                 height: 42,
                                 fit: BoxFit.cover,
@@ -808,11 +791,11 @@ class _HomeScreenState extends State<HomeScreen>
                             key: const ValueKey('default_logo'),
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              'assets/icon/app_icon.jpg',
+                              'assets/icon/app_icon.png',
                               width: 42,
                               height: 42,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.album, color: AppTheme.neonCyan, size: 40),
+                              errorBuilder: (_, __, ___) => const Icon(Icons.album, color: AppTheme.cream, size: 40),
                             ),
                           ),
                   ),
@@ -844,7 +827,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Row(
                             children: [
                               if (_engine.isAlbumLocked) ...[
-                                const Icon(Icons.album, size: 13, color: AppTheme.neonCyan),
+                                const Icon(Icons.album, size: 13, color: AppTheme.cream),
                                 const SizedBox(width: 4),
                               ],
                               Expanded(
@@ -856,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           : (_engine.currentTrack?.artist ?? 'Unknown Album')),
                                   style: const TextStyle(
                                     fontSize: 12.5,
-                                    color: AppTheme.neonCyan,
+                                    color: AppTheme.cream,
                                     fontWeight: FontWeight.w600,
                                   ),
                                   maxLines: 1,
@@ -883,7 +866,7 @@ class _HomeScreenState extends State<HomeScreen>
                               'Up next: ${_engine.telemetry.predictedNextTrackTitle!}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
                               style: const TextStyle(
                                 fontSize: 11.5,
-                                color: AppTheme.neonPurple,
+                                color: AppTheme.orange,
                                 fontWeight: FontWeight.w600,
                               ),
                               maxLines: 1,
@@ -917,15 +900,15 @@ class _HomeScreenState extends State<HomeScreen>
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.neonCyan.withValues(alpha: 0.15),
+                                    color: AppTheme.cream.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+                                    border: Border.all(color: AppTheme.cream.withValues(alpha: 0.3)),
                                   ),
                                   child: const Text(
                                     'v$kAppVersion',
                                     style: TextStyle(
                                       fontSize: 9.5,
-                                      color: AppTheme.neonCyan,
+                                      color: AppTheme.cream,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 0.5,
                                     ),
@@ -952,9 +935,9 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.playlist_play, color: AppTheme.neonCyan),
-                tooltip: 'Demo Songs',
-                onPressed: _showDemoSongsSheet,
+                icon: const Icon(Icons.library_music_outlined, color: AppTheme.cream),
+                tooltip: 'My Collection',
+                onPressed: _openCollection,
               ),
               _buildCastButton(),
               const SizedBox(width: 4),
@@ -982,6 +965,9 @@ class _HomeScreenState extends State<HomeScreen>
                         lyrics: _engine.lyrics,
                         activeIndex: _engine.activeLineIndex,
                         onSeek: (seconds) => _engine.seekTo(seconds),
+                        emptyState: _engine.currentTrack == null
+                            ? HomeGreeting(name: _profile.displayName, seed: _greetingSeed, onEditName: _editName)
+                            : null,
                       ),
                     ),
 
@@ -1017,7 +1003,7 @@ class _HomeScreenState extends State<HomeScreen>
       animation: _pulseController,
       builder: (context, child) {
         final glowRadius = isListening ? 12.0 + (_pulseController.value * 14.0) : 6.0;
-        final fabColor = isListening ? Colors.redAccent : AppTheme.neonPurple;
+        final fabColor = isListening ? Colors.redAccent : AppTheme.orange;
 
         return Container(
           decoration: BoxDecoration(
