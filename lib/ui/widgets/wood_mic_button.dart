@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Botão de ouvir: o microfone de madeira (arte do usuário). Ouvindo, ganha um anel laranja
-/// pulsante e o selo de parar; parado, uma sombra suave de peça entalhada.
+/// Botão de ouvir: só o microfone cromado (da arte do usuário), no centro da barra inferior.
+/// Ouvindo, ganha um halo laranja pulsante atrás e o selo vermelho de parar.
 class WoodMicButton extends StatefulWidget {
   final bool isListening;
   final VoidCallback onPressed;
   final double size;
 
-  const WoodMicButton({super.key, required this.isListening, required this.onPressed, this.size = 84});
+  const WoodMicButton({super.key, required this.isListening, required this.onPressed, this.size = 60});
 
   @override
   State<WoodMicButton> createState() => _WoodMicButtonState();
@@ -43,48 +43,55 @@ class _WoodMicButtonState extends State<WoodMicButton> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
+    final label = widget.isListening ? 'Stop listening (microphone off)' : 'Listen to the room';
     return Semantics(
       button: true,
-      label: widget.isListening ? 'Stop listening (microphone off)' : 'Listen to the room',
+      label: label,
       child: Tooltip(
-        message: widget.isListening ? 'Stop listening (microphone off)' : 'Listen to the room',
+        message: label,
         child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: widget.onPressed,
-          child: AnimatedBuilder(
-            animation: _pulse,
-            builder: (context, child) {
-              final glow = widget.isListening ? 10.0 + _pulse.value * 16.0 : 0.0;
-              return Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size * 0.22),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.6), blurRadius: 14, offset: const Offset(0, 6)),
-                    if (widget.isListening)
-                      BoxShadow(color: AppTheme.orange.withValues(alpha: 0.75), blurRadius: glow, spreadRadius: 2 + _pulse.value * 3),
-                  ],
-                ),
-                child: child,
-              );
-            },
+          child: SizedBox(
+            width: size,
+            height: size,
             child: Stack(
+              alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/mic_button.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Container(
-                      decoration: BoxDecoration(color: AppTheme.wood, borderRadius: BorderRadius.circular(size * 0.22)),
-                      child: Icon(Icons.mic, color: AppTheme.cream, size: size * 0.5),
+                // Halo: laranja pulsante ouvindo; sombra suave parado
+                AnimatedBuilder(
+                  animation: _pulse,
+                  builder: (context, _) => Container(
+                    width: size * 0.78,
+                    height: size * 0.78,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.isListening
+                          ? AppTheme.orange.withValues(alpha: 0.22 + _pulse.value * 0.18)
+                          : Colors.black.withValues(alpha: 0.18),
+                      boxShadow: [
+                        if (widget.isListening)
+                          BoxShadow(
+                            color: AppTheme.orange.withValues(alpha: 0.7),
+                            blurRadius: 10 + _pulse.value * 14,
+                            spreadRadius: 1 + _pulse.value * 3,
+                          ),
+                      ],
                     ),
                   ),
                 ),
+                Image.asset(
+                  'assets/images/mic_chrome.png',
+                  width: size,
+                  height: size,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(Icons.mic, color: AppTheme.cream, size: size * 0.6),
+                ),
                 if (widget.isListening)
                   Positioned(
-                    right: -4,
-                    top: -4,
+                    right: 0,
+                    top: 0,
                     child: Container(
                       width: size * 0.32,
                       height: size * 0.32,

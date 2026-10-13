@@ -3,6 +3,7 @@ import '../../models/sync_state.dart';
 import '../../models/track_info.dart';
 import '../theme/app_theme.dart';
 import '../theme/wood.dart';
+import 'wood_mic_button.dart';
 
 /// Rodapé analógico de status exibindo velocidade mecânica, RPM e telemetria de calibração.
 class VinylStatusFooter extends StatefulWidget {
@@ -14,6 +15,11 @@ class VinylStatusFooter extends StatefulWidget {
   final VoidCallback? onStop;
   final VoidCallback? onListenAgain;
 
+  /// Botão de ouvir (microfone cromado) no centro da barra.
+  final bool isListening;
+  final VoidCallback? onMicPressed;
+  final double micSize;
+
   const VinylStatusFooter({
     super.key,
     required this.telemetry,
@@ -23,6 +29,9 @@ class VinylStatusFooter extends StatefulWidget {
     this.onPlayPause,
     this.onStop,
     this.onListenAgain,
+    this.isListening = false,
+    this.onMicPressed,
+    this.micSize = 60,
   });
 
   @override
@@ -76,59 +85,80 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Linha única: microfone (inteiro/cortado), contagem da calibração ou etapa atual, controles
+              // Linha fina acima: "Calibrating in Xs" ou a etapa especial, só quando houver
+              if (_hasStatusInfo(telemetry))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Center(child: _buildStatusInfo(telemetry)),
+                ),
+
+              // Linha principal: [estado do microfone, play/pause, parar] · microfone cromado · [rotação]
               Row(
                 children: [
-                  _buildMicIcon(telemetry.isMicActive),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildStatusInfo(telemetry)),
-                  const SizedBox(width: 6),
-                  // Barra de Ações Rápidas (Play/Pause, Stop)
-                  if (track != null || telemetry.status != CalibrationStatus.idle) ...[
-                    // Botão Play / Pause
-                    IconButton(
-                      icon: Icon(
-                        telemetry.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                        color: AppTheme.cream,
-                        size: 26,
-                      ),
-                      tooltip: telemetry.isPaused ? 'Continuar' : 'Pausar',
-                      onPressed: widget.onPlayPause,
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppTheme.surfaceLight,
-                        padding: const EdgeInsets.all(6),
-                        minimumSize: const Size(36, 36),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildMicIcon(telemetry.isMicActive),
+                        if (track != null || telemetry.status != CalibrationStatus.idle) ...[
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              telemetry.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                              color: AppTheme.cream,
+                              size: 24,
+                            ),
+                            tooltip: telemetry.isPaused ? 'Resume' : 'Pause',
+                            onPressed: widget.onPlayPause,
+                            style: IconButton.styleFrom(
+                              backgroundColor: AppTheme.surfaceLight,
+                              padding: const EdgeInsets.all(5),
+                              minimumSize: const Size(34, 34),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton(
+                            icon: const Icon(Icons.stop_rounded, color: Colors.redAccent, size: 22),
+                            tooltip: 'Stop listening',
+                            onPressed: widget.onStop,
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.redAccent.withValues(alpha: 0.12),
+                              padding: const EdgeInsets.all(5),
+                              minimumSize: const Size(34, 34),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    ),
+                  ),
+                  if (widget.onMicPressed != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: WoodMicButton(
+                        isListening: widget.isListening,
+                        onPressed: widget.onMicPressed!,
+                        size: widget.micSize,
                       ),
                     ),
-                    const SizedBox(width: 4),
-
-                    // Botão Parar / Desconectar
-                    IconButton(
-                      icon: const Icon(
-                        Icons.stop_rounded,
-                        color: Colors.redAccent,
-                        size: 24,
-                      ),
-                      tooltip: 'Stop listening',
-                      onPressed: widget.onStop,
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.redAccent.withValues(alpha: 0.12),
-                        padding: const EdgeInsets.all(6),
-                        minimumSize: const Size(36, 36),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      // Badge de rotação do vinil (toque para abrir o ajuste fino)
+                      child: InkWell(
+                        onTap: () => setState(() => _showFineTuning = !_showFineTuning),
+                        borderRadius: BorderRadius.circular(12),
+                        child: _buildRotationBadge(pitchText),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                  ],
-
-                  // Badge de taxa de rotação do vinil (toque para abrir ajuste fino)
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _showFineTuning = !_showFineTuning;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: _buildRotationBadge(pitchText),
                   ),
                 ],
               ),
@@ -271,6 +301,13 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
     );
   }
 
+  bool _hasStatusInfo(VinylTelemetry t) =>
+      t.countdownSeconds > 0 ||
+      t.status == CalibrationStatus.paused ||
+      t.status == CalibrationStatus.waitingEndOfSide ||
+      t.status == CalibrationStatus.listeningNextTrack ||
+      t.status == CalibrationStatus.confirmingPrediction;
+
   /// Só a contagem da calibração ("Calibrating in Xs"); sem ela, a etapa especial em andamento
   /// (pausado, fim do lado, próxima faixa, confirmando), quando houver.
   Widget _buildStatusInfo(VinylTelemetry telemetry) {
@@ -303,7 +340,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
     }
     if (label == null) return const SizedBox.shrink();
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(

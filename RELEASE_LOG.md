@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.7] — 12/10/2026 (Microfone Cromado no Centro da Barra Inferior)
+
+* O botão de ouvir passou a ser **só o microfone cromado** (extraído da arte, sem a madeira: `assets/images/mic_chrome.png`, por `tool/icon/ChromeMicExtract.cs`), no **centro da barra inferior**. Ouvindo, um halo laranja pulsa atrás dele e aparece o selo vermelho de parar.
+* Barra inferior reorganizada: à esquerda o estado do microfone (inteiro/cortado), play/pause e parar (botões compactos); no centro o microfone; à direita a rotação. "Calibrating in Xs" (ou a etapa especial) aparece numa linha fina centralizada acima, só quando há algo a mostrar.
+* "Flip the record" continua acima da barra quando o lado termina.
+* Corrigidas as dicas "Continuar"/"Pausar" que tinham escapado da tradução (agora "Resume"/"Pause").
+* Novo `test/footer_layout_test.dart`: a barra cabe sem estourar em 320, 360 e 800 de largura, com o microfone no centro.
+
+---
 ## [v1.3.6] — 12/10/2026 (Tela Principal Mais Limpa: Painéis de Madeira e Microfone de Madeira)
 
 * **Topo em destaque:** ícones, capa do disco e textos ficam num painel de nogueira, um tom mais claro que o fundo, com veio e friso entalhado, igual ao rodapé.

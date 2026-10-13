@@ -17,7 +17,6 @@ import '../widgets/cast_thinking_wheel_dialog.dart';
 import '../widgets/flip_side_button.dart';
 import '../widgets/album_picker_sheet.dart';
 import '../widgets/home_greeting.dart';
-import '../widgets/wood_mic_button.dart';
 import '../../services/collection_service.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
@@ -753,7 +752,9 @@ class _HomeScreenState extends State<HomeScreen>
         final isListening = telemetry.isUserListening ||
             telemetry.status == CalibrationStatus.listeningSample1;
         final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
-        final micSize = isLandscape ? 62.0 : 84.0;
+        // Microfone cromado no centro da barra inferior
+        final micSize = isLandscape ? 50.0 : 62.0;
+        final awaitingFlip = _engine.isAwaitingSideFlip && !telemetry.isMicActive;
         // Etapa atual (ouvindo, não identificada...) mostrada na saudação, já que o rodapé ficou enxuto
         final statusLine = (telemetry.status == CalibrationStatus.idle || telemetry.statusMessage.isEmpty)
             ? null
@@ -978,7 +979,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 name: _profile.displayName,
                                 seed: _greetingSeed,
                                 onEditName: _editName,
-                                bottomReserve: micSize + 28,
+                                bottomReserve: awaitingFlip ? 84 : 8,
                                 statusLine: statusLine,
                               )
                             : null,
@@ -987,16 +988,14 @@ class _HomeScreenState extends State<HomeScreen>
 
 
                     // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 14,
-                      child: Center(
-                        child: (_engine.isAwaitingSideFlip && !telemetry.isMicActive)
-                            ? FlipSideButton(onPressed: () => _engine.flipSide())
-                            : WoodMicButton(isListening: isListening, onPressed: _onFabPressed, size: micSize),
+                    // Fim do lado: "Flip the record" acima da barra (o microfone fica na barra)
+                    if (awaitingFlip)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 14,
+                        child: Center(child: FlipSideButton(onPressed: () => _engine.flipSide())),
                       ),
-                    ),
                   ],
                 ),
           bottomNavigationBar: _engine.castService.isCastActive
@@ -1009,6 +1008,9 @@ class _HomeScreenState extends State<HomeScreen>
                   onPlayPause: () => _engine.togglePlayPause(),
                   onStop: () => _engine.stop(),
                   onListenAgain: () => _engine.startListening(),
+                  isListening: isListening,
+                  onMicPressed: _onFabPressed,
+                  micSize: micSize,
                 ),
         );
       },
