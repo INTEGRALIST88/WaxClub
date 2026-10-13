@@ -5,6 +5,7 @@ import 'discogs/discogs_tracklist_provider.dart';
 import 'musicbrainz_tracklist_provider.dart';
 import 'tracklist_matcher.dart';
 import 'tracklist_provider.dart';
+import 'wikipedia_tracklist_service.dart';
 
 /// Resultado de uma busca de discos para a tela "Mudar disco".
 class AlbumCatalogResult {
@@ -21,17 +22,23 @@ class AlbumCatalogResult {
 
 /// Catálogo de discos para a escolha manual: Discogs como base principal (com a conta do usuário)
 /// e MusicBrainz como reserva, usada quando o Discogs não está conectado, falha ou não acha nada.
+/// Só aparecem discos de vinil LP ou EP: CD, digital, fita e singles ficam de fora.
 class AlbumCatalogService {
   final DiscogsAuthService auth;
   final DiscogsTracklistProvider _discogs;
   final MusicBrainzTracklistProvider _musicBrainz;
 
+  /// Minutagem do LP pela Wikipedia (completa as durações que faltam no disco escolhido).
+  final WikipediaTracklistService? _wikipedia;
+
   AlbumCatalogService({
     required this.auth,
     DiscogsTracklistProvider? discogs,
     MusicBrainzTracklistProvider? musicBrainz,
+    WikipediaTracklistService? wikipedia,
   })  : _discogs = discogs ?? DiscogsTracklistProvider(auth: auth),
-        _musicBrainz = musicBrainz ?? MusicBrainzTracklistProvider();
+        _musicBrainz = musicBrainz ?? MusicBrainzTracklistProvider(),
+        _wikipedia = wikipedia;
 
   /// Todos os discos em que a música aparece, com o disco atual no topo.
   Future<AlbumCatalogResult> albumsForTrack({
@@ -42,7 +49,8 @@ class AlbumCatalogService {
     return _withFallback(
       discogs: () => _discogs.searchReleases(title: title, artist: artist, album: currentAlbum),
       musicBrainz: () async =>
-          groupReleaseEditions(await _musicBrainz.searchReleases(title: title, artist: artist, album: currentAlbum)),
+          groupReleaseEditions(vinylLpOrEpOnly(
+              await _musicBrainz.searchReleases(title: title, artist: artist, album: currentAlbum))),
       sort: (list) => sortForTrack(list, artist: artist, currentAlbum: currentAlbum),
     );
   }
@@ -51,7 +59,7 @@ class AlbumCatalogService {
   Future<AlbumCatalogResult> search(String query, {String? artist, String? currentAlbum}) {
     return _withFallback(
       discogs: () => _discogs.searchReleasesByText(query),
-      musicBrainz: () async => groupReleaseEditions(await _musicBrainz.searchReleasesByText(query)),
+      musicBrainz: () async => groupReleaseEditions(vinylLpOrEpOnly(await _musicBrainz.searchReleasesByText(query))),
       sort: (list) => sortForTrack(list, artist: artist, currentAlbum: currentAlbum),
     );
   }
@@ -64,9 +72,9 @@ class AlbumCatalogService {
     String? notice;
     if (auth.isEnabled) {
       try {
-        final found = await discogs();
+        final found = vinylLpOrEpOnly(await discogs());
         if (found.isNotEmpty) return AlbumCatalogResult(albums: sort(found), source: 'discogs');
-        notice = 'Discogs found no records; showing MusicBrainz results.';
+        notice = 'Discogs found no vinyl records; showing MusicBrainz results.';
       } catch (e) {
         debugPrint('[AlbumCatalog] Discogs falhou: $e');
         notice = 'Discogs is unavailable right now; showing MusicBrainz results.';
@@ -76,11 +84,16 @@ class AlbumCatalogService {
     return AlbumCatalogResult(albums: sort(found), source: 'musicbrainz', notice: notice);
   }
 
-  /// Lista de faixas do disco escolhido, na base de onde ele veio.
-  Future<List<TrackEntry>> loadTracklist(ReleaseCandidate candidate) {
-    return candidate.providerId == 'discogs'
-        ? _discogs.loadTracklist(candidate)
-        : _musicBrainz.loadTracklist(candidate);
+  /// Lista de faixas do disco escolhido, na base de onde ele veio. Durações que faltarem vêm da
+  /// Wikipedia (tempos do LP); se o disco não for vinil, a Wikipedia substitui as durações dele.
+  Future<List<TrackEntry>> loadTracklist(ReleaseCandidate candidate) async {
+    final entries = candidate.providerId == 'discogs'
+        ? await _discogs.loadTracklist(candidate)
+        : await _musicBrainz.loadTracklist(candidate);
+    final artist = candidate.artistName;
+    final wikipedia = _wikipedia;
+    if (wikipedia == null || candidate.isCompilation || artist == null) return entries;
+    return wikipedia.fillDurations(entries, artist: artist, album: candidate.albumTitle, override: !candidate.isVinyl);
   }
 
   /// Ordem da lista: disco atual, discos de estúdio do artista (vinil primeiro), depois singles/EPs,
@@ -112,5 +125,6 @@ class AlbumCatalogService {
   void dispose() {
     _discogs.dispose();
     _musicBrainz.dispose();
+    _wikipedia?.dispose();
   }
 }

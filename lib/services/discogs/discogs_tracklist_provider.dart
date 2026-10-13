@@ -43,6 +43,7 @@ class DiscogsTracklistProvider implements TracklistProvider {
       'type': 'release',
       'track': title,
       'artist': artist,
+      'format': 'Vinyl',
       'per_page': '100',
     });
     // Coletâneas são creditadas a "Various": busca pela faixa com o artista no texto livre
@@ -50,6 +51,7 @@ class DiscogsTracklistProvider implements TracklistProvider {
       'type': 'release',
       'track': title,
       'q': artist,
+      'format': 'Vinyl',
       'per_page': '100',
     });
     return groupReleaseEditions([
@@ -61,7 +63,7 @@ class DiscogsTracklistProvider implements TracklistProvider {
   /// Busca livre de discos (escolha manual do usuário).
   Future<List<ReleaseCandidate>> searchReleasesByText(String query) async {
     if (query.trim().isEmpty) return [];
-    final data = await _get('/database/search', {'type': 'release', 'q': query.trim(), 'per_page': '100'});
+    final data = await _get('/database/search', {'type': 'release', 'q': query.trim(), 'format': 'Vinyl', 'per_page': '100'});
     return groupReleaseEditions(parseSearchResults(data));
   }
 
@@ -85,7 +87,7 @@ class DiscogsTracklistProvider implements TracklistProvider {
         providerId: 'discogs',
         releaseId: id.toString(),
         albumTitle: albumTitle,
-        format: formats.isEmpty ? null : formats.take(3).join(', '),
+        format: formats.isEmpty ? null : formats.join(', '),
         primaryType: lower.contains('album') || lower.contains('lp') ? 'Album' : (lower.contains('single') ? 'Single' : null),
         secondaryTypes: [
           if (lower.contains('compilation') || (artistName ?? '').toLowerCase().startsWith('various')) 'Compilation',

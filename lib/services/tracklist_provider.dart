@@ -45,6 +45,16 @@ class ReleaseCandidate {
     return f.contains('vinyl') || f.contains('lp') || f.contains('12"') || f.contains('10"') || f.contains('7"');
   }
 
+  /// Disco de vinil LP ou EP (fora CD, digital, fita e compactos de single).
+  bool get isVinylLpOrEp {
+    if (!isVinyl) return false;
+    final tokens = (format ?? '').toLowerCase().split(',').map((t) => t.trim()).toList();
+    final type = (primaryType ?? '').toLowerCase();
+    if (tokens.contains('lp') || tokens.contains('ep') || type == 'album' || type == 'ep') return true;
+    if (type == 'single' || tokens.any((t) => t.contains('single'))) return false;
+    return true;
+  }
+
   bool get isCompilation => secondaryTypes.any((t) => t.toLowerCase() == 'compilation');
   bool get isLive => secondaryTypes.any((t) => t.toLowerCase() == 'live');
 
@@ -81,6 +91,9 @@ abstract class TracklistProvider {
   /// Libera recursos.
   void dispose();
 }
+
+/// Só os discos de vinil LP ou EP (a escolha de disco não mostra CD, digital nem singles).
+List<ReleaseCandidate> vinylLpOrEpOnly(List<ReleaseCandidate> list) => [for (final c in list) if (c.isVinylLpOrEp) c];
 
 /// Junta as várias prensagens/edições do mesmo disco num único item (preferindo a de vinil).
 List<ReleaseCandidate> groupReleaseEditions(List<ReleaseCandidate> list) {

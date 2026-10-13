@@ -6,6 +6,7 @@ import '../../engine/waxclub_engine.dart';
 import '../../models/sync_state.dart';
 import '../../models/track_entry.dart';
 import '../../services/album_catalog_service.dart';
+import '../../services/wikipedia_tracklist_service.dart';
 import '../../services/discogs/discogs_auth_service.dart';
 import '../../services/tracklist_matcher.dart';
 import '../theme/app_theme.dart';
@@ -40,7 +41,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   /// Conta Discogs do usuário e catálogo de discos da tela "Mudar disco" (criados no primeiro uso).
   late final DiscogsAuthService _discogsAuth = DiscogsAuthService();
-  late final AlbumCatalogService _albumCatalog = AlbumCatalogService(auth: _discogsAuth);
+  late final AlbumCatalogService _albumCatalog = AlbumCatalogService(
+    auth: _discogsAuth,
+    wikipedia: WikipediaTracklistService(),
+  );
   bool _albumCatalogCreated = false;
 
   /// Nome do usuário (saudação) e coleção local com o histórico de audições.

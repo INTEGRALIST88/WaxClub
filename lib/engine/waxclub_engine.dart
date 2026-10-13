@@ -15,6 +15,7 @@ import '../services/tracklist_matcher.dart';
 import '../services/track_predictor.dart';
 import '../services/vinyl_cache_service.dart';
 import '../services/prefetch_service.dart';
+import '../services/wikipedia_tracklist_service.dart';
 import '../services/audio_level_analyzer.dart';
 import '../services/cast_sync_service.dart';
 import '../services/soundtrack_catalog.dart';
@@ -77,6 +78,7 @@ class WaxClubEngine extends ChangeNotifier {
     _prefetchService = prefetchService ?? PrefetchService(
       lyricsService: _lyricsService,
       cacheService: _cacheService,
+      wikipedia: WikipediaTracklistService(),
     );
     _castService.onClientScreenConfirmed = (deviceName) {
       debugPrint('[WaxClubEngine] 📺 Tela cliente confirmada: $deviceName. Enviando dados imediatos com compensação de delay...');

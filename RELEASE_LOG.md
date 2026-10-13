@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.9] — 13/10/2026 (Só Vinil na Escolha de Disco + Minutagem do LP pela Wikipedia)
+
+* **"Change record" só com vinil:** a lista de discos mostra apenas **vinil LP ou EP**. CD, digital, fita e compactos de single (inclusive maxi-single) ficam de fora. No Discogs a busca já pede `format=Vinyl`; no MusicBrainz (reserva) o filtro é aplicado antes de juntar as edições, e a contagem de edições considera só as de vinil (`ReleaseCandidate.isVinylLpOrEp`, `vinylLpOrEpOnly`).
+* **Minutagem do LP primeiro:** novo `WikipediaTracklistService` lê a lista de faixas do artigo do álbum (modelos {{Track listing}} / {{Lista de faixas}} ou listas numeradas, en e pt), conferindo o artista no artigo.
+  * Na escolha de disco e na detecção automática, a Wikipedia **completa as durações que faltam** no disco do Discogs/MusicBrainz e, se o disco encontrado não for vinil, **substitui** as durações dele (só se o artigo casar com pelo menos metade das faixas).
+  * Ordem resultante no modo automático: lista de faixas do disco (Discogs/MusicBrainz) → Wikipedia → duração do provedor de letras (digital, só em último caso).
+* **Detecção automática do disco:** entre os candidatos do MusicBrainz, as prensagens em vinil (LP/EP) vêm primeiro; outros formatos só quando não há nenhuma.
+* Novos testes: `test/vinyl_only_picker_test.dart` e `test/wikipedia_tracklist_test.dart` (182 testes no total).
+* Documentação: plano completo do **Modo Manual** (última etapa do cronograma) e lista de melhorias propostas registrados no manual e no documento do cronograma.
+
+---
 ## [v1.3.8] — 13/10/2026 (Letra no Celular no Estilo da TV + Ícone com o Rótulo de Volta)
 
 * **Letra no próprio app igual à da TV:** fonte **Inter** peso 800 (embutida em `assets/fonts/`, licença OFL), centralizada e em **caixa alta** quando o texto é em alfabeto latino (outros alfabetos ficam como estão). Três linhas em destaque do mesmo tamanho (anterior, atual e próxima), a atual em branco com brilho laranja; a 2ª linha de distância em 76% e apagada, as demais em 62% e quase invisíveis. A linha atual fica sempre no centro da área visível, com as bordas esmaecendo, e as transições seguem a mesma curva da TV. Trechos sem letra mostram "♪". O tamanho da letra acompanha a altura da tela.

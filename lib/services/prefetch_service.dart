@@ -10,6 +10,7 @@ import 'track_predictor.dart';
 import 'tracklist_matcher.dart';
 import 'tracklist_provider.dart';
 import 'vinyl_cache_service.dart';
+import 'wikipedia_tracklist_service.dart';
 
 /// Modelo de faixa com letra e metadados mantida no cache de memória do prefetch.
 class PrefetchedTrack {
@@ -36,6 +37,9 @@ class PrefetchService {
   final VinylCacheService _cacheService;
   final TracklistProvider _provider;
   final TrackPredictor _predictor;
+
+  /// Minutagem do LP pela Wikipedia (completa as durações do disco detectado).
+  final WikipediaTracklistService? _wikipedia;
 
   /// Cache em memória das faixas e letras pré-carregadas. Chave canônica: 'artista|titulo'.
   final Map<String, PrefetchedTrack> _prefetchedTracks = {};
@@ -64,11 +68,13 @@ class PrefetchService {
     required VinylCacheService cacheService,
     TracklistProvider? tracklistProvider,
     TrackPredictor? trackPredictor,
+    WikipediaTracklistService? wikipedia,
     http.Client? client,
   })  : _lyricsService = lyricsService ?? LyricsProviderService(lrcLibService: lrcLibService),
         _cacheService = cacheService,
         _provider = tracklistProvider ?? MusicBrainzTracklistProvider(client: client),
-        _predictor = trackPredictor ?? TrackPredictor();
+        _predictor = trackPredictor ?? TrackPredictor(),
+        _wikipedia = wikipedia;
 
   /// Executa o ciclo completo de predição e pré-carregamento de letras para a faixa atual.
   Future<PredictionResult> prefetchFor(
@@ -130,8 +136,12 @@ class PrefetchService {
         List<TrackEntry>? winnerEntries;
         int highestScore = -1;
 
-        for (int i = 0; i < min(3, candidates.length); i++) {
-          final cand = candidates[i];
+        // Prensagens em vinil (LP/EP) primeiro; outros formatos só se não houver nenhuma
+        final vinyl = vinylLpOrEpOnly(candidates);
+        final pool = vinyl.isNotEmpty ? vinyl : candidates;
+
+        for (int i = 0; i < min(3, pool.length); i++) {
+          final cand = pool[i];
           final entries = await _provider.loadTracklist(cand);
           if (_generation != myGen) return const PredictionResult();
 
@@ -161,6 +171,32 @@ class PrefetchService {
         }
 
         if (winner != null && winnerEntries != null && winnerEntries.isNotEmpty) {
+          // Minutagem do LP: a Wikipedia completa as durações que faltam (e substitui as de discos que não são vinil)
+          final wikipedia = _wikipedia;
+          if (wikipedia != null && !winner.isCompilation) {
+            final filled = await wikipedia.fillDurations(
+              winnerEntries,
+              artist: current.artist,
+              album: winner.albumTitle,
+              override: !winner.isVinyl,
+            );
+            if (_generation != myGen) return const PredictionResult();
+            if (!identical(filled, winnerEntries)) {
+              final releaseId = winner.releaseId;
+              final i = sources.indexWhere((s) => s.releaseId == releaseId);
+              if (i != -1) {
+                final old = sources[i];
+                sources[i] = PredictionSource(
+                  albumTitle: old.albumTitle,
+                  releaseId: old.releaseId,
+                  entries: filled,
+                  sideSource: old.sideSource,
+                  isVinyl: old.isVinyl,
+                );
+              }
+              winnerEntries = filled;
+            }
+          }
           await _cacheService.saveTracklist(
             album: current.album ?? winner.albumTitle,
             artist: current.artist,

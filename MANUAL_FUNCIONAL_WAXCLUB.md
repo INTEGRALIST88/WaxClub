@@ -226,6 +226,11 @@ lib/
 * **Ao escolher:** a lista de faixas do disco é carregada (com lados A/B e durações), gravada no cache, o disco é **travado**, capa/lado/duração/próxima música são atualizados no celular e na TV, e o disco vira o **padrão do usuário** (`preferredAlbum`) para a música atual e todas as faixas dele — nas próximas sessões o reconhecimento já trava esse disco, mesmo que o Shazam indique uma coletânea.
 * **Origem da preferência (`CachedTrack.preferredAlbumSource`):** `'user'` (Mudar disco) ou `'sequence'` (3 faixas seguidas na ordem do disco); a confirmação automática nunca sobrescreve a escolha do usuário.
 
+### 3.10.1 Só Vinil e Minutagem do LP (v1.3.9)
+* **Escolha de disco só com vinil LP/EP:** [`album_catalog_service.dart`](lib/services/album_catalog_service.dart) filtra os resultados do Discogs (busca com `format=Vinyl`) e do MusicBrainz por `ReleaseCandidate.isVinylLpOrEp` ([`tracklist_provider.dart`](lib/services/tracklist_provider.dart)): fora CD, digital, fita e singles.
+* **Minutagem do LP pela Wikipedia:** [`wikipedia_tracklist_service.dart`](lib/services/wikipedia_tracklist_service.dart) acha o artigo do álbum (en, depois pt), confere o artista e lê os modelos {{Track listing}} / {{Lista de faixas}} (ou listas `# "Título" – 3:45`). `fillDurations` completa as durações ausentes; com `override` (disco que não é vinil) substitui, desde que o artigo case com ao menos metade das faixas. Usado em `AlbumCatalogService.loadTracklist` e no `PrefetchService` (detecção automática, que também passa a preferir prensagens em vinil).
+* **Prioridade das durações (modo automático):** lista de faixas do disco (Discogs/MusicBrainz) → Wikipedia → provedor de letras (digital). O Shazam nunca é fonte de minutagem.
+
 ### 3.11 Módulo 11: Trilhas Sonoras de Novelas (v1.3.1)
 * **Arquivos:** [`lib/services/soundtrack_catalog.dart`](lib/services/soundtrack_catalog.dart) e `assets/catalog/trilhas_novelas.json`.
 * **Origem dos dados:** levantamento do site Teledramaturgia / Observatório da TV (índices de trilhas da Globo por período, Malhação, séries/minisséries, Record, SBT, Band, Manchete, Excelsior e Tupi): disco, emissora, ano e faixas com artista. Capas apenas dos LPs (até 1993), baixadas uma vez, recomprimidas (até 400 px, JPEG 82) e hospedadas no GitHub Pages do WaxClub (covers/ (raiz do repositório), publicada como covers/ no repositório INTEGRALIST88/WaxClub); trilhas em CD ficam sem capa própria (vale a do Shazam). Scripts: 	ool/trilhas/crawl.js, durations.js, covers.js, esize_covers.ps1, elink_covers.js. Durações por faixa obtidas na Deezer (reserva iTunes). O script de geração fica fora do app (ferramenta de build).
@@ -241,6 +246,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **"Change record" mostra só vinil LP ou EP** | Filtro `isVinylLpOrEp` no Discogs (`format=Vinyl`) e no MusicBrainz | ✅ Conforme (v1.3.9) |
+| **Minutagem do LP antes da digital (Wikipedia)** | `WikipediaTracklistService` completa/substitui durações; detecção automática prefere vinil | ✅ Conforme (v1.3.9) |
 | **Letra no celular com a mesma fonte e apresentação da TV** | `lyrics_list_view.dart` com Inter 800, caixa alta latina, 3 linhas em destaque, 76%/62%, esmaecimento e linha atual centralizada | ✅ Conforme (v1.3.8) |
 | **Ícone do app com o rótulo "WaxClub / VINYL SOCIAL CLUB"** | `app_icon.png` gerado da arte original mantendo o selo (`WaxClubWoodIcon.cs`, keepLabel) | ✅ Conforme (v1.3.8) |
 | **Ícone de Transmissão presente** | Implementado no topo esquerdo com estados vazado/conectado | ✅ Conforme |
@@ -339,3 +346,34 @@ Para qualquer modelo de inteligência artificial ou desenvolvedor que for contin
 4. Manter o registro no [`RELEASE_LOG.md`](RELEASE_LOG.md) e incrementar a versão a cada compilação gerada.
 5. **Diretório Obrigatório de Entregáveis:** Todos os arquivos de entrega gerados (pacote ZIP de auditoria, cópia do APK compilado, manual funcional e log de versões) devem ser **obrigatoriamente armazenados na pasta `G:\Meu Drive\WaxClub\`**.
 6. **Identificação com Versão nos Nomes:** Todos os arquivos armazenados nessa pasta devem conter a versão explícita no nome para rastreabilidade (ex: `WaxClub_Source_Audit_vX.X.XXX.zip`, `WaxClub_vX.X.XXX.apk`, `MANUAL_FUNCIONAL_WAXCLUB_vX.X.XXX.md`, `RELEASE_LOG_vX.X.XXX.md`).
+
+## 6. Melhorias Propostas (ainda não implementadas)
+
+Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prioridade. O detalhamento completo fica no documento do cronograma (Claude Docs, seções "Prioridade definida em 12/10/2026" e "Modo Manual").
+
+### 6.1 Cronograma definido pelo usuário
+1. **Conta + coleção:** login por link mágico (e-mail) e Google, conta opcional, API PHP + MySQL na Hostinger. Na conta: coleção, discos padrão de "Change record" e histórico de audições (tabela de audições; disco conta 1 vez por sessão de 2 h, qualquer faixa ouvida). Perfil social: apelido, e-mail, país e cidade obrigatórios; campos opcionais com visibilidade por campo; 18+. Social v1: perfil público com coleção, seguir, mural "ouvindo agora", busca por cidade/país.
+2. **Sincronização com o Discogs nos dois sentidos**, feita pelo celular com o token do usuário. Campos da coleção seguem o Discogs (release_id obrigatório; nota 1–5, estado do disco/capa e observações opcionais).
+3. **Textos da interface em arquivos `.arb`** (pré-requisito dos plugins).
+4. **Plugins de idioma:** pacotes só de dados, listados numa página HTML na Hostinger.
+5. **Modo Manual (sempre por último):**
+   * Câmera na barra superior, ao lado de My Collection, com guia de onde apontar em cada modo (código de barras na contracapa, nº de catálogo na lombada/selo, capa, contracapa).
+   * Reconhecimento só gratuito: código de barras, nº de catálogo, texto da capa (ML Kit no aparelho), comparação visual com as capas candidatas, índice local de capas conhecidas, contracapa, digitar.
+   * Depois do reconhecimento: confirmar a prensagem → "Add to collection?" (termina o cadastro) → "Let's listen?" Sim/Não.
+   * Verifica se o disco está no catálogo de reconhecimento do Shazam (≈ Apple Music, via iTunes por código de barras ou artista + álbum, faixa a faixa). Se estiver, segue no automático com o disco travado; se não, avisa e liga o Modo Manual.
+   * Chave **MANUAL** na barra superior: começa desligada e volta a desligada sempre que o disco muda.
+   * No Manual, o microfone cromado vira um **▶ cromado**. O microfone só mede volume para achar o começo da música e os silêncios entre faixas; sem microfone, o usuário toca ▶ quando a música começa.
+   * Minutagem do LP: Discogs da prensagem → outras prensagens em vinil → MusicBrainz (vinil) → Wikipedia → outras fontes do LP. Durações digitais só em último caso. Não contar com o selo. Minutagem medida pelo microfone tem prioridade e será compartilhada.
+   * Letra por plugin opcional; sem plugin ou sem letra, **curiosidades** curtas do disco e das faixas (sempre em inglês), animadas (sobem e esmaecem) no celular e na TV, guardadas no aparelho e depois no banco (tabela compartilhada).
+
+### 6.2 Outras melhorias oferecidas
+* Aviso "microfone em uso por outro app" quando um app de acessibilidade ou uma captura de voz silencia o microfone do WaxClub (política do Android, não dá para forçar).
+* Atualizar a paleta da página da TV (GitHub Pages) para o creme/laranja/madeira do app.
+* Revisar as partes desatualizadas do documento de arquitetura.
+* Separar repositórios: código privado e página pública da TV (GitHub Pages).
+
+### 6.3 Pendências do lado do usuário
+* Publicar no GitHub (Push origin no GitHub Desktop).
+* Atualizar a URL do receptor no console do Google Cast para `https://integralist88.github.io/WaxClub/`.
+* App da Fire TV (`H:\Github\WaxClubClient`): renomear para WaxClub, anunciar `_waxclub-tv._tcp` e sincronizar o receptor.
+* Hostinger: informar domínio, versão do PHP, quantidade de bancos MySQL, subdomínio, SSH, Cron e SMTP; criar o projeto OAuth no Google Cloud.
