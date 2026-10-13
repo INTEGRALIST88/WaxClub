@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../models/sync_state.dart';
 import '../../models/track_info.dart';
@@ -30,48 +29,9 @@ class VinylStatusFooter extends StatefulWidget {
   State<VinylStatusFooter> createState() => _VinylStatusFooterState();
 }
 
-class _VinylStatusFooterState extends State<VinylStatusFooter>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _rotationController;
+class _VinylStatusFooterState extends State<VinylStatusFooter> {
   bool _showFineTuning = false;
   double _manualSliderValue = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _rotationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2), // ~33 RPM
-    )..repeat();
-  }
-
-  @override
-  void didUpdateWidget(covariant VinylStatusFooter oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Se estiver pausado ou sem música, para a rotação
-    if (widget.telemetry.isPaused || widget.track == null) {
-      if (_rotationController.isAnimating) {
-        _rotationController.stop();
-      }
-    } else {
-      if (!_rotationController.isAnimating) {
-        _rotationController.repeat();
-      }
-      final speed = widget.telemetry.speedFactor;
-      if (speed > 0.1) {
-        final newDuration = Duration(milliseconds: (1800 / speed).round());
-        if (_rotationController.duration != newDuration) {
-          _rotationController.duration = newDuration;
-        }
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _rotationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +48,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF241810), AppTheme.surface],
+          colors: [Color(0xFF3A2618), Color(0xFF2E1E13)],
         ),
         border: Border(
           top: BorderSide(color: AppTheme.carveLight, width: 1.2),
@@ -116,160 +76,13 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Linha 1: Indicador de Privacidade do Microfone
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildMicPrivacyIndicator(telemetry.isMicActive),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: _buildMicDeviceBadge(telemetry.activeMicrophoneName),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    if (telemetry.status == CalibrationStatus.paused)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.amber.withOpacity(0.4)),
-                        ),
-                        child: const Text(
-                          'PAUSED',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amber,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ),
-                    if (telemetry.status == CalibrationStatus.waitingEndOfSide)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.cream.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.cream.withValues(alpha: 0.4)),
-                        ),
-                        child: Text(
-                          telemetry.sideEndLabel != null
-                              ? '🔄 ${telemetry.sideEndLabel!.toUpperCase()} — FLIP THE RECORD'
-                              : '🔄 END OF SIDE — FLIP THE RECORD',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.cream,
-                            letterSpacing: 0.5,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    if (telemetry.status == CalibrationStatus.listeningNextTrack)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.orange.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppTheme.orange.withOpacity(0.4)),
-                        ),
-                        child: const Text(
-                          '🎵 NEXT TRACK',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.orange,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    if (telemetry.status == CalibrationStatus.confirmingPrediction)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.white.withOpacity(0.15)),
-                        ),
-                        child: const Text(
-                          '⟳ confirming...',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white38,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-              // Linha 2: Barra de telemetria principal + Controles
+              // Linha única: microfone (inteiro/cortado), contagem da calibração ou etapa atual, controles
               Row(
                 children: [
-                  // Ícone de disco de vinil giratório
-                  _buildSpinningVinyl(),
-                  const SizedBox(width: 12),
-
-                  // Status e telemetria da vitrola (sem nome da música e sem nome da banda)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          telemetry.statusMessage,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        if (telemetry.countdownSeconds > 0)
-                          Text(
-                            'Calibrating in ${telemetry.countdownSeconds}s',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.cream,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        else
-                          Text(
-                            telemetry.isMicActive
-                                ? 'Compensating turntable speed'
-                                : (telemetry.status == CalibrationStatus.calibrated
-                                    ? 'Speed calibrated'
-                                    : 'Waiting for turntable audio'),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.textInactive,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
-                    ),
-                  ),
-
+                  _buildMicIcon(telemetry.isMicActive),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildStatusInfo(telemetry)),
                   const SizedBox(width: 6),
-
                   // Barra de Ações Rápidas (Play/Pause, Stop)
                   if (track != null || telemetry.status != CalibrationStatus.idle) ...[
                     // Botão Play / Pause
@@ -437,156 +250,76 @@ class _VinylStatusFooterState extends State<VinylStatusFooter>
     );
   }
 
-  Widget _buildMicPrivacyIndicator(bool isMicActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isMicActive ? Colors.redAccent.withOpacity(0.15) : Colors.greenAccent.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isMicActive ? Colors.redAccent : Colors.greenAccent.withOpacity(0.3),
-          width: 0.8,
+  /// Microfone inteiro (ouvindo) ou cortado (desligado).
+  Widget _buildMicIcon(bool isMicActive) {
+    return Tooltip(
+      message: isMicActive ? 'Microphone listening' : 'Microphone off',
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isMicActive ? AppTheme.orange.withValues(alpha: 0.18) : AppTheme.surfaceLight,
+          border: Border.all(color: isMicActive ? AppTheme.orange : AppTheme.carveLight, width: 1.2),
+        ),
+        child: Icon(
+          isMicActive ? Icons.mic : Icons.mic_off,
+          size: 20,
+          color: isMicActive ? AppTheme.orange : Colors.white38,
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isMicActive ? Colors.redAccent : Colors.greenAccent,
-              boxShadow: [
-                BoxShadow(
-                  color: (isMicActive ? Colors.redAccent : Colors.greenAccent).withOpacity(0.6),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            isMicActive ? 'MICROPHONE LISTENING' : 'MICROPHONE OFF',
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.bold,
-              color: isMicActive ? Colors.redAccent : Colors.greenAccent,
-              letterSpacing: 0.4,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildMicDeviceBadge(String micName) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white24,
-          width: 0.8,
+  /// Só a contagem da calibração ("Calibrating in Xs"); sem ela, a etapa especial em andamento
+  /// (pausado, fim do lado, próxima faixa, confirmando), quando houver.
+  Widget _buildStatusInfo(VinylTelemetry telemetry) {
+    if (telemetry.countdownSeconds > 0) {
+      return Text(
+        'Calibrating in ${telemetry.countdownSeconds}s',
+        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.cream),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    String? label;
+    Color color = AppTheme.cream;
+    switch (telemetry.status) {
+      case CalibrationStatus.paused:
+        label = 'PAUSED';
+        color = Colors.amber;
+      case CalibrationStatus.waitingEndOfSide:
+        label = telemetry.sideEndLabel != null
+            ? '${telemetry.sideEndLabel!.toUpperCase()} — FLIP THE RECORD'
+            : 'END OF SIDE — FLIP THE RECORD';
+      case CalibrationStatus.listeningNextTrack:
+        label = 'NEXT TRACK';
+        color = AppTheme.orange;
+      case CalibrationStatus.confirmingPrediction:
+        label = 'confirming...';
+        color = Colors.white38;
+      default:
+        label = null;
+    }
+    if (label == null) return const SizedBox.shrink();
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color, letterSpacing: 0.5),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.mic_none,
-            size: 11,
-            color: Colors.white70,
-          ),
-          const SizedBox(width: 4),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 160),
-            child: Text(
-              micName,
-              style: const TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.white70,
-                letterSpacing: 0.2,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
     );
   }
-
-  Widget _buildSpinningVinyl() {
-    return AnimatedBuilder(
-      animation: _rotationController,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _rotationController.value * 2 * math.pi,
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black,
-              border: Border.all(color: AppTheme.orange.withOpacity(0.6), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.orange.withOpacity(0.3),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Ranhuras do vinil
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0x33FFFFFF), width: 1),
-                  ),
-                ),
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0x22FFFFFF), width: 1),
-                  ),
-                ),
-                // Selo central
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.cream,
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 4,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildRotationBadge(String pitchText) {
     final speed = widget.telemetry.speedFactor;
     final isCalibrated = widget.telemetry.status == CalibrationStatus.calibrated;

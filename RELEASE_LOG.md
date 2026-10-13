@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.6] — 12/10/2026 (Tela Principal Mais Limpa: Painéis de Madeira e Microfone de Madeira)
+
+* **Topo em destaque:** ícones, capa do disco e textos ficam num painel de nogueira, um tom mais claro que o fundo, com veio e friso entalhado, igual ao rodapé.
+* **Rodapé enxuto:** saíram o disco girando e os selos "Microphone listening/off" e "Built-in microphone". No lugar, um ícone de **microfone inteiro** (ouvindo, em laranja) ou **cortado** (desligado). Do texto ficou só **"Calibrating in Xs"**; sem contagem, aparece a etapa especial (pausado, fim do lado, próxima faixa, confirmando). Play/pause, parar, a rotação e o ajuste fino continuam.
+* **Botão de ouvir:** o **microfone de madeira** da arte do usuário (`assets/images/mic_button.png`, recortado por `tool/icon/WoodTileCrop.cs`), **centralizado embaixo**. Ouvindo, ganha um anel laranja pulsante e o selo de parar. "Flip the record" aparece no mesmo lugar quando o lado termina.
+* **Centro sempre inteiro, em pé e deitado:** a saudação reserva o espaço do microfone e se compacta quando falta altura (ícone menor ou oculto, letras menores). Como o rodapé não mostra mais a etapa do reconhecimento, ela aparece em laranja abaixo da saudação (ex.: "Listening through the microphone...").
+* Corrigida a posição da saudação: com a barra sobre o conteúdo, a altura dela era contada duas vezes e o texto descia demais com o celular deitado.
+
+---
 ## [v1.3.5] — 12/10/2026 (Telas Novas: Saudação, Coleção, Ajuda + Visual Madeira e Creme/Laranja)
 
 ### 🏠 Tela principal

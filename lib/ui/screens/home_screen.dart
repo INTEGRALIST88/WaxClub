@@ -17,6 +17,7 @@ import '../widgets/cast_thinking_wheel_dialog.dart';
 import '../widgets/flip_side_button.dart';
 import '../widgets/album_picker_sheet.dart';
 import '../widgets/home_greeting.dart';
+import '../widgets/wood_mic_button.dart';
 import '../../services/collection_service.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
@@ -751,11 +752,18 @@ class _HomeScreenState extends State<HomeScreen>
         final telemetry = _engine.telemetry;
         final isListening = telemetry.isUserListening ||
             telemetry.status == CalibrationStatus.listeningSample1;
+        final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
+        final micSize = isLandscape ? 62.0 : 84.0;
+        // Etapa atual (ouvindo, não identificada...) mostrada na saudação, já que o rodapé ficou enxuto
+        final statusLine = (telemetry.status == CalibrationStatus.idle || telemetry.statusMessage.isEmpty)
+            ? null
+            : telemetry.statusMessage;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             toolbarHeight: 74,
+            flexibleSpace: const _WoodTopPanel(),
             leadingWidth: 48,
             leading: IconButton(
               icon: const Icon(Icons.help_outline, color: AppTheme.cream),
@@ -966,7 +974,13 @@ class _HomeScreenState extends State<HomeScreen>
                         activeIndex: _engine.activeLineIndex,
                         onSeek: (seconds) => _engine.seekTo(seconds),
                         emptyState: _engine.currentTrack == null
-                            ? HomeGreeting(name: _profile.displayName, seed: _greetingSeed, onEditName: _editName)
+                            ? HomeGreeting(
+                                name: _profile.displayName,
+                                seed: _greetingSeed,
+                                onEditName: _editName,
+                                bottomReserve: micSize + 28,
+                                statusLine: statusLine,
+                              )
                             : null,
                       ),
                     ),
@@ -974,11 +988,14 @@ class _HomeScreenState extends State<HomeScreen>
 
                     // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
                     Positioned(
-                      right: 20,
-                      bottom: 110,
-                      child: (_engine.isAwaitingSideFlip && !telemetry.isMicActive)
-                          ? FlipSideButton(onPressed: () => _engine.flipSide())
-                          : _buildGlowingListenFab(isListening),
+                      left: 0,
+                      right: 0,
+                      bottom: 14,
+                      child: Center(
+                        child: (_engine.isAwaitingSideFlip && !telemetry.isMicActive)
+                            ? FlipSideButton(onPressed: () => _engine.flipSide())
+                            : WoodMicButton(isListening: isListening, onPressed: _onFabPressed, size: micSize),
+                      ),
                     ),
                   ],
                 ),
@@ -998,36 +1015,34 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildGlowingListenFab(bool isListening) {
-    return AnimatedBuilder(
-      animation: _pulseController,
-      builder: (context, child) {
-        final glowRadius = isListening ? 12.0 + (_pulseController.value * 14.0) : 6.0;
-        final fabColor = isListening ? Colors.redAccent : AppTheme.orange;
+}
 
-        return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: fabColor.withOpacity(0.6),
-                blurRadius: glowRadius,
-                spreadRadius: isListening ? 2.0 : 0.0,
-              ),
-            ],
+/// Painel de nogueira em destaque atrás da barra superior: o mesmo acabamento do rodapé, um tom
+/// mais claro que o fundo, com veio da madeira e friso entalhado (luz + sombra) na borda de baixo.
+class _WoodTopPanel extends StatelessWidget {
+  const _WoodTopPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF2E1E13), Color(0xFF3A2618)],
           ),
-          child: FloatingActionButton(
-            onPressed: _onFabPressed,
-            tooltip: isListening ? 'Stop listening (microphone off)' : 'Listen to the room',
-            backgroundColor: fabColor,
-            child: Icon(
-              isListening ? Icons.stop_rounded : Icons.mic,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-        );
-      },
+          border: Border(bottom: BorderSide(color: AppTheme.carveLight, width: 1.6)),
+          boxShadow: [
+            BoxShadow(color: AppTheme.carveShadow, blurRadius: 0, spreadRadius: 1.5, offset: Offset(0, 2)),
+            BoxShadow(color: Colors.black87, blurRadius: 18, offset: Offset(0, 6)),
+          ],
+        ),
+        child: CustomPaint(
+          size: Size.infinite,
+          painter: const WoodGrainPainter(intensity: 0.55, seed: 12),
+        ),
+      ),
     );
   }
 }
