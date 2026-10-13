@@ -1689,6 +1689,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can\'t hear the record. Close that app and tap the microphone again.'**
   String get statusMicBusy;
+
+  /// No description provided for @cameraTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify a record with the camera'**
+  String get cameraTooltip;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify your record'**
+  String get scanTitle;
+
+  /// No description provided for @scanHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to point the camera'**
+  String get scanHowTo;
+
+  /// No description provided for @scanModeBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get scanModeBarcode;
+
+  /// No description provided for @scanModeCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog no.'**
+  String get scanModeCatalog;
+
+  /// No description provided for @scanModeTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it'**
+  String get scanModeTyped;
+
+  /// No description provided for @scanBarcodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point at the barcode on the back cover (usually in a bottom corner)'**
+  String get scanBarcodeHint;
+
+  /// No description provided for @scanBarcodeTryCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'No barcode? Older records usually have none. Try the catalog number.'**
+  String get scanBarcodeTryCatalog;
+
+  /// No description provided for @scanTorch.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashlight'**
+  String get scanTorch;
+
+  /// No description provided for @scanCameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable. Allow camera access in Settings → Apps → WaxClub → Permissions, or type the record.'**
+  String get scanCameraUnavailable;
+
+  /// No description provided for @scanCatalogHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Photograph the spine, the record label or the top corner of the back cover, where the catalog number is printed (e.g. 6349 123, SHVL 804).'**
+  String get scanCatalogHint;
+
+  /// No description provided for @scanTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get scanTakePhoto;
+
+  /// No description provided for @scanReadingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the photo...'**
+  String get scanReadingPhoto;
+
+  /// No description provided for @scanCatalogFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog numbers found — tap the right one:'**
+  String get scanCatalogFound;
+
+  /// No description provided for @scanCatalogNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No catalog number found in the photo. Type it below or take another photo closer to the text.'**
+  String get scanCatalogNoneFound;
+
+  /// No description provided for @scanCatalogField.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog number'**
+  String get scanCatalogField;
+
+  /// No description provided for @scanTypedField.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist and album'**
+  String get scanTypedField;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @scanSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for \"{query}\"...'**
+  String scanSearching(String query);
+
+  /// No description provided for @scanPickPressing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your pressing: year, country, label and catalog number help you find it.'**
+  String get scanPickPressing;
+
+  /// No description provided for @scanNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No vinyl pressing found for \"{query}\". Try another mode or type the record.'**
+  String scanNoResults(String query);
+
+  /// No description provided for @scanAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan again'**
+  String get scanAgain;
+
+  /// No description provided for @foundAddToCollectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to collection?'**
+  String get foundAddToCollectionTitle;
+
+  /// No description provided for @foundAlreadyInCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in your collection.'**
+  String get foundAlreadyInCollection;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @entryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to collection'**
+  String get entryTitle;
+
+  /// No description provided for @entryRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get entryRating;
+
+  /// No description provided for @entryMediaCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Record condition'**
+  String get entryMediaCondition;
+
+  /// No description provided for @entrySleeveCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleeve condition'**
+  String get entrySleeveCondition;
+
+  /// No description provided for @entryNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get entryNotes;
+
+  /// No description provided for @entryNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get entryNotSet;
+
+  /// No description provided for @entryAlsoDiscogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Also add to my Discogs collection'**
+  String get entryAlsoDiscogs;
+
+  /// No description provided for @entryDiscogsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Also added to your Discogs collection.'**
+  String get entryDiscogsAdded;
+
+  /// No description provided for @entryDiscogsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add it to your Discogs collection right now.'**
+  String get entryDiscogsFailed;
+
+  /// No description provided for @letsListenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s listen?'**
+  String get letsListenTitle;
+
+  /// No description provided for @letsListenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop the needle on \"{album}\" and tap Yes: WaxClub will listen and follow along.'**
+  String letsListenBody(String album);
+
+  /// No description provided for @guideBarcodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get guideBarcodeTitle;
+
+  /// No description provided for @guideBarcodeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Most records from the 80s on have a barcode on the back cover, usually in a bottom corner or on a sticker on the shrink wrap. Hold the phone 10–20 cm away: it reads by itself.'**
+  String get guideBarcodeBody;
+
+  /// No description provided for @guideCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog number'**
+  String get guideCatalogTitle;
+
+  /// No description provided for @guideCatalogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Older records: look for the code on the spine, on the record label (near the center hole) or in the top corner of the back cover, e.g. \"6349 123\". Take a photo and tap the right number.'**
+  String get guideCatalogBody;
+
+  /// No description provided for @guideLightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Light and focus'**
+  String get guideLightTitle;
+
+  /// No description provided for @guideLightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use good light and avoid glare on glossy covers. Turn on the flashlight if it is dark. Hold still until the text is sharp.'**
+  String get guideLightBody;
+
+  /// No description provided for @guidePressingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your pressing'**
+  String get guidePressingTitle;
+
+  /// No description provided for @guidePressingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The same album has many pressings. Check year, country, label and catalog number, then add it to your collection and start listening.'**
+  String get guidePressingBody;
+
+  /// No description provided for @guideNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get guideNext;
+
+  /// No description provided for @guideDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get guideDone;
+
+  /// No description provided for @helpCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify a record with the camera'**
+  String get helpCamera;
+
+  /// No description provided for @helpCamera1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.'**
+  String get helpCamera1;
+
+  /// No description provided for @helpCamera2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.'**
+  String get helpCamera2;
 }
 
 class _AppLocalizationsDelegate

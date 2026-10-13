@@ -164,12 +164,25 @@ class MusicBrainzTracklistProvider implements TracklistProvider {
     }
   }
 
+  /// Prensagens com este código de barras (EAN/UPC).
+  Future<List<ReleaseCandidate>> searchByBarcode(String barcode) {
+    final code = barcode.replaceAll(RegExp(r'\D'), '');
+    return code.isEmpty ? Future.value(const []) : searchReleasesByText('barcode:$code', raw: true);
+  }
+
+  /// Prensagens com este número de catálogo.
+  Future<List<ReleaseCandidate>> searchByCatalogNumber(String catno) {
+    final q = catno.trim().replaceAll('"', '');
+    return q.isEmpty ? Future.value(const []) : searchReleasesByText('catno:"$q"', raw: true);
+  }
+
   /// Busca livre de discos (escolha manual do usuário): "disco", "artista disco"...
-  Future<List<ReleaseCandidate>> searchReleasesByText(String query) async {
+  /// [raw]: [query] já está na sintaxe de busca do MusicBrainz (ex.: `barcode:...`).
+  Future<List<ReleaseCandidate>> searchReleasesByText(String query, {bool raw = false}) async {
     final q = query.trim();
     if (q.isEmpty) return [];
     try {
-      final url = Uri.https('musicbrainz.org', '/ws/2/release', {'query': q, 'limit': '40', 'fmt': 'json'});
+      final url = Uri.https('musicbrainz.org', '/ws/2/release', {'query': q, 'limit': raw ? '50' : '40', 'fmt': 'json'});
       final response = await _executeWithRateGate(url);
       if (response.statusCode != 200) {
         debugPrint('[MusicBrainz] Busca livre falhou: HTTP ${response.statusCode}');
@@ -201,6 +214,9 @@ class MusicBrainzTracklistProvider implements TracklistProvider {
           country: rel['country'] as String?,
           coverUrl: 'https://coverartarchive.org/release/$relId/front-250',
           trackCount: (rel['track-count'] as num?)?.toInt(),
+          label: _labelInfo(rel, 'label'),
+          catalogNumber: _labelInfo(rel, 'catalog-number'),
+          barcode: (rel['barcode'] as String?)?.isNotEmpty == true ? rel['barcode'] as String : null,
           groupId: releaseGroup?['id'] as String?,
         ));
       }
@@ -209,6 +225,18 @@ class MusicBrainzTracklistProvider implements TracklistProvider {
       debugPrint('[MusicBrainz] Erro na busca livre: $e');
       return [];
     }
+  }
+
+  /// Primeira gravadora (`label`) ou nº de catálogo (`catalog-number`) de `label-info`.
+  static String? _labelInfo(Map<String, dynamic> rel, String field) {
+    final info = rel['label-info'];
+    if (info is! List) return null;
+    for (final i in info) {
+      if (i is! Map) continue;
+      final v = field == 'label' ? (i['label'] is Map ? i['label']['name'] : null) : i['catalog-number'];
+      if (v is String && v.trim().isNotEmpty) return v.trim();
+    }
+    return null;
   }
 
   static String? _artistCredit(dynamic credit) {

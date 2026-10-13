@@ -12,6 +12,10 @@ class CollectionItem {
   final String? year;
   final String? format;
   final String? discogsReleaseId; // necessário para sincronizar com o Discogs
+  final String? musicBrainzReleaseId;
+  final String? label;
+  final String? catalogNumber;
+  final String? barcode;
   final DateTime addedAt;
   final int? rating; // 1 a 5
   final String? mediaCondition; // ex.: "Very Good Plus (VG+)"
@@ -25,6 +29,10 @@ class CollectionItem {
     this.year,
     this.format,
     this.discogsReleaseId,
+    this.musicBrainzReleaseId,
+    this.label,
+    this.catalogNumber,
+    this.barcode,
     required this.addedAt,
     this.rating,
     this.mediaCondition,
@@ -41,6 +49,10 @@ class CollectionItem {
         if (year != null) 'year': year,
         if (format != null) 'format': format,
         if (discogsReleaseId != null) 'discogsReleaseId': discogsReleaseId,
+        if (musicBrainzReleaseId != null) 'musicBrainzReleaseId': musicBrainzReleaseId,
+        if (label != null) 'label': label,
+        if (catalogNumber != null) 'catalogNumber': catalogNumber,
+        if (barcode != null) 'barcode': barcode,
         'addedAt': addedAt.toIso8601String(),
         if (rating != null) 'rating': rating,
         if (mediaCondition != null) 'mediaCondition': mediaCondition,
@@ -55,6 +67,10 @@ class CollectionItem {
         year: j['year'] as String?,
         format: j['format'] as String?,
         discogsReleaseId: j['discogsReleaseId'] as String?,
+        musicBrainzReleaseId: j['musicBrainzReleaseId'] as String?,
+        label: j['label'] as String?,
+        catalogNumber: j['catalogNumber'] as String?,
+        barcode: j['barcode'] as String?,
         addedAt: DateTime.tryParse(j['addedAt'] as String? ?? '') ?? DateTime.now(),
         rating: (j['rating'] as num?)?.toInt(),
         mediaCondition: j['mediaCondition'] as String?,

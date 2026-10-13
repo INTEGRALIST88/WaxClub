@@ -2,6 +2,23 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.11] — 13/10/2026 (Reconhecimento do Disco pela Câmera)
+
+* **Ícone de câmera na barra superior**, ao lado de My Collection: abre "Identify your record".
+* **Guia de onde apontar** (4 passos ilustrados) na primeira vez e pelo botão de ajuda da tela: código de barras na contracapa, número de catálogo na lombada/selo/contracapa, luz e foco, escolher a prensagem.
+* **Três modos, tudo grátis e no aparelho:**
+  * **Barcode:** leitura ao vivo (`mobile_scanner`, ML Kit embutido) dentro de uma moldura, com lanterna; confere o dígito verificador (EAN-13/8, UPC-A/E). Sem código em ~10 s, sugere o número de catálogo (discos antigos não têm código de barras).
+  * **Catalog no.:** foto pela câmera do sistema (`image_picker`) e leitura do texto no aparelho (`google_mlkit_text_recognition`, alfabeto latino); o app mostra os números de catálogo prováveis para tocar no certo, ou digitar.
+  * **Type it:** artista e álbum digitados.
+* **Escolha da prensagem:** busca no Discogs (código de barras / `catno`, conta do usuário) com o MusicBrainz de reserva (`barcode:` / `catno:`), só vinil LP/EP, sem agrupar edições; cada item mostra capa, ano, país, gravadora, nº de catálogo e formato.
+* **Depois de escolher:** "Add to collection?" → cadastro (campos do Discogs preenchidos; nota 1–5, estado do disco e da capa nos graus do Discogs e observações, opcionais; "Also add to my Discogs collection" quando a conta está conectada) → "Let's listen?". O disco vira o padrão de todas as faixas (`WaxClubEngine.prepareScannedRecord`), então o modo automático já o trava na primeira música; "Yes" começa a escuta.
+* A coleção guarda também gravadora, nº de catálogo, código de barras e o id do MusicBrainz.
+* Ajuda: novo tópico "Identify a record with the camera".
+* Android: permissão de câmera; regras do R8 para o ML Kit (`android/app/proguard-rules.pro`). O APK passa a ser gerado só para ARM (`flutter build apk --release --target-platform android-arm,android-arm64`), sem a versão de emulador; ficou com ~84 MB por causa dos leitores embutidos do ML Kit (funcionam sem internet e sem os serviços do Google).
+* `deploy.ps1 -SkipInstall`: publica no Drive sem reinstalar no celular.
+* Novo `test/record_scan_test.dart` (código de barras, números de catálogo na foto, buscas por código no Discogs/MusicBrainz só com vinil, coleção, cadastro).
+
+---
 ## [v1.3.10] — 13/10/2026 (Textos em Arquivos de Tradução + Aviso de Microfone Ocupado)
 
 * **Textos da interface em `lib/l10n/app_en.arb`** (266 textos): telas, mensagens de status do motor, avisos do catálogo, erros do Discogs, permissão de microfone e mensagens da transmissão. Gerados pelo `flutter gen-l10n` (`l10n.yaml`, `lib/l10n/gen/`); acesso por `l10n.<chave>` (`lib/l10n/l10n.dart`), também no motor e nos serviços. O app continua em inglês; é a base dos plugins de idioma.

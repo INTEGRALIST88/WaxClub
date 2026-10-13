@@ -22,6 +22,8 @@ import '../widgets/home_greeting.dart';
 import '../../services/collection_service.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
+import 'record_scan_screen.dart';
+import '../../services/discogs/discogs_collection_service.dart';
 import 'help_screen.dart';
 
 /// Tela principal do aplicativo WaxClub.
@@ -47,6 +49,9 @@ class _HomeScreenState extends State<HomeScreen>
     wikipedia: WikipediaTracklistService(),
   );
   bool _albumCatalogCreated = false;
+
+  /// Coleção do usuário no Discogs (adicionar discos reconhecidos pela câmera).
+  late final DiscogsCollectionService _discogsCollection = DiscogsCollectionService(auth: _discogsAuth);
 
   /// Nome do usuário (saudação) e coleção local com o histórico de audições.
   final UserProfileStore _profile = UserProfileStore();
@@ -395,6 +400,24 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       );
+    }
+  }
+
+  /// Câmera: reconhece o disco (código de barras, nº de catálogo ou digitado), cadastra na coleção
+  /// e, se o usuário quiser ouvir, já começa a escuta com o disco travado.
+  Future<void> _openRecordScan() async {
+    _albumCatalogCreated = true;
+    final listen = await Navigator.of(context).push<bool>(MaterialPageRoute(
+      builder: (_) => RecordScanScreen(
+        engine: _engine,
+        catalog: _albumCatalog,
+        collection: _collection,
+        profile: _profile,
+        discogsCollection: _discogsCollection,
+      ),
+    ));
+    if (listen == true && mounted && !_engine.telemetry.isUserListening) {
+      _engine.startListening();
     }
   }
 
@@ -948,6 +971,11 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.photo_camera_outlined, color: AppTheme.cream),
+                tooltip: l10n.cameraTooltip,
+                onPressed: _openRecordScan,
+              ),
               IconButton(
                 icon: const Icon(Icons.library_music_outlined, color: AppTheme.cream),
                 tooltip: l10n.myCollection,

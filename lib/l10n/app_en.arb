@@ -819,5 +819,76 @@
       }
     }
   },
-  "statusMicBusy": "Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can't hear the record. Close that app and tap the microphone again."
+  "statusMicBusy": "Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can't hear the record. Close that app and tap the microphone again.",
+  "cameraTooltip": "Identify a record with the camera",
+  "scanTitle": "Identify your record",
+  "scanHowTo": "Where to point the camera",
+  "scanModeBarcode": "Barcode",
+  "scanModeCatalog": "Catalog no.",
+  "scanModeTyped": "Type it",
+  "scanBarcodeHint": "Point at the barcode on the back cover (usually in a bottom corner)",
+  "scanBarcodeTryCatalog": "No barcode? Older records usually have none. Try the catalog number.",
+  "scanTorch": "Flashlight",
+  "scanCameraUnavailable": "Camera unavailable. Allow camera access in Settings → Apps → WaxClub → Permissions, or type the record.",
+  "scanCatalogHint": "Photograph the spine, the record label or the top corner of the back cover, where the catalog number is printed (e.g. 6349 123, SHVL 804).",
+  "scanTakePhoto": "Take a photo",
+  "scanReadingPhoto": "Reading the photo...",
+  "scanCatalogFound": "Catalog numbers found — tap the right one:",
+  "scanCatalogNoneFound": "No catalog number found in the photo. Type it below or take another photo closer to the text.",
+  "scanCatalogField": "Catalog number",
+  "scanTypedField": "Artist and album",
+  "search": "Search",
+  "scanSearching": "Looking for \"{query}\"...",
+  "@scanSearching": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "scanPickPressing": "Pick your pressing: year, country, label and catalog number help you find it.",
+  "scanNoResults": "No vinyl pressing found for \"{query}\". Try another mode or type the record.",
+  "@scanNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "scanAgain": "Scan again",
+  "foundAddToCollectionTitle": "Add to collection?",
+  "foundAlreadyInCollection": "Already in your collection.",
+  "no": "No",
+  "yes": "Yes",
+  "entryTitle": "Add to collection",
+  "entryRating": "Rating",
+  "entryMediaCondition": "Record condition",
+  "entrySleeveCondition": "Sleeve condition",
+  "entryNotes": "Notes",
+  "entryNotSet": "Not set",
+  "entryAlsoDiscogs": "Also add to my Discogs collection",
+  "entryDiscogsAdded": "Also added to your Discogs collection.",
+  "entryDiscogsFailed": "Could not add it to your Discogs collection right now.",
+  "letsListenTitle": "Let's listen?",
+  "letsListenBody": "Drop the needle on \"{album}\" and tap Yes: WaxClub will listen and follow along.",
+  "@letsListenBody": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "guideBarcodeTitle": "Barcode",
+  "guideBarcodeBody": "Most records from the 80s on have a barcode on the back cover, usually in a bottom corner or on a sticker on the shrink wrap. Hold the phone 10–20 cm away: it reads by itself.",
+  "guideCatalogTitle": "Catalog number",
+  "guideCatalogBody": "Older records: look for the code on the spine, on the record label (near the center hole) or in the top corner of the back cover, e.g. \"6349 123\". Take a photo and tap the right number.",
+  "guideLightTitle": "Light and focus",
+  "guideLightBody": "Use good light and avoid glare on glossy covers. Turn on the flashlight if it is dark. Hold still until the text is sharp.",
+  "guidePressingTitle": "Pick your pressing",
+  "guidePressingBody": "The same album has many pressings. Check year, country, label and catalog number, then add it to your collection and start listening.",
+  "guideNext": "Next",
+  "guideDone": "Got it",
+  "helpCamera": "Identify a record with the camera",
+  "helpCamera1": "Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.",
+  "helpCamera2": "Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song."
 }

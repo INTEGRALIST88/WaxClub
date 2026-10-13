@@ -343,6 +343,51 @@ class WaxClubEngine extends ChangeNotifier {
   /// Escolha manual do disco pelo usuário ("Mudar disco"): trava o disco escolhido com a lista de faixas
   /// dele, atualiza capa, lado e próxima música (celular e TV) e o grava como o disco padrão do usuário
   /// para todas as músicas dele, passando por cima da escolha automática nas próximas vezes.
+  /// Disco reconhecido pela câmera: grava a lista de faixas e o torna o disco padrão de todas as faixas,
+  /// para que o modo automático já o trave ao reconhecer a primeira música. Se uma faixa dele já estiver
+  /// tocando, aplica a escolha na hora.
+  Future<void> prepareScannedRecord({
+    required String albumTitle,
+    required String artist,
+    required List<TrackEntry> tracklist,
+    String? coverUrl,
+    String? releaseId,
+    String? releaseFormat,
+    required String source,
+  }) async {
+    if (albumTitle.trim().isEmpty || tracklist.isEmpty) return;
+    await _cacheService.saveTracklist(
+      album: albumTitle,
+      artist: artist,
+      entries: tracklist,
+      releaseId: releaseId,
+      releaseFormat: releaseFormat,
+      source: source,
+      sideSource: tracklist.any((e) => e.side != null) ? 'catalog' : null,
+    );
+    if (coverUrl != null && coverUrl.isNotEmpty) {
+      await _cacheService.updateDiscCover(albumTitle, artist, coverUrl);
+    }
+    await _cacheService.setPreferredAlbumBatch([
+      for (final e in tracklist) TrackInfo(title: e.title, artist: e.artist ?? artist, offsetSeconds: 0.0),
+    ], albumTitle, source: 'user');
+    if (_isDisposed) return;
+    _logService.log('record_scanned', {'album': albumTitle, 'artist': artist, 'source': source, 'tracks': tracklist.length});
+    debugPrint('[WaxClubEngine] 📷 Disco reconhecido pela câmera: "$albumTitle" ($source, ${tracklist.length} faixas).');
+
+    final current = _currentTrack;
+    if (current != null && TracklistMatcher.findIndex(tracklist, current.title) != -1) {
+      await applyUserAlbumChoice(
+        albumTitle: albumTitle,
+        tracklist: tracklist,
+        coverUrl: coverUrl,
+        releaseId: releaseId,
+        releaseFormat: releaseFormat,
+        source: source,
+      );
+    }
+  }
+
   Future<void> applyUserAlbumChoice({
     required String albumTitle,
     required List<TrackEntry> tracklist,

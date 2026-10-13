@@ -1,6 +1,8 @@
 ﻿param(
     # Caminho opcional do APK (padrao: saida do 'flutter build apk --release')
-    [string]$ApkPath
+    [string]$ApkPath,
+    # Publica no Drive sem reinstalar no celular (ex.: o usuario esta testando no aparelho)
+    [switch]$SkipInstall
 )
 
 $ErrorActionPreference = 'Stop'
@@ -27,7 +29,7 @@ if (-not (Test-Path -LiteralPath $driveDir)) {
 
 Write-Host "=== 2. Copiando APK Release ==="
 if (-not (Test-Path -LiteralPath $apkSource)) {
-    throw "Arquivo APK nao encontrado em $apkSource. Rode 'flutter build apk --release' antes."
+    throw "Arquivo APK nao encontrado em $apkSource. Rode 'flutter build apk --release --target-platform android-arm,android-arm64' antes."
 }
 Copy-Item -LiteralPath $apkSource -Destination $apkDest -Force
 $sizeMb = [math]::Round((Get-Item -LiteralPath $apkDest).Length / 1MB, 2)
@@ -103,7 +105,9 @@ $zipSizeMb = [math]::Round((Get-Item -LiteralPath $zipDest).Length / 1MB, 2)
 Write-Host "[OK] Arquivo ZIP gerado: $zipDest ($zipSizeMb MB)"
 
 Write-Host "=== 5. Instalando no Smartphone Xiaomi via ADB ==="
-if (Test-Path -LiteralPath $adbPath) {
+if ($SkipInstall) {
+    Write-Host "[--] Instalacao pulada (-SkipInstall). APK disponivel no Google Drive."
+} elseif (Test-Path -LiteralPath $adbPath) {
     $devices = & $adbPath devices
     if ($devices -match $deviceSerial) {
         Write-Host "Instalando APK no dispositivo $deviceSerial..."

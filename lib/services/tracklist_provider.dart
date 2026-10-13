@@ -17,6 +17,11 @@ class ReleaseCandidate {
   final String? coverUrl;
   final int? trackCount;
 
+  // Identificação da prensagem (reconhecimento pela câmera)
+  final String? label;
+  final String? catalogNumber;
+  final String? barcode;
+
   /// Agrupa edições do mesmo disco (release-group do MusicBrainz, master do Discogs).
   final String? groupId;
 
@@ -36,6 +41,9 @@ class ReleaseCandidate {
     this.country,
     this.coverUrl,
     this.trackCount,
+    this.label,
+    this.catalogNumber,
+    this.barcode,
     this.groupId,
     this.editions = 1,
   });
@@ -71,6 +79,9 @@ class ReleaseCandidate {
         country: country,
         coverUrl: coverUrl,
         trackCount: trackCount,
+        label: label,
+        catalogNumber: catalogNumber,
+        barcode: barcode,
         groupId: groupId,
         editions: editions ?? this.editions,
       );

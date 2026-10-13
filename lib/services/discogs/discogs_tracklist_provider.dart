@@ -68,6 +68,22 @@ class DiscogsTracklistProvider implements TracklistProvider {
     return groupReleaseEditions(parseSearchResults(data));
   }
 
+  /// Prensagens com este código de barras (EAN/UPC lido pela câmera). Sem agrupar edições.
+  Future<List<ReleaseCandidate>> searchByBarcode(String barcode) async {
+    final code = barcode.replaceAll(RegExp(r'\D'), '');
+    if (code.isEmpty) return [];
+    final data = await _get('/database/search', {'type': 'release', 'barcode': code, 'per_page': '50'});
+    return parseSearchResults(data);
+  }
+
+  /// Prensagens com este número de catálogo (ex.: "6349 123", "SHVL 804"), só vinil. Sem agrupar edições.
+  Future<List<ReleaseCandidate>> searchByCatalogNumber(String catno) async {
+    final q = catno.trim();
+    if (q.isEmpty) return [];
+    final data = await _get('/database/search', {'type': 'release', 'catno': q, 'format': 'Vinyl', 'per_page': '50'});
+    return parseSearchResults(data);
+  }
+
   /// Converte os resultados da busca do Discogs ("Artista - Disco", formatos, ano, capa...).
   static List<ReleaseCandidate> parseSearchResults(Map<String, dynamic>? data) {
     final results = data?['results'] as List<dynamic>? ?? const [];
@@ -98,6 +114,9 @@ class DiscogsTracklistProvider implements TracklistProvider {
         year: (r['year']?.toString().isNotEmpty ?? false) ? r['year'].toString() : null,
         country: r['country'] as String?,
         coverUrl: (r['thumb'] as String?)?.isNotEmpty == true ? r['thumb'] as String : r['cover_image'] as String?,
+        label: (r['label'] is List && (r['label'] as List).isNotEmpty) ? (r['label'] as List).first.toString() : null,
+        catalogNumber: (r['catno'] as String?)?.trim().isNotEmpty == true ? (r['catno'] as String).trim() : null,
+        barcode: (r['barcode'] is List && (r['barcode'] as List).isNotEmpty) ? (r['barcode'] as List).first.toString() : null,
         groupId: (master is num && master > 0) ? 'm$master' : null,
       ));
     }

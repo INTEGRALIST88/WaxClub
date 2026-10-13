@@ -12,7 +12,11 @@ class UserProfileStore extends ChangeNotifier {
   UserProfileStore({Directory? directory}) : _directory = directory;
 
   String? _displayName;
+  bool _scanGuideSeen = false;
   bool _loaded = false;
+
+  /// O usuário já viu o guia ilustrado da câmera (onde apontar em cada modo).
+  bool get scanGuideSeen => _scanGuideSeen;
 
   /// Nome que o usuário quer ver nas saudações (ex.: "Gustavo"); `null` se ainda não informou.
   String? get displayName => _displayName;
@@ -35,6 +39,7 @@ class UserProfileStore extends ChangeNotifier {
         final json = jsonDecode(await f.readAsString()) as Map<String, dynamic>;
         final name = (json['displayName'] as String?)?.trim();
         _displayName = (name == null || name.isEmpty) ? null : name;
+        _scanGuideSeen = json['scanGuideSeen'] == true;
       }
     } catch (e) {
       debugPrint('[UserProfileStore] Perfil local ilegível: $e');
@@ -47,9 +52,20 @@ class UserProfileStore extends ChangeNotifier {
     final clean = name?.trim();
     _displayName = (clean == null || clean.isEmpty) ? null : clean;
     notifyListeners();
+    await _save();
+  }
+
+  Future<void> setScanGuideSeen() async {
+    if (_scanGuideSeen) return;
+    _scanGuideSeen = true;
+    notifyListeners();
+    await _save();
+  }
+
+  Future<void> _save() async {
     try {
       final f = await _file();
-      if (f != null) await f.writeAsString(jsonEncode({'displayName': _displayName}));
+      if (f != null) await f.writeAsString(jsonEncode({'displayName': _displayName, 'scanGuideSeen': _scanGuideSeen}));
     } catch (e) {
       debugPrint('[UserProfileStore] Falha ao salvar o perfil: $e');
     }

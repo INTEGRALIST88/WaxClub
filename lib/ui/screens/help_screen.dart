@@ -27,6 +27,7 @@ class HelpScreen extends StatelessWidget {
         HelpTopic(Icons.speed, l10n.helpSpeed, [l10n.helpSpeed1, l10n.helpSpeed2]),
         HelpTopic(Icons.timer_outlined, l10n.helpTiming, [l10n.helpTiming1]),
         HelpTopic(Icons.album_outlined, l10n.helpChangeRecord, [l10n.helpChangeRecord1, l10n.helpChangeRecord2]),
+        HelpTopic(Icons.photo_camera_outlined, l10n.helpCamera, [l10n.helpCamera1, l10n.helpCamera2]),
         HelpTopic(Icons.library_music_outlined, l10n.helpCollection, [l10n.helpCollection1, l10n.helpCollection2]),
         HelpTopic(Icons.cast, l10n.helpTv, [l10n.helpTv1, l10n.helpTv2, l10n.helpTv3, l10n.helpTv4]),
         HelpTopic(Icons.build_outlined, l10n.helpTroubleshooting,

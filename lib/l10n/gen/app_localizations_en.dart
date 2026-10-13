@@ -1020,4 +1020,173 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statusMicBusy =>
       'Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can\'t hear the record. Close that app and tap the microphone again.';
+
+  @override
+  String get cameraTooltip => 'Identify a record with the camera';
+
+  @override
+  String get scanTitle => 'Identify your record';
+
+  @override
+  String get scanHowTo => 'Where to point the camera';
+
+  @override
+  String get scanModeBarcode => 'Barcode';
+
+  @override
+  String get scanModeCatalog => 'Catalog no.';
+
+  @override
+  String get scanModeTyped => 'Type it';
+
+  @override
+  String get scanBarcodeHint =>
+      'Point at the barcode on the back cover (usually in a bottom corner)';
+
+  @override
+  String get scanBarcodeTryCatalog =>
+      'No barcode? Older records usually have none. Try the catalog number.';
+
+  @override
+  String get scanTorch => 'Flashlight';
+
+  @override
+  String get scanCameraUnavailable =>
+      'Camera unavailable. Allow camera access in Settings → Apps → WaxClub → Permissions, or type the record.';
+
+  @override
+  String get scanCatalogHint =>
+      'Photograph the spine, the record label or the top corner of the back cover, where the catalog number is printed (e.g. 6349 123, SHVL 804).';
+
+  @override
+  String get scanTakePhoto => 'Take a photo';
+
+  @override
+  String get scanReadingPhoto => 'Reading the photo...';
+
+  @override
+  String get scanCatalogFound => 'Catalog numbers found — tap the right one:';
+
+  @override
+  String get scanCatalogNoneFound =>
+      'No catalog number found in the photo. Type it below or take another photo closer to the text.';
+
+  @override
+  String get scanCatalogField => 'Catalog number';
+
+  @override
+  String get scanTypedField => 'Artist and album';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String scanSearching(String query) {
+    return 'Looking for \"$query\"...';
+  }
+
+  @override
+  String get scanPickPressing =>
+      'Pick your pressing: year, country, label and catalog number help you find it.';
+
+  @override
+  String scanNoResults(String query) {
+    return 'No vinyl pressing found for \"$query\". Try another mode or type the record.';
+  }
+
+  @override
+  String get scanAgain => 'Scan again';
+
+  @override
+  String get foundAddToCollectionTitle => 'Add to collection?';
+
+  @override
+  String get foundAlreadyInCollection => 'Already in your collection.';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get entryTitle => 'Add to collection';
+
+  @override
+  String get entryRating => 'Rating';
+
+  @override
+  String get entryMediaCondition => 'Record condition';
+
+  @override
+  String get entrySleeveCondition => 'Sleeve condition';
+
+  @override
+  String get entryNotes => 'Notes';
+
+  @override
+  String get entryNotSet => 'Not set';
+
+  @override
+  String get entryAlsoDiscogs => 'Also add to my Discogs collection';
+
+  @override
+  String get entryDiscogsAdded => 'Also added to your Discogs collection.';
+
+  @override
+  String get entryDiscogsFailed =>
+      'Could not add it to your Discogs collection right now.';
+
+  @override
+  String get letsListenTitle => 'Let\'s listen?';
+
+  @override
+  String letsListenBody(String album) {
+    return 'Drop the needle on \"$album\" and tap Yes: WaxClub will listen and follow along.';
+  }
+
+  @override
+  String get guideBarcodeTitle => 'Barcode';
+
+  @override
+  String get guideBarcodeBody =>
+      'Most records from the 80s on have a barcode on the back cover, usually in a bottom corner or on a sticker on the shrink wrap. Hold the phone 10–20 cm away: it reads by itself.';
+
+  @override
+  String get guideCatalogTitle => 'Catalog number';
+
+  @override
+  String get guideCatalogBody =>
+      'Older records: look for the code on the spine, on the record label (near the center hole) or in the top corner of the back cover, e.g. \"6349 123\". Take a photo and tap the right number.';
+
+  @override
+  String get guideLightTitle => 'Light and focus';
+
+  @override
+  String get guideLightBody =>
+      'Use good light and avoid glare on glossy covers. Turn on the flashlight if it is dark. Hold still until the text is sharp.';
+
+  @override
+  String get guidePressingTitle => 'Pick your pressing';
+
+  @override
+  String get guidePressingBody =>
+      'The same album has many pressings. Check year, country, label and catalog number, then add it to your collection and start listening.';
+
+  @override
+  String get guideNext => 'Next';
+
+  @override
+  String get guideDone => 'Got it';
+
+  @override
+  String get helpCamera => 'Identify a record with the camera';
+
+  @override
+  String get helpCamera1 =>
+      'Tap the camera icon at the top of the screen. Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album.';
+
+  @override
+  String get helpCamera2 =>
+      'Pick your exact pressing, add it to your collection if you like, and tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.';
 }

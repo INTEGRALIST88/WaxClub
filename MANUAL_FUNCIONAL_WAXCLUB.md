@@ -236,6 +236,13 @@ lib/
 * **Regra:** `test/l10n_no_hardcoded_strings_test.dart` reprova texto para o usuário escrito em `lib/ui`; literais técnicos (fontes, chaves) levam `// l10n-ignore`.
 * **Microfone ocupado:** [`mic_busy_service.dart`](lib/services/mic_busy_service.dart) + `MicStatusChannel.kt` (canal `com.waxclub.app/mic`, `AudioManager.getActiveRecordingConfigurations()`). No primeiro marco da captura (ainda gravando) o motor guarda `silenced` (Android 10+, `isClientSilenced`) e o número de capturas ativas. `MicStatus.blocksCapture`: silenciado, ou outro app gravando com pico abaixo de −80 dBFS. Se a escuta inicial falhar nessas condições, o status vira `statusMicBusy` (log `mic_blocked`).
 
+### 3.10.3 Reconhecimento do Disco pela Câmera (v1.3.11)
+* **Tela:** [`record_scan_screen.dart`](lib/ui/screens/record_scan_screen.dart), aberta pelo ícone de câmera da barra superior. Modos `barcode` (`MobileScanner` com `scanWindow` e lanterna), `catalog` (`ImagePicker` + `TextRecognizer` latino) e `typed`. Guia: [`record_scan_guide.dart`](lib/ui/widgets/record_scan_guide.dart), mostrado uma vez (`UserProfileStore.scanGuideSeen`).
+* **Leitura:** [`record_scan_parser.dart`](lib/services/record_scan_parser.dart): `isValidBarcode` (dígito verificador) e `catalogNumberCandidates` (ignora ano, duração, RPM e o próprio código de barras).
+* **Busca:** `AlbumCatalogService.byBarcode` / `byCatalogNumber` → Discogs (`searchByBarcode`, `searchByCatalogNumber` com `format=Vinyl`) e MusicBrainz (`barcode:` / `catno:`), só vinil LP/EP, ordenado do mais antigo ao mais novo, sem agrupar edições. `ReleaseCandidate` ganhou `label`, `catalogNumber`, `barcode`.
+* **Fluxo:** [`record_found_flow.dart`](lib/ui/screens/record_found_flow.dart): "Add to collection?" → `CollectionEntryScreen` (nota, graus do Discogs em [`discogs_grades.dart`](lib/services/discogs/discogs_grades.dart), observações, opção de adicionar no Discogs por [`discogs_collection_service.dart`](lib/services/discogs/discogs_collection_service.dart)) → `WaxClubEngine.prepareScannedRecord` (lista de faixas no cache + disco padrão de todas as faixas; aplica na hora se uma faixa dele já toca) → "Let's listen?" (sim = `startListening`).
+* **Compilação:** `flutter build apk --release --target-platform android-arm,android-arm64`; `android/app/proguard-rules.pro` com `-dontwarn` dos reconhecedores não latinos do ML Kit.
+
 ### 3.11 Módulo 11: Trilhas Sonoras de Novelas (v1.3.1)
 * **Arquivos:** [`lib/services/soundtrack_catalog.dart`](lib/services/soundtrack_catalog.dart) e `assets/catalog/trilhas_novelas.json`.
 * **Origem dos dados:** levantamento do site Teledramaturgia / Observatório da TV (índices de trilhas da Globo por período, Malhação, séries/minisséries, Record, SBT, Band, Manchete, Excelsior e Tupi): disco, emissora, ano e faixas com artista. Capas apenas dos LPs (até 1993), baixadas uma vez, recomprimidas (até 400 px, JPEG 82) e hospedadas no GitHub Pages do WaxClub (covers/ (raiz do repositório), publicada como covers/ no repositório INTEGRALIST88/WaxClub); trilhas em CD ficam sem capa própria (vale a do Shazam). Scripts: 	ool/trilhas/crawl.js, durations.js, covers.js, esize_covers.ps1, elink_covers.js. Durações por faixa obtidas na Deezer (reserva iTunes). O script de geração fica fora do app (ferramenta de build).
@@ -251,6 +258,7 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Reconhecimento do disco pela câmera (guia, código de barras, nº de catálogo, prensagem, coleção, "Let's listen?")** | `RecordScanScreen` + `record_found_flow.dart` + `prepareScannedRecord` | ✅ Conforme (v1.3.11) |
 | **Textos da interface em arquivos de tradução (.arb)** | `lib/l10n/app_en.arb` + gen-l10n; teste reprova texto fixo em `lib/ui` | ✅ Conforme (v1.3.10) |
 | **Aviso de microfone ocupado por outro app** | `MicBusyService` + `MicStatusChannel.kt`; mensagem `statusMicBusy` | ✅ Conforme (v1.3.10) |
 | **"Change record" mostra só vinil LP ou EP** | Filtro `isVinylLpOrEp` no Discogs (`format=Vinyl`) e no MusicBrainz | ✅ Conforme (v1.3.9) |
@@ -350,7 +358,7 @@ Para qualquer modelo de inteligência artificial ou desenvolvedor que for contin
 1. Manter a arquitetura de sincronismo baseada em `WaxClubEngine` (não alterar as fórmulas de `deltaMusica / deltaReal`).
 2. O aplicativo é **estritamente para smartphone** — não reintroduzir `LEANBACK_LAUNCHER` no AndroidManifest.
 3. Não adicionar dependências binárias que aumentem o tamanho do APK sem necessidade.
-4. Manter o registro no [`RELEASE_LOG.md`](RELEASE_LOG.md) e incrementar a versão a cada compilação gerada.
+4. Manter o registro no [`RELEASE_LOG.md`](RELEASE_LOG.md) e incrementar a versão a cada compilação gerada. Compilar com `flutter build apk --release --target-platform android-arm,android-arm64` (o APK com x86_64 fica ~20 MB maior por causa do ML Kit).
 5. **Diretório Obrigatório de Entregáveis:** Todos os arquivos de entrega gerados (pacote ZIP de auditoria, cópia do APK compilado, manual funcional e log de versões) devem ser **obrigatoriamente armazenados na pasta `G:\Meu Drive\WaxClub\`**.
 6. **Identificação com Versão nos Nomes:** Todos os arquivos armazenados nessa pasta devem conter a versão explícita no nome para rastreabilidade (ex: `WaxClub_Source_Audit_vX.X.XXX.zip`, `WaxClub_vX.X.XXX.apk`, `MANUAL_FUNCIONAL_WAXCLUB_vX.X.XXX.md`, `RELEASE_LOG_vX.X.XXX.md`).
 
@@ -360,7 +368,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 
 ### 6.1 Cronograma definido pelo usuário
 
-**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera → 1.3.12 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.13 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
+**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera (feito) → 1.3.12 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.13 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
 1. **Conta + coleção:** login por link mágico (e-mail) e Google, conta opcional, API PHP + MySQL na Hostinger. Na conta: coleção, discos padrão de "Change record" e histórico de audições (tabela de audições; disco conta 1 vez por sessão de 2 h, qualquer faixa ouvida). Perfil social: apelido, e-mail, país e cidade obrigatórios; campos opcionais com visibilidade por campo; 18+. Social v1: perfil público com coleção, seguir, mural "ouvindo agora", busca por cidade/país.
 2. **Sincronização com o Discogs nos dois sentidos**, feita pelo celular com o token do usuário. Campos da coleção seguem o Discogs (release_id obrigatório; nota 1–5, estado do disco/capa e observações opcionais).
 3. ~~Textos da interface em arquivos `.arb`~~ — **feito na v1.3.10**.

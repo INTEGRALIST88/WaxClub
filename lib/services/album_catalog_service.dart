@@ -65,6 +65,30 @@ class AlbumCatalogService {
     );
   }
 
+  /// Prensagens de vinil com este código de barras (câmera), sem agrupar edições.
+  Future<AlbumCatalogResult> byBarcode(String barcode) {
+    return _withFallback(
+      discogs: () => _discogs.searchByBarcode(barcode),
+      musicBrainz: () async => vinylLpOrEpOnly(await _musicBrainz.searchByBarcode(barcode)),
+      sort: _byYear,
+    );
+  }
+
+  /// Prensagens de vinil com este número de catálogo, sem agrupar edições.
+  Future<AlbumCatalogResult> byCatalogNumber(String catno) {
+    return _withFallback(
+      discogs: () => _discogs.searchByCatalogNumber(catno),
+      musicBrainz: () async => vinylLpOrEpOnly(await _musicBrainz.searchByCatalogNumber(catno)),
+      sort: _byYear,
+    );
+  }
+
+  /// Da edição mais antiga (original) para a mais nova.
+  static List<ReleaseCandidate> _byYear(List<ReleaseCandidate> list) {
+    int year(ReleaseCandidate c) => int.tryParse(c.year ?? '') ?? 9999;
+    return List<ReleaseCandidate>.from(list)..sort((a, b) => year(a).compareTo(year(b)));
+  }
+
   Future<AlbumCatalogResult> _withFallback({
     required Future<List<ReleaseCandidate>> Function() discogs,
     required Future<List<ReleaseCandidate>> Function() musicBrainz,
