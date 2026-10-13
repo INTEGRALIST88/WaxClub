@@ -14,6 +14,8 @@ if ($pubspec -notmatch '(?m)^version:\s*([^+\s]+)') { throw "Versao nao encontra
 $version = $Matches[1] -replace '\.0$', ''  # 1.3.0 -> 1.3
 
 $driveDir = "G:\Meu Drive\WaxClub"
+# Versoes anteriores saem do Drive a cada deploy e ficam organizadas aqui
+$archiveDir = "H:\WaxClub_Arquivo"
 $apkSource = if ($ApkPath) { $ApkPath } else { "$projectDir\build\app\outputs\flutter-apk\app-release.apk" }
 $apkDest = "$driveDir\WaxClub_v$version.apk"
 $zipDest = "$driveDir\WaxClub_Source_Audit_v$version.zip"
@@ -26,6 +28,39 @@ Write-Host "=== 1. Verificando diretorio do Google Drive ==="
 if (-not (Test-Path -LiteralPath $driveDir)) {
     New-Item -ItemType Directory -Path $driveDir -Force | Out-Null
 }
+
+Write-Host "=== 1b. Arquivando versoes anteriores em $archiveDir ==="
+# Libera o Drive antes de copiar: tudo que tem versao no nome e nao e desta versao vai para o H:, por tipo
+function Get-ArchiveFolder([string]$name) {
+    switch -Regex ($name) {
+        '^VinyLyric_v.*\.apk$'             { return 'APKs\VinyLyric' }
+        '^WaxClub_v.*\.apk$'               { return 'APKs\WaxClub' }
+        '^VinyLyric_Source_Audit_.*\.zip$' { return 'Codigo\VinyLyric' }
+        '^WaxClub_Source_Audit_.*\.zip$'   { return 'Codigo\WaxClub' }
+        '^MANUAL_FUNCIONAL_VINYLYRIC.*\.md$' { return 'Documentacao\Manual' }
+        '^MANUAL_FUNCIONAL_WAXCLUB_v.*\.md$' { return 'Documentacao\Manual' }
+        '^RELEASE_LOG_v.*\.md$'            { return 'Documentacao\Release_Log' }
+        '^TV_RECEIVER_index_.*\.html$'     { return 'TV\Receptor' }
+        '^TV_RECEIVER_covers_.*\.zip$'     { return 'TV\Capas' }
+        default                            { return $null }
+    }
+}
+$archived = 0; $archivedBytes = 0
+foreach ($f in Get-ChildItem -LiteralPath $driveDir -File) {
+    $sub = Get-ArchiveFolder $f.Name
+    if (-not $sub) { continue }
+    if ($f.Name -match ('_v' + [regex]::Escape($version) + '\.[a-z]+$')) { continue }  # versao atual fica
+    $target = Join-Path $archiveDir $sub
+    New-Item -ItemType Directory -Force -Path $target | Out-Null
+    try {
+        $len = $f.Length
+        Move-Item -LiteralPath $f.FullName -Destination (Join-Path $target $f.Name) -Force -ErrorAction Stop
+        $archived++; $archivedBytes += $len
+    } catch {
+        Write-Host "[AVISO] Nao foi possivel arquivar $($f.Name): $($_.Exception.Message)"
+    }
+}
+Write-Host ("[OK] {0} arquivo(s) de versoes anteriores movidos para {1} ({2:N0} MB)." -f $archived, $archiveDir, ($archivedBytes / 1MB))
 
 Write-Host "=== 2. Copiando APK Release ==="
 if (-not (Test-Path -LiteralPath $apkSource)) {

@@ -359,7 +359,7 @@ Para qualquer modelo de inteligência artificial ou desenvolvedor que for contin
 2. O aplicativo é **estritamente para smartphone** — não reintroduzir `LEANBACK_LAUNCHER` no AndroidManifest.
 3. Não adicionar dependências binárias que aumentem o tamanho do APK sem necessidade.
 4. Manter o registro no [`RELEASE_LOG.md`](RELEASE_LOG.md) e incrementar a versão a cada compilação gerada. Compilar com `flutter build apk --release --target-platform android-arm,android-arm64` (o APK com x86_64 fica ~20 MB maior por causa do ML Kit).
-5. **Diretório Obrigatório de Entregáveis:** Todos os arquivos de entrega gerados (pacote ZIP de auditoria, cópia do APK compilado, manual funcional e log de versões) devem ser **obrigatoriamente armazenados na pasta `G:\Meu Drive\WaxClub\`**.
+5. **Diretório Obrigatório de Entregáveis:** Todos os arquivos de entrega gerados (pacote ZIP de auditoria, cópia do APK compilado, manual funcional e log de versões) devem ser **obrigatoriamente armazenados na pasta `G:\Meu Drive\WaxClub\`**. No Drive fica **só a versão atual**: a cada deploy, o `deploy.ps1` move os arquivos das versões anteriores para `H:\WaxClub_Arquivo\` (`APKs\`, `Codigo\`, `Documentacao\Manual`, `Documentacao\Release_Log`, `TV\Receptor`, `TV\Capas`). O Google Drive usa o disco C: como cache; com o C: cheio, as cópias para o G: falham.
 6. **Identificação com Versão nos Nomes:** Todos os arquivos armazenados nessa pasta devem conter a versão explícita no nome para rastreabilidade (ex: `WaxClub_Source_Audit_vX.X.XXX.zip`, `WaxClub_vX.X.XXX.apk`, `MANUAL_FUNCIONAL_WAXCLUB_vX.X.XXX.md`, `RELEASE_LOG_vX.X.XXX.md`).
 
 ## 6. Melhorias Propostas (ainda não implementadas)
