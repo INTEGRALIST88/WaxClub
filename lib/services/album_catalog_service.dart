@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import '../models/track_entry.dart';
 import 'discogs/discogs_auth_service.dart';
@@ -74,10 +75,10 @@ class AlbumCatalogService {
       try {
         final found = vinylLpOrEpOnly(await discogs());
         if (found.isNotEmpty) return AlbumCatalogResult(albums: sort(found), source: 'discogs');
-        notice = 'Discogs found no vinyl records; showing MusicBrainz results.';
+        notice = l10n.noticeDiscogsNoVinyl;
       } catch (e) {
         debugPrint('[AlbumCatalog] Discogs falhou: $e');
-        notice = 'Discogs is unavailable right now; showing MusicBrainz results.';
+        notice = l10n.noticeDiscogsUnavailable;
       }
     }
     final found = await musicBrainz();

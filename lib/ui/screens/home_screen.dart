@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import '../../app_info.dart';
 import '../../engine/waxclub_engine.dart';
@@ -235,12 +236,12 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Casting to TV',
+                            Text(
+                              l10n.castingToTv,
                               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
                             ),
                             Text(
-                              'Screen: ${_engine.castService.clientDeviceName ?? "Living room TV"}',
+                              l10n.castScreenName(_engine.castService.clientDeviceName ?? l10n.defaultTvName),
                               style: const TextStyle(fontSize: 12, color: AppTheme.cream),
                             ),
                           ],
@@ -253,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen>
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.link_off, color: Colors.white),
-                      label: const Text('Disconnect from TV'),
+                      label: Text(l10n.disconnectFromTv),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
                         foregroundColor: Colors.white,
@@ -295,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen>
     final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? '');
     if (album.isEmpty) return;
     final artist = _engine.lockedAlbumArtist ?? track.artist;
-    final key = '$album|$artist|${track.title}';
+    final key = '$album|$artist|${track.title}' /* l10n-ignore */;
     if (key == _lastPlayKey) return;
     _lastPlayKey = key;
     _collection.recordTrackPlay(album: album, artist: artist, track: track.title, trackArtist: track.artist);
@@ -307,21 +308,21 @@ class _HomeScreenState extends State<HomeScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        title: const Text('What should we call you?', style: TextStyle(color: AppTheme.cream)),
+        title: Text(l10n.whatShouldWeCallYou, style: const TextStyle(color: AppTheme.cream)),
         content: TextField(
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(hintText: 'Your name', hintStyle: TextStyle(color: Colors.white38)),
+          decoration: InputDecoration(hintText: l10n.yourName, hintStyle: const TextStyle(color: Colors.white38)),
           onSubmitted: (v) => Navigator.pop(ctx, v),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text),
             style: FilledButton.styleFrom(backgroundColor: AppTheme.orange, foregroundColor: Colors.white),
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -353,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen>
       await _collection.remove(album, artist);
       messenger.showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
-        content: Text('"$album" removed from your collection.', style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.removedFromCollection(album), style: const TextStyle(color: Colors.white)),
       ));
     } else {
       await _collection.add(CollectionItem(
@@ -364,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen>
       ));
       messenger.showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
-        content: Text('"$album" added to your collection.', style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.addedToCollection(album), style: const TextStyle(color: Colors.white)),
       ));
     }
   }
@@ -375,9 +376,9 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     if (logs.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppTheme.surface,
-          content: Text('No events logged in this session.', style: TextStyle(color: Colors.white70)),
+          content: Text(l10n.noEventsLogged, style: const TextStyle(color: Colors.white70)),
         ),
       );
       return;
@@ -386,10 +387,10 @@ class _HomeScreenState extends State<HomeScreen>
     await Clipboard.setData(ClipboardData(text: logs));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppTheme.surface,
           content: Text(
-            'Session logs copied to the clipboard!',
+            l10n.logsCopied,
             style: TextStyle(color: AppTheme.cream),
           ),
         ),
@@ -409,9 +410,9 @@ class _HomeScreenState extends State<HomeScreen>
     final current = _engine.currentTrack;
     if (current == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppTheme.surface,
-          content: Text('No record identified yet.', style: TextStyle(color: Colors.white70)),
+          content: Text(l10n.noRecordYet, style: const TextStyle(color: Colors.white70)),
         ),
       );
       return;
@@ -522,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen>
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
-                                  '${tracklist.length} tracks on this record',
+                                  l10n.tracksOnRecord(tracklist.length),
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: AppTheme.textInactive,
@@ -553,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen>
                             final inCollection = _collection.contains(albumKey, _engine.lockedAlbumArtist ?? current.artist);
                             return FilledButton.icon(
                               icon: Icon(inCollection ? Icons.check_circle : Icons.library_add, size: 18),
-                              label: Text(inCollection ? 'In collection' : 'Add to collection'),
+                              label: Text(inCollection ? l10n.inCollection : l10n.addToCollection),
                               style: FilledButton.styleFrom(
                                 backgroundColor: inCollection ? AppTheme.surfaceLight : AppTheme.orange,
                                 foregroundColor: inCollection ? AppTheme.cream : Colors.white,
@@ -571,7 +572,7 @@ class _HomeScreenState extends State<HomeScreen>
                       Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.swap_horiz, size: 18),
-                      label: const Text('Change record'),
+                      label: Text(l10n.changeRecord),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.cream,
                         side: const BorderSide(color: AppTheme.carveLight),
@@ -591,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen>
                 // Lista de faixas ou aviso de indisponibilidade
                 Expanded(
                   child: tracklist.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Padding(
                             padding: EdgeInsets.all(24.0),
                             child: Column(
@@ -600,13 +601,13 @@ class _HomeScreenState extends State<HomeScreen>
                                 Icon(Icons.queue_music, size: 48, color: AppTheme.textInactive),
                                 SizedBox(height: 12),
                                 Text(
-                                  'No tracklist for this album yet.',
+                                  l10n.noTracklistYet,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: AppTheme.textInactive, fontSize: 14),
                                 ),
                                 SizedBox(height: 6),
                                 Text(
-                                  'The tracklist is fetched automatically from the official catalog (MusicBrainz) while the song plays.',
+                                  l10n.tracklistFetchedHint,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: Colors.white38, fontSize: 12),
                                 ),
@@ -685,8 +686,8 @@ class _HomeScreenState extends State<HomeScreen>
                                         borderRadius: BorderRadius.circular(4),
                                         border: Border.all(color: AppTheme.cream.withValues(alpha: 0.4)),
                                       ),
-                                      child: const Text(
-                                        'PLAYING',
+                                      child: Text(
+                                        l10n.playing,
                                         style: TextStyle(
                                           color: AppTheme.cream,
                                           fontSize: 9.5,
@@ -703,8 +704,8 @@ class _HomeScreenState extends State<HomeScreen>
                                         borderRadius: BorderRadius.circular(4),
                                         border: Border.all(color: AppTheme.orange.withValues(alpha: 0.4)),
                                       ),
-                                      child: const Text(
-                                        'UP NEXT',
+                                      child: Text(
+                                        l10n.upNextCaps,
                                         style: TextStyle(
                                           color: AppTheme.orange,
                                           fontSize: 9.5,
@@ -719,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ? Text(
                                       [
                                         if (entry.artist != null) entry.artist!,
-                                        if (entry.side != null && entry.side!.isNotEmpty) 'Side ${entry.side}',
+                                        if (entry.side != null && entry.side!.isNotEmpty) l10n.sideLabel(entry.side!),
                                       ].join(' • '),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -772,7 +773,7 @@ class _HomeScreenState extends State<HomeScreen>
             leadingWidth: 48,
             leading: IconButton(
               icon: const Icon(Icons.help_outline, color: AppTheme.cream),
-              tooltip: 'Help',
+              tooltip: l10n.help,
               onPressed: _openHelp,
             ),
             title: Row(
@@ -801,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           )
                         : ClipRRect(
-                            key: const ValueKey('default_logo'),
+                            key: const ValueKey('default_logo'), // l10n-ignore
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
                               'assets/icon/app_icon.png',
@@ -849,7 +850,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       ? _engine.lockedAlbumName!
                                       : ((_engine.currentTrack?.album != null && _engine.currentTrack!.album!.isNotEmpty)
                                           ? _engine.currentTrack!.album!
-                                          : (_engine.currentTrack?.artist ?? 'Unknown Album')),
+                                          : (_engine.currentTrack?.artist ?? l10n.unknownAlbum)),
                                   style: const TextStyle(
                                     fontSize: 12.5,
                                     color: AppTheme.cream,
@@ -876,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen>
                             )
                           else if (_engine.telemetry.predictedNextTrackTitle != null)
                             Text(
-                              'Up next: ${_engine.telemetry.predictedNextTrackTitle!}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
+                              '${l10n.upNextTitle(_engine.telemetry.predictedNextTrackTitle!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
                               style: const TextStyle(
                                 fontSize: 11.5,
                                 color: AppTheme.orange,
@@ -949,7 +950,7 @@ class _HomeScreenState extends State<HomeScreen>
             actions: [
               IconButton(
                 icon: const Icon(Icons.library_music_outlined, color: AppTheme.cream),
-                tooltip: 'My Collection',
+                tooltip: l10n.myCollection,
                 onPressed: _openCollection,
               ),
               _buildCastButton(),

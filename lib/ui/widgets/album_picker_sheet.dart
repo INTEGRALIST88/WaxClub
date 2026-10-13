@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../engine/waxclub_engine.dart';
 import '../../services/album_catalog_service.dart';
 import '../../services/tracklist_matcher.dart';
@@ -29,13 +30,7 @@ Future<void> showAlbumPickerSheet(
 }
 
 /// Texto que explica a vantagem de conectar a conta Discogs (exibido ao marcar "Consultar Discogs").
-const String kDiscogsBenefitsText =
-    'Discogs is the world\'s largest vinyl database, maintained by collectors: every pressing, '
-    'local and imported edition, compilation, A/B side, cover and tracklist.\n\n'
-    'With your account connected, WaxClub searches it to find the exact record that is '
-    'on your turntable — with the right track order, sides and cover.\n\n'
-    'Your sign-in is stored securely on this phone only, for next time. The app only '
-    'reads the catalog (it never changes your collection) and you can disconnect at any time.';
+String get kDiscogsBenefitsText => l10n.discogsExplanation;
 
 class AlbumPickerSheet extends StatefulWidget {
   final WaxClubEngine engine;
@@ -92,7 +87,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       if (!mounted || gen != _searchGen) return;
       setState(() {
         _loading = false;
-        _error = 'Could not search for records right now. Check your internet connection.';
+        _error = l10n.searchFailed;
       });
     }
   }
@@ -114,22 +109,22 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.album, color: AppTheme.cream),
             SizedBox(width: 10),
-            Expanded(child: Text('Connect your Discogs account', style: TextStyle(color: Colors.white, fontSize: 18))),
+            Expanded(child: Text(l10n.connectDiscogs, style: const TextStyle(color: Colors.white, fontSize: 18))),
           ],
         ),
-        content: const SingleChildScrollView(
+        content: SingleChildScrollView(
           child: Text(kDiscogsBenefitsText, style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: AppTheme.cream, foregroundColor: Colors.black),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -142,7 +137,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
     if (connected == true) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
-        content: Text('Discogs connected as ${auth.username ?? "you"}.', style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.discogsConnectedAs(auth.username ?? l10n.you), style: const TextStyle(color: Colors.white)),
       ));
       await _reload();
     } else {
@@ -162,7 +157,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       final tracks = await widget.catalog.loadTracklist(album);
       if (!mounted) return;
       if (tracks.isEmpty) {
-        _snack('Could not load this record\'s tracks. Try another record or source.');
+        _snack(l10n.loadTracksFailed);
         return;
       }
       if (TracklistMatcher.findIndex(tracks, _title) == -1) {
@@ -170,14 +165,14 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: AppTheme.surface,
-            title: const Text('Song not found on this record', style: TextStyle(color: Colors.white)),
+            title: Text(l10n.songNotOnRecord, style: const TextStyle(color: Colors.white)),
             content: Text(
-              '"$_title" is not in the tracklist of "${album.albumTitle}". Use this record anyway?',
+              l10n.songNotOnRecordBody(_title, album.albumTitle),
               style: const TextStyle(color: Colors.white70),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Back')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Use')),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.back)),
+              TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.use)),
             ],
           ),
         );
@@ -197,12 +192,12 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
       messenger.showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
         content: Text(
-          'Record changed to "${album.albumTitle}". It is now the default for these songs.',
+          l10n.recordChanged(album.albumTitle),
           style: const TextStyle(color: Colors.white),
         ),
       ));
     } catch (e) {
-      _snack('Could not use this record: ${e.toString().replaceFirst('Exception: ', '')}');
+      _snack(l10n.useRecordFailed(e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */));
     } finally {
       if (mounted) setState(() => _applyingId = null);
     }
@@ -239,9 +234,9 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Change record',
+                    Text(l10n.changeRecord,
                         style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
-                    Text('Records with "$_title" — $_artist',
+                    Text(l10n.recordsWithSong(_title, _artist),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.white60, fontSize: 12.5)),
@@ -260,15 +255,15 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           activeColor: AppTheme.cream,
           checkColor: Colors.black,
           controlAffinity: ListTileControlAffinity.leading,
-          title: const Text('Search Discogs', style: TextStyle(color: Colors.white, fontSize: 14.5)),
+          title: Text(l10n.searchDiscogs, style: const TextStyle(color: Colors.white, fontSize: 14.5)),
           subtitle: Text(
             auth.isLoggedIn
-                ? 'Connected as ${auth.username ?? "your account"}'
-                : 'The most complete vinyl and compilation database (requires your account)',
+                ? l10n.connectedAs(auth.username ?? l10n.yourAccount)
+                : l10n.discogsSearchSubtitle,
             style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
           secondary: auth.isLoggedIn
-              ? TextButton(onPressed: _logoutDiscogs, child: const Text('Sign out', style: TextStyle(color: Colors.white54)))
+              ? TextButton(onPressed: _logoutDiscogs, child: Text(l10n.signOut, style: const TextStyle(color: Colors.white54)))
               : null,
         ),
         // Busca manual
@@ -281,7 +276,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Search for another record (artist, title...)',
+              hintText: l10n.searchAnotherRecord,
               hintStyle: const TextStyle(color: Colors.white38),
               prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
               suffixIcon: _query.text.isEmpty
@@ -311,7 +306,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
               : _error != null
                   ? _message(Icons.wifi_off, _error!)
                   : albums.isEmpty
-                      ? _message(Icons.album_outlined, 'No records found. Try searching by the record name.')
+                      ? _message(Icons.album_outlined, l10n.noRecordsFound)
                       : ListView.separated(
                           controller: widget.scrollController,
                           itemCount: albums.length,
@@ -326,7 +321,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
   Widget _sourceLine() {
     final r = _result;
     if (r == null || _loading) return const SizedBox(height: 4);
-    final name = r.source == 'discogs' ? 'Discogs' : 'MusicBrainz';
+    final name = r.source == 'discogs' ? 'Discogs' : 'MusicBrainz'; // l10n-ignore
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
       child: Row(
@@ -335,7 +330,7 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              r.notice ?? '${r.albums.length} records • $name',
+              r.notice ?? l10n.recordsFromSource(r.albums.length, name),
               style: TextStyle(color: r.notice != null ? Colors.amber.shade200 : Colors.white38, fontSize: 11.5),
             ),
           ),
@@ -401,12 +396,12 @@ class _AlbumPickerSheetState extends State<AlbumPickerSheet> {
               spacing: 5,
               runSpacing: 4,
               children: [
-                if (isCurrent) _chip('Current', AppTheme.cream),
-                if (a.isVinyl) _chip('Vinyl', Colors.amber),
+                if (isCurrent) _chip(l10n.chipCurrent, AppTheme.cream),
+                if (a.isVinyl) _chip(l10n.chipVinyl, Colors.amber),
                 if (!a.isVinyl && a.format != null) _chip(a.format!.split(',').first, Colors.white54),
-                if (a.isCompilation) _chip('Compilation', AppTheme.rust),
-                if (a.isLive) _chip('Live', AppTheme.orange),
-                if (a.editions > 1) _chip('${a.editions} editions', Colors.white38),
+                if (a.isCompilation) _chip(l10n.chipCompilation, AppTheme.rust),
+                if (a.isLive) _chip(l10n.chipLive, AppTheme.orange),
+                if (a.editions > 1) _chip(l10n.editionsCount(a.editions), Colors.white38),
               ],
             ),
           ],

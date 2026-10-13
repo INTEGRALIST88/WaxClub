@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -82,17 +83,17 @@ class SessionLogService {
   Future<String> tail({int lines = 200}) async {
     try {
       final file = await _getFile();
-      if (!await file.exists()) return 'No log entries yet.';
+      if (!await file.exists()) return l10n.noLogEntries;
 
       final allLines = await file.readAsLines();
-      if (allLines.isEmpty) return 'Log file is empty.';
+      if (allLines.isEmpty) return l10n.logFileEmpty;
 
       final takeCount = allLines.length > lines ? lines : allLines.length;
       final tailLines = allLines.sublist(allLines.length - takeCount);
       return tailLines.join('\n');
     } catch (e) {
       debugPrint('[SessionLogService] Erro ao ler tail do log: $e');
-      return 'Could not read logs: $e';
+      return l10n.couldNotReadLogs('$e');
     }
   }
 

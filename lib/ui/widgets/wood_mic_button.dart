@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../theme/app_theme.dart';
 
 /// Botão de ouvir: só o microfone cromado (da arte do usuário), no centro da barra inferior.
@@ -43,7 +44,7 @@ class _WoodMicButtonState extends State<WoodMicButton> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
-    final label = widget.isListening ? 'Stop listening (microphone off)' : 'Listen to the room';
+    final label = widget.isListening ? l10n.micStopListening : l10n.micListenToRoom;
     return Semantics(
       button: true,
       label: label,

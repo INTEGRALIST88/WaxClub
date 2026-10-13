@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/sync_state.dart';
 import '../../models/track_info.dart';
 import '../theme/app_theme.dart';
@@ -111,7 +112,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
                               color: AppTheme.cream,
                               size: 24,
                             ),
-                            tooltip: telemetry.isPaused ? 'Resume' : 'Pause',
+                            tooltip: telemetry.isPaused ? l10n.resume : l10n.pause,
                             onPressed: widget.onPlayPause,
                             style: IconButton.styleFrom(
                               backgroundColor: AppTheme.surfaceLight,
@@ -124,7 +125,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
                           const SizedBox(width: 4),
                           IconButton(
                             icon: const Icon(Icons.stop_rounded, color: Colors.redAccent, size: 22),
-                            tooltip: 'Stop listening',
+                            tooltip: l10n.stopListening,
                             onPressed: widget.onStop,
                             style: IconButton.styleFrom(
                               backgroundColor: Colors.redAccent.withValues(alpha: 0.12),
@@ -208,8 +209,8 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Adjust timing:',
+                      Text(
+                        l10n.adjustTiming,
                         style: TextStyle(fontSize: 11, color: AppTheme.textInactive),
                       ),
                       const SizedBox(width: 8),
@@ -283,7 +284,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
   /// Microfone inteiro (ouvindo) ou cortado (desligado).
   Widget _buildMicIcon(bool isMicActive) {
     return Tooltip(
-      message: isMicActive ? 'Microphone listening' : 'Microphone off',
+      message: isMicActive ? l10n.microphoneListening : l10n.microphoneOff,
       child: Container(
         width: 38,
         height: 38,
@@ -313,7 +314,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
   Widget _buildStatusInfo(VinylTelemetry telemetry) {
     if (telemetry.countdownSeconds > 0) {
       return Text(
-        'Calibrating in ${telemetry.countdownSeconds}s',
+        l10n.calibratingIn(telemetry.countdownSeconds),
         style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.cream),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -323,17 +324,17 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
     Color color = AppTheme.cream;
     switch (telemetry.status) {
       case CalibrationStatus.paused:
-        label = 'PAUSED';
+        label = l10n.statusPaused;
         color = Colors.amber;
       case CalibrationStatus.waitingEndOfSide:
         label = telemetry.sideEndLabel != null
-            ? '${telemetry.sideEndLabel!.toUpperCase()} — FLIP THE RECORD'
-            : 'END OF SIDE — FLIP THE RECORD';
+            ? l10n.sideEndFlip(telemetry.sideEndLabel!.toUpperCase())
+            : l10n.endOfSideFlip;
       case CalibrationStatus.listeningNextTrack:
-        label = 'NEXT TRACK';
+        label = l10n.statusNextTrack;
         color = AppTheme.orange;
       case CalibrationStatus.confirmingPrediction:
-        label = 'confirming...';
+        label = l10n.statusConfirming;
         color = Colors.white38;
       default:
         label = null;
@@ -398,7 +399,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
             ],
           ),
           Text(
-            '${widget.telemetry.estimatedRpm33.toStringAsFixed(1)} RPM',
+            l10n.rpmValue(widget.telemetry.estimatedRpm33.toStringAsFixed(1)),
             style: const TextStyle(
               fontSize: 10,
               color: AppTheme.textInactive,

@@ -35,7 +35,7 @@ class AppTheme {
         secondary: cream,
         surface: surface,
       ),
-      fontFamily: 'Roboto',
+      fontFamily: 'Roboto', // l10n-ignore
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,

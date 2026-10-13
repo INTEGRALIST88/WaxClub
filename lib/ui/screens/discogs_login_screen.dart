@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../services/discogs/discogs_auth_service.dart';
 import '../../services/discogs/discogs_config.dart';
@@ -75,7 +76,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString().replaceFirst('Exception: ', '');
+          _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
           _loadingPage = false;
         });
       }
@@ -92,7 +93,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = e.toString().replaceFirst('Exception: ', '');
+          _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
         });
       }
     }
@@ -111,7 +112,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = e.toString().replaceFirst('Exception: ', '');
+          _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
         });
       }
     }
@@ -124,10 +125,10 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: Colors.white,
-        title: const Text('Sign in to Discogs', style: TextStyle(fontSize: 17)),
+        title: Text(l10n.signInToDiscogs, style: const TextStyle(fontSize: 17)),
         actions: [
           if (_web != null)
-            IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: 'Reload'),
+            IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: l10n.reload),
         ],
       ),
       body: Column(
@@ -141,7 +142,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
               child: Row(
                 children: [
                   Expanded(child: Text(_error!, style: const TextStyle(color: Colors.white, fontSize: 13))),
-                  TextButton(onPressed: _start, child: const Text('Try again')),
+                  TextButton(onPressed: _start, child: Text(l10n.tryAgain)),
                 ],
               ),
             ),
@@ -167,8 +168,8 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sign in to your account above, tap "Generate new token" and paste the token here:',
+            Text(
+              l10n.discogsTokenHint,
               style: TextStyle(color: Colors.white70, fontSize: 12.5),
             ),
             const SizedBox(height: 8),
@@ -180,7 +181,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
                       isDense: true,
-                      hintText: 'Discogs personal token',
+                      hintText: l10n.discogsTokenField,
                       hintStyle: const TextStyle(color: Colors.white38),
                       filled: true,
                       fillColor: AppTheme.surfaceLight,
@@ -196,7 +197,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                 FilledButton(
                   onPressed: _busy ? null : _savePersonalToken,
                   style: FilledButton.styleFrom(backgroundColor: AppTheme.cream, foregroundColor: Colors.black),
-                  child: const Text('Save'),
+                  child: Text(l10n.save),
                 ),
               ],
             ),

@@ -1,3 +1,4 @@
+import '../../l10n/l10n.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -23,10 +24,10 @@ class DiscogsTracklistProvider implements TracklistProvider {
         .timeout(const Duration(seconds: 12));
     if (res.statusCode == 429) {
       debugPrint('[Discogs] Limite de consultas atingido (429).');
-      throw Exception('Discogs: too many requests, try again in a few seconds.');
+      throw Exception(l10n.discogsTooManyRequests);
     }
     if (res.statusCode != 200) {
-      throw Exception('Discogs unavailable (HTTP ${res.statusCode}).');
+      throw Exception(l10n.discogsUnavailableHttp(res.statusCode));
     }
     return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
   }

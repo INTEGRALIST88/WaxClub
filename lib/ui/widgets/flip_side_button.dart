@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 
 /// Botão "Vire o disco" que pulsa enquanto o app aguarda a virada do lado do disco.
 ///
@@ -6,13 +7,13 @@ import 'package:flutter/material.dart';
 class FlipSideButton extends StatefulWidget {
   final VoidCallback onPressed;
   final bool wide;
-  final String label;
+  final String? label;
 
   const FlipSideButton({
     super.key,
     required this.onPressed,
     this.wide = false,
-    this.label = 'FLIP THE RECORD',
+    this.label,
   });
 
   @override
@@ -74,7 +75,7 @@ class _FlipSideButtonState extends State<FlipSideButton> with SingleTickerProvid
         onPressed: widget.onPressed,
         icon: const Icon(Icons.flip_camera_android_rounded, size: 26),
         label: Text(
-          widget.label,
+          widget.label ?? l10n.flipTheRecord,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 1.2),
         ),
       ),
@@ -88,7 +89,7 @@ class _FlipSideButtonState extends State<FlipSideButton> with SingleTickerProvid
       foregroundColor: Colors.black,
       icon: const Icon(Icons.flip_camera_android_rounded),
       label: Text(
-        widget.label,
+        widget.label ?? l10n.flipTheRecord,
         style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.0),
       ),
     );

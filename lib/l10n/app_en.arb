@@ -1,0 +1,823 @@
+{
+  "@@locale": "en",
+  "flipTheRecord": "FLIP THE RECORD",
+  "micStopListening": "Stop listening (microphone off)",
+  "micListenToRoom": "Listen to the room",
+  "lyricsEmptyHint": "Tap the microphone to listen to your vinyl and sync the lyrics, with turntable speed compensation.",
+  "resume": "Resume",
+  "pause": "Pause",
+  "stopListening": "Stop listening",
+  "adjustTiming": "Adjust timing:",
+  "microphoneListening": "Microphone listening",
+  "microphoneOff": "Microphone off",
+  "calibratingIn": "Calibrating in {seconds}s",
+  "@calibratingIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "statusPaused": "PAUSED",
+  "sideEndFlip": "{side} — FLIP THE RECORD",
+  "@sideEndFlip": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "endOfSideFlip": "END OF SIDE — FLIP THE RECORD",
+  "statusNextTrack": "NEXT TRACK",
+  "statusConfirming": "confirming...",
+  "rpmValue": "{rpm} RPM",
+  "@rpmValue": {
+    "placeholders": {
+      "rpm": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingWelcome": "Welcome to {appName}!",
+  "@greetingWelcome": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingWelcomeSubtitle": "Drop the needle and tap the microphone to start.",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "greetingTimeOfDay": "{timeOfDay}, {name}!",
+  "@greetingTimeOfDay": {
+    "placeholders": {
+      "timeOfDay": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingLetsGo": "Let's go, {name}!",
+  "@greetingLetsGo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingLetsSpin": "Let's spin, {name}!",
+  "@greetingLetsSpin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingGreatDay": "{name}, today is a great day to listen to some music.",
+  "@greetingGreatDay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingWhichRecord": "Which record is on the platter today?",
+  "greetingDropNeedle": "Drop the needle and tap the microphone.",
+  "greetingPickSide": "Pick a side, and the lyrics follow along.",
+  "whatShouldWeCallYou": "What should we call you?",
+  "sortRecentlyPlayed": "Recently played",
+  "sortMostPlayed": "Most played",
+  "sortRecentlyAdded": "Recently added",
+  "sortAlphabetical": "A–Z",
+  "whenNever": "never",
+  "whenJustNow": "just now",
+  "whenMinutesAgo": "{minutes} min ago",
+  "@whenMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "whenToday": "today {time}",
+  "@whenToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "whenYesterday": "yesterday {time}",
+  "@whenYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "myCollection": "My Collection",
+  "recordCount": "{count, plural, =1{1 record} other{{count} records}}",
+  "@recordCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sort": "Sort",
+  "collectionEmpty": "Your collection is empty",
+  "collectionEmptyHint": "While a record is playing, tap its cover at the top of the screen and choose \"Add to collection\".",
+  "notPlayedYet": "Not played yet",
+  "playedTimesLast": "Played {count}× · last {when}",
+  "@playedTimesLast": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "plays": "Plays",
+  "firstPlayed": "First played",
+  "lastPlayed": "Last played",
+  "addedWhen": "Added {when}",
+  "@addedWhen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "tracklist": "Tracklist",
+  "listeningHistory": "Listening history",
+  "noPlaysYet": "No plays recorded yet.",
+  "removeFromCollection": "Remove from collection",
+  "signInToDiscogs": "Sign in to Discogs",
+  "reload": "Reload",
+  "tryAgain": "Try again",
+  "discogsTokenHint": "Sign in to your account above, tap \"Generate new token\" and paste the token here:",
+  "discogsTokenField": "Discogs personal token",
+  "save": "Save",
+  "helpGettingStarted": "Getting started",
+  "helpGettingStarted1": "Put a record on your turntable, drop the needle and tap the microphone button. WaxClub listens for a few seconds, identifies the song and shows the lyrics in sync with the music.",
+  "helpGettingStarted2": "Keep the phone close to the speakers and avoid talking near it while it listens.",
+  "helpListening": "Listening and syncing",
+  "helpListening1": "The first listen is quick (4 seconds); harder songs get up to 12 seconds automatically.",
+  "helpListening2": "While a song plays, WaxClub checks the sync now and then through the microphone and corrects the timing.",
+  "helpListening3": "At the end of each track it predicts the next one from the record's tracklist and confirms it by listening.",
+  "helpFlipping": "Flipping the record",
+  "helpFlipping1": "When a side ends, the button turns into \"Flip the record\". Tap it before or after you flip: the lyrics of the first track of the new side appear right away and start as soon as the needle hits the music.",
+  "helpSpeed": "Turntable speed",
+  "helpSpeed1": "Turntables rarely spin at exactly 33⅓ RPM. WaxClub measures your turntable's real speed while songs play and keeps the lyrics on time.",
+  "helpSpeed2": "In the controls you can fine-tune the speed, reset it or lock it.",
+  "helpTiming": "Lyrics running early or late",
+  "helpTiming1": "Use the −0.5s / +0.5s buttons to nudge the lyrics. The offset is remembered for that song.",
+  "helpChangeRecord": "Change record and Discogs",
+  "helpChangeRecord1": "Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.",
+  "helpChangeRecord2": "Tick \"Search Discogs\" to search the largest vinyl database. Your Discogs sign-in stays on this phone only.",
+  "helpCollection": "Your collection",
+  "helpCollection1": "Tap the cover of the record that is playing and choose \"Add to collection\". Open your collection with the records icon at the top of the screen.",
+  "helpCollection2": "WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session.",
+  "helpTv": "Showing the lyrics on the TV",
+  "helpTv1": "Tap the cast icon. Chromecast and Google TV devices appear automatically.",
+  "helpTv2": "Fire TV: open the WaxClub app on the TV first; it appears in the list. If it does not, use \"Add by IP\" with the address shown on the TV.",
+  "helpTv3": "No Chromecast? Choose \"Cast via browser\" and open the address shown in your TV's browser.",
+  "helpTv4": "The phone and the TV must be on the same Wi-Fi.",
+  "helpTroubleshooting": "Troubleshooting",
+  "helpTroubleshooting1": "Song not recognized: move the phone closer to the speakers and try again. Some rare records are not in the recognition catalog.",
+  "helpTroubleshooting2": "Nothing is ever recognized: another app may be using the microphone (voice assistants, accessibility or call apps). WaxClub warns you when this happens. Close that app and try again.",
+  "helpTroubleshooting3": "TV not found: check that it is on and on the same Wi-Fi, and tap \"Search again\". After a TV update it may take a few minutes to show up again.",
+  "help": "Help",
+  "helpCopyLogsHint": "Long-press the version to copy the session logs.",
+  "castingToTv": "Casting to TV",
+  "castScreenName": "Screen: {name}",
+  "@castScreenName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultTvName": "Living room TV",
+  "disconnectFromTv": "Disconnect from TV",
+  "yourName": "Your name",
+  "cancel": "Cancel",
+  "removedFromCollection": "\"{album}\" removed from your collection.",
+  "@removedFromCollection": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToCollection": "\"{album}\" added to your collection.",
+  "@addedToCollection": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "noEventsLogged": "No events logged in this session.",
+  "logsCopied": "Session logs copied to the clipboard!",
+  "noRecordYet": "No record identified yet.",
+  "tracksOnRecord": "{count, plural, =1{1 track on this record} other{{count} tracks on this record}}",
+  "@tracksOnRecord": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inCollection": "In collection",
+  "addToCollection": "Add to collection",
+  "changeRecord": "Change record",
+  "noTracklistYet": "No tracklist for this album yet.",
+  "tracklistFetchedHint": "The tracklist is fetched automatically from the official catalog (MusicBrainz) while the song plays.",
+  "playing": "PLAYING",
+  "upNextCaps": "UP NEXT",
+  "sideLabel": "Side {side}",
+  "@sideLabel": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "unknownAlbum": "Unknown Album",
+  "upNextTitle": "Up next: {title}",
+  "@upNextTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "discogsExplanation": "Discogs is the world's largest vinyl database, maintained by collectors: every pressing, local and imported edition, compilation, A/B side, cover and tracklist.\n\nWith your account connected, WaxClub searches it to find the exact record that is on your turntable — with the right track order, sides and cover.\n\nYour sign-in is stored securely on this phone only, for next time. The app only reads the catalog (it never changes your collection) and you can disconnect at any time.",
+  "searchFailed": "Could not search for records right now. Check your internet connection.",
+  "connectDiscogs": "Connect your Discogs account",
+  "ok": "OK",
+  "discogsConnectedAs": "Discogs connected as {name}.",
+  "@discogsConnectedAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "you": "you",
+  "loadTracksFailed": "Could not load this record's tracks. Try another record or source.",
+  "songNotOnRecord": "Song not found on this record",
+  "songNotOnRecordBody": "\"{title}\" is not in the tracklist of \"{album}\". Use this record anyway?",
+  "@songNotOnRecordBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "back": "Back",
+  "use": "Use",
+  "recordChanged": "Record changed to \"{album}\". It is now the default for these songs.",
+  "@recordChanged": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "useRecordFailed": "Could not use this record: {error}",
+  "@useRecordFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "recordsWithSong": "Records with \"{title}\" — {artist}",
+  "@recordsWithSong": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "artist": {
+        "type": "String"
+      }
+    }
+  },
+  "searchDiscogs": "Search Discogs",
+  "connectedAs": "Connected as {name}",
+  "@connectedAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "yourAccount": "your account",
+  "discogsSearchSubtitle": "The most complete vinyl and compilation database (requires your account)",
+  "signOut": "Sign out",
+  "searchAnotherRecord": "Search for another record (artist, title...)",
+  "noRecordsFound": "No records found. Try searching by the record name.",
+  "recordsFromSource": "{count, plural, =1{1 record} other{{count} records}} • {source}",
+  "@recordsFromSource": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "chipCurrent": "Current",
+  "chipVinyl": "Vinyl",
+  "chipCompilation": "Compilation",
+  "chipLive": "Live",
+  "editionsCount": "{count} editions",
+  "@editionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "castWaitingConfirm": "Waiting for the screen to confirm...",
+  "castScreenConfirmed": "Screen confirmed! Connection established.",
+  "castConnectingTo": "Connecting to {name}...",
+  "@castConnectingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "castNoResponse": "The TV did not respond or refused the cast.",
+  "castLookingAtIp": "Looking for a Chromecast or WaxClub TV app at {ip}...",
+  "@castLookingAtIp": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "castNothingAtIp": "No Chromecast or WaxClub TV app found at {ip}.",
+  "@castNothingAtIp": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "castToTv": "CAST TO TV",
+  "searchAgain": "Search again",
+  "castSearching": "Searching... {count} found",
+  "@castSearching": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "castDevicesAvailable": "{count, plural, =1{1 device available} other{{count} devices available}}",
+  "@castDevicesAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "castNoTvFound": "No TV found on the local network",
+  "castIdlePrefix": "Idle • ",
+  "connectCaps": "CONNECT",
+  "noScreenFound": "No screen found",
+  "sameWifiHint": "Make sure the TV and the phone are on the same Wi-Fi.",
+  "searchNetwork": "Search network",
+  "hideIp": "Hide IP",
+  "addByIp": "Add by IP",
+  "ipExample": "Ex: 192.168.1.105",
+  "add": "Add",
+  "openAddressInBrowser": "Open the address in your TV's browser.",
+  "castViaBrowser": "No Chromecast? Cast via browser",
+  "close": "Close",
+  "tvBrowser": "TV browser",
+  "screenConnected": "SCREEN CONNECTED",
+  "connectionFailed": "CONNECTION FAILED",
+  "syncingWithTv": "SYNCING WITH THE TV",
+  "openThisAddress": "Open this address in your TV's browser:",
+  "tryAgainCaps": "Try Again",
+  "changeTv": "Change TV",
+  "cancelAndGoBack": "Cancel and go back",
+  "nowPlaying": "Now playing",
+  "settings": "Settings",
+  "tv": "TV",
+  "reconnectingToTv": "Reconnecting to the TV...",
+  "lyricsOnTv": "Lyrics showing on the TV",
+  "disconnect": "Disconnect",
+  "sideCaps": "SIDE {side}",
+  "@sideCaps": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "tracksBadge": "tracks ▸",
+  "noSongIdentified": "No song identified",
+  "tapListenHint": "Tap Listen while the record plays",
+  "trackOfTotal": " · track {number} of {total}",
+  "@trackOfTotal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "upNext": "Up next",
+  "nextSideStartsWith": "Next side starts with: {title}",
+  "@nextSideStartsWith": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "flipToContinue": "Flip the record to continue",
+  "lyricsReady": "⚡ lyrics ready",
+  "rpmSuffix": " RPM",
+  "measuredOverListens": "measured over {count} listens",
+  "@measuredOverListens": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "knownSpeed": "known speed",
+  "calibrating": "calibrating...",
+  "fineSpeedAdjustment": "Fine speed adjustment",
+  "reset": "Reset",
+  "speedLocked": "Speed locked",
+  "lockSpeed": "Lock speed",
+  "lyricsSync": "Lyrics sync",
+  "lyricsSyncHint": "if the lyrics run early or late",
+  "offset": "offset",
+  "endOfSide": "End of side",
+  "tapAfterFlipping": "{side} · tap after flipping the record",
+  "@tapAfterFlipping": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "listeningToRecord": "Listening to the record...",
+  "inSyncNextCheck": "In sync · next check in {seconds}s",
+  "@inSyncNextCheck": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "listeningTapToStop": "LISTENING... (TAP TO STOP)",
+  "listenResync": "LISTEN / RESYNC",
+  "statusPitchLocked": "Pitch locked at {speed}x",
+  "@statusPitchLocked": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPitchUnlocked": "Pitch unlocked for continuous calibration",
+  "statusListeningMic": "Listening through the microphone...",
+  "statusFaintSignal": "Faint signal or noise: listening longer ({seconds}s)...",
+  "@statusFaintSignal": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "statusIdentifying": "Identifying song and position...",
+  "statusRecognitionFailed": "Recognition request failed ({reason}). Check your internet connection and tap the microphone again.",
+  "@statusRecognitionFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "statusSongNotIdentified": "Song not identified. Move the phone closer to the speakers and tap the microphone again.",
+  "statusFetchingLyricsAndTracklist": "Fetching lyrics and tracklist for \"{title}\"...",
+  "@statusFetchingLyricsAndTracklist": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusIdentificationError": "Identification error: {error}",
+  "@statusIdentificationError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "endOfSideLabel": "End of side {side}",
+  "@endOfSideLabel": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLikelyNext": "Likely next track: \"{title}\"",
+  "@statusLikelyNext": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLastTrackOfSide": "Last track of side {side}",
+  "@statusLastTrackOfSide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "statusTracklistLoaded": "Tracklist loaded",
+  "statusInSync": "In sync • {speed}",
+  "@statusInSync": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "statusCheckingSync": "Checking sync through the microphone...",
+  "statusSyncRealigned": "Sync realigned ({drift}ms) • {speed}",
+  "@statusSyncRealigned": {
+    "placeholders": {
+      "drift": {
+        "type": "String"
+      },
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "statusConfirmingNext": "▶ {title} — confirming through the microphone...",
+  "@statusConfirmingNext": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusConfirmingAttempt": "Confirming prediction (attempt {attempt}/{total})...",
+  "@statusConfirmingAttempt": {
+    "placeholders": {
+      "attempt": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statusNotConfirmedFor": "Not confirmed for {seconds}s...",
+  "@statusNotConfirmedFor": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "statusConfirmed": "{title} — Confirmed ✓ ({speed})",
+  "@statusConfirmed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPlaybackEnded": "Playback ended. Microphone off.",
+  "statusListeningNextAttempt": "Listening for the next track (attempt {attempt}/{total})...",
+  "@statusListeningNextAttempt": {
+    "placeholders": {
+      "attempt": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statusSilenceWaitingNeedle": "Silence detected — waiting for the needle ({seconds}s)...",
+  "@statusSilenceWaitingNeedle": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "statusPlaybackEndedOrStopped": "Playback ended or record stopped. Microphone off.",
+  "statusFetchingLyrics": "Fetching lyrics for \"{title}\"...",
+  "@statusFetchingLyrics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusEndOfSideFlip": "End of side {side}. Flip the record to continue.",
+  "@statusEndOfSideFlip": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "statusWaitingNeedle": "▶ {title} — waiting for the needle...",
+  "@statusWaitingNeedle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusNotConfirmed": "▶ {title} (not confirmed)",
+  "@statusNotConfirmed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusFlipTimeout": "Timed out waiting for the record to be flipped. Tap to listen.",
+  "statusListeningNewSide": "Listening to the new side...",
+  "statusNotIdentifiedSideEnded": "Not identified yet (side {side} ended). Flip the record or try again.",
+  "@statusNotIdentifiedSideEnded": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "statusNotIdentifiedFlip": "Not identified yet (the record ended). Flip the record or try again.",
+  "statusSyncPaused": "Sync paused at {position}",
+  "@statusSyncPaused": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "statusSpeedCalibrated": "Speed calibrated: {speed}x (+1.8%)",
+  "@statusSpeedCalibrated": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "statusMicOffStopped": "Microphone off. Listening stopped.",
+  "noticeDiscogsNoVinyl": "Discogs found no vinyl records; showing MusicBrainz results.",
+  "noticeDiscogsUnavailable": "Discogs is unavailable right now; showing MusicBrainz results.",
+  "builtInMicrophone": "Built-in microphone",
+  "micPermissionDeniedHint": "🎤 Microphone permission denied.\n\nTo enable it manually:\n  Settings → Apps → WaxClub → Permissions → Microphone → Allow\n\nThen try again.",
+  "micPermissionNotGranted": "Microphone permission not granted.",
+  "discogsSignInRejected": "Discogs rejected the sign-in request (HTTP {code}).",
+  "@discogsSignInRejected": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    }
+  },
+  "discogsUnexpectedResponse": "Unexpected response from Discogs.",
+  "discogsSignInNotConfirmed": "Discogs did not confirm the sign-in (HTTP {code}).",
+  "@discogsSignInNotConfirmed": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    }
+  },
+  "discogsPasteToken": "Paste the token generated in your Discogs account.",
+  "discogsInvalidCredentials": "Invalid Discogs credentials.",
+  "discogsUnavailableHttp": "Discogs unavailable (HTTP {code}).",
+  "@discogsUnavailableHttp": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    }
+  },
+  "discogsTooManyRequests": "Discogs: too many requests, try again in a few seconds.",
+  "castDisconnected": "Disconnected",
+  "castConnectingTls": "Connecting to Chromecast over TLS ({address})...",
+  "@castConnectingTls": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "castTlsTimeout": "Timed out connecting to the TV over TLS ({host}): {error}",
+  "@castTlsTimeout": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "castTlsEstablished": "TLS connection established. Negotiating channels...",
+  "castChannelError": "TV communication channel error: {error}",
+  "@castChannelError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "castTvClosed": "The TV closed the connection.",
+  "castCheckingStatus": "Checking TV status...",
+  "castStartupTimeout": "Startup timed out ({seconds}s). The TV did not finish opening the app.",
+  "@castStartupTimeout": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "castStartingApp": "Starting app ID {appId} on the TV...",
+  "@castStartingApp": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "castLaunchFailure": "Unexpected Cast launch failure ({host}): {error}",
+  "@castLaunchFailure": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "castReceiverRunning": "Web receiver running on the TV (transport ID: {id})",
+  "@castReceiverRunning": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "castTvRefused": "The TV refused the app: {reason}",
+  "@castTvRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "noLogEntries": "No log entries yet.",
+  "logFileEmpty": "Log file is empty.",
+  "couldNotReadLogs": "Could not read logs: {error}",
+  "@couldNotReadLogs": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "statusMicBusy": "Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can't hear the record. Close that app and tap the microphone again."
+}

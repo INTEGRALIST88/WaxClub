@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -180,7 +181,7 @@ class CastV2Client {
   String? _launchingAppId;
   String? _lastError;
   CastFailure? _lastFailure;
-  String _statusStep = 'Disconnected';
+  String _statusStep = l10n.castDisconnected;
 
   Map<String, dynamic>? _pendingTrackLoaded;
 
@@ -212,19 +213,19 @@ class CastV2Client {
       _lastFailure = null;
       _launchingAppId = appId;
       _receiverAck = false;
-      _statusStep = 'Connecting to Chromecast over TLS ($host:$port)...';
+      _statusStep = l10n.castConnectingTls('$host:$port');
 
       debugPrint('[CastV2Client] Conectando TLS a $host:$port para App ID $appId...');
 
       try {
         _socket = await socketConnector(host, port, timeout: tlsTimeout);
       } catch (e) {
-        _setFailure(CastFailureType.timeoutTls, 'Timed out connecting to the TV over TLS ($host): $e', e);
+        _setFailure(CastFailureType.timeoutTls, l10n.castTlsTimeout(host, '$e'), e);
         return false;
       }
 
       _isConnected = true;
-      _statusStep = 'TLS connection established. Negotiating channels...';
+      _statusStep = l10n.castTlsEstablished;
 
       final launchCompleter = Completer<bool>();
 
@@ -242,13 +243,13 @@ class CastV2Client {
         },
         onError: (err) {
           debugPrint('[CastV2Client] Erro no socket CastV2: $err');
-          _setFailure(CastFailureType.socketFechado, 'TV communication channel error: $err', err);
+          _setFailure(CastFailureType.socketFechado, l10n.castChannelError('$err'), err);
           if (!launchCompleter.isCompleted) launchCompleter.complete(false);
           _handleRemoteDisconnection();
         },
         onDone: () {
           debugPrint('[CastV2Client] Conexão CastV2 finalizada pela TV.');
-          _setFailure(CastFailureType.socketFechado, 'The TV closed the connection.');
+          _setFailure(CastFailureType.socketFechado, l10n.castTvClosed);
           if (!launchCompleter.isCompleted) launchCompleter.complete(false);
           _handleRemoteDisconnection();
         },
@@ -258,7 +259,7 @@ class CastV2Client {
       _sendToReceiver0(nsConnection, {'type': 'CONNECT'});
 
       // 2. Consulta de Status inicial para verificar se o app já está rodando
-      _statusStep = 'Checking TV status...';
+      _statusStep = l10n.castCheckingStatus;
       _sendToReceiver0(nsReceiver, {'type': 'GET_STATUS', 'requestId': _requestId++});
 
       // 3. Heartbeat PING periódico a cada 5s
@@ -282,7 +283,7 @@ class CastV2Client {
           if (!launchCompleter.isCompleted) {
             _setFailure(
               CastFailureType.appNaoAbriu,
-              'Startup timed out (${launchTimeout.inSeconds}s). The TV did not finish opening the app.',
+              l10n.castStartupTimeout(launchTimeout.inSeconds),
             );
             launchCompleter.complete(false);
           }
@@ -294,7 +295,7 @@ class CastV2Client {
           if (!launchCommandSent) {
             launchCommandSent = true;
             lastLaunchTime = DateTime.now();
-            _statusStep = 'Starting app ID $appId on the TV...';
+            _statusStep = l10n.castStartingApp(appId);
             debugPrint('[CastV2Client] Despachando comando LAUNCH para $appId...');
             _sendToReceiver0(nsReceiver, {
               'type': 'LAUNCH',
@@ -333,7 +334,7 @@ class CastV2Client {
         return false;
       }
     } catch (e) {
-      _setFailure(CastFailureType.erroGenerico, 'Unexpected Cast launch failure ($host): $e', e);
+      _setFailure(CastFailureType.erroGenerico, l10n.castLaunchFailure(host, '$e'), e);
       await disconnect();
       return false;
     }
@@ -428,7 +429,7 @@ class CastV2Client {
                   payloadUtf8: jsonEncode({'type': 'hello'}),
                 ));
 
-                _statusStep = 'Web receiver running on the TV (transport ID: $_transportId)';
+                _statusStep = l10n.castReceiverRunning('$_transportId');
 
                 if (!launchCompleter.isCompleted) {
                   launchCompleter.complete(true);
@@ -442,7 +443,7 @@ class CastV2Client {
           }
         } else if (type == 'LAUNCH_ERROR') {
           final reason = json['reason'] as String? ?? 'NOT_FOUND';
-          _setFailure(CastFailureType.recusado, 'A TV recusou o aplicativo: $reason');
+          _setFailure(CastFailureType.recusado, l10n.castTvRefused('$reason'));
           debugPrint('[CastV2Client] ⚠️ LAUNCH_ERROR da TV: $reason');
           if (!launchCompleter.isCompleted) {
             launchCompleter.complete(false);
@@ -519,7 +520,7 @@ class CastV2Client {
       debugPrint('[CastV2Client] ⚠️ Conexão com a TV perdida. Motivo: ${_lastError ?? "app ausente no status da TV"}');
       _isConnected = false;
       _transportId = null;
-      _statusStep = 'Disconnected';
+      _statusStep = l10n.castDisconnected;
       onDisconnected?.call();
     }
   }

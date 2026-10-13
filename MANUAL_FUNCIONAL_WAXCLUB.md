@@ -231,6 +231,11 @@ lib/
 * **Minutagem do LP pela Wikipedia:** [`wikipedia_tracklist_service.dart`](lib/services/wikipedia_tracklist_service.dart) acha o artigo do álbum (en, depois pt), confere o artista e lê os modelos {{Track listing}} / {{Lista de faixas}} (ou listas `# "Título" – 3:45`). `fillDurations` completa as durações ausentes; com `override` (disco que não é vinil) substitui, desde que o artigo case com ao menos metade das faixas. Usado em `AlbumCatalogService.loadTracklist` e no `PrefetchService` (detecção automática, que também passa a preferir prensagens em vinil).
 * **Prioridade das durações (modo automático):** lista de faixas do disco (Discogs/MusicBrainz) → Wikipedia → provedor de letras (digital). O Shazam nunca é fonte de minutagem.
 
+### 3.10.2 Textos Traduzíveis e Microfone Ocupado (v1.3.10)
+* **Arquivos de tradução:** todos os textos visíveis ficam em [`lib/l10n/app_en.arb`](lib/l10n/app_en.arb) (inglês, padrão). `flutter gen-l10n` gera `lib/l10n/gen/app_localizations.dart` (configurado em `l10n.yaml`, `generate: true` no pubspec). Use `l10n.<chave>` (getter de [`lib/l10n/l10n.dart`](lib/l10n/l10n.dart)); o `MaterialApp` registra os delegates e atualiza `L10n.current` para o motor e os serviços. Novos idiomas = novos `app_<idioma>.arb` (futuros plugins).
+* **Regra:** `test/l10n_no_hardcoded_strings_test.dart` reprova texto para o usuário escrito em `lib/ui`; literais técnicos (fontes, chaves) levam `// l10n-ignore`.
+* **Microfone ocupado:** [`mic_busy_service.dart`](lib/services/mic_busy_service.dart) + `MicStatusChannel.kt` (canal `com.waxclub.app/mic`, `AudioManager.getActiveRecordingConfigurations()`). No primeiro marco da captura (ainda gravando) o motor guarda `silenced` (Android 10+, `isClientSilenced`) e o número de capturas ativas. `MicStatus.blocksCapture`: silenciado, ou outro app gravando com pico abaixo de −80 dBFS. Se a escuta inicial falhar nessas condições, o status vira `statusMicBusy` (log `mic_blocked`).
+
 ### 3.11 Módulo 11: Trilhas Sonoras de Novelas (v1.3.1)
 * **Arquivos:** [`lib/services/soundtrack_catalog.dart`](lib/services/soundtrack_catalog.dart) e `assets/catalog/trilhas_novelas.json`.
 * **Origem dos dados:** levantamento do site Teledramaturgia / Observatório da TV (índices de trilhas da Globo por período, Malhação, séries/minisséries, Record, SBT, Band, Manchete, Excelsior e Tupi): disco, emissora, ano e faixas com artista. Capas apenas dos LPs (até 1993), baixadas uma vez, recomprimidas (até 400 px, JPEG 82) e hospedadas no GitHub Pages do WaxClub (covers/ (raiz do repositório), publicada como covers/ no repositório INTEGRALIST88/WaxClub); trilhas em CD ficam sem capa própria (vale a do Shazam). Scripts: 	ool/trilhas/crawl.js, durations.js, covers.js, esize_covers.ps1, elink_covers.js. Durações por faixa obtidas na Deezer (reserva iTunes). O script de geração fica fora do app (ferramenta de build).
@@ -246,6 +251,8 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
+| **Textos da interface em arquivos de tradução (.arb)** | `lib/l10n/app_en.arb` + gen-l10n; teste reprova texto fixo em `lib/ui` | ✅ Conforme (v1.3.10) |
+| **Aviso de microfone ocupado por outro app** | `MicBusyService` + `MicStatusChannel.kt`; mensagem `statusMicBusy` | ✅ Conforme (v1.3.10) |
 | **"Change record" mostra só vinil LP ou EP** | Filtro `isVinylLpOrEp` no Discogs (`format=Vinyl`) e no MusicBrainz | ✅ Conforme (v1.3.9) |
 | **Minutagem do LP antes da digital (Wikipedia)** | `WikipediaTracklistService` completa/substitui durações; detecção automática prefere vinil | ✅ Conforme (v1.3.9) |
 | **Letra no celular com a mesma fonte e apresentação da TV** | `lyrics_list_view.dart` com Inter 800, caixa alta latina, 3 linhas em destaque, 76%/62%, esmaecimento e linha atual centralizada | ✅ Conforme (v1.3.8) |
@@ -352,11 +359,13 @@ Para qualquer modelo de inteligência artificial ou desenvolvedor que for contin
 Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prioridade. O detalhamento completo fica no documento do cronograma (Claude Docs, seções "Prioridade definida em 12/10/2026" e "Modo Manual").
 
 ### 6.1 Cronograma definido pelo usuário
+
+**Nova ordem (13/10/2026):** 1.3.10 `.arb` + aviso de microfone (feito) → 1.3.11 reconhecimento pela câmera → 1.3.12 verificação no catálogo do Shazam + chave MANUAL + ▶ cromado → 1.3.13 curiosidades → depois capa e minutagem medida. A conta de login (item 1 abaixo) entra assim que chegarem os dados da Hostinger e do Google. Itens abaixo na ordem original de importância.
 1. **Conta + coleção:** login por link mágico (e-mail) e Google, conta opcional, API PHP + MySQL na Hostinger. Na conta: coleção, discos padrão de "Change record" e histórico de audições (tabela de audições; disco conta 1 vez por sessão de 2 h, qualquer faixa ouvida). Perfil social: apelido, e-mail, país e cidade obrigatórios; campos opcionais com visibilidade por campo; 18+. Social v1: perfil público com coleção, seguir, mural "ouvindo agora", busca por cidade/país.
 2. **Sincronização com o Discogs nos dois sentidos**, feita pelo celular com o token do usuário. Campos da coleção seguem o Discogs (release_id obrigatório; nota 1–5, estado do disco/capa e observações opcionais).
-3. **Textos da interface em arquivos `.arb`** (pré-requisito dos plugins).
+3. ~~Textos da interface em arquivos `.arb`~~ — **feito na v1.3.10**.
 4. **Plugins de idioma:** pacotes só de dados, listados numa página HTML na Hostinger.
-5. **Modo Manual (sempre por último):**
+5. **Modo Manual (antecipado: 1.3.11 a 1.3.13):**
    * Câmera na barra superior, ao lado de My Collection, com guia de onde apontar em cada modo (código de barras na contracapa, nº de catálogo na lombada/selo, capa, contracapa).
    * Reconhecimento só gratuito: código de barras, nº de catálogo, texto da capa (ML Kit no aparelho), comparação visual com as capas candidatas, índice local de capas conhecidas, contracapa, digitar.
    * Depois do reconhecimento: confirmar a prensagem → "Add to collection?" (termina o cadastro) → "Let's listen?" Sim/Não.
@@ -367,7 +376,8 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
    * Letra por plugin opcional; sem plugin ou sem letra, **curiosidades** curtas do disco e das faixas (sempre em inglês), animadas (sobem e esmaecem) no celular e na TV, guardadas no aparelho e depois no banco (tabela compartilhada).
 
 ### 6.2 Outras melhorias oferecidas
-* Aviso "microfone em uso por outro app" quando um app de acessibilidade ou uma captura de voz silencia o microfone do WaxClub (política do Android, não dá para forçar).
+* ~~Aviso "microfone em uso por outro app"~~ — **feito na v1.3.10**.
+* Traduzir também a página da TV (`web_receiver/index.html`), que ainda tem os textos no próprio HTML.
 * Atualizar a paleta da página da TV (GitHub Pages) para o creme/laranja/madeira do app.
 * Revisar as partes desatualizadas do documento de arquitetura.
 * Separar repositórios: código privado e página pública da TV (GitHub Pages).

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../app_info.dart';
 import '../theme/app_theme.dart';
 
@@ -13,23 +14,23 @@ class Greeting {
   static Greeting forName(String? name, DateTime now, int seed) {
     final rnd = Random(seed);
     if (name == null || name.isEmpty) {
-      return const Greeting('Welcome to $kAppName!', 'Drop the needle and tap the microphone to start.');
+      return Greeting(l10n.greetingWelcome(kAppName), l10n.greetingWelcomeSubtitle);
     }
     final hour = now.hour;
     final timeOfDay = hour >= 5 && hour < 12
-        ? 'Good morning'
-        : (hour >= 12 && hour < 18 ? 'Good afternoon' : 'Good evening');
+        ? l10n.goodMorning
+        : (hour >= 12 && hour < 18 ? l10n.goodAfternoon : l10n.goodEvening);
     final titles = [
-      '$timeOfDay, $name!',
-      "Let's go, $name!",
-      "Let's spin, $name!",
-      '$timeOfDay, $name!',
+      l10n.greetingTimeOfDay(timeOfDay, name),
+      l10n.greetingLetsGo(name),
+      l10n.greetingLetsSpin(name),
+      l10n.greetingTimeOfDay(timeOfDay, name),
     ];
     final subtitles = [
-      '$name, today is a great day to listen to some music.',
-      'Which record is on the platter today?',
-      'Drop the needle and tap the microphone.',
-      'Pick a side, and the lyrics follow along.',
+      l10n.greetingGreatDay(name),
+      l10n.greetingWhichRecord,
+      l10n.greetingDropNeedle,
+      l10n.greetingPickSide,
     ];
     return Greeting(titles[rnd.nextInt(titles.length)], subtitles[rnd.nextInt(subtitles.length)]);
   }
@@ -132,7 +133,7 @@ class HomeGreeting extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: onEditName,
                     icon: const Icon(Icons.badge_outlined, size: 18),
-                    label: const Text('What should we call you?'),
+                    label: Text(l10n.whatShouldWeCallYou),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.cream,
                       side: const BorderSide(color: AppTheme.wood),

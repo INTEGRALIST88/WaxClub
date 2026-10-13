@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../app_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../models/lyric_line.dart';
@@ -144,8 +145,8 @@ class _LyricsListViewState extends State<LyricsListView> {
             curve: Curves.easeOut,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Inter',
-              fontVariations: const [FontVariation('wght', 800)],
+              fontFamily: 'Inter', // l10n-ignore
+              fontVariations: const [FontVariation('wght', 800)], // l10n-ignore
               fontWeight: FontWeight.w800,
               fontSize: isGap ? _fontSize * 0.8 : _fontSize,
               height: 1.25,
@@ -204,12 +205,12 @@ class _LyricsListViewState extends State<LyricsListView> {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.cream, letterSpacing: 2.2),
           ),
           const SizedBox(height: 12),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Tap the microphone to listen to your vinyl and sync the lyrics, with turntable speed compensation.',
+              l10n.lyricsEmptyHint,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.textInactive, height: 1.5),
+              style: const TextStyle(fontSize: 14, color: AppTheme.textInactive, height: 1.5),
             ),
           ),
         ],

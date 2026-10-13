@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -106,7 +107,7 @@ class AudioRecordService {
   DateTime? get lastRecordStartTime => _lastRecordStartTime;
 
   /// Nome formatado do microfone em uso para exibição na UI.
-  String get activeDeviceName => 'Built-in microphone';
+  String get activeDeviceName => l10n.builtInMicrophone;
 
   /// Mensagem amigável para o usuário quando a permissão de microfone for negada.
   String? _permissionHint;
@@ -137,11 +138,7 @@ class AudioRecordService {
     // Permissão negada (ou negada permanentemente, quando o pop-up não aparece mais):
     // gera mensagem amigável para o usuário.
     if (result.isPermanentlyDenied || result.isDenied) {
-      _permissionHint =
-        '🎤 Microphone permission denied.\n\n'
-        'To enable it manually:\n'
-        '  Settings → Apps → WaxClub → Permissions → Microphone → Allow\n\n'
-        'Then try again.';
+      _permissionHint = l10n.micPermissionDeniedHint;
       debugPrint('[AudioRecordService] ⚠️ Permissão negada. Hint gerado para o usuário.');
     }
 
@@ -212,7 +209,7 @@ class AudioRecordService {
     final granted = await hasPermission();
     if (!granted) {
       final hint = _permissionHint ?? '';
-      throw Exception('Microphone permission not granted.\n$hint');
+      throw Exception('${l10n.micPermissionNotGranted}\n$hint');
     }
 
     // Garante que o gravador não está preso em estado anterior
@@ -335,7 +332,7 @@ class AudioRecordService {
 
     final granted = await hasPermission();
     if (!granted) {
-      throw Exception('Microphone permission not granted.\n${_permissionHint ?? ''}');
+      throw Exception('${l10n.micPermissionNotGranted}\n${_permissionHint ?? ''}');
     }
 
     final myToken = ++_currentToken;

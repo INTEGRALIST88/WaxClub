@@ -3,6 +3,7 @@ import 'app_info.dart';
 import 'package:flutter/services.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/theme/app_theme.dart';
+import 'l10n/l10n.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,13 @@ class WaxClubApp extends StatelessWidget {
       title: kAppName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      // Motor e serviços (fora da árvore de widgets) usam o mesmo idioma da interface
+      builder: (context, child) {
+        L10n.update(Localizations.localeOf(context));
+        return child ?? const SizedBox.shrink();
+      },
       home: const HomeScreen(),
     );
   }

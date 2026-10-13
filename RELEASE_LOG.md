@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.10] — 13/10/2026 (Textos em Arquivos de Tradução + Aviso de Microfone Ocupado)
+
+* **Textos da interface em `lib/l10n/app_en.arb`** (266 textos): telas, mensagens de status do motor, avisos do catálogo, erros do Discogs, permissão de microfone e mensagens da transmissão. Gerados pelo `flutter gen-l10n` (`l10n.yaml`, `lib/l10n/gen/`); acesso por `l10n.<chave>` (`lib/l10n/l10n.dart`), também no motor e nos serviços. O app continua em inglês; é a base dos plugins de idioma.
+* Corrigidos textos que tinham ficado em português: "Fechar", "Voltar", "Ajustes" e a recusa do app pela TV.
+* Novo `test/l10n_no_hardcoded_strings_test.dart`: falha se algum texto para o usuário for escrito direto no código das telas (`lib/ui`); literais técnicos levam `// l10n-ignore`.
+* **Aviso de microfone ocupado:** durante a escuta, o app pergunta ao Android (canal `com.waxclub.app/mic`, `MicStatusChannel.kt`) se a captura está sendo silenciada (Android 10+) ou se outro app está gravando com o áudio mudo. Nesse caso, em vez de "Song not identified", mostra: "Another app is using the microphone (voice assistant, accessibility or call app)…". O Android não deixa tomar o microfone de volta; o app só avisa. (`MicBusyService`, `test/mic_busy_test.dart`.)
+* Ajuda: "Change record" lista só vinil (LP/EP); a dica de problemas cita o aviso de microfone.
+* **Cronograma:** o Modo Manual foi antecipado (câmera na 1.3.11, Modo Manual na 1.3.12, curiosidades na 1.3.13); a conta de login entra assim que chegarem os dados da Hostinger e do Google.
+
+---
 ## [v1.3.9] — 13/10/2026 (Só Vinil na Escolha de Disco + Minutagem do LP pela Wikipedia)
 
 * **"Change record" só com vinil:** a lista de discos mostra apenas **vinil LP ou EP**. CD, digital, fita e compactos de single (inclusive maxi-single) ficam de fora. No Discogs a busca já pede `format=Vinyl`; no MusicBrainz (reserva) o filtro é aplicado antes de juntar as edições, e a contagem de edições considera só as de vinil (`ReleaseCandidate.isVinylLpOrEp`, `vinylLpOrEpOnly`).

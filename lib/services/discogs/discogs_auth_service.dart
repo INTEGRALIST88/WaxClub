@@ -1,3 +1,4 @@
+import '../../l10n/l10n.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
@@ -185,12 +186,12 @@ class DiscogsAuthService extends ChangeNotifier {
       },
     ).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
-      throw Exception('Discogs rejected the sign-in request (HTTP ${res.statusCode}).');
+      throw Exception(l10n.discogsSignInRejected(res.statusCode));
     }
     final q = Uri.splitQueryString(res.body);
     final token = q['oauth_token'];
     final secret = q['oauth_token_secret'];
-    if (token == null || secret == null) throw Exception('Unexpected response from Discogs.');
+    if (token == null || secret == null) throw Exception(l10n.discogsUnexpectedResponse);
     return DiscogsRequestToken(token, secret);
   }
 
@@ -214,19 +215,19 @@ class DiscogsAuthService extends ChangeNotifier {
       },
     ).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
-      throw Exception('Discogs did not confirm the sign-in (HTTP ${res.statusCode}).');
+      throw Exception(l10n.discogsSignInNotConfirmed(res.statusCode));
     }
     final q = Uri.splitQueryString(res.body);
     final token = q['oauth_token'];
     final secret = q['oauth_token_secret'];
-    if (token == null || secret == null) throw Exception('Unexpected response from Discogs.');
+    if (token == null || secret == null) throw Exception(l10n.discogsUnexpectedResponse);
     await _saveVerified(DiscogsCredentials(oauthToken: token, oauthTokenSecret: secret));
   }
 
   /// Alternativa sem chaves do app: token pessoal gerado pelo usuário em discogs.com/settings/developers.
   Future<void> loginWithPersonalToken(String token) async {
     final t = token.trim();
-    if (t.isEmpty) throw Exception('Paste the token generated in your Discogs account.');
+    if (t.isEmpty) throw Exception(l10n.discogsPasteToken);
     await _saveVerified(DiscogsCredentials(personalToken: t));
   }
 
@@ -247,8 +248,8 @@ class DiscogsAuthService extends ChangeNotifier {
       Uri.parse('https://api.discogs.com/oauth/identity'),
       headers: {...authHeadersFor(creds)},
     ).timeout(const Duration(seconds: 15));
-    if (res.statusCode == 401) throw Exception('Invalid Discogs credentials.');
-    if (res.statusCode != 200) throw Exception('Discogs unavailable (HTTP ${res.statusCode}).');
+    if (res.statusCode == 401) throw Exception(l10n.discogsInvalidCredentials);
+    if (res.statusCode != 200) throw Exception(l10n.discogsUnavailableHttp(res.statusCode));
     final data = jsonDecode(res.body) as Map<String, dynamic>;
     return (data['username'] as String?) ?? 'Discogs';
   }

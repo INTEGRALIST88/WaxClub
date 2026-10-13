@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/track_entry.dart';
 import '../../services/collection_service.dart';
 import '../theme/app_theme.dart';
@@ -20,12 +21,12 @@ class CollectionScreen extends StatefulWidget {
 class _CollectionScreenState extends State<CollectionScreen> {
   CollectionSort _sort = CollectionSort.recentlyPlayed;
 
-  static const _sortLabels = {
-    CollectionSort.recentlyPlayed: 'Recently played',
-    CollectionSort.mostPlayed: 'Most played',
-    CollectionSort.recentlyAdded: 'Recently added',
-    CollectionSort.alphabetical: 'A–Z',
-  };
+  static Map<CollectionSort, String> get _sortLabels => {
+        CollectionSort.recentlyPlayed: l10n.sortRecentlyPlayed,
+        CollectionSort.mostPlayed: l10n.sortMostPlayed,
+        CollectionSort.recentlyAdded: l10n.sortRecentlyAdded,
+        CollectionSort.alphabetical: l10n.sortAlphabetical,
+      };
 
   @override
   void initState() {
@@ -34,13 +35,13 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   static String formatWhen(DateTime? when, {DateTime? now}) {
-    if (when == null) return 'never';
+    if (when == null) return l10n.whenNever;
     final n = now ?? DateTime.now();
     final d = n.difference(when);
-    if (d.inMinutes < 1) return 'just now';
-    if (d.inHours < 1) return '${d.inMinutes} min ago';
-    if (d.inDays < 1 && n.day == when.day) return 'today ${_hhmm(when)}';
-    if (d.inDays < 2) return 'yesterday ${_hhmm(when)}';
+    if (d.inMinutes < 1) return l10n.whenJustNow;
+    if (d.inHours < 1) return l10n.whenMinutesAgo(d.inMinutes);
+    if (d.inDays < 1 && n.day == when.day) return l10n.whenToday(_hhmm(when));
+    if (d.inDays < 2) return l10n.whenYesterday(_hhmm(when));
     return '${when.day.toString().padLeft(2, '0')}/${when.month.toString().padLeft(2, '0')}/${when.year} ${_hhmm(when)}';
   }
 
@@ -60,14 +61,14 @@ class _CollectionScreenState extends State<CollectionScreen> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('My Collection', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-                Text('${items.length} record${items.length == 1 ? '' : 's'}',
+                Text(l10n.myCollection, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                Text(l10n.recordCount(items.length),
                     style: const TextStyle(fontSize: 12, color: Colors.white60)),
               ],
             ),
             actions: [
               PopupMenuButton<CollectionSort>(
-                tooltip: 'Sort',
+                tooltip: l10n.sort,
                 icon: const Icon(Icons.sort_rounded),
                 initialValue: _sort,
                 color: AppTheme.surfaceLight,
@@ -98,7 +99,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
     );
   }
 
-  Widget _emptyState() => const Center(
+  Widget _emptyState() => Center(
         child: Padding(
           padding: EdgeInsets.all(32),
           child: Column(
@@ -106,11 +107,11 @@ class _CollectionScreenState extends State<CollectionScreen> {
             children: [
               Icon(Icons.library_music_outlined, size: 64, color: AppTheme.wood),
               SizedBox(height: 16),
-              Text('Your collection is empty',
+              Text(l10n.collectionEmpty,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.cream)),
               SizedBox(height: 10),
               Text(
-                'While a record is playing, tap its cover at the top of the screen and choose "Add to collection".',
+                l10n.collectionEmptyHint,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, height: 1.45),
               ),
@@ -163,8 +164,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       stats.playCount == 0
-                          ? 'Not played yet'
-                          : 'Played ${stats.playCount}× · last ${formatWhen(stats.lastPlayedAt)}',
+                          ? l10n.notPlayedYet
+                          : l10n.playedTimesLast(stats.playCount, formatWhen(stats.lastPlayedAt)),
                       style: const TextStyle(color: AppTheme.orange, fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -227,15 +228,15 @@ class _CollectionScreenState extends State<CollectionScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                _stat('Plays', '${stats.playCount}'),
-                _stat('First played', formatWhen(stats.firstPlayedAt)),
-                _stat('Last played', formatWhen(stats.lastPlayedAt)),
+                _stat(l10n.plays, '${stats.playCount}'),
+                _stat(l10n.firstPlayed, formatWhen(stats.firstPlayedAt)),
+                _stat(l10n.lastPlayed, formatWhen(stats.lastPlayedAt)),
               ],
             ),
             const SizedBox(height: 4),
-            Text('Added ${formatWhen(item.addedAt)}', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            Text(l10n.addedWhen(formatWhen(item.addedAt)), style: const TextStyle(color: Colors.white38, fontSize: 12)),
             if (tracks.isNotEmpty) ...[
-              _section('Tracklist'),
+              _section(l10n.tracklist),
               for (final t in tracks)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
@@ -254,9 +255,9 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   ),
                 ),
             ],
-            _section('Listening history'),
+            _section(l10n.listeningHistory),
             if (history.isEmpty)
-              const Text('No plays recorded yet.', style: TextStyle(color: Colors.white54))
+              Text(l10n.noPlaysYet, style: const TextStyle(color: Colors.white54))
             else
               for (final p in history.take(30))
                 Padding(
@@ -277,7 +278,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
             const SizedBox(height: 20),
             OutlinedButton.icon(
               icon: const Icon(Icons.delete_outline, size: 18),
-              label: const Text('Remove from collection'),
+              label: Text(l10n.removeFromCollection),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.orange,
                 side: const BorderSide(color: AppTheme.rust),

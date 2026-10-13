@@ -33,6 +33,13 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        // Estado do microfone (silenciado por outro app?), usado por lib/services/mic_busy_service.dart
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.waxclub.app/mic").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "status" -> result.success(MicStatusChannel.status(this))
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
