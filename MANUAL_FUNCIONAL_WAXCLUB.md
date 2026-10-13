@@ -273,7 +273,7 @@ lib/
 
 | Requisito / Modificação Solicitada | Situação Atual no Código | Status de Verificação |
 |---|---|---|
-| **Curiosidades do disco e das faixas, animadas, quando não há letra (Wikipedia/Discogs, com fonte, em inglês)** | `CuriositiesService` + `CuriositiesView`; plugin D2 embutido | ✅ Conforme no celular (v1.3.16); TV pendente |
+| **Curiosidades do disco e das faixas, animadas, quando não há letra (com fonte, em inglês)** | `CuriositiesService` (Wikipedia) + `CuriositiesView`; plugin D2 embutido | ✅ Conforme no celular (v1.3.16); TV e notas do Discogs pendentes |
 | **Modo Manual: verificação no catálogo após o Identify, ▶ cromado, início pelo microfone (só volume), trocas pela minutagem, virar o lado, fim do disco** | `RecognitionCatalogService`, bloco Modo Manual do motor, `ChromePlayButton`, `ManualStartSheet` | ✅ Conforme (v1.3.15) |
 | **Chave MANUAL (botão ligado/desligado) junto dos outros; começa desligada e desliga no fim do disco (último lado)** | `isManualMode`/`setManualMode`, `isLastSideOfRecord` em `_enterWaitingEndOfSide` | ✅ Conforme (v1.3.14) |
 | **Primeiro botão chamado "Identify" e ajuda com as novidades (barra superior, Identify, coleção, plugins)** | `l10n.camera` = "Identify"; `help_screen.dart` com o tópico "The top bar" | ✅ Conforme (v1.3.13) |

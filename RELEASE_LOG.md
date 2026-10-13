@@ -5,11 +5,11 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
 ## [v1.3.16] — 13/10/2026 (Curiosidades Animadas do Disco e das Faixas)
 
 * **Curiosidades no lugar da letra:** quando a música não tem letra (sem plugin de letra ou letra não encontrada), aparecem fatos curtos — do **disco** no começo de cada lado e da **faixa** distribuídos ao longo da música. Cada um entra subindo, fica e sai esmaecendo (mesma curva da letra da TV), com "About the record" / "About this track" e a fonte.
-* **Fontes, sempre em inglês:** artigo do álbum e da música na **Wikipedia** (conferindo o artista) e notas da prensagem do **Discogs**. As frases são escolhidas do próprio texto da fonte (definição, gravação, lançamento, paradas, vendas, prêmios...) — nada é inventado; o resumo por IA virá como plugin (A1). Guardadas no aparelho (`waxclub_curiosities.json`): na próxima vez funcionam sem internet. (`CuriositiesService`, `CuriositiesView`.)
+* **Fonte, sempre em inglês:** artigo do álbum e da música na **Wikipedia** (conferindo o artista). As notas da prensagem do Discogs já são aceitas pelo serviço, mas ainda não são buscadas (próximo passo). As frases são escolhidas do próprio texto da fonte (definição, gravação, lançamento, paradas, vendas, prêmios...) — nada é inventado; o resumo por IA virá como plugin (A1). Guardadas no aparelho (`waxclub_curiosities.json`): na próxima vez funcionam sem internet. (`CuriositiesService`, `CuriositiesView`.)
 * **Plugin D2 "Record curiosities"** passa a vir com o app, no prato por padrão; pode ser desligado na Jukebox. Plugins embutidos novos entram ligados, mas a escolha do usuário é respeitada nas próximas aberturas (`seenBuiltIns`).
 * **Lista de testes com disco de verdade** registrada no documento do cronograma (18 itens, para quando o usuário puder testar).
 * Ajuda: tópico "Curiosities". Novo `test/curiosities_test.dart`.
-* Pendente: curiosidades também na TV (página do receptor).
+* Pendente: curiosidades também na TV (página do receptor) e as notas do Discogs como segunda fonte.
 
 ---
 ## [v1.3.15] — 13/10/2026 (Modo Manual: Letra pela Minutagem, sem Shazam)

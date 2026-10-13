@@ -2215,7 +2215,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginLicenseCuriosities.
   ///
   /// In en, this message translates to:
-  /// **'Sources cited: Discogs, Wikipedia, Wikidata'**
+  /// **'Source cited: Wikipedia (CC BY-SA)'**
   String get pluginLicenseCuriosities;
 
   /// No description provided for @pluginLicenseAi.
@@ -2275,7 +2275,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginCuriositiesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Short facts about the record and each track, taken from Wikipedia and Discogs with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
+  /// **'Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.'**
   String get pluginCuriositiesDesc;
 
   /// No description provided for @pluginAiCuriositiesName.
@@ -2527,7 +2527,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCuriosities1.
   ///
   /// In en, this message translates to:
-  /// **'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia or Discogs).'**
+  /// **'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).'**
   String get helpCuriosities1;
 
   /// No description provided for @helpCuriosities2.

@@ -1312,8 +1312,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginLicenseLyrics => 'Lyrics from the sources you enable';
 
   @override
-  String get pluginLicenseCuriosities =>
-      'Sources cited: Discogs, Wikipedia, Wikidata';
+  String get pluginLicenseCuriosities => 'Source cited: Wikipedia (CC BY-SA)';
 
   @override
   String get pluginLicenseAi => 'AI-generated text, always marked';
@@ -1347,7 +1346,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginCuriositiesDesc =>
-      'Short facts about the record and each track, taken from Wikipedia and Discogs with the source, rising and fading as the music plays. Shown when there are no lyrics.';
+      'Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.';
 
   @override
   String get pluginAiCuriositiesName => 'AI curiosities';
@@ -1507,7 +1506,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCuriosities1 =>
-      'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia or Discogs).';
+      'When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).';
 
   @override
   String get helpCuriosities2 =>

@@ -949,7 +949,7 @@
   "pluginAuthorWaxClub": "WaxClub",
   "pluginLicenseOfficial": "Official translation",
   "pluginLicenseLyrics": "Lyrics from the sources you enable",
-  "pluginLicenseCuriosities": "Sources cited: Discogs, Wikipedia, Wikidata",
+  "pluginLicenseCuriosities": "Source cited: Wikipedia (CC BY-SA)",
   "pluginLicenseAi": "AI-generated text, always marked",
   "pluginEnglishName": "English",
   "pluginEnglishDesc": "The app in English. It is the default language and the base for the other language plugins.",
@@ -959,7 +959,7 @@
   "pluginLyricsName": "Synced lyrics",
   "pluginLyricsDesc": "Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.",
   "pluginCuriositiesName": "Record curiosities",
-  "pluginCuriositiesDesc": "Short facts about the record and each track, taken from Wikipedia and Discogs with the source, rising and fading as the music plays. Shown when there are no lyrics.",
+  "pluginCuriositiesDesc": "Short facts about the record and each track, taken from Wikipedia with the source, rising and fading as the music plays. Shown when there are no lyrics.",
   "pluginAiCuriositiesName": "AI curiosities",
   "pluginAiCuriositiesDesc": "Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.",
   "pluginAiTranslateName": "AI lyrics translation",
@@ -1042,6 +1042,6 @@
     }
   },
   "helpCuriosities": "Curiosities",
-  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia or Discogs).",
+  "helpCuriosities1": "When a song has no lyrics, WaxClub shows short facts about the record (at the start of a side) and about the track, rising and fading as the music plays. Each fact shows its source (Wikipedia).",
   "helpCuriosities2": "Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities)."
 }
