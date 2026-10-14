@@ -28,6 +28,30 @@ class _FakeRecord extends AudioRecordService {
   Future<void> cancelRecording() async {}
 }
 
+/// Microfone que só ouve música tocando (volume variando a cada 100 ms, sem silêncio).
+class _MusicPlayingRecord extends AudioRecordService {
+  @override
+  Future<DateTime?> recordProgressive({
+    required List<Duration> checkpoints,
+    required Future<bool> Function(Uint8List wavBytes, DateTime captureStart) onCheckpoint,
+    RecordPriority priority = RecordPriority.user,
+  }) async {
+    final start = DateTime.now();
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final windows = checkpoints.last.inMilliseconds ~/ 100;
+    final pcm = Int16List(windows * 1600);
+    for (var w = 0; w < windows; w++) {
+      pcm.fillRange(w * 1600, (w + 1) * 1600, w.isEven ? 4125 : 1304); // −18 / −28 dB
+    }
+    // 44 bytes de cabeçalho (o analisador lê o PCM a partir dali)
+    await onCheckpoint(Uint8List.fromList([...List.filled(44, 0), ...pcm.buffer.asUint8List()]), start);
+    return start;
+  }
+
+  @override
+  Future<void> cancelRecording() async {}
+}
+
 class _CountingShazam extends ShazamService {
   int calls = 0;
   @override
@@ -255,6 +279,37 @@ void main() {
       expect(engine.telemetry.currentPositionSeconds, closeTo(20.0, 0.1));
       expect(engine.lyricBiasSeconds, closeTo(20.0, 0.1), reason: 'o deslocamento vale para o resto do lado');
       expect(engine.isManualPlaying, isTrue);
+      engine.stopManual();
+      engine.dispose();
+    });
+
+    test('▶ com a música já tocando: começa incerta, sem Shazam; o toque na linha cantada calibra', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final shazam = _CountingShazam();
+      final engine = WaxClubEngine(
+        recordService: _MusicPlayingRecord(),
+        shazamService: shazam,
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      );
+      final lp = [
+        const TrackEntry(position: 1, title: 'Já A1', number: 'A1', side: 'A', lengthMs: 60000),
+        const TrackEntry(position: 2, title: 'Já A2', number: 'A2', side: 'A', lengthMs: 60000),
+      ];
+      await engine.prepareScannedRecord(albumTitle: 'Disco Tocando', artist: 'Banda', tracklist: lp, source: 'discogs');
+      expect(await engine.startManualPlayback(trackIndex: 0, useMic: true), isTrue);
+      await _waitFor(() => engine.manualOnsetUncertain);
+      expect(engine.isManualPlaying, isTrue);
+      expect(engine.telemetry.statusMessage, contains('already playing'));
+
+      // O usuário toca na linha que está sendo cantada (aos 20 s): calibrado
+      engine.syncToLine(20.0);
+      expect(engine.manualOnsetUncertain, isFalse);
+      expect(engine.telemetry.currentPositionSeconds, closeTo(20.0, 0.2));
+      expect(engine.manualSpeedCorrection, 0, reason: 'a calibração do começo não é escorregão da rotação');
+      expect(shazam.calls, 0, reason: 'o Modo Manual nunca consulta o Shazam');
       engine.stopManual();
       engine.dispose();
     });

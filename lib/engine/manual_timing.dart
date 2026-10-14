@@ -2,6 +2,8 @@
 /// o detector do sulco entre faixas e o estimador da rotação da vitrola na sessão.
 library;
 
+import 'dart:math' as math;
+
 /// Fim de uma faixa e começo da seguinte, achados pelo volume do microfone.
 class ManualBoundary {
   /// Quando o som da faixa acabou (começo do silêncio do sulco entre faixas).
@@ -117,6 +119,81 @@ class ManualBoundaryDetector {
       }
     }
     return null;
+  }
+}
+
+/// Como a faixa começou depois do ▶ do Modo Manual.
+class ManualOnset {
+  /// Quando a música começou (ou, se já tocava, quando o microfone começou a ouvir).
+  final DateTime at;
+
+  /// A música já tocava quando o usuário tocou no ▶: o começo real é desconhecido (é antes de [at]).
+  final bool alreadyPlaying;
+
+  const ManualOnset({required this.at, required this.alreadyPlaying});
+}
+
+/// Depois do ▶ (começo do disco ou do lado novo, depois de virar): o microfone decide, pelo volume em
+/// janelas de 100 ms, se a agulha ainda está no **silêncio** (espera a música começar) ou se a **música já
+/// estava tocando**:
+/// * **começo da música:** o volume sobe pelo menos [riseDb] acima do chão de ruído medido antes
+///   (percentil 20 do que já ouviu: chiado do disco, sala) e fica lá por [sustainWindows] janelas — o
+///   começo é a primeira dessas janelas (horário preciso);
+/// * **já tocando:** depois de [decideAfterSeconds] sem essa subida, o som não é silêncio (acima de
+///   [audibleDb]) e varia como música (diferença de pelo menos [musicSpreadDb] entre os percentis 90 e 10;
+///   chiado e sala variam pouco) — a faixa começa "agora", marcada como incerta.
+class ManualOnsetDetector {
+  static const double riseDb = 12.0;
+  static const int sustainWindows = 3;
+  static const int baselineWindows = 5; // 0,5 s de chão antes de procurar a subida
+  static const double decideAfterSeconds = 2.5;
+  static const double audibleDb = -55.0;
+  static const double musicSpreadDb = 5.0;
+  static const double windowSeconds = 0.1;
+
+  final List<double> _dbs = [];
+  final List<DateTime> _times = [];
+  int _checked = 0;
+
+  void reset() {
+    _dbs.clear();
+    _times.clear();
+    _checked = 0;
+  }
+
+  /// Uma captura: [start] = começo dela, [dbs] = volume de cada janela de 100 ms.
+  ManualOnset? feedWindows(DateTime start, List<double> dbs) {
+    for (var i = 0; i < dbs.length; i++) {
+      _dbs.add(dbs[i]);
+      _times.add(start.add(Duration(milliseconds: (i * windowSeconds * 1000).round())));
+    }
+    // Subida sustentada acima do chão medido antes dela
+    for (var i = math.max(_checked, baselineWindows); i + sustainWindows <= _dbs.length; i++) {
+      _checked = i + 1;
+      final floor = _percentile(_dbs.sublist(0, i), 0.2);
+      var risen = true;
+      for (var k = i; k < i + sustainWindows; k++) {
+        if (_dbs[k] < floor + riseDb || _dbs[k] < audibleDb) {
+          risen = false;
+          break;
+        }
+      }
+      if (risen) return ManualOnset(at: _times[i], alreadyPlaying: false);
+    }
+    // Sem subida: música desde o começo?
+    if (_dbs.length * windowSeconds >= decideAfterSeconds) {
+      final p10 = _percentile(_dbs, 0.1);
+      final p90 = _percentile(_dbs, 0.9);
+      if (p10 >= audibleDb && p90 - p10 >= musicSpreadDb) {
+        return ManualOnset(at: _times.first, alreadyPlaying: true);
+      }
+    }
+    return null;
+  }
+
+  static double _percentile(List<double> values, double p) {
+    final sorted = List<double>.from(values)..sort();
+    return sorted[(sorted.length * p).floor().clamp(0, sorted.length - 1)];
   }
 }
 

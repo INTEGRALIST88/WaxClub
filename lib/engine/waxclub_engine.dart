@@ -2586,6 +2586,12 @@ class WaxClubEngine extends ChangeNotifier {
   void seekTo(double seconds) {
     if (isManualPlaying && _tStart != null && !_isPaused) {
       _rebaseManualClock();
+      if (_manualOnsetUncertain) {
+        _manualOnsetUncertain = false;
+        _manualTiming.resetNudgeAnchor();
+        final e = _manualTracks[_manualIndex];
+        _telemetry = _telemetry.copyWith(statusMessage: l10n.manualPlaying(e.number ?? '${_manualIndex + 1}', e.title));
+      }
       _manualNudge(seconds - _currentPositionSeconds);
       return;
     }
@@ -2723,6 +2729,12 @@ class WaxClubEngine extends ChangeNotifier {
   DateTime? _manualTrackOnset;
   bool _manualOnsetFromMic = false;
 
+  /// A música já tocava quando o usuário tocou no ▶: o começo real é desconhecido. O microfone escuta
+  /// a faixa inteira até o sulco seguinte (que acerta a troca) e o toque na linha cantada calibra.
+  bool _manualOnsetUncertain = false;
+  bool get manualOnsetUncertain => _manualOnsetUncertain;
+  final ManualOnsetDetector _manualOnsetDetector = ManualOnsetDetector();
+
   /// Rotação estimada na sessão do Modo Manual (fração; 0.01 = 1% mais rápida).
   double get manualSpeedCorrection => _manualSpeedCorrection;
 
@@ -2817,6 +2829,7 @@ class WaxClubEngine extends ChangeNotifier {
     _manualSpeedCorrection = 0.0;
     _manualTimelineBeforeTrack = 0.0;
     _manualTiming.reset();
+    _manualOnsetUncertain = false;
     _manualIndex = -1;
     _manualPendingIndex = null;
     _manualTracks = [];
@@ -2861,9 +2874,12 @@ class WaxClubEngine extends ChangeNotifier {
     return true;
   }
 
-  /// Escuta só o volume (sem Shazam) até a música começar e inicia a letra no primeiro som.
+  /// Depois do ▶: escuta só o volume (nunca o Shazam) e decide se ainda é o silêncio antes da música
+  /// (a letra começa no primeiro som) ou se a música já tocava (começa agora, incerta: o microfone
+  /// segue escutando até o sulco da próxima faixa e o toque na linha cantada calibra).
   Future<void> _manualAwaitOnset(int mySession) async {
     final waitStart = DateTime.now();
+    _manualOnsetDetector.reset();
     while (_sessionId == mySession && !_isDisposed) {
       if (DateTime.now().difference(waitStart) > PredictionTuning.sideFlipMaxWait) {
         _stopManual(l10n.manualNeedleTimeout);
@@ -2871,15 +2887,18 @@ class WaxClubEngine extends ChangeNotifier {
       }
       _telemetry = _telemetry.copyWith(isMicActive: true);
       notifyListeners();
-      final outcome = await _captureLevelOnly();
+      final outcome = await _captureLevelOnly(chunk: const Duration(milliseconds: 1000));
       if (_sessionId != mySession || _isDisposed) return;
-      if (outcome.cancelled) {
+      final dbs = outcome.report?.windowDbs ?? const <double>[];
+      if (outcome.cancelled || dbs.isEmpty) {
         await Future.delayed(const Duration(milliseconds: 500));
         continue;
       }
-      if (outcome.silent) continue;
+      final found = _manualOnsetDetector.feedWindows(outcome.captureStart, dbs);
+      if (found == null) continue;
       _telemetry = _telemetry.copyWith(isMicActive: false);
-      _manualStartAt(outcome.soundOnset ?? outcome.captureStart, fromMic: true);
+      _logService.log('manual_onset', {'alreadyPlaying': found.alreadyPlaying, 'track': _currentTrack?.title});
+      _manualStartAt(found.at, fromMic: true, uncertain: found.alreadyPlaying);
       return;
     }
   }
@@ -2903,10 +2922,11 @@ class WaxClubEngine extends ChangeNotifier {
   }
 
   /// A música começou em [onset]: a letra corre a partir dali e a troca de faixa é agendada.
-  void _manualStartAt(DateTime onset, {bool fromMic = false}) {
+  void _manualStartAt(DateTime onset, {bool fromMic = false, bool uncertain = false}) {
     final now = DateTime.now();
     _manualTrackOnset = onset;
-    _manualOnsetFromMic = fromMic;
+    _manualOnsetFromMic = fromMic && !uncertain;
+    _manualOnsetUncertain = uncertain && _manualUseMic;
     _manualGraceUsed = false;
     final elapsed = math.max(0.0, now.difference(onset).inMilliseconds / 1000.0);
     _baseOffset = elapsed * effectiveSpeedFactor;
@@ -2916,8 +2936,12 @@ class WaxClubEngine extends ChangeNotifier {
     final e = _manualTracks[_manualIndex];
     _updateStatus(
       CalibrationStatus.calibrated,
-      (_trackDurationSeconds ?? 0) > 0 ? l10n.manualPlaying(e.number ?? '${_manualIndex + 1}', e.title) : l10n.manualNoDuration,
-      isMicActive: false,
+      _manualOnsetUncertain
+          ? l10n.manualAlreadyPlaying
+          : (_trackDurationSeconds ?? 0) > 0
+              ? l10n.manualPlaying(e.number ?? '${_manualIndex + 1}', e.title)
+              : l10n.manualNoDuration,
+      isMicActive: _manualOnsetUncertain,
     );
     if (_castService.isConnected && _currentTrack != null) {
       _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
@@ -2937,7 +2961,7 @@ class WaxClubEngine extends ChangeNotifier {
     _manualExpectedEnd = DateTime.now().add(Duration(milliseconds: (toEnd * 1000).round()));
     if (_manualUseMic && !_manualWatching) {
       _manualWatchTimer?.cancel();
-      final lead = math.max(0.0, toEnd - math.max(manualListenLeadSeconds, _manualEndTolerance + 2));
+      final lead = _manualOnsetUncertain ? 0.0 : math.max(0.0, toEnd - math.max(manualListenLeadSeconds, _manualEndTolerance + 2));
       _manualWatchTimer = Timer(Duration(milliseconds: (lead * 1000).round()), () {
         if (_sessionId == mySession && !_isDisposed && _manualIndex == index) {
           unawaited(_manualWatchBoundary(mySession, index));
@@ -2979,12 +3003,14 @@ class WaxClubEngine extends ChangeNotifier {
     _manualWatching = true;
     _manualDetector.reset();
     final tol = _manualEndTolerance;
-    final deadline = DateTime.now().add(Duration(
-      milliseconds: ((math.max(manualListenLeadSeconds, tol + 2) + manualGapSeconds + math.max(manualSegueGraceSeconds, tol) +
-                  ManualBoundaryDetector.maxGapSeconds + 3) *
-              1000)
-          .round(),
-    ));
+    final extra = manualGapSeconds + math.max(manualSegueGraceSeconds, tol) + ManualBoundaryDetector.maxGapSeconds + 3;
+    var deadline = DateTime.now().add(Duration(milliseconds: ((math.max(manualListenLeadSeconds, tol + 2) + extra) * 1000).round()));
+    // Começo incerto: escuta desde já até depois do fim esperado
+    final end = _manualExpectedEnd;
+    if (end != null) {
+      final byEnd = end.add(Duration(milliseconds: ((tol + extra) * 1000).round()));
+      if (byEnd.isAfter(deadline)) deadline = byEnd;
+    }
     _telemetry = _telemetry.copyWith(isMicActive: true);
     notifyListeners();
     try {
@@ -3018,6 +3044,8 @@ class WaxClubEngine extends ChangeNotifier {
     final end = _manualExpectedEnd;
     if (end == null) return true;
     final diff = silenceStart.difference(end).inMilliseconds / 1000.0;
+    // Começo incerto: a música começou antes do ▶, então o fim real vem antes do esperado
+    if (_manualOnsetUncertain) return diff <= tol + manualGapSeconds;
     return diff >= -tol && diff <= tol + manualGapSeconds;
   }
 
@@ -3123,6 +3151,7 @@ class WaxClubEngine extends ChangeNotifier {
       _manualTiming.resetNudgeAnchor();
       final label = side;
       _logService.log('manual_side_end', {'side': label, 'next': _manualTracks[next].title});
+      if (_castService.isConnected) _castService.sendSideFlip(nextSide: nextSide);
       _telemetry = _telemetry.copyWith(sideEndLabel: _sideEndLabelFor(label));
       _updateStatus(CalibrationStatus.waitingEndOfSide, l10n.manualFlipAndPlay(label), isMicActive: false);
       return;

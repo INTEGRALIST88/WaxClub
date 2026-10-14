@@ -37,6 +37,38 @@ void main() {
     });
   });
 
+  group('depois do ▶: silêncio antes da música ou música já tocando', () {
+    List<double> level(double db, double seconds) => List.filled((seconds * 10).round(), db);
+    // música: volume que varia (−18 a −28 dB a cada 100 ms)
+    List<double> music(double seconds) => [for (var i = 0; i < (seconds * 10).round(); i++) i.isEven ? -18.0 : -28.0];
+
+    test('agulha no sulco de entrada (chiado) e depois a música: começa no primeiro som', () {
+      final d = ManualOnsetDetector();
+      expect(d.feedWindows(at(0), level(-50, 1)), isNull, reason: 'chiado do disco acima de −55 dB não é música');
+      final o = d.feedWindows(at(1), [...level(-50, 0.5), ...music(0.5)]);
+      expect(o, isNotNull);
+      expect(o!.alreadyPlaying, isFalse);
+      expect(o.at, at(1.5));
+    });
+
+    test('chiado constante por muito tempo: continua esperando', () {
+      final d = ManualOnsetDetector();
+      for (var s = 0; s < 6; s++) {
+        expect(d.feedWindows(at(s.toDouble()), level(-50, 1)), isNull);
+      }
+    });
+
+    test('a música já tocava quando o usuário tocou no ▶: começa agora, incerta', () {
+      final d = ManualOnsetDetector();
+      expect(d.feedWindows(at(0), music(1)), isNull, reason: 'ainda cedo para decidir');
+      expect(d.feedWindows(at(1), music(1)), isNull);
+      final o = d.feedWindows(at(2), music(1));
+      expect(o, isNotNull);
+      expect(o!.alreadyPlaying, isTrue);
+      expect(o.at, at(0));
+    });
+  });
+
   group('rotação da vitrola na sessão', () {
     test('o 1º ajuste só acerta o começo; outro mais de 1 minuto depois mede a rotação', () {
       final e = ManualTimingEstimator();

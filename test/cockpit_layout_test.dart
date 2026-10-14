@@ -45,7 +45,11 @@ class _FakeLyrics extends LyricsProviderService {
     int? durationSeconds,
     String? preferredSource,
   }) async =>
-      const LrcResponse(syncedLyrics: '[00:01.00] linha', durationSeconds: 240, source: 'lrclib');
+      const LrcResponse(
+        syncedLyrics: '[00:01.00] linha um\n[00:05.00] linha dois\n[00:09.00] linha três\n[00:13.00] linha quatro',
+        durationSeconds: 240,
+        source: 'lrclib',
+      );
 }
 
 void main() {
@@ -59,52 +63,61 @@ void main() {
 
   // Altura útil abaixo da barra do app: celular comum (~393×852) e compacto (~360×740)
   for (final size in const [Size(393, 730), Size(360, 600)]) {
-    testWidgets('painel da transmissão cabe inteiro, sem estouro, em ${size.width.toInt()}×${size.height.toInt()}',
-        (tester) async {
-      final engine = await tester.runAsync(() async {
-        final cache = VinylCacheService(storageDirectory: tempDir);
-        await cache.init();
-        final e = WaxClubEngine(
-          recordService: _FakeRecord(),
-          shazamService: _FakeShazam(),
-          lyricsService: _FakeLyrics(),
-          cacheService: cache,
-          logService: SessionLogService(storageDirectory: tempDir),
-          castService: CastSyncService(),
-        );
-        await e.startListening();
-        return e;
-      });
+    for (final manual in const [false, true]) {
+      testWidgets(
+          'painel da transmissão (${manual ? 'Modo Manual' : 'automático'}) cabe inteiro, sem estouro, em ${size.width.toInt()}×${size.height.toInt()}',
+          (tester) async {
+        final engine = await tester.runAsync(() async {
+          final cache = VinylCacheService(storageDirectory: tempDir);
+          await cache.init();
+          final e = WaxClubEngine(
+            recordService: _FakeRecord(),
+            shazamService: _FakeShazam(),
+            lyricsService: _FakeLyrics(),
+            cacheService: cache,
+            logService: SessionLogService(storageDirectory: tempDir),
+            castService: CastSyncService(),
+          );
+          await e.startListening();
+          if (manual) e.setManualMode(true);
+          return e;
+        });
 
-      tester.view.physicalSize = size;
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.reset);
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: VinylControlCockpit(
-            engine: engine!,
-            onOpenCastDialog: () {},
-            onDisconnectCast: () {},
+        await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+            body: VinylControlCockpit(
+              engine: engine!,
+              onOpenCastDialog: () {},
+              onDisconnectCast: () {},
+              onManualPressed: () {},
+            ),
           ),
-        ),
-      ));
-      await tester.pump(const Duration(milliseconds: 100));
+        ));
+        await tester.pump(const Duration(milliseconds: 100));
 
-      // Estouro de layout é reportado como exceção pelo framework
-      expect(tester.takeException(), isNull);
-      expect(find.text('LISTEN / RESYNC'), findsOneWidget);
-      expect(find.text('Disconnect'), findsOneWidget);
+        // Estouro de layout é reportado como exceção pelo framework
+        expect(tester.takeException(), isNull);
+        // O Modo Manual nunca oferece a escuta do Shazam: o botão principal é o ▶ do Manual
+        expect(find.text('LISTEN / RESYNC'), manual ? findsNothing : findsOneWidget);
+        if (manual) expect(find.text('PLAY'), findsOneWidget);
+        expect(find.text('Disconnect'), findsOneWidget);
 
-      // O bloco de ajustes tem rolagem só como proteção: o conteúdo precisa caber sem rolar
-      final scrollable = tester.state<ScrollableState>(
-        find.descendant(of: find.byType(VinylControlCockpit), matching: find.byType(Scrollable)).first,
-      );
-      expect(scrollable.position.maxScrollExtent, 0.0, reason: 'os ajustes devem caber sem rolagem');
+        // Sem capa, sem "a seguir" e sem ±0.5: a sincronia da letra são as linhas tocáveis
+        expect(find.byType(Image), findsNothing);
+        expect(find.text('Up next'.toUpperCase()), findsNothing);
+        expect(find.textContaining('0.5'), findsNothing);
+        expect(find.text('linha um'), findsOneWidget);
+        expect(find.text('linha dois'), findsOneWidget);
+        expect(find.byType(Scrollable), findsNothing, reason: 'tudo cabe sem rolagem');
 
-      engine.stop();
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.runAsync(() async => engine.dispose());
-    });
+        engine.stop();
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() async => engine.dispose());
+      });
+    }
   }
 }

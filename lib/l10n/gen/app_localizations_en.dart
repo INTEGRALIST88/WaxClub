@@ -1872,7 +1872,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readyStepsManual =>
-      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.';
+      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nTo calibrate, tap the line being sung: the lyrics jump to it (on the TV too). Do it whenever the lyrics run early or late, or the needle skips.';
 
   @override
   String get readyGotIt => 'Got it';
@@ -1883,7 +1883,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualNeedleSkipWarning =>
-      'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.';
+      'If the needle skips or you lift it, the lyrics can go out of sync. Tap the line being sung to calibrate, or tap the right track in the list.';
 
   @override
   String get helpManual3 =>
@@ -1956,4 +1956,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupByAlbum => 'Album';
+
+  @override
+  String get lyricsTapToCalibrate => 'Tap the line being sung to calibrate';
+
+  @override
+  String get manualAlreadyPlaying =>
+      'The music was already playing: tap the line being sung to calibrate.';
+
+  @override
+  String get manualPlayButton => 'PLAY';
+
+  @override
+  String get manualStopButton => 'STOP';
+
+  @override
+  String manualPlaySide(String side) {
+    return 'FLIPPED? PLAY SIDE $side';
+  }
 }

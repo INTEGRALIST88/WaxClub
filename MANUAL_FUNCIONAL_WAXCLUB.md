@@ -136,11 +136,11 @@ lib/
 ### 3.6 Módulo 6: Console de Controle Ampliado no Celular
 * **Arquivo:** [`lib/ui/widgets/vinyl_control_cockpit.dart`](lib/ui/widgets/vinyl_control_cockpit.dart)
 * **Componentes Integrados:**
-  1. **Capa do Disco & Informações:** Arte do álbum em alta resolução, título, artista e álbum.
-  2. **Barra de Progresso e Tempo:** Marcador de tempo decorrido, slider para saltar na música (*seek*) e duração total estimada.
-  3. **Visor de RPM Ampliado:** Mostrador analógico giratório estilizado com leitura estroboscópica (`33.3 RPM` / `45.0 RPM`) e porcentagem de desvio de Pitch colorida.
-  4. **Ajuste Fino de Rotação (Pitch):** Slider de $-5.0\%$ a $+5.0\%$ com precisão de $0.1\%$, botões rápidos de micro-passo (`[-0.1%]`, `[+0.1%]`), botão de `Reset (0.0%)` e botões de `Nudge` (`-0.5s`, `+0.5s`).
-  5. **Botão de Microfone Ampliado:** Botão ergonômico largo no rodapé para início/interrupção imediata da captura e calibração.
+  1. **TV conectada:** faixa fina com o nome da TV e "Desconectar".
+  2. **Barra de minutagem:** tempo decorrido, slider para saltar na música (*seek*) e duração. Música, banda, disco e "a seguir" ficam na barra de cima (v1.4.5).
+  3. **Sincronia da letra (em destaque, v1.4.5):** as linhas antes e depois da que está sendo cantada (até 7), tocáveis; tocar na linha cantada acerta celular e TV (no Modo Manual, é a calibração). Pulsa prateada no Modo Manual ao começar a transmissão e enquanto o começo da faixa for incerto. Sem letra: `−0.5s` / `+0.5s`.
+  4. **Rotação:** visor de RPM giratório com desvio colorido; ajuste fino (Pitch) de $-5.0\%$ a $+5.0\%$ com micro-passos (`[-0.1%]`, `[+0.1%]`), `Reset` e trava.
+  5. **Botão principal:** automático — Ouvir/Ressincronizar ou "Vire o disco"; Modo Manual — ▶ Play, Stop e "Flipped? Play side B" (nunca o Shazam).
 
 * **Letra no celular (sem transmitir), no estilo da TV (v1.3.8):** [`lib/ui/widgets/lyrics_list_view.dart`](lib/ui/widgets/lyrics_list_view.dart) replica o `web_receiver/index.html`: fonte Inter 800 (`assets/fonts/Inter-Variable.ttf`), centralizada, caixa alta só para alfabeto latino (`isLatinText`), escalas 1 / 1 / 0,76 / 0,62 e opacidades 1 / 0,92 / 0,24 / 0,16 por distância da linha atual (`scaleFor` / `opacityFor`), linha atual centralizada, bordas esmaecendo (ShaderMask 0–18% e 82–100%), curva cubic-bezier(0.22, 0.8, 0.24, 1), "♪" nos trechos sem letra.
 
@@ -289,6 +289,7 @@ lib/
 | **Curiosidades no idioma do artista, banco compartilhado (Hostinger) consultado antes da web e gravado na hora; ⓘ com brilho prateado em My Collection (plugin D2)** | `LanguageDetector`, `CuriositiesRemote`/`AccountCuriositiesRemote`, `CuriositiesService.albumFacts`; `CuriosityBadge` e `_showCuriosities` em `collection_screen.dart`; API `/v1/curiosities` (`server/api/lib/curiosities.php`, tabela `record_curiosities`) | ✅ Conforme (v1.4.2) |
 | **Toque na linha da letra acerta celular e TV (e o relógio do disco no Modo Manual); linhas tocáveis no painel da transmissão; sulco entre faixas por queda relativa em janelas de 100 ms perto do fim da minutagem; catálogo de reconhecimento pela discografia do artista** | `syncToLine`/`seekTo` em `waxclub_engine.dart`; `_tapLines` em `vinyl_control_cockpit.dart`; `ManualBoundaryDetector.feedWindows` (`manual_timing.dart`); `RecognitionCatalogService._findAlbumId` | ✅ Conforme (v1.4.3) |
 | **My Collection por artista/banda (divisor com o nome) ou por disco (divisor com a letra), ordem de loja de discos (sem artigo e acento, # no fim), abecedário vertical à esquerda para pular de letra; ⓘ de madeira** | `CollectionGrouper` (`lib/services/collection_grouping.dart`); `_groupChip`, `_groupHeader`, `_alphabetBar` em `collection_screen.dart`; `assets/images/btn_info.png` em `CuriosityBadge` | ✅ Conforme (v1.4.4) |
+| **Painel da transmissão focado na letra (minutagem + linhas tocáveis em destaque, sem capa/"a seguir"/±0.5); brilho prateado no Modo Manual; Modo Manual sem Shazam no painel (▶/Stop/"Flipped? Play side B"); depois do ▶ o microfone distingue silêncio de música já tocando (começo incerto: escuta a faixa inteira até o sulco e calibra pelo toque na linha)** | `vinyl_control_cockpit.dart` (`_buildLyricSync`, `_tapLines`, `_buildManualAction`); `ManualOnsetDetector` (`manual_timing.dart`); `_manualAwaitOnset`, `_manualOnsetUncertain` em `waxclub_engine.dart` | ✅ Conforme (v1.4.5) |
 | **TVs Samsung/LG sem Chromecast por Smart View / Miracast: letra na TV, painel no celular (sem navegador, sem app na TV)** | Android `Presentation` (`SecondScreenController.kt`) + `SecondScreenService` | ✅ Conforme (v1.3.18) |
 | **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
 | **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |

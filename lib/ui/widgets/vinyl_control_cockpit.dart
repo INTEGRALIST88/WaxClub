@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../engine/waxclub_engine.dart';
@@ -9,38 +10,64 @@ import 'flip_side_button.dart';
 
 /// Painel de controle do celular durante a transmissão para a TV (tela travada em retrato).
 ///
-/// Organizado em 4 grupos que cabem inteiros na tela, sem rolagem:
+/// Música, banda, disco e "a seguir" já aparecem na barra de cima; aqui, sem rolagem:
 ///  1. TV conectada (faixa fina com "Desconectar");
-///  2. Tocando agora: capa, título, artista, disco, lado, barra de tempo e "A seguir";
-///  3. Ajustes: rotação medida, ajuste fino da rotação (pitch + trava) e sincronia da letra (nudge);
-///  4. Ação principal no rodapé: Ouvir/Ressincronizar ou "Vire o disco" (pulsando no fim do lado).
+///  2. barra de minutagem;
+///  3. **sincronia da letra** em destaque: as linhas em volta da que está sendo cantada, tocáveis — tocar
+///     na linha cantada acerta celular e TV (no Modo Manual, é a calibração; a região pulsa prateada ao
+///     começar a transmissão e enquanto o começo da faixa for incerto);
+///  4. rotação medida e ajuste fino da rotação;
+///  5. ação principal no rodapé: Ouvir/Ressincronizar ou "Vire o disco"; no Modo Manual, ▶/parar e
+///     "tocar o lado B" depois de virar (o Modo Manual nunca usa o reconhecimento do Shazam).
 /// Em telas baixas (ex.: 360×740) entra em modo compacto, com as mesmas funções.
 class VinylControlCockpit extends StatefulWidget {
   final WaxClubEngine engine;
   final VoidCallback onOpenCastDialog;
   final VoidCallback onDisconnectCast;
-  final VoidCallback? onCoverTap;
+
+  /// ▶ do Modo Manual (parar, tocar o lado seguinte depois de virar ou escolher onde a agulha começa).
+  final VoidCallback? onManualPressed;
 
   const VinylControlCockpit({
     super.key,
     required this.engine,
     required this.onOpenCastDialog,
     required this.onDisconnectCast,
-    this.onCoverTap,
+    this.onManualPressed,
   });
 
   @override
   State<VinylControlCockpit> createState() => _VinylControlCockpitState();
 }
 
-class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTickerProviderStateMixin {
+class _VinylControlCockpitState extends State<VinylControlCockpit> with TickerProviderStateMixin {
   late final AnimationController _discSpin = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1800),
   )..repeat();
+
+  /// Brilho prateado da sincronia da letra (Modo Manual).
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  );
+  DateTime? _pulseUntil;
+  Timer? _pulseTimer;
+  bool _wasManual = false;
+
   double _manualPitch = 0.0;
 
   static const Color _amber = Color(0xFFFFB300);
+  static const Color _silver = Color(0xFFE8ECF0);
+  static const Duration _pulseOnStart = Duration(seconds: 10);
+
+  @override
+  void initState() {
+    super.initState();
+    _wasManual = widget.engine.isManualMode;
+    if (_wasManual) _pulseFor(_pulseOnStart);
+    _syncPulse();
+  }
 
   @override
   void didUpdateWidget(covariant VinylControlCockpit oldWidget) {
@@ -56,10 +83,42 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
       final d = Duration(milliseconds: (1800 / telemetry.speedFactor).round());
       if (_discSpin.duration != d) _discSpin.duration = d;
     }
+    final manual = widget.engine.isManualMode;
+    if (manual && !_wasManual) _pulseFor(_pulseOnStart);
+    _wasManual = manual;
+    _syncPulse();
+  }
+
+  void _pulseFor(Duration d) {
+    _pulseUntil = DateTime.now().add(d);
+    _pulseTimer?.cancel();
+    _pulseTimer = Timer(d, () {
+      if (mounted) setState(_syncPulse);
+    });
+  }
+
+  /// Pulsa no Modo Manual: ao começar a transmissão (alguns segundos) e enquanto o começo da faixa
+  /// for incerto (a música já tocava no ▶: falta calibrar tocando na linha).
+  bool get _shouldPulse {
+    final engine = widget.engine;
+    if (!engine.isManualMode || engine.lyrics.isEmpty) return false;
+    final until = _pulseUntil;
+    return engine.manualOnsetUncertain || (until != null && DateTime.now().isBefore(until));
+  }
+
+  void _syncPulse() {
+    if (_shouldPulse) {
+      if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
+    } else if (_pulse.isAnimating || _pulse.value > 0) {
+      _pulse.stop();
+      _pulse.value = 0;
+    }
   }
 
   @override
   void dispose() {
+    _pulseTimer?.cancel();
+    _pulse.dispose();
     _discSpin.dispose();
     super.dispose();
   }
@@ -90,27 +149,17 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
           children: [
             _buildTvStrip(compact),
             SizedBox(height: gap),
-            if (!compact) _groupTitle(l10n.nowPlaying),
-            _buildNowPlaying(engine.currentTrack, telemetry, compact),
+            _buildTimeBar(engine.currentTrack, telemetry, compact),
             SizedBox(height: gap),
-            if (!compact) _groupTitle(l10n.settings),
-            Expanded(child: _buildAdjustments(telemetry, compact)),
+            Expanded(child: _buildLyricSync(compact)),
+            SizedBox(height: gap),
+            _buildSpeed(telemetry, compact),
             SizedBox(height: gap),
             _buildMainAction(telemetry, compact),
           ],
         ),
       );
     });
-  }
-
-  Widget _groupTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 2, bottom: 5),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 1.4, color: Colors.white54),
-      ),
-    );
   }
 
   // ─── 1. TV CONECTADA ───
@@ -167,191 +216,178 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     );
   }
 
-  // ─── 2. TOCANDO AGORA ───
-  Widget _buildNowPlaying(TrackInfo? track, VinylTelemetry telemetry, bool compact) {
-    final engine = widget.engine;
-    final cover = engine.lockedAlbumCoverUrl ?? track?.coverUrl;
-    final album = engine.lockedAlbumName ?? track?.album;
-    final side = engine.currentSide;
-    final number = engine.currentTrackNumber;
-    final coverSize = compact ? 74.0 : 108.0;
-
+  // ─── 2. MINUTAGEM ───
+  Widget _buildTimeBar(TrackInfo? track, VinylTelemetry telemetry, bool compact) {
     final duration = (track?.durationMs != null && track!.durationMs! > 0)
         ? track.durationMs! / 1000.0
         : (telemetry.trackDurationSeconds ?? 0.0);
     final position = duration > 0
         ? telemetry.currentPositionSeconds.clamp(0.0, duration).toDouble()
         : telemetry.currentPositionSeconds;
+    const timeStyle = TextStyle(fontSize: 11, color: Colors.white54, fontFeatures: [FontFeature.tabularFigures()]);
 
     return WoodPanel(
+      radius: 14,
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: compact ? 4 : 6),
+      child: Row(
+        children: [
+          Text(_fmt(position), style: timeStyle),
+          // Barra de tempo (arrastar ajusta a posição da letra)
+          Expanded(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 4,
+                activeTrackColor: AppTheme.cream,
+                inactiveTrackColor: Colors.white12,
+                thumbColor: AppTheme.orange,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+              ),
+              child: SizedBox(
+                height: 24,
+                child: Slider(
+                  value: duration > 0 ? position : 0.0,
+                  min: 0.0,
+                  max: duration > 0 ? duration : 1.0,
+                  onChanged: duration > 0 ? (v) => widget.engine.seekTo(v) : null,
+                ),
+              ),
+            ),
+          ),
+          Text(duration > 0 ? _fmt(duration) : '--:--', style: timeStyle), // l10n-ignore
+        ],
+      ),
+    );
+  }
+
+  // ─── 3. SINCRONIA DA LETRA ───
+  Widget _buildLyricSync(bool compact) {
+    final engine = widget.engine;
+    final hasLyrics = engine.lyrics.isNotEmpty;
+    final panel = WoodPanel(
       radius: 18,
-      padding: EdgeInsets.all(compact ? 10 : 12),
+      padding: EdgeInsets.fromLTRB(10, compact ? 8 : 10, 10, compact ? 8 : 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: widget.onCoverTap,
-                child: SizedBox(
-                  width: coverSize,
-                  height: coverSize,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [BoxShadow(color: Colors.black87, blurRadius: 14, offset: Offset(0, 6))],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: (cover != null && cover.isNotEmpty)
-                                ? Image.network(cover, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallbackCover())
-                                : _fallbackCover(),
-                          ),
-                        ),
-                      ),
-                      if (side != null && side.isNotEmpty)
-                        Positioned(left: 6, bottom: 6, child: _coverBadge(l10n.sideCaps(side.toUpperCase()), bold: true)),
-                      Positioned(right: 6, top: 6, child: _coverBadge(l10n.tracksBadge)),
-                    ],
+          _subHead(
+            l10n.lyricsSync,
+            hasLyrics ? l10n.lyricsTapToCalibrate : l10n.lyricsSyncHint,
+            accentValue: hasLyrics,
+          ),
+          Expanded(child: hasLyrics ? _tapLines(compact) : _nudgeFallback(compact)),
+        ],
+      ),
+    );
+    return AnimatedBuilder(
+      animation: _pulse,
+      child: panel,
+      builder: (context, child) {
+        final v = Curves.easeInOut.transform(_pulse.value);
+        if (v <= 0) return child!;
+        return DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: _silver.withValues(alpha: 0.35 + 0.55 * v), width: 1.5),
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [BoxShadow(color: _silver.withValues(alpha: 0.55 * v), blurRadius: 22 * v, spreadRadius: 1 + 2 * v)],
+            ),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
+  /// As linhas em volta da que está sendo cantada (quantas couberem): tocar na linha cantada acerta
+  /// celular e TV de uma vez.
+  Widget _tapLines(bool compact) {
+    final engine = widget.engine;
+    final lines = engine.lyrics;
+    final active = engine.activeLineIndex.clamp(0, lines.length - 1);
+    final rowHeight = compact ? 40.0 : 46.0;
+    return LayoutBuilder(builder: (context, c) {
+      var count = (c.maxHeight / rowHeight).floor().clamp(1, 7);
+      if (count.isEven) count -= 1;
+      final half = count ~/ 2;
+      final h = c.maxHeight / count;
+
+      Widget row(int i) {
+        final ok = i >= 0 && i < lines.length && lines[i].text.trim().isNotEmpty;
+        final current = i == active;
+        return SizedBox(
+          height: h,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Material(
+              color: current ? AppTheme.orange.withValues(alpha: 0.24) : Colors.black.withValues(alpha: ok ? 0.2 : 0.08),
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: ok
+                    ? () {
+                        engine.syncToLine(lines[i].timestamp.inMilliseconds / 1000.0);
+                        if (_pulseUntil != null) setState(() => _pulseUntil = null);
+                      }
+                    : null,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    ok ? lines[i].text : '',
+                    maxLines: current ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: current ? AppTheme.cream : Colors.white60,
+                      fontWeight: current ? FontWeight.w800 : FontWeight.w500,
+                      fontSize: current ? (compact ? 14.5 : 16) : (compact ? 12 : 13),
+                      height: 1.15,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      track?.title ?? l10n.noSongIdentified,
-                      style: TextStyle(fontSize: compact ? 16 : 18, fontWeight: FontWeight.w900, color: Colors.white, height: 1.15),
-                      maxLines: compact ? 1 : 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      track?.artist ?? l10n.tapListenHint,
-                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.cream),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (album != null && album.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text.rich(
-                        TextSpan(children: [
-                          TextSpan(text: album, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-                          if (number != null) TextSpan(text: l10n.trackOfTotal(number.$1, number.$2)),
-                        ]),
-                        style: const TextStyle(fontSize: 12, color: Colors.white54),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: compact ? 6 : 10),
-          // Barra de tempo (arrastar ajusta a posição da letra)
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 4,
-              activeTrackColor: AppTheme.cream,
-              inactiveTrackColor: Colors.white12,
-              thumbColor: AppTheme.orange,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-            ),
-            child: SizedBox(
-              height: 20,
-              child: Slider(
-                value: duration > 0 ? position : 0.0,
-                min: 0.0,
-                max: duration > 0 ? duration : 1.0,
-                onChanged: duration > 0 ? (v) => widget.engine.seekTo(v) : null,
-              ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(_fmt(position), style: const TextStyle(fontSize: 11, color: Colors.white54, fontFeatures: [FontFeature.tabularFigures()])),
-                Text(duration > 0 ? _fmt(duration) : '--:--', style: const TextStyle(fontSize: 11, color: Colors.white54, fontFeatures: [FontFeature.tabularFigures()])),
-              ],
-            ),
-          ),
-          SizedBox(height: compact ? 6 : 8),
-          _buildNext(telemetry, compact),
-        ],
-      ),
-    );
+        );
+      }
+
+      return Column(children: [for (var i = active - half; i <= active + half; i++) row(i)]);
+    });
   }
 
-  Widget _coverBadge(String text, {bool bold = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.65), borderRadius: BorderRadius.circular(7)),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: bold ? 10.5 : 9.5, fontWeight: bold ? FontWeight.w900 : FontWeight.w600, color: bold ? Colors.white : Colors.white70),
-      ),
-    );
-  }
-
-  Widget _fallbackCover() {
-    return Container(
-      color: AppTheme.surfaceLight,
-      child: const Center(child: Icon(Icons.album_rounded, size: 42, color: AppTheme.cream)),
-    );
-  }
-
-  Widget _buildNext(VinylTelemetry telemetry, bool compact) {
-    final sideEnd = telemetry.sideEndLabel != null;
-    final next = telemetry.predictedNextTrackTitle;
-    if (!sideEnd && (next == null || next.isEmpty)) return const SizedBox.shrink();
-
-    final color = sideEnd ? _amber : AppTheme.orange;
-    final label = sideEnd ? telemetry.sideEndLabel! : l10n.upNext;
-    final afterFlip = widget.engine.afterFlipTitle;
-    final song = sideEnd
-        ? (afterFlip != null ? l10n.nextSideStartsWith(afterFlip) : l10n.flipToContinue)
-        : next!;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: compact ? 6 : 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.30)),
-      ),
+  /// Sem letra (instrumental): só o ajuste ±0.5 s sobra para acertar o tempo.
+  Widget _nudgeFallback(bool compact) {
+    final engine = widget.engine;
+    return Center(
       child: Row(
         children: [
-          Icon(sideEnd ? Icons.flip_camera_android_rounded : Icons.skip_next_rounded, color: color, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
+          Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)), // l10n-ignore
+          SizedBox(
+            width: 76,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(label.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2, color: color)),
-                Text(song, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(l10n.offset, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+                Text(
+                  '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s', // l10n-ignore
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                ),
               ],
             ),
           ),
-          if (!sideEnd && telemetry.nextLyricsReady)
-            Text(l10n.lyricsReady, style: const TextStyle(fontSize: 11, color: AppTheme.cream)),
+          Expanded(child: _nudgeButton('+0.5s  ⏩', () => engine.nudgeSync(0.5), compact)), // l10n-ignore
         ],
       ),
     );
   }
 
-  // ─── 3. AJUSTES ───
-  Widget _buildAdjustments(VinylTelemetry telemetry, bool compact) {
+  // ─── 4. ROTAÇÃO ───
+  Widget _buildSpeed(VinylTelemetry telemetry, bool compact) {
     final engine = widget.engine;
     final estimate = engine.currentSpeedEstimate;
     final factor = telemetry.speedFactor;
@@ -360,225 +396,145 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     final samples = estimate?.samples ?? 0;
     final rpm = 33.3333 * factor;
 
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Rotação medida
-        Row(
-          children: [
-            RotationTransition(
-              turns: _discSpin,
-              child: Container(
-                width: compact ? 38 : 46,
-                height: compact ? 38 : 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF131016),
-                  border: Border.all(color: AppTheme.orange.withValues(alpha: 0.5), width: 1.5),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.cream),
-                    child: const Center(child: CircleAvatar(radius: 3, backgroundColor: Colors.black)),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(
-                    TextSpan(children: [
-                      TextSpan(text: rpm.toStringAsFixed(2)),
-                      TextSpan(text: l10n.rpmSuffix, style: const TextStyle(fontSize: 13, color: AppTheme.cream, letterSpacing: 0)),
-                    ]),
-                    style: TextStyle(fontSize: compact ? 25 : 29, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
-                  ),
-                  Text(
-                    '${factor.toStringAsFixed(3)}× · ${samples > 0 ? l10n.measuredOverListens(samples) : (engine.isHardwareSpeedCalibrated ? l10n.knownSpeed : l10n.calibrating)}',
-                    style: const TextStyle(fontSize: 11.5, color: Colors.white54),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _chip('${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(1)}%', pct.abs() > 0.8 ? _amber : AppTheme.cream),
-                if (stdErr != null) ...[
-                  const SizedBox(height: 4),
-                  _chip('±${(stdErr * 100).toStringAsFixed(1)}%', AppTheme.cream),
-                ],
-              ],
-            ),
-          ],
-        ),
-        _divider(compact),
-
-        // Ajuste fino da rotação
-        _subHead(l10n.fineSpeedAdjustment, '${_manualPitch >= 0 ? '+' : ''}${(_manualPitch * 100).toStringAsFixed(1)}%'),
-        Row(
-          children: [
-            _stepButton('−0.1', () => _setPitch(_manualPitch - 0.001), compact),
-            Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 4,
-                  activeTrackColor: AppTheme.orange,
-                  inactiveTrackColor: Colors.white12,
-                  thumbColor: AppTheme.cream,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                ),
-                // o Slider reserva 48px por padrão; limitado para o painel caber sem rolagem
-                child: SizedBox(
-                  height: compact ? 28 : 32,
-                  child: Slider(
-                    value: _manualPitch,
-                    min: -0.05,
-                    max: 0.05,
-                    divisions: 100,
-                    onChanged: _setPitch,
-                  ),
-                ),
-              ),
-            ),
-            _stepButton('+0.1', () => _setPitch(_manualPitch + 0.001), compact),
-          ],
-        ),
-        SizedBox(height: compact ? 4 : 6),
-        Row(
-          children: [
-            Expanded(child: _pillButton(icon: Icons.restart_alt_rounded, label: l10n.reset, onTap: () => _setPitch(0.0), compact: compact)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _pillButton(
-                icon: telemetry.isPitchLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
-                label: telemetry.isPitchLocked ? l10n.speedLocked : l10n.lockSpeed,
-                active: telemetry.isPitchLocked,
-                onTap: engine.togglePitchLock,
-                compact: compact,
-              ),
-            ),
-          ],
-        ),
-        _divider(compact),
-
-        // Sincronia da letra (nudge)
-        // Com letra: −0.5 s · [linha anterior · atual · seguinte, tocáveis] · +0.5 s numa linha só; tocar na
-        // linha que está sendo cantada acerta celular e TV de uma vez (vários segundos)
-        _subHead(
-          l10n.lyricsSync,
-          engine.lyrics.isNotEmpty
-              ? '${l10n.lyricsTapLine} · ${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s' // l10n-ignore
-              : l10n.lyricsSyncHint,
-          dimValue: true,
-        ),
-        if (engine.lyrics.isNotEmpty)
+    return WoodPanel(
+      radius: 18,
+      padding: EdgeInsets.all(compact ? 8 : 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Rotação medida
           Row(
             children: [
-              SizedBox(width: 54, child: _nudgeButton('−0.5', () => engine.nudgeSync(-0.5), compact)), // l10n-ignore
-              ..._tapLines(compact),
-              SizedBox(width: 54, child: _nudgeButton('+0.5', () => engine.nudgeSync(0.5), compact)), // l10n-ignore
-            ],
-          )
-        else
-          Row(
-            children: [
-              Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)),
-              SizedBox(
-                width: 76,
+              RotationTransition(
+                turns: _discSpin,
+                child: Container(
+                  width: compact ? 34 : 40,
+                  height: compact ? 34 : 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF131016),
+                    border: Border.all(color: AppTheme.orange.withValues(alpha: 0.5), width: 1.5),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.cream),
+                      child: const Center(child: CircleAvatar(radius: 3, backgroundColor: Colors.black)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.offset, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+                    Text.rich(
+                      TextSpan(children: [
+                        TextSpan(text: rpm.toStringAsFixed(2)),
+                        TextSpan(text: l10n.rpmSuffix, style: const TextStyle(fontSize: 13, color: AppTheme.cream, letterSpacing: 0)),
+                      ]),
+                      style: TextStyle(fontSize: compact ? 22 : 25, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
+                    ),
                     Text(
-                      '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                      '${factor.toStringAsFixed(3)}× · ${samples > 0 ? l10n.measuredOverListens(samples) : (engine.isHardwareSpeedCalibrated ? l10n.knownSpeed : l10n.calibrating)}',
+                      style: const TextStyle(fontSize: 11.5, color: Colors.white54),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              Expanded(child: _nudgeButton('+0.5s  ⏩', () => engine.nudgeSync(0.5), compact)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _chip('${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(1)}%', pct.abs() > 0.8 ? _amber : AppTheme.cream),
+                  if (stdErr != null) ...[
+                    const SizedBox(height: 4),
+                    _chip('±${(stdErr * 100).toStringAsFixed(1)}%', AppTheme.cream),
+                  ],
+                ],
+              ),
             ],
           ),
-      ],
-    );
+          _divider(compact),
 
-    return WoodPanel(
-      radius: 18,
-      padding: EdgeInsets.all(compact ? 10 : 12),
-      // O conteúdo cabe na tela; a rolagem interna só existe como proteção em telas muito baixas
-      child: SingleChildScrollView(physics: const ClampingScrollPhysics(), child: content),
-    );
-  }
-
-  /// A linha anterior, a atual e a seguinte lado a lado: tocar na que está sendo cantada acerta celular e TV.
-  List<Widget> _tapLines(bool compact) {
-    final engine = widget.engine;
-    final lines = engine.lyrics;
-    final active = engine.activeLineIndex.clamp(0, lines.length - 1);
-    Widget cell(int i) {
-      final ok = i >= 0 && i < lines.length && lines[i].text.trim().isNotEmpty;
-      final current = i == active;
-      return Expanded(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Material(
-            color: current ? AppTheme.orange.withValues(alpha: 0.22) : Colors.black.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: ok ? () => engine.syncToLine(lines[i].timestamp.inMilliseconds / 1000.0) : null,
-              child: Container(
-                height: compact ? 34 : 38,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  ok ? lines[i].text : '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: current ? AppTheme.cream : Colors.white60,
-                    fontWeight: current ? FontWeight.w800 : FontWeight.w500,
-                    fontSize: 11,
-                    height: 1.15,
+          // Ajuste fino da rotação
+          _subHead(l10n.fineSpeedAdjustment, '${_manualPitch >= 0 ? '+' : ''}${(_manualPitch * 100).toStringAsFixed(1)}%'),
+          Row(
+            children: [
+              _stepButton('−0.1', () => _setPitch(_manualPitch - 0.001), compact),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 4,
+                    activeTrackColor: AppTheme.orange,
+                    inactiveTrackColor: Colors.white12,
+                    thumbColor: AppTheme.cream,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                  ),
+                  // o Slider reserva 48px por padrão; limitado para o painel caber sem rolagem
+                  child: SizedBox(
+                    height: compact ? 28 : 32,
+                    child: Slider(
+                      value: _manualPitch,
+                      min: -0.05,
+                      max: 0.05,
+                      divisions: 100,
+                      onChanged: _setPitch,
+                    ),
                   ),
                 ),
               ),
-            ),
+              _stepButton('+0.1', () => _setPitch(_manualPitch + 0.001), compact),
+            ],
           ),
-        ),
-      );
-    }
-
-    return [cell(active - 1), cell(active), cell(active + 1)];
+          SizedBox(height: compact ? 4 : 6),
+          Row(
+            children: [
+              Expanded(child: _pillButton(icon: Icons.restart_alt_rounded, label: l10n.reset, onTap: () => _setPitch(0.0), compact: compact)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _pillButton(
+                  icon: telemetry.isPitchLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                  label: telemetry.isPitchLocked ? l10n.speedLocked : l10n.lockSpeed,
+                  active: telemetry.isPitchLocked,
+                  onTap: engine.togglePitchLock,
+                  compact: compact,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _divider(bool compact) => Padding(
-        padding: EdgeInsets.symmetric(vertical: compact ? 5 : 8),
+        padding: EdgeInsets.symmetric(vertical: compact ? 5 : 7),
         child: Container(height: 1, color: AppTheme.carveLight.withValues(alpha: 0.6)),
       );
 
-  Widget _subHead(String title, String value, {bool dimValue = false}) {
+  Widget _subHead(String title, String value, {bool accentValue = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1, color: Colors.white54)),
+          const SizedBox(width: 8),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: dimValue ? 11 : 12, fontWeight: dimValue ? FontWeight.w500 : FontWeight.w800, color: dimValue ? Colors.white38 : Colors.white),
+              style: TextStyle(
+                fontSize: accentValue ? 11.5 : 12,
+                fontWeight: FontWeight.w800,
+                color: accentValue ? AppTheme.cream : Colors.white,
+              ),
             ),
           ),
         ],
@@ -661,9 +617,10 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
     );
   }
 
-  // ─── 4. AÇÃO PRINCIPAL ───
+  // ─── 5. AÇÃO PRINCIPAL ───
   Widget _buildMainAction(VinylTelemetry telemetry, bool compact) {
     final engine = widget.engine;
+    if (engine.isManualMode && widget.onManualPressed != null) return _buildManualAction(telemetry, compact);
     final isListening = telemetry.isMicActive;
     final awaitingFlip = engine.isAwaitingSideFlip && !isListening;
 
@@ -680,37 +637,94 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
 
     final button = awaitingFlip
         ? FlipSideButton(wide: true, onPressed: () => engine.flipSide())
-        : SizedBox(
-            height: compact ? 50 : 56,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isListening ? Colors.redAccent : AppTheme.orange,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                elevation: 6,
-                shadowColor: (isListening ? Colors.redAccent : AppTheme.orange).withValues(alpha: 0.6),
-              ),
-              onPressed: () => isListening ? engine.stop() : engine.startListening(),
-              icon: Icon(isListening ? Icons.stop_rounded : Icons.mic_rounded, size: 24),
-              label: Text(
-                isListening ? l10n.listeningTapToStop : l10n.listenResync,
-                style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, letterSpacing: 0.8),
-              ),
-            ),
+        : _actionButton(
+            compact: compact,
+            color: isListening ? Colors.redAccent : AppTheme.orange,
+            icon: isListening ? Icons.stop_rounded : Icons.mic_rounded,
+            label: isListening ? l10n.listeningTapToStop : l10n.listenResync,
+            onPressed: () => isListening ? engine.stop() : engine.startListening(),
           );
+    return _actionWithHint(button, hint);
+  }
 
+  /// Modo Manual: ▶ (escolher a faixa), parar, ou "virou? tocar o lado B" no fim do lado. O microfone
+  /// só mede o volume (começo da música e sulco entre faixas); o reconhecimento do Shazam não entra.
+  Widget _buildManualAction(VinylTelemetry telemetry, bool compact) {
+    final engine = widget.engine;
+    final pending = engine.manualPendingIndex;
+    final Widget button;
+    if (!engine.isManualPlaying && pending != null) {
+      final tracks = engine.manualRecordTracklist;
+      final side = pending < tracks.length ? (tracks[pending].side ?? '') : '';
+      button = FlipSideButton(wide: true, label: l10n.manualPlaySide(side.toUpperCase()), onPressed: widget.onManualPressed!);
+    } else if (engine.isManualPlaying) {
+      button = _actionButton(
+        compact: compact,
+        color: AppTheme.surfaceLight,
+        icon: Icons.stop_rounded,
+        label: l10n.manualStopButton,
+        onPressed: widget.onManualPressed!,
+      );
+    } else {
+      button = _actionButton(
+        compact: compact,
+        color: AppTheme.orange,
+        icon: Icons.play_arrow_rounded,
+        label: l10n.manualPlayButton,
+        onPressed: widget.onManualPressed!,
+      );
+    }
+    return _actionWithHint(button, telemetry.statusMessage, mic: telemetry.isMicActive);
+  }
+
+  Widget _actionButton({
+    required bool compact,
+    required Color color,
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      height: compact ? 50 : 56,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          elevation: 6,
+          shadowColor: color.withValues(alpha: 0.6),
+        ),
+        onPressed: onPressed,
+        icon: Icon(icon, size: 24),
+        label: Text(label, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
+      ),
+    );
+  }
+
+  Widget _actionWithHint(Widget button, String hint, {bool mic = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
         button,
         const SizedBox(height: 6),
-        Text(
-          hint,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 11, color: Colors.white54),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (mic) ...[
+              const Icon(Icons.graphic_eq_rounded, size: 13, color: AppTheme.orange),
+              const SizedBox(width: 4),
+            ],
+            Flexible(
+              child: Text(
+                hint,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 11, color: Colors.white54),
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.5] — 14/10/2026 (Painel da Transmissão Focado na Letra e Modo Manual sem Shazam)
+
+* **Painel do celular durante a transmissão, redesenhado:** saíram a capa, o nome da música/disco e o "a seguir" (já estão na barra de cima) e os botões −0.5/+0.5 (só voltam quando a faixa não tem letra). Ficaram: a TV conectada, a **barra de minutagem**, a **sincronia da letra em destaque** — as linhas antes e depois da que está sendo cantada (até 7, conforme a altura da tela), cada uma tocável; tocar na linha cantada acerta celular e TV —, a rotação e o botão principal.
+* **Brilho prateado na sincronia da letra (Modo Manual):** ao começar a transmissão no Modo Manual, a região pulsa por alguns segundos; volta a pulsar enquanto o começo da faixa for incerto (até o usuário tocar na linha). No automático não pulsa.
+* **Modo Manual nunca usa o Shazam no painel da transmissão (bug):** o botão principal era sempre "Listen / Resync", que ligava a escuta automática com reconhecimento (e desfazia o Manual) — por isso às vezes "acertava" a música. Agora, no Modo Manual, o botão é **▶ Play** (escolher onde a agulha começa), **Stop** durante a reprodução e, no fim do lado, **"Flipped? Play side B"** (pulsando); o microfone só mede o volume.
+* **Fim do lado no Modo Manual com a TV:** a TV mostra a animação de virar o disco.
+* **Depois do ▶ (começo do disco ou do lado novo):** o microfone decide, por janelas de 100 ms, se ainda é o **silêncio** antes da música (a letra começa no primeiro som: subida ≥ 12 dB sobre o chão de chiado/sala) ou se a **música já estava tocando** (som contínuo variando como música, sem subida, em 2,5 s). Já tocando: a faixa começa marcada como incerta, o microfone escuta **a faixa inteira** até o sulco da próxima (que acerta a troca na hora) e o aviso pede para tocar na linha cantada — esse toque é a calibração (não conta como escorregão da rotação). Nas demais faixas continua a escuta dos 10 s finais até a próxima começar.
+* **Explicação do Modo Manual** ("Ready to play" e aviso da agulha pulando): calibrar tocando na linha que está sendo cantada.
+* Testes: `ManualOnsetDetector` (chiado e depois música, chiado constante, música já tocando), Modo Manual com a música já tocando (incerta → calibrada pelo toque, sem Shazam), painel da transmissão automático e Manual nos dois tamanhos de tela (sem capa, sem ±0.5, linhas tocáveis, sem rolagem) — 263 no total.
+
+---
 ## [v1.4.4] — 14/10/2026 (My Collection por Artista ou por Disco, Abecedário e ⓘ de Madeira)
 
 * **Dois botões de classificação** logo abaixo do título de My Collection: **Artist / Band** (padrão) e **Album**.

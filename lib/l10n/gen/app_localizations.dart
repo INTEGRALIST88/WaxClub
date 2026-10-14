@@ -3175,7 +3175,7 @@ abstract class AppLocalizations {
   /// No description provided for @readyStepsManual.
   ///
   /// In en, this message translates to:
-  /// **'1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.'**
+  /// **'1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nTo calibrate, tap the line being sung: the lyrics jump to it (on the TV too). Do it whenever the lyrics run early or late, or the needle skips.'**
   String get readyStepsManual;
 
   /// No description provided for @readyGotIt.
@@ -3193,7 +3193,7 @@ abstract class AppLocalizations {
   /// No description provided for @manualNeedleSkipWarning.
   ///
   /// In en, this message translates to:
-  /// **'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.'**
+  /// **'If the needle skips or you lift it, the lyrics can go out of sync. Tap the line being sung to calibrate, or tap the right track in the list.'**
   String get manualNeedleSkipWarning;
 
   /// No description provided for @helpManual3.
@@ -3321,6 +3321,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Album'**
   String get groupByAlbum;
+
+  /// No description provided for @lyricsTapToCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the line being sung to calibrate'**
+  String get lyricsTapToCalibrate;
+
+  /// No description provided for @manualAlreadyPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'The music was already playing: tap the line being sung to calibrate.'**
+  String get manualAlreadyPlaying;
+
+  /// No description provided for @manualPlayButton.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAY'**
+  String get manualPlayButton;
+
+  /// No description provided for @manualStopButton.
+  ///
+  /// In en, this message translates to:
+  /// **'STOP'**
+  String get manualStopButton;
+
+  /// No description provided for @manualPlaySide.
+  ///
+  /// In en, this message translates to:
+  /// **'FLIPPED? PLAY SIDE {side}'**
+  String manualPlaySide(String side);
 }
 
 class _AppLocalizationsDelegate

@@ -1195,10 +1195,10 @@
   "collectionAddRecord": "Add a record",
   "readyTitle": "Ready to play",
   "readyStepsAuto": "1. Put side A on the turntable.\n2. Drop the needle.\n3. Tap the microphone button: WaxClub listens and the lyrics start in sync.",
-  "readyStepsManual": "1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.",
+  "readyStepsManual": "1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nTo calibrate, tap the line being sung: the lyrics jump to it (on the TV too). Do it whenever the lyrics run early or late, or the needle skips.",
   "readyGotIt": "Got it",
   "lyricSyncTooltip": "Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.",
-  "manualNeedleSkipWarning": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.",
+  "manualNeedleSkipWarning": "If the needle skips or you lift it, the lyrics can go out of sync. Tap the line being sung to calibrate, or tap the right track in the list.",
   "helpManual3": "With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable's speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.",
   "helpManual4": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.",
   "playRecordTitle": "Play a record",
@@ -1233,5 +1233,17 @@
   },
   "lyricsTapLine": "Or tap the line being sung",
   "groupByArtist": "Artist / Band",
-  "groupByAlbum": "Album"
+  "groupByAlbum": "Album",
+  "lyricsTapToCalibrate": "Tap the line being sung to calibrate",
+  "manualAlreadyPlaying": "The music was already playing: tap the line being sung to calibrate.",
+  "manualPlayButton": "PLAY",
+  "manualStopButton": "STOP",
+  "manualPlaySide": "FLIPPED? PLAY SIDE {side}",
+  "@manualPlaySide": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  }
 }

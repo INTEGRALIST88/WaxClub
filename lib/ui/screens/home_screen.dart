@@ -1396,7 +1396,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         engine: _engine,
                         onOpenCastDialog: _showCastDialog,
                         onDisconnectCast: () => _engine.disconnectCast(),
-                        onCoverTap: _showAlbumTracklistModal,
+                        onManualPressed: _onManualPressed,
                       ),
                     )
                   : Stack(
