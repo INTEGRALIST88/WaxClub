@@ -3759,6 +3759,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'off — tap to turn on, hold and drag to reorder'**
   String get panelPluginOff;
+
+  /// No description provided for @ejectPluginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject this plugin?'**
+  String get ejectPluginTitle;
+
+  /// No description provided for @ejectPluginConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to eject {plugin}? It leaves your phone; you can install it again from the jukebox or waxclub.com.br.'**
+  String ejectPluginConfirm(String plugin);
+
+  /// No description provided for @ejectPlugin.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject'**
+  String get ejectPlugin;
+
+  /// No description provided for @ejectBuiltInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in plugin'**
+  String get ejectBuiltInTitle;
+
+  /// No description provided for @ejectBuiltInInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'{plugin} comes with WaxClub and can\'t be ejected. Tap it in the panel to turn it off.'**
+  String ejectBuiltInInfo(String plugin);
 }
 
 class _AppLocalizationsDelegate

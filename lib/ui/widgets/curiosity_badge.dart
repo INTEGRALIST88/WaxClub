@@ -1,12 +1,15 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// Ícone ⓘ de madeira das curiosidades de um disco (My Collection). Ao abrir a tela, brilha prateado
-/// um disco após o outro: o brilho do disco [index] começa [stepMs] depois do anterior, pela animação
-/// [shine] (um reflexo prateado passa por cima da madeira e o contorno acende).
+/// Ícone ⓘ cromado das curiosidades de um disco (My Collection), sem fundo. Ao abrir a tela, um reflexo
+/// prateado passa pelo símbolo de um disco após o outro: o brilho do disco [index] começa [stepMs] depois
+/// do anterior, pela animação [shine].
+///
+/// A duração é lida do controlador a cada quadro (não no momento em que o ícone foi montado): a lista
+/// pode aparecer antes de a coleção carregar e mudar a duração da animação — antes, os ícones montados
+/// cedo ficavam com a duração antiga e o brilho congelava no meio.
 class CuriosityBadge extends StatelessWidget {
-  final Animation<double> shine;
-  final Duration shineTotal;
+  final AnimationController shine;
   final int index;
   final VoidCallback onTap;
   final String tooltip;
@@ -18,12 +21,19 @@ class CuriosityBadge extends StatelessWidget {
   const CuriosityBadge({
     super.key,
     required this.shine,
-    required this.shineTotal,
     required this.index,
     required this.onTap,
     required this.tooltip,
-    this.size = 38,
+    this.size = 36,
   });
+
+  /// Quanto do brilho deste disco já passou (0 = não começou, 1 = terminou).
+  static double progress(AnimationController shine, int index) {
+    final total = shine.duration?.inMilliseconds ?? 0;
+    if (total <= 0) return 1;
+    final elapsed = shine.value * total;
+    return ((elapsed - index * stepMs) / glowMs).clamp(0.0, 1.0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,47 +44,39 @@ class CuriosityBadge extends StatelessWidget {
         radius: size * 0.75,
         child: AnimatedBuilder(
           animation: shine,
-          builder: (context, child) {
-            final elapsed = shine.value * shineTotal.inMilliseconds;
-            final t = ((elapsed - index * stepMs) / glowMs).clamp(0.0, 1.0);
+          builder: (context, _) {
+            final t = progress(shine, index);
             final glow = math.sin(math.pi * t); // 0 → 1 → 0
-            return Container(
+            // Cromo: faixas claras e escuras; o reflexo é uma faixa branca que atravessa o símbolo
+            final band = -0.6 + 2.2 * t;
+            // Só o símbolo, sem fundo: o brilho é o reflexo que atravessa o cromo
+            return SizedBox(
               width: size,
               height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(color: const Color(0xFFE8ECF0).withValues(alpha: 0.75 * glow), blurRadius: 16 * glow, spreadRadius: 2 * glow),
-                ],
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  child!,
-                  // reflexo prateado que atravessa o ícone em diagonal
-                  if (glow > 0)
-                    IgnorePointer(
-                      child: ClipOval(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment(-1.6 + 3.2 * t, -1),
-                              end: Alignment(-0.6 + 3.2 * t, 1),
-                              colors: [
-                                Colors.white.withValues(alpha: 0),
-                                const Color(0xFFF4F6F8).withValues(alpha: 0.75 * glow),
-                                Colors.white.withValues(alpha: 0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              child: ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (rect) => LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFFF4F6F8),
+                    const Color(0xFF9AA3AD),
+                    if (glow > 0) Colors.white else const Color(0xFFDDE2E7),
+                    const Color(0xFF6E7781),
+                    const Color(0xFFCFD5DB),
+                  ],
+                  stops: [
+                    0.0,
+                    0.35,
+                    glow > 0 ? band.clamp(0.36, 0.64) : 0.5,
+                    0.72,
+                    1.0,
+                  ],
+                ).createShader(rect),
+                child: Icon(Icons.info_outline_rounded, size: size, color: Colors.white),
               ),
             );
           },
-          child: Image.asset('assets/images/btn_info.png', width: size, height: size, filterQuality: FilterQuality.medium),
         ),
       ),
     );

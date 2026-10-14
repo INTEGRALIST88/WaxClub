@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.15] — 14/10/2026 (Ejetar Plugin do Painel, ⓘ Cromado e Brilho que Vai Até o Fim)
+
+* **Painel de plugins — ejetar:** segurar uma caixinha e soltar **fora da linha** (para cima ou para baixo, até fora da tela) abre *"Eject this plugin?"* — **Eject** tira o plugin do aparelho (dá para instalar de novo pela jukebox ou pelo site); **Cancel** mantém. Plugin que vem com o app (D2) não é ejetado: o aviso explica que basta tocar para desligar.
+  * O arraste agora é próprio do painel: soltar em cima de outra caixinha põe o plugin naquele lugar. A dica (Tooltip) que disputava o "segurar" com o arraste virou rótulo de acessibilidade.
+* **My Collection — ⓘ cromado:** sem o fundo de madeira (o `btn_info.png` saiu do app); só o símbolo ⓘ em cromo, com o reflexo prateado atravessando o símbolo, disco após disco, sem halo atrás.
+* **Brilho congelado — corrigido:** cada ⓘ guardava a duração da animação do momento em que foi desenhado; como a lista aparece antes de a coleção carregar (que muda a duração), os ícones ficavam com a duração antiga e o brilho parava no meio — no Xiaomi quase todos, no Samsung do meio da tela para baixo. Agora a duração é lida do controlador a cada quadro, e o brilho vai até o fim.
+* **Xiaomi com as animações do Android desligadas** (Opções do desenvolvedor: escalas de animação = 0): o brilho do ⓘ roda mesmo assim (`AnimationBehavior.preserve`). As demais animações do aparelho seguem a configuração do sistema.
+* Testes: arrastar para trocar de lugar e para ejetar (cancelar, ejetar, embutido não ejeta) e o brilho que termina mesmo com a duração mudando — 293 no total.
+
+---
 ## [v1.4.14] — 14/10/2026 (Painel de Plugins na Barra de Cima)
 
 * **Nova linha na barra de cima** (celular em pé e no cockpit da transmissão), logo abaixo dos botões de madeira: uma **caixinha por plugin que muda a tela** — exibição (D2 Curiosidades; D3 VU, quando existir) e fontes de letras (S1–S5), e as ferramentas de hardware (estroboscópio, horas da agulha) quando existirem. Ficam de fora idioma, IA, conexões, os travados (D1) e os não instalados.

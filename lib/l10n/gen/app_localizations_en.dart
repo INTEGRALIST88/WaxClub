@@ -2245,4 +2245,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get panelPluginOff => 'off — tap to turn on, hold and drag to reorder';
+
+  @override
+  String get ejectPluginTitle => 'Eject this plugin?';
+
+  @override
+  String ejectPluginConfirm(String plugin) {
+    return 'Are you sure you want to eject $plugin? It leaves your phone; you can install it again from the jukebox or waxclub.com.br.';
+  }
+
+  @override
+  String get ejectPlugin => 'Eject';
+
+  @override
+  String get ejectBuiltInTitle => 'Built-in plugin';
+
+  @override
+  String ejectBuiltInInfo(String plugin) {
+    return '$plugin comes with WaxClub and can\'t be ejected. Tap it in the panel to turn it off.';
+  }
 }

@@ -82,4 +82,55 @@ void main() {
     await tester.pump();
     expect(store.isActive(s1), isTrue);
   });
+
+  testWidgets('arrastar para outra caixinha troca de lugar; para fora da linha pergunta se quer ejetar', (tester) async {
+    final store = PluginStore(directory: dir, bundleLyricsSources: true);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          const SizedBox(height: 200),
+          SizedBox(width: 360, child: PluginPanelStrip(store: store)),
+          const SizedBox(height: 300),
+        ]),
+      ),
+    ));
+    Future<void> drag(String code, Offset to) async {
+      final from = tester.getCenter(find.text(code));
+      final g = await tester.startGesture(from);
+      await tester.pump(const Duration(milliseconds: 600)); // segurar
+      for (var k = 1; k <= 5; k++) {
+        await g.moveTo(Offset.lerp(from, to, k / 5)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
+      await tester.pumpAndSettle();
+    }
+
+    // S2 solto em cima do D2: vai para o começo
+    await drag('S2', tester.getCenter(find.text('D2')));
+    expect(store.panelPlugins().first.code, 'S2');
+
+    // S3 arrastado bem para baixo: pergunta; Cancel mantém
+    await drag('S3', tester.getCenter(find.text('S3')) + const Offset(0, 200));
+    expect(find.text('Eject this plugin?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(store.isInstalled(store.byCode('S3')!), isTrue);
+
+    // De novo, agora ejeta
+    await drag('S3', tester.getCenter(find.text('S3')) + const Offset(0, 200));
+    await tester.tap(find.widgetWithText(FilledButton, 'Eject'));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    expect(store.isInstalled(store.byCode('S3')!), isFalse);
+    expect(find.text('S3'), findsNothing);
+
+    // Embutido (D2): não ejeta, só explica
+    await drag('D2', tester.getCenter(find.text('D2')) - const Offset(0, 150));
+    expect(find.text('Built-in plugin'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('D2'), findsOneWidget);
+  });
 }
+

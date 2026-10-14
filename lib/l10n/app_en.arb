@@ -1456,5 +1456,24 @@
     }
   },
   "panelPluginOn": "on — tap to turn off, hold and drag to reorder",
-  "panelPluginOff": "off — tap to turn on, hold and drag to reorder"
+  "panelPluginOff": "off — tap to turn on, hold and drag to reorder",
+  "ejectPluginTitle": "Eject this plugin?",
+  "ejectPluginConfirm": "Are you sure you want to eject {plugin}? It leaves your phone; you can install it again from the jukebox or waxclub.com.br.",
+  "@ejectPluginConfirm": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "ejectPlugin": "Eject",
+  "ejectBuiltInTitle": "Built-in plugin",
+  "ejectBuiltInInfo": "{plugin} comes with WaxClub and can't be ejected. Tap it in the panel to turn it off.",
+  "@ejectBuiltInInfo": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  }
 }

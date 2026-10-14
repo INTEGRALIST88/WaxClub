@@ -56,7 +56,12 @@ class CollectionScreen extends StatefulWidget {
 }
 
 class _CollectionScreenState extends State<CollectionScreen> with SingleTickerProviderStateMixin {
-  late final AnimationController _shine = AnimationController(vsync: this, duration: const Duration(seconds: 1));
+  // preserve: o brilho roda mesmo com as animações do Android desligadas (Opções do desenvolvedor)
+  late final AnimationController _shine = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 1),
+    animationBehavior: AnimationBehavior.preserve,
+  );
 
   /// Brilho prateado do ⓘ ao abrir a tela, disco após disco.
   void _startShine() {
@@ -406,7 +411,6 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
               if (widget.curiositiesFor != null)
                 CuriosityBadge(
                   shine: _shine,
-                  shineTotal: _shine.duration ?? const Duration(seconds: 1),
                   index: index,
                   tooltip: l10n.curiositiesTooltip,
                   onTap: () => _showCuriosities(item),
