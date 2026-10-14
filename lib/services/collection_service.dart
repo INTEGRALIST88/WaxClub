@@ -22,6 +22,9 @@ class CollectionItem {
   final String? sleeveCondition;
   final String? notes;
 
+  /// Última alteração (para a sincronização com a conta WaxClub); discos antigos usam [addedAt].
+  final DateTime? updatedAt;
+
   const CollectionItem({
     required this.album,
     required this.artist,
@@ -38,9 +41,13 @@ class CollectionItem {
     this.mediaCondition,
     this.sleeveCondition,
     this.notes,
+    this.updatedAt,
   });
 
   String get key => CollectionService.keyFor(album, artist);
+  DateTime get changedAt => updatedAt ?? addedAt;
+
+  CollectionItem withUpdatedAt(DateTime at) => CollectionItem.fromJson({...toJson(), 'updatedAt': at.toIso8601String()});
 
   Map<String, dynamic> toJson() => {
         'album': album,
@@ -58,6 +65,7 @@ class CollectionItem {
         if (mediaCondition != null) 'mediaCondition': mediaCondition,
         if (sleeveCondition != null) 'sleeveCondition': sleeveCondition,
         if (notes != null) 'notes': notes,
+        if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       };
 
   factory CollectionItem.fromJson(Map<String, dynamic> j) => CollectionItem(
@@ -76,6 +84,7 @@ class CollectionItem {
         mediaCondition: j['mediaCondition'] as String?,
         sleeveCondition: j['sleeveCondition'] as String?,
         notes: j['notes'] as String?,
+        updatedAt: DateTime.tryParse(j['updatedAt'] as String? ?? ''),
       );
 }
 
@@ -146,6 +155,9 @@ class CollectionService extends ChangeNotifier {
   final Map<String, CollectionItem> _items = {};
   final Map<String, DiscStats> _stats = {};
   final List<PlayEvent> _plays = [];
+
+  /// Discos tirados da coleção e quando (a remoção também vai para a conta WaxClub).
+  final Map<String, DateTime> _removed = {};
   bool _loaded = false;
   bool get isLoaded => _loaded;
 
@@ -203,6 +215,10 @@ class CollectionService extends ChangeNotifier {
         for (final p in (j['plays'] as List<dynamic>? ?? const [])) {
           _plays.add(PlayEvent.fromJson(p as Map<String, dynamic>));
         }
+        (j['removed'] as Map<String, dynamic>? ?? const {}).forEach((k, v) {
+          final at = DateTime.tryParse(v as String? ?? '');
+          if (at != null) _removed[k] = at;
+        });
       }
     } catch (e) {
       debugPrint('[CollectionService] Coleção local ilegível: $e');
@@ -221,6 +237,7 @@ class CollectionService extends ChangeNotifier {
         'items': _items.values.map((i) => i.toJson()).toList(),
         'stats': _stats.map((k, v) => MapEntry(k, v.toJson())),
         'plays': _plays.map((p) => p.toJson()).toList(),
+        'removed': _removed.map((k, v) => MapEntry(k, v.toIso8601String())),
       }));
       await tmp.rename(f.path);
     } catch (e) {
@@ -229,13 +246,55 @@ class CollectionService extends ChangeNotifier {
   }
 
   Future<void> add(CollectionItem item) async {
-    _items[item.key] = item;
+    final stamped = item.withUpdatedAt(DateTime.now());
+    _items[stamped.key] = stamped;
+    _removed.remove(stamped.key);
     notifyListeners();
     await _save();
   }
 
   Future<void> remove(String album, String artist) async {
-    if (_items.remove(keyFor(album, artist)) == null) return;
+    final key = keyFor(album, artist);
+    if (_items.remove(key) == null) return;
+    _removed[key] = DateTime.now();
+    notifyListeners();
+    await _save();
+  }
+
+  // ---------- sincronização com a conta WaxClub ----------
+
+  /// Discos alterados depois de [since] (todos quando null).
+  List<CollectionItem> changedSince(DateTime? since) =>
+      _items.values.where((i) => since == null || i.changedAt.isAfter(since)).toList();
+
+  /// Remoções feitas depois de [since] (todas quando null).
+  Map<String, DateTime> removedSince(DateTime? since) =>
+      Map.fromEntries(_removed.entries.where((e) => since == null || e.value.isAfter(since)));
+
+  /// Audições registradas depois de [since] (todas quando null), em ordem.
+  List<PlayEvent> playsAfter(DateTime? since) =>
+      _plays.where((p) => since == null || p.at.isAfter(since)).toList();
+
+  /// Aplica o que veio do servidor: vence a alteração mais recente; não muda o horário dos itens.
+  Future<void> applyRemote({List<CollectionItem> upserts = const [], Map<String, DateTime> deletions = const {}}) async {
+    var changed = false;
+    for (final item in upserts) {
+      final local = _items[item.key];
+      final removedAt = _removed[item.key];
+      if (local != null && !item.changedAt.isAfter(local.changedAt)) continue;
+      if (removedAt != null && !item.changedAt.isAfter(removedAt)) continue;
+      _items[item.key] = item;
+      _removed.remove(item.key);
+      changed = true;
+    }
+    deletions.forEach((key, at) {
+      final local = _items[key];
+      if (local == null || at.isBefore(local.changedAt)) return;
+      _items.remove(key);
+      _removed[key] = at;
+      changed = true;
+    });
+    if (!changed) return;
     notifyListeners();
     await _save();
   }

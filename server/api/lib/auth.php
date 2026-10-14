@@ -116,14 +116,70 @@ function send_login_email(string $email, string $code): bool
     $text = "Your WaxClub sign-in code is:\r\n\r\n    $code\r\n\r\n"
         . 'It expires in ' . CODE_MINUTES . " minutes. If you didn't ask for it, you can ignore this email.\r\n\r\n"
         . "WaxClub - Vinyl Social Club\r\nhttps://waxclub.com.br\r\n";
-    $headers = implode("\r\n", [
+    $headers = [
+        'Date: ' . date(DATE_RFC2822),
+        'Message-ID: <' . bin2hex(random_bytes(16)) . '@waxclub.com.br>',
         'From: WaxClub <' . $from . '>',
         'Reply-To: ' . $from,
         'MIME-Version: 1.0',
         'Content-Type: text/plain; charset=UTF-8',
         'Content-Transfer-Encoding: 8bit',
-    ]);
-    return mail($email, $subject, $text, $headers, '-f' . $from);
+    ];
+    // Pela caixa no-reply (SMTP autenticado): sai assinado com o DKIM do domínio e não cai no spam
+    if (cfg('SMTP_PASS') !== '') {
+        return smtp_send($from, $email, $subject, $text, $headers);
+    }
+    return mail($email, $subject, $text, implode("\r\n", $headers), '-f' . $from);
+}
+
+/** Cliente SMTP mínimo (SSL implícito na porta 465, AUTH LOGIN). */
+function smtp_send(string $from, string $to, string $subject, string $text, array $headers): bool
+{
+    $host = cfg('SMTP_HOST', 'smtp.hostinger.com');
+    $port = (int) cfg('SMTP_PORT', '465');
+    $user = cfg('SMTP_USER', $from);
+    $sock = @stream_socket_client("ssl://$host:$port", $errno, $errstr, 15);
+    if (!$sock) {
+        error_log("[waxclub-api] smtp connect: $errstr");
+        return false;
+    }
+    stream_set_timeout($sock, 15);
+    $read = function () use ($sock): string {
+        $resp = '';
+        while (($line = fgets($sock, 1024)) !== false) {
+            $resp .= $line;
+            if (strlen($line) < 4 || $line[3] === ' ') {
+                break;
+            }
+        }
+        return $resp;
+    };
+    $cmd = function (string $line, string $expect) use ($sock, $read): bool {
+        if ($line !== '') {
+            fwrite($sock, $line . "\r\n");
+        }
+        $resp = $read();
+        if (strncmp($resp, $expect, 3) !== 0) {
+            error_log('[waxclub-api] smtp: ' . trim($resp));
+            return false;
+        }
+        return true;
+    };
+    $body = preg_replace('/^\./m', '..', str_replace(["\r\n", "\n"], ["\n", "\r\n"], $text));
+    $subjectHeader = 'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=';
+    $data = implode("\r\n", array_merge($headers, ['To: <' . $to . '>', $subjectHeader])) . "\r\n\r\n" . $body . "\r\n.";
+    $ok = $cmd('', '220')
+        && $cmd('EHLO api.waxclub.com.br', '250')
+        && $cmd('AUTH LOGIN', '334')
+        && $cmd(base64_encode($user), '334')
+        && $cmd(base64_encode(cfg('SMTP_PASS')), '235')
+        && $cmd('MAIL FROM:<' . $from . '>', '250')
+        && $cmd('RCPT TO:<' . $to . '>', '250')
+        && $cmd('DATA', '354')
+        && $cmd($data, '250');
+    fwrite($sock, "QUIT\r\n");
+    fclose($sock);
+    return $ok;
 }
 
 // POST /v1/auth/email/verify {email, code, device?}

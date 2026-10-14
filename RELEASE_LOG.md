@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.20] — 13/10/2026 (Conta WaxClub e Sincronização da Coleção)
+
+* **Conta WaxClub:** botão da nuvem no topo de **My Collection** abre a tela da conta. Entrar com o **código de 6 dígitos enviado ao e-mail** (sem senha); a conta é criada no primeiro login. Na conta: última sincronização, "Sync now", sair e **apagar a conta** (remove do servidor a conta, a coleção sincronizada e as audições; a coleção do aparelho continua).
+* **Sincronização da coleção** com a API `https://api.waxclub.com.br` (PHP + MySQL na Hostinger): no primeiro login o aparelho envia todos os discos; depois envia só o que mudou (inclusive discos removidos) e recebe o que mudou nos outros aparelhos. Em conflito, vale a alteração mais recente. Sincroniza sozinha ~8 s depois de cada mudança e ao abrir o app.
+* **Audições** enviadas para a conta como cópia de segurança (o recebimento em outros aparelhos vem depois).
+* Token da sessão guardado cifrado no aparelho (Keystore); sessão encerrada no servidor sai da conta no aparelho.
+* **Capas das trilhas de novela** passam a vir do site `waxclub.com.br/tv/covers/` (antes GitHub Pages).
+* **Servidor:** site `waxclub.com.br` (página inicial com a letra retrô 3D e o logo da vitrola de madeira, receptor da TV em `/tv/`), API em `api.waxclub.com.br` com SSL; e-mails dos códigos pela caixa `no-reply@waxclub.com.br`.
+* Novo teste: `account_service_test.dart` (login, primeira sincronização, remoção, disco vindo de outro aparelho, conflito, sessão expirada e retomada).
+
+---
 ## [v1.3.19] — 13/10/2026 (Barra em Pé com a Música + Pacote de Melhorias)
 
 * **Barra superior em pé:** com música tocando, uma faixa abaixo do disco mostra a **música** (destaque), **banda · disco** e **"Up next"** (ou o fim do lado); tocar abre a lista de faixas. Sem música, a barra continua compacta; deitado, nada muda.

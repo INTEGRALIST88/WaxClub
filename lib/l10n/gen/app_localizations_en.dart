@@ -1537,4 +1537,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualSuggestionAction => 'Manual mode';
+
+  @override
+  String get accountTitle => 'WaxClub account';
+
+  @override
+  String get accountTooltip => 'WaxClub account';
+
+  @override
+  String get accountIntro =>
+      'Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.';
+
+  @override
+  String get accountEmailLabel => 'Email';
+
+  @override
+  String get accountSendCode => 'Send code';
+
+  @override
+  String accountCodeSent(String email) {
+    return 'We sent a 6-digit code to $email. It expires in 15 minutes. Check your spam folder if it does not arrive.';
+  }
+
+  @override
+  String get accountCodeLabel => '6-digit code';
+
+  @override
+  String get accountSignIn => 'Sign in';
+
+  @override
+  String get accountResend => 'Send a new code';
+
+  @override
+  String get accountChangeEmail => 'Use another email';
+
+  @override
+  String get accountSignedInAs => 'Signed in as';
+
+  @override
+  String accountLastSync(String when) {
+    return 'Last synced: $when';
+  }
+
+  @override
+  String get accountNeverSynced => 'Not synced yet';
+
+  @override
+  String get accountSyncing => 'Syncing...';
+
+  @override
+  String get accountSyncNow => 'Sync now';
+
+  @override
+  String get accountSyncFailed =>
+      'The last sync failed. Tap Sync now to try again.';
+
+  @override
+  String get accountSyncInfo =>
+      'Your collection syncs automatically when it changes. Listening history is backed up to your account.';
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteConfirmTitle => 'Delete your WaxClub account?';
+
+  @override
+  String get accountDeleteConfirmBody =>
+      'This removes your account, your synced collection and your listening history from the WaxClub server. The records on this phone stay.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete';
+
+  @override
+  String get accountErrorEmail => 'Enter a valid email address.';
+
+  @override
+  String get accountErrorCode => 'Wrong code. Check the email and try again.';
+
+  @override
+  String get accountErrorExpired =>
+      'This code has expired or was used too many times. Ask for a new one.';
+
+  @override
+  String get accountErrorTooMany =>
+      'Too many codes requested. Try again in an hour.';
+
+  @override
+  String get accountErrorNetwork =>
+      'No connection to the WaxClub server. Check your internet.';
+
+  @override
+  String get accountErrorGeneric => 'Something went wrong. Please try again.';
 }

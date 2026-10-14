@@ -66,7 +66,7 @@ function collection_list(): void
         $q = db()->prepare('SELECT * FROM collection_items WHERE user_id = ? AND deleted = 0 ORDER BY added_at');
         $q->execute([$user['id']]);
     } else {
-        $q = db()->prepare('SELECT * FROM collection_items WHERE user_id = ? AND updated_at > ? ORDER BY updated_at');
+        $q = db()->prepare('SELECT * FROM collection_items WHERE user_id = ? AND synced_at > ? ORDER BY synced_at');
         $q->execute([$user['id'], $since]);
     }
     json_out(200, ['items' => array_map('item_json', $q->fetchAll()), 'serverTime' => sql_to_iso($serverTime)]);
@@ -99,8 +99,8 @@ function upsert_item(int $userId, string $key, array $src, bool $deleted = false
     }
 
     if ($deleted) {
-        db()->prepare('UPDATE collection_items SET deleted = 1, updated_at = ? WHERE id = ?')
-            ->execute([$clientUpdated, $existing['id']]);
+        db()->prepare('UPDATE collection_items SET deleted = 1, updated_at = ?, synced_at = ? WHERE id = ?')
+            ->execute([$clientUpdated, now_sql(), $existing['id']]);
     } else {
         $cols = ['album' => $album, 'artist' => $artist];
         foreach (item_fields() as $json => [$col, $max]) {
@@ -109,6 +109,7 @@ function upsert_item(int $userId, string $key, array $src, bool $deleted = false
         $rating = isset($src['rating']) && is_numeric($src['rating']) ? (int) $src['rating'] : null;
         $cols['rating'] = $rating !== null && $rating >= 1 && $rating <= 5 ? $rating : null;
         $cols['updated_at'] = $clientUpdated;
+        $cols['synced_at'] = now_sql();
         $cols['deleted'] = 0;
         if ($existing) {
             $set = implode(', ', array_map(fn($c) => "$c = ?", array_keys($cols)));

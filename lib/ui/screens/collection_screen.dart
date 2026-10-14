@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../models/track_entry.dart';
+import '../../services/account/account_service.dart';
 import '../../services/collection_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/wood.dart';
+import 'account_screen.dart';
+
+/// Datas relativas da coleção e da conta ("Today 14:05", "Yesterday 09:10"...).
+class CollectionScreenFormat {
+  static String when(DateTime? when, {DateTime? now}) => _CollectionScreenState.formatWhen(when, now: now);
+}
 
 /// Tela "My Collection": os discos do usuário com quantas vezes e quando cada um foi ouvido.
 class CollectionScreen extends StatefulWidget {
@@ -12,7 +19,10 @@ class CollectionScreen extends StatefulWidget {
   /// Lista de faixas conhecida de um disco (cache do app / trilhas), para o detalhe.
   final List<TrackEntry> Function(String album, String artist) tracklistFor;
 
-  const CollectionScreen({super.key, required this.collection, required this.tracklistFor});
+  /// Conta WaxClub (botão da nuvem no topo); sem ela o botão não aparece.
+  final AccountService? account;
+
+  const CollectionScreen({super.key, required this.collection, required this.tracklistFor, this.account});
 
   @override
   State<CollectionScreen> createState() => _CollectionScreenState();
@@ -67,6 +77,17 @@ class _CollectionScreenState extends State<CollectionScreen> {
               ],
             ),
             actions: [
+              if (widget.account != null)
+                AnimatedBuilder(
+                  animation: widget.account!,
+                  builder: (context, _) => IconButton(
+                    tooltip: l10n.accountTooltip,
+                    icon: Icon(widget.account!.isSignedIn ? Icons.cloud_done_outlined : Icons.cloud_outlined),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => AccountScreen(account: widget.account!)),
+                    ),
+                  ),
+                ),
               PopupMenuButton<CollectionSort>(
                 tooltip: l10n.sort,
                 icon: const Icon(Icons.sort_rounded),

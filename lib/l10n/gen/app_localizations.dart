@@ -2571,6 +2571,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manual mode'**
   String get manualSuggestionAction;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxClub account'**
+  String get accountTitle;
+
+  /// No description provided for @accountTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxClub account'**
+  String get accountTooltip;
+
+  /// No description provided for @accountIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.'**
+  String get accountIntro;
+
+  /// No description provided for @accountEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get accountEmailLabel;
+
+  /// No description provided for @accountSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get accountSendCode;
+
+  /// No description provided for @accountCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. It expires in 15 minutes. Check your spam folder if it does not arrive.'**
+  String accountCodeSent(String email);
+
+  /// No description provided for @accountCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get accountCodeLabel;
+
+  /// No description provided for @accountSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get accountSignIn;
+
+  /// No description provided for @accountResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a new code'**
+  String get accountResend;
+
+  /// No description provided for @accountChangeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Use another email'**
+  String get accountChangeEmail;
+
+  /// No description provided for @accountSignedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as'**
+  String get accountSignedInAs;
+
+  /// No description provided for @accountLastSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced: {when}'**
+  String accountLastSync(String when);
+
+  /// No description provided for @accountNeverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get accountNeverSynced;
+
+  /// No description provided for @accountSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get accountSyncing;
+
+  /// No description provided for @accountSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get accountSyncNow;
+
+  /// No description provided for @accountSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The last sync failed. Tap Sync now to try again.'**
+  String get accountSyncFailed;
+
+  /// No description provided for @accountSyncInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your collection syncs automatically when it changes. Listening history is backed up to your account.'**
+  String get accountSyncInfo;
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get accountSignOut;
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your WaxClub account?'**
+  String get accountDeleteConfirmTitle;
+
+  /// No description provided for @accountDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes your account, your synced collection and your listening history from the WaxClub server. The records on this phone stay.'**
+  String get accountDeleteConfirmBody;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountErrorEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get accountErrorEmail;
+
+  /// No description provided for @accountErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong code. Check the email and try again.'**
+  String get accountErrorCode;
+
+  /// No description provided for @accountErrorExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This code has expired or was used too many times. Ask for a new one.'**
+  String get accountErrorExpired;
+
+  /// No description provided for @accountErrorTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many codes requested. Try again in an hour.'**
+  String get accountErrorTooMany;
+
+  /// No description provided for @accountErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to the WaxClub server. Check your internet.'**
+  String get accountErrorNetwork;
+
+  /// No description provided for @accountErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get accountErrorGeneric;
 }
 
 class _AppLocalizationsDelegate

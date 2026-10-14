@@ -279,6 +279,8 @@ lib/
 |---|---|---|
 | **Em pé: música, banda · disco e "a seguir" abaixo do disco na barra superior** | `AppBar.bottom` com `_portraitTrackInfo` quando `compactBar` e há faixa | ✅ Conforme (v1.3.19) |
 | **Curiosidades/notícias também na TV; notas do Discogs; sugestão do Modo Manual após ~90 s; Identify deitado** | Pacote `curiosities` (`CastSyncService.sendCuriosities` + página da TV), `AlbumCatalogService.discogsNotes`, `manualSuggested`, layout deitado em `record_scan_screen.dart` | ✅ Conforme (v1.3.19) |
+| **Conta WaxClub: login por código no e-mail, sair e apagar a conta** | `AccountService` (`lib/services/account/account_service.dart`) + `AccountScreen`; API `server/api` (`/v1/auth/email/*`, `/v1/me`) | ✅ Conforme (v1.3.20) |
+| **Coleção sincronizada com a conta (envio do que mudou, recebimento dos outros aparelhos, o mais recente vence) e audições como cópia de segurança** | `AccountService.sync`, `CollectionService.changedSince/removedSince/applyRemote`; API `/v1/collection/sync`, `/v1/collection?since=`, `/v1/plays` | ✅ Conforme (v1.3.20) |
 | **TVs Samsung/LG sem Chromecast por Smart View / Miracast: letra na TV, painel no celular (sem navegador, sem app na TV)** | Android `Presentation` (`SecondScreenController.kt`) + `SecondScreenService` | ✅ Conforme (v1.3.18) |
 | **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
 | **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |

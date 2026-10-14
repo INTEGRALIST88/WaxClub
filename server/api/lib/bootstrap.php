@@ -159,6 +159,12 @@ function migrations(): array
                 CONSTRAINT fk_plays_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // ?since= usa a hora do servidor em que o item mudou (o updated_at vem do relógio do celular)
+        2 => [
+            "ALTER TABLE collection_items ADD COLUMN synced_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)",
+            "UPDATE collection_items SET synced_at = updated_at",
+            "ALTER TABLE collection_items ADD KEY ix_items_user_synced (user_id, synced_at)",
+        ],
     ];
 }
 

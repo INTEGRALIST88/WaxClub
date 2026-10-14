@@ -1066,5 +1066,47 @@
   "secondScreenDefaultName": "Smart View",
   "secondScreenHint": "Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.",
   "manualSuggestion": "Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?",
-  "manualSuggestionAction": "Manual mode"
+  "manualSuggestionAction": "Manual mode",
+  "accountTitle": "WaxClub account",
+  "accountTooltip": "WaxClub account",
+  "accountIntro": "Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.",
+  "accountEmailLabel": "Email",
+  "accountSendCode": "Send code",
+  "accountCodeSent": "We sent a 6-digit code to {email}. It expires in 15 minutes. Check your spam folder if it does not arrive.",
+  "@accountCodeSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "accountCodeLabel": "6-digit code",
+  "accountSignIn": "Sign in",
+  "accountResend": "Send a new code",
+  "accountChangeEmail": "Use another email",
+  "accountSignedInAs": "Signed in as",
+  "accountLastSync": "Last synced: {when}",
+  "@accountLastSync": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "accountNeverSynced": "Not synced yet",
+  "accountSyncing": "Syncing...",
+  "accountSyncNow": "Sync now",
+  "accountSyncFailed": "The last sync failed. Tap Sync now to try again.",
+  "accountSyncInfo": "Your collection syncs automatically when it changes. Listening history is backed up to your account.",
+  "accountSignOut": "Sign out",
+  "accountDelete": "Delete account",
+  "accountDeleteConfirmTitle": "Delete your WaxClub account?",
+  "accountDeleteConfirmBody": "This removes your account, your synced collection and your listening history from the WaxClub server. The records on this phone stay.",
+  "accountDeleteConfirm": "Delete",
+  "accountErrorEmail": "Enter a valid email address.",
+  "accountErrorCode": "Wrong code. Check the email and try again.",
+  "accountErrorExpired": "This code has expired or was used too many times. Ask for a new one.",
+  "accountErrorTooMany": "Too many codes requested. Try again in an hour.",
+  "accountErrorNetwork": "No connection to the WaxClub server. Check your internet.",
+  "accountErrorGeneric": "Something went wrong. Please try again."
 }

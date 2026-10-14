@@ -31,6 +31,7 @@ import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
+import '../../services/account/account_service.dart';
 import 'help_screen.dart';
 
 /// Tela principal do aplicativo WaxClub.
@@ -75,6 +76,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// Nome do usuário (saudação) e coleção local com o histórico de audições.
   final UserProfileStore _profile = UserProfileStore();
   final CollectionService _collection = CollectionService();
+
+  /// Conta WaxClub (api.waxclub.com.br): sincroniza a coleção e as audições.
+  final AccountService _account = AccountService();
   final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
   String? _lastPlayKey;
 
@@ -92,6 +96,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _profile.addListener(_onProfileChanged);
     _profile.load();
     _collection.load();
+    _account.attachCollection(_collection);
+    _account.load();
     _engine.castService.runInitialBackgroundDiscovery();
 
     // Lembrete periódico a cada 1 minuto (60 segundos)
@@ -145,6 +151,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_recordPlayIfNew);
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
+    _account.dispose();
     _collection.dispose();
     if (_portraitLocked) SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _pulseController.dispose();
@@ -361,6 +368,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       builder: (_) => CollectionScreen(
         collection: _collection,
         tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
+        account: _account,
       ),
     ));
   }
