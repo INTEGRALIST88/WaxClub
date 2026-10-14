@@ -136,8 +136,9 @@ class PluginCatalog {
           description: l10n.pluginCuriositiesDesc,
           availability: PluginAvailability.builtIn,
         ),
-        // Fontes de letras: cada site consultado é um plugin. LRCLIB vem com o app; os outros são
-        // instalados pelo site (waxclub.com.br/plugins), que só liga a integração já embutida no app.
+        // Fontes de letras: cada site consultado é um plugin, instalado pelo site (waxclub.com.br/plugins),
+        // que só liga a integração já embutida no app. Nenhuma vem embutida no app da loja (letras têm
+        // direitos autorais); antes do lançamento, para os testes, vêm instaladas ([preLaunchBundledLyrics]).
         PluginInfo(
           id: 'lyrics.lrclib',
           category: PluginCategory.sources,
@@ -146,7 +147,6 @@ class PluginCatalog {
           author: l10n.pluginLrclibAuthor,
           license: l10n.pluginLrclibLicense,
           description: l10n.pluginLrclibDesc,
-          availability: PluginAvailability.builtIn,
           engine: 'lrclib', // l10n-ignore
         ),
         PluginInfo(
@@ -178,6 +178,17 @@ class PluginCatalog {
           license: l10n.pluginSourceLicense,
           description: l10n.pluginLyricsOvhDesc,
           engine: 'lyrics.ovh', // l10n-ignore
+        ),
+        // Letras que o próprio usuário obteve legalmente e copiou para o celular (só exibição, só no aparelho)
+        PluginInfo(
+          id: myLyricsId,
+          category: PluginCategory.sources,
+          number: 5,
+          name: l10n.pluginMyLyricsName,
+          author: l10n.pluginMyLyricsAuthor,
+          license: l10n.pluginMyLyricsLicense,
+          description: l10n.pluginMyLyricsDesc,
+          engine: 'local', // l10n-ignore
         ),
         PluginInfo(
           id: 'ai.curiosities',
@@ -214,9 +225,15 @@ class PluginCatalog {
   /// Plugin C1: conta Discogs (busca de prensagens, coleção no Discogs).
   static const String discogsId = 'connect.discogs';
 
-  /// Fontes de letras que o app usava antes de virarem plugins (até a 1.4.8): quem já tinha o app
-  /// continua com elas instaladas e ligadas.
-  static const List<String> legacyLyricsSources = ['lyrics.netease', 'lyrics.megalobiz', 'lyrics.lyricsovh'];
+  /// Plugin S5: letras do próprio usuário (arquivos .lrc/.txt no celular).
+  static const String myLyricsId = 'lyrics.myfiles';
+
+  /// Antes do lançamento (testes): as fontes de letras da web vêm instaladas no app. **No lançamento,
+  /// mudar para false** — o app da loja não traz nenhuma fonte de letras; o usuário instala pelo site.
+  static const bool preLaunchBundledLyrics = true;
+
+  /// Fontes de letras da web (instaladas de fábrica só antes do lançamento).
+  static const List<String> webLyricsSources = ['lyrics.lrclib', 'lyrics.netease', 'lyrics.megalobiz', 'lyrics.lyricsovh'];
 
   /// Página de plugins no site oficial.
   static const String siteUrl = 'https://waxclub.com.br/#plugins';
@@ -257,10 +274,27 @@ class PluginStore extends ChangeNotifier {
   final Set<String> _active = {};
   bool _loaded = false;
 
-  PluginStore({List<PluginInfo>? catalog, Directory? directory})
+  /// Instala de fábrica as fontes de letras da web (só antes do lançamento; ver
+  /// [PluginCatalog.preLaunchBundledLyrics]).
+  final bool bundleLyricsSources;
+
+  PluginStore({List<PluginInfo>? catalog, Directory? directory, bool? bundleLyricsSources})
       : catalog = catalog ?? PluginCatalog.builtIn,
-        _directory = directory {
+        _directory = directory,
+        bundleLyricsSources = bundleLyricsSources ?? PluginCatalog.preLaunchBundledLyrics {
     _applyDefaults();
+    if (this.bundleLyricsSources) _bundleLyrics();
+  }
+
+  /// Já instalou as fontes de fábrica uma vez (depois, vale o que o usuário escolher).
+  bool _bundled = false;
+
+  void _bundleLyrics() {
+    final known = catalog.map((p) => p.id).toSet();
+    final ids = PluginCatalog.webLyricsSources.where(known.contains);
+    _installed.addAll(ids);
+    _active.addAll(ids);
+    _bundled = true;
   }
 
   bool get isLoaded => _loaded;
@@ -437,21 +471,18 @@ class PluginStore extends ChangeNotifier {
             ? (j['seenBuiltIns'] as List<dynamic>).whereType<String>().toSet()
             : const {'lang.en', 'display.lyrics'};
         _newBuiltIns.addAll(catalog.where((p) => p.isBuiltIn && !seen.contains(p.id)).map((p) => p.id));
-        // Até a 1.4.8 as fontes de letras não eram plugins e o app usava todas: quem já tinha o app
-        // continua com elas instaladas e ligadas
-        final legacy = !seen.contains('lyrics.lrclib') // l10n-ignore
-            ? PluginCatalog.legacyLyricsSources.where(known.contains)
-            : const <String>[];
-        _installed.addAll(legacy);
         _active
           ..clear()
           ..addAll(active)
-          ..addAll(legacy)
           ..addAll(catalog.where((p) => p.locked).map((p) => p.id))
           ..addAll(catalog.where((p) =>
               p.isBuiltIn && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
         // Idioma: se nenhum ativo, o padrão
         _applyLanguageDefault();
+        // Antes do lançamento: fontes de letras de fábrica, uma vez (até a 1.4.9 elas não eram plugins
+        // ou vinham embutidas); depois, vale o que o usuário instalar ou desinstalar
+        _bundled = j['bundledLyrics'] == true;
+        if (bundleLyricsSources && !_bundled) _bundleLyrics();
       } else {
         _newBuiltIns.addAll(catalog.where((p) => p.isBuiltIn).map((p) => p.id)); // primeira abertura
       }
@@ -465,7 +496,7 @@ class PluginStore extends ChangeNotifier {
       _newBuiltIns.remove(id);
       await _connections[id]!.setEnabled(true);
     }
-    if (hadNew) await _save(); // grava os embutidos vistos (não volta a ligar o que o usuário desligar)
+    if (hadNew || _bundled) await _save(); // grava os embutidos vistos (não volta a ligar o que o usuário desligar)
     notifyListeners();
   }
 
@@ -478,6 +509,7 @@ class PluginStore extends ChangeNotifier {
         'installed': _installed.toList(),
         'active': _active.toList(),
         'versions': _versions,
+        'bundledLyrics': _bundled,
         'seenBuiltIns': catalog.where((p) => p.isBuiltIn).map((p) => p.id).toList(),
       }));
     } catch (e) {

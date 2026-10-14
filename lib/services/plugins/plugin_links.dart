@@ -56,6 +56,21 @@ class PluginLinks {
     }
   }
 
+  /// Plugin S5: abre o seletor de arquivos do Android (celular, cartão, Google Drive) para escolher
+  /// letras .lrc/.txt; devolve nome e texto de cada arquivo (vazio se cancelar).
+  Future<List<({String name, String content})>> pickLyricsFiles() async {
+    try {
+      final list = await _channel.invokeListMethod<Map<dynamic, dynamic>>('pickLyricsFiles'); // l10n-ignore
+      return [
+        for (final m in list ?? const <Map<dynamic, dynamic>>[])
+          (name: '${m['name'] ?? ''}', content: '${m['content'] ?? ''}'), // l10n-ignore
+      ];
+    } catch (e) {
+      debugPrint('[PluginLinks] Seletor de arquivos indisponível: $e');
+      return const [];
+    }
+  }
+
   /// Id do plugin num link de instalação, ou nulo.
   static String? pluginIdFrom(String? link) {
     if (link == null || link.isEmpty) return null;

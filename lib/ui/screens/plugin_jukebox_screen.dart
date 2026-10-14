@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
+import '../../services/local_lyrics_library.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
 import '../../services/plugins/plugin_manifest.dart';
@@ -14,7 +15,10 @@ class PluginJukeboxScreen extends StatefulWidget {
 
   /// Instala pelo site (baixa o manifesto); sem ele, o caixote só mostra os plugins.
   final PluginInstaller? installer;
-  const PluginJukeboxScreen({super.key, required this.store, this.installer});
+
+  /// Letras do próprio usuário (plugin S5).
+  final LocalLyricsLibrary? myLyrics;
+  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics});
 
   @override
   State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
@@ -87,7 +91,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       backgroundColor: _panel,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer),
+      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics),
     );
     if (mounted) setState(() {});
   }
@@ -563,7 +567,8 @@ class _PluginSheet extends StatefulWidget {
   final PluginStore store;
   final PluginInfo plugin;
   final PluginInstaller? installer;
-  const _PluginSheet({required this.store, required this.plugin, this.installer});
+  final LocalLyricsLibrary? myLyrics;
+  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics});
 
   @override
   State<_PluginSheet> createState() => _PluginSheetState();
@@ -572,6 +577,70 @@ class _PluginSheet extends StatefulWidget {
 class _PluginSheetState extends State<_PluginSheet> {
   bool _busy = false;
   String? _installError;
+
+  String? _importReport;
+
+  /// Plugin S5: escolher arquivos .lrc/.txt (celular, Google Drive, OneDrive, Dropbox) e importar.
+  Future<void> _importMyLyrics(LocalLyricsLibrary lib) async {
+    setState(() => _busy = true);
+    final files = await PluginLinks.instance.pickLyricsFiles();
+    final r = files.isEmpty ? null : await lib.importFiles(files);
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _importReport = r == null
+          ? null
+          : [
+              l10n.myLyricsImported(r.added),
+              if (r.skipped.isNotEmpty) l10n.myLyricsSkipped(r.skipped.take(5).join(', ')),
+            ].join('\n');
+    });
+  }
+
+  /// Plugin S5: quantas letras há, importar, direitos autorais e como nomear os arquivos.
+  List<Widget> _myLyricsSection(LocalLyricsLibrary lib) {
+    return [
+      const SizedBox(height: 10),
+      AnimatedBuilder(
+        animation: lib,
+        builder: (context, _) => Text(l10n.myLyricsCount(lib.count),
+            style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w700)),
+      ),
+      const SizedBox(height: 6),
+      Text(l10n.myLyricsHowTo, style: const TextStyle(color: Colors.white60, fontSize: 13, height: 1.4)),
+      const SizedBox(height: 6),
+      Text(l10n.myLyricsRights, style: const TextStyle(color: Color(0xFFF6B74A), fontSize: 13, height: 1.4)),
+      const SizedBox(height: 10),
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: _busy ? null : () => _importMyLyrics(lib),
+          icon: const Icon(Icons.folder_open),
+          label: Text(l10n.myLyricsImport),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: widget.plugin.category.color,
+            side: BorderSide(color: widget.plugin.category.color),
+          ),
+        ),
+      ),
+      if (_importReport != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(_importReport!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ),
+      if (lib.count > 0)
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () async {
+              await lib.clear();
+              if (mounted) setState(() => _importReport = null);
+            },
+            child: Text(l10n.myLyricsClear, style: const TextStyle(color: Colors.white54)),
+          ),
+        ),
+    ];
+  }
 
   /// Instala pelo site (o mesmo manifesto do botão "Install" do navegador).
   Future<void> _install() async {
@@ -699,6 +768,7 @@ class _PluginSheetState extends State<_PluginSheet> {
             const SizedBox(height: 14),
             Text(status, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
             if (store.connectionFor(p) case final c?) ..._connection(p, c),
+            if (p.id == PluginCatalog.myLyricsId && installed && widget.myLyrics != null) ..._myLyricsSection(widget.myLyrics!),
             const SizedBox(height: 12),
             if (p.isInstallable && !installed && widget.installer != null) ...[
               SizedBox(

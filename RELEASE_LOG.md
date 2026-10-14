@@ -2,6 +2,18 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.10] — 14/10/2026 (Nenhuma Fonte de Letras Embutida, Plugin "My Lyrics Files" e Página de Plugins no Site)
+
+* **Nenhuma fonte de letras embutida** (app da loja): S1 LRCLIB passou a ser instalável como as outras (site ou jukebox). **Antes do lançamento, para os testes,** as quatro fontes da web vêm instaladas uma vez (`PluginCatalog.preLaunchBundledLyrics = true` — mudar para `false` no lançamento); depois vale o que o usuário instalar ou desinstalar.
+* **Novo plugin S5 "My lyrics files":** mostra letras que o próprio usuário tem o direito de usar (compradas/licenciadas, escritas por ele, em domínio público ou com autorização), em arquivos **.lrc** (sincronizados) ou **.txt** (sem tempo).
+  * Na jukebox: **Add lyrics files** abre o seletor do Android, que entra direto no **Google Drive, OneDrive, Dropbox** ou na memória do celular (vários arquivos de uma vez); o app guarda uma cópia só no aparelho e nunca envia nem compartilha.
+  * Como o app acha a música: tags `[ar:Artista]` e `[ti:Música]` no .lrc (opcionais `[al:]` e `[length:]`) ou o nome do arquivo **"Artista - Música.lrc"**; UTF-8, até 512 KB.
+  * A letra do usuário vence memória, cache e as fontes da web para aquela música (com o S5 ligado).
+  * Aviso de direitos autorais no plugin.
+* **Site:** página própria **/plugins/** organizada por categoria (Language, Display, Lyrics sources, AI, Connections, Hardware), com "How to install", **"Lyrics & copyright"** (o WaxClub não vende, guarda nem distribui letras; cada site é responsável pelas licenças; S5 só com arquivos de direito do usuário; sem uso público) e **"Your lyrics files"** (tipo de arquivo, tags, nome "Artista - Música.lrc", pasta "WaxClub Lyrics" dentro do Google Drive/OneDrive/Dropbox do PC). Na página inicial, a seção Plugins virou um resumo das categorias com o botão "Open the plugin page". Nenhum plugin de letra aparece como embutido.
+* Testes: S5 (leitura de tags/nome, importação, prioridade sobre a web, desligado não usa), instalação de fábrica antes do lançamento (uma vez; desinstalar não volta), manifestos do site sem fonte embutida — 280 no total.
+
+---
 ## [v1.4.9] — 14/10/2026 (Fontes de Letras como Plugins e Instalação pelo Site)
 
 * **Nova categoria de plugins: Lyrics sources (S, disco amarelo).** Cada site de letras que o app consulta virou um plugin separado:

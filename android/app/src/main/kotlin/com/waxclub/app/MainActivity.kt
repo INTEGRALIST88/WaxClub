@@ -3,6 +3,7 @@ package com.waxclub.app
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
@@ -52,6 +53,7 @@ class MainActivity : FlutterActivity() {
                     initialLinkTaken = true
                     result.success(link)
                 }
+                "pickLyricsFiles" -> pickLyricsFiles(result)
                 "openUrl" -> {
                     val url = call.argument<String>("url")
                     result.success(
@@ -87,6 +89,70 @@ class MainActivity : FlutterActivity() {
     private var secondScreen: SecondScreenController? = null
     private var linksChannel: MethodChannel? = null
     private var initialLinkTaken = false
+
+    // ── Plugin S5 "My lyrics files": escolher .lrc/.txt no celular ou no Google Drive ──
+    private var pickResult: MethodChannel.Result? = null
+    private val pickRequest = 4711
+
+    private fun pickLyricsFiles(result: MethodChannel.Result) {
+        if (pickResult != null) {
+            result.success(emptyList<Map<String, String>>())
+            return
+        }
+        pickResult = result
+        val i = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/plain", "application/octet-stream", "application/x-subrip", "*/*"))
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        }
+        try {
+            @Suppress("DEPRECATION")
+            startActivityForResult(i, pickRequest)
+        } catch (_: Exception) {
+            pickResult = null
+            result.success(emptyList<Map<String, String>>())
+        }
+    }
+
+    private fun displayName(uri: Uri): String {
+        try {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+                if (c.moveToFirst()) return c.getString(0) ?: ""
+            }
+        } catch (_: Exception) {
+        }
+        return uri.lastPathSegment ?: ""
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != pickRequest) return
+        val r = pickResult ?: return
+        pickResult = null
+        if (resultCode != RESULT_OK || data == null) {
+            r.success(emptyList<Map<String, String>>())
+            return
+        }
+        val uris = mutableListOf<Uri>()
+        val clip = data.clipData
+        if (clip != null) {
+            for (k in 0 until clip.itemCount) uris.add(clip.getItemAt(k).uri)
+        } else {
+            data.data?.let { uris.add(it) }
+        }
+        val files = uris.take(500).mapNotNull { uri ->
+            try {
+                val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return@mapNotNull null
+                if (bytes.size > 512 * 1024) null else mapOf("name" to displayName(uri), "content" to String(bytes, Charsets.UTF_8))
+            } catch (_: Exception) {
+                null
+            }
+        }
+        r.success(files)
+    }
 
     /** Link recebido com o app já aberto (singleTop): passa para o Flutter. */
     override fun onNewIntent(intent: Intent) {

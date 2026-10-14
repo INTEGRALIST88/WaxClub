@@ -9,7 +9,7 @@
       "name": "LRCLIB",
       "category": "S",
       "version": "1.0.0",
-      "builtIn": true,
+      "builtIn": false,
       "manifest": "/plugins/lyrics.lrclib.json"
     },
     {
@@ -38,6 +38,15 @@
       "version": "1.0.0",
       "builtIn": false,
       "manifest": "/plugins/lyrics.lyricsovh.json"
+    },
+    {
+      "id": "lyrics.myfiles",
+      "code": "S5",
+      "name": "My lyrics files",
+      "category": "S",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/lyrics.myfiles.json"
     }
   ]
 }

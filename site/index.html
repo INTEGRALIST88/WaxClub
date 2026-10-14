@@ -748,6 +748,29 @@
       box-shadow: 0 0 14px rgba(216, 98, 44, 0.5);
     }
     .plugin-install:hover { filter: brightness(1.1); }
+    .plugin-cats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+    }
+    .plugin-cat {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      column-gap: 12px;
+      align-items: center;
+      background: #241107;
+      border: 2px solid #44210d;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: var(--cream);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .plugin-cat:hover { transform: translateY(-3px); border-color: #6b3a1a; }
+    .plugin-cat .plugin-disc-label { grid-row: span 2; width: 34px; height: 34px; font-size: 0.85rem; }
+    .plugin-cat b { font-size: 1.05rem; }
+    .plugin-cat small { color: var(--cream-muted); font-size: 0.8rem; }
+    .plugin-store-cta { max-width: 360px; margin: 26px auto 0; font-size: 1rem; padding: 14px 18px; }
     .plugin-footer {
       font-size: 0.72rem;
       font-weight: 700;
@@ -1212,313 +1235,24 @@
         <span class="caps-sub">Pick a Single, Drop It on the Platter</span>
         <h2 class="retro-berdano section-h2">Plugins</h2>
         <p class="lead">
-          Like choosing a 7" single on a classic jukebox: each plugin is a colored record with a code (L1, D2, C1&hellip;). Plugins add languages, display styles, the lyrics sites WaxClub searches, AI features, connections to your music services and, in the future, tools for your hardware. On your phone, tap <b>Install</b> on a plugin: WaxClub opens and installs it by itself (sign in or create your account first). Plugins carry no code: they only switch on features that come with the app.
+          Like choosing a 7" single on a classic jukebox: each plugin is a colored record with a code (L1, D2, C1&hellip;). Plugins add languages, display styles, the lyrics sources WaxClub searches (including your own lyrics files), AI features, connections to your music services and, in the future, tools for your hardware. On your phone, open the plugin page and tap <b>Install</b>: WaxClub opens and installs it by itself. Plugins carry no code: they only switch on features that come with the app.
         </p>
       </div>
 
       <div class="jukebox-cabinet">
         <div class="jukebox-neon-arch"></div>
-
-        <div class="jukebox-filter-nav">
-          <button class="filter-btn active" onclick="filterPlugins('all', this)">All</button>
-          <button class="filter-btn cat-lang" onclick="filterPlugins('language', this)">Language (L)</button>
-          <button class="filter-btn cat-disp" onclick="filterPlugins('display', this)">Display (D)</button>
-          <button class="filter-btn cat-src" onclick="filterPlugins('sources', this)">Lyrics sources (S)</button>
-          <button class="filter-btn cat-ai" onclick="filterPlugins('ai', this)">AI (A)</button>
-          <button class="filter-btn cat-conn" onclick="filterPlugins('connections', this)">Connections (C)</button>
-          <button class="filter-btn cat-hw" onclick="filterPlugins('hardware', this)">Hardware (H)</button>
+        <div class="plugin-cats">
+          <a class="plugin-cat" href="/plugins/#language"><span class="plugin-disc-label lang">L</span><b>Language</b><small>English built in &middot; more coming</small></a>
+          <a class="plugin-cat" href="/plugins/#display"><span class="plugin-disc-label disp">D</span><b>Display</b><small>Synced lyrics &middot; Curiosities &middot; VU meters</small></a>
+          <a class="plugin-cat" href="/plugins/#sources"><span class="plugin-disc-label src">S</span><b>Lyrics sources</b><small>LRCLIB &middot; NetEase &middot; Megalobiz &middot; Lyrics.ovh &middot; your own files</small></a>
+          <a class="plugin-cat" href="/plugins/#ai"><span class="plugin-disc-label ai">A</span><b>AI</b><small>Curiosities &middot; Translation</small></a>
+          <a class="plugin-cat" href="/plugins/#connections"><span class="plugin-disc-label conn">C</span><b>Connections</b><small>Discogs &middot; Last.fm</small></a>
+          <a class="plugin-cat" href="/plugins/#hardware"><span class="plugin-disc-label hw">H</span><b>Hardware</b><small>Strobe &middot; Stylus hours</small></a>
         </div>
-
-        <div class="plugins-grid" id="pluginsGrid">
-
-          <div class="plugin-card" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L1</div>
-                </div>
-                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
-              </div>
-              <h4>English</h4>
-              <p>Menus, buttons and tips in English. Comes with the app; only one language plays at a time.</p>
-            </div>
-            <div class="plugin-footer">On the platter</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L2</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Espa&ntilde;ol</h4>
-              <p>Spanish menus and tips, downloadable from this website.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L3</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Fran&ccedil;ais</h4>
-              <p>French menus and tips, downloadable from this website.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L4</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Deutsch</h4>
-              <p>German menus and tips, downloadable from this website.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L5</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>&#26085;&#26412;&#35486; (Japanese)</h4>
-              <p>Japanese menus and tips, downloadable from this website.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="language">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label lang">L6</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Portugu&ecirc;s</h4>
-              <p>Portuguese menus and tips, downloadable from this website.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card" data-category="display">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label disp">D1</div>
-                </div>
-                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
-              </div>
-              <h4>Synced Lyrics</h4>
-              <p>Lyrics in sync with your record on the phone and the TV, with large, easy-to-read type and smooth scrolling. Always on.</p>
-            </div>
-            <div class="plugin-footer">On the platter</div>
-          </div>
-
-
-          <div class="plugin-card" data-category="display">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label disp">D2</div>
-                </div>
-                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
-              </div>
-              <h4>Record Curiosities</h4>
-              <p>When a song has no lyrics: short facts about the record and the track, plus recent news about the artist, each with its source (Wikipedia, Discogs pressing notes or the news outlet).</p>
-            </div>
-            <div class="plugin-footer">On the platter &middot; works offline</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="display">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label disp">D3</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Analog VU Meters</h4>
-              <p>A pair of classic needle VU meters with warm amber backlight, dancing to the music on your TV.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card" data-category="sources">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label src">S1</div>
-                </div>
-                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
-              </div>
-              <h4>LRCLIB</h4>
-              <p>Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.</p>
-              
-            </div>
-            <div class="plugin-footer">On the platter</div>
-          </div>
-
-          <div class="plugin-card" data-category="sources">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label src">S2</div>
-                </div>
-                <span class="plugin-status-badge status-available">Available</span>
-              </div>
-              <h4>NetEase Cloud Music</h4>
-              <p>Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.</p>
-              <a class="plugin-install" href="/install/?plugin=lyrics.netease" data-plugin="lyrics.netease">Install</a>
-            </div>
-            <div class="plugin-footer">Tap Install on your phone</div>
-          </div>
-
-          <div class="plugin-card" data-category="sources">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label src">S3</div>
-                </div>
-                <span class="plugin-status-badge status-available">Available</span>
-              </div>
-              <h4>Megalobiz</h4>
-              <p>Community archive of synced lyrics (LRC files). Tried after NetEase.</p>
-              <a class="plugin-install" href="/install/?plugin=lyrics.megalobiz" data-plugin="lyrics.megalobiz">Install</a>
-            </div>
-            <div class="plugin-footer">Tap Install on your phone</div>
-          </div>
-
-          <div class="plugin-card" data-category="sources">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label src">S4</div>
-                </div>
-                <span class="plugin-status-badge status-available">Available</span>
-              </div>
-              <h4>Lyrics.ovh</h4>
-              <p>Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.</p>
-              <a class="plugin-install" href="/install/?plugin=lyrics.lyricsovh" data-plugin="lyrics.lyricsovh">Install</a>
-            </div>
-            <div class="plugin-footer">Tap Install on your phone</div>
-          </div>
-
-          <div class="plugin-card reserved" data-category="ai">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label ai">A1</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>AI Curiosities</h4>
-              <p>Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="ai">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label ai">A2</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>AI Translation</h4>
-              <p>Curiosities and news translated into your language (WaxClub content is in English).</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card" data-category="connections">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label conn">C1</div>
-                </div>
-                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
-              </div>
-              <h4>Discogs</h4>
-              <p>Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.</p>
-            </div>
-            <div class="plugin-footer">On the platter</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="connections">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label conn">C2</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Last.fm</h4>
-              <p>Scrobble every track you play on vinyl to your Last.fm profile.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="hardware">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label hw">H1</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Strobe Calibrator</h4>
-              <p>Uses your phone's flash as a 50/60 Hz strobe to check the speed marks on your platter.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-
-          <div class="plugin-card reserved" data-category="hardware">
-            <div>
-              <div class="plugin-meta">
-                <div class="plugin-disc-mini">
-                  <div class="plugin-disc-label hw">H2</div>
-                </div>
-                <span class="plugin-status-badge status-coming">Coming Soon</span>
-              </div>
-              <h4>Stylus Hours</h4>
-              <p>Counts the hours your needle has played and reminds you when it is time to replace it.</p>
-            </div>
-            <div class="plugin-footer">Coming soon</div>
-          </div>
-
-        </div>
+        <a class="plugin-install plugin-store-cta" href="/plugins/">Open the plugin page</a>
       </div>
     </div>
-  </section>
+</section>
 
   <!-- =====================================================================
        SECTION 4: COMPREHENSIVE USER MANUAL (6 CHAPTERS WITH STYLISH DIALS)

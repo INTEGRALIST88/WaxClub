@@ -1,0 +1,25 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.myfiles",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 5,
+  "code": "S5",
+  "name": "My lyrics files",
+  "version": "1.0.0",
+  "author": "You (your own files)",
+  "publisher": "WaxClub",
+  "homepage": "https://waxclub.com.br/plugins/#my-lyrics",
+  "license": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
+  "description": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.",
+  "builtIn": false,
+  "minAppVersion": "1.4.10",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "local",
+    "synced": true,
+    "order": 5
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.myfiles"
+}

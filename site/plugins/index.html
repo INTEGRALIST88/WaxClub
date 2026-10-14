@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plugins · WaxClub — Vinyl Social Club</title>
+  <meta name="description" content="WaxClub plugins: languages, displays, lyrics sources, AI, connections and hardware tools. Tap Install on your phone and the app installs it.">
+  <link rel="icon" href="/logo.png">
+  <style>
+    @font-face {
+      font-family: 'Berdano';
+      src: url('/assets/fonts/Berdano.otf') format('opentype');
+      font-display: swap;
+    }
+    :root {
+      --bg: #140a04;
+      --wood: #241107;
+      --wood-2: #1e0e05;
+      --line: #44210d;
+      --cream: #f3e6c8;
+      --cream-muted: #c9b693;
+      --terracotta: #d8622c;
+      --lang: #22c55e;
+      --disp: #06b6d4;
+      --src: #ffd34d;
+      --ai: #a855f7;
+      --conn: #ff9a3c;
+      --hw: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(216, 98, 44, 0.16) 0%, transparent 55%), var(--bg);
+      color: var(--cream);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--src); }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    header.top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 18px 0;
+    }
+    header.top a.brand { display: flex; align-items: center; gap: 10px; color: var(--cream); text-decoration: none; }
+    header.top img { width: 42px; height: 42px; border-radius: 50%; }
+    header.top .name { font-family: 'Berdano', Georgia, serif; font-size: 1.8rem; }
+    header.top nav a { color: var(--cream-muted); text-decoration: none; font-weight: 700; margin-left: 16px; font-size: 0.9rem; }
+    .retro { font-family: 'Berdano', Georgia, serif; font-weight: normal; }
+    .hero { text-align: center; padding: 26px 0 10px; }
+    .hero h1 { font-size: clamp(2.6rem, 8vw, 4.2rem); margin: 0; line-height: 1; }
+    .hero p { color: var(--cream-muted); max-width: 720px; margin: 14px auto 0; }
+    .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 22px 0 6px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 999px; background: #251207; border: 1px solid var(--line);
+      color: var(--cream); text-decoration: none; font-weight: 700; font-size: 0.85rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0 8px;
+    }
+    .step { background: var(--wood); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+    .step .n { color: var(--src); font-size: 1.4rem; font-weight: 900; display: block; }
+    section.cat { margin: 44px 0 0; scroll-margin-top: 16px; }
+    .cat-head { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--line); padding-bottom: 10px; margin-bottom: 16px; }
+    .cat-head h2 { margin: 0; font-size: 2.1rem; }
+    .cat-head .letter {
+      width: 40px; height: 40px; border-radius: 50%; flex: none;
+      display: flex; align-items: center; justify-content: center; font-weight: 900; color: #140a04;
+    }
+    .cat-head .rule { color: var(--cream-muted); font-size: 0.9rem; margin-left: auto; text-align: right; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--wood); border: 2px solid var(--line); border-radius: 16px; padding: 18px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+    }
+    .card.soon { border-style: dashed; background: rgba(30, 14, 6, 0.6); }
+    .meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .disc {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: repeating-radial-gradient(circle, #111 0 2px, #1c1c1c 2px 4px);
+      border: 2px solid #555; display: flex; align-items: center; justify-content: center;
+    }
+    .disc span {
+      width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 900; color: #140a04;
+    }
+    .badge { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 999px; }
+    .b-built { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+    .b-avail { background: rgba(255, 211, 77, 0.15); color: var(--src); border: 1px solid #d4a72c; }
+    .b-soon { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
+    .card h3 { margin: 0 0 6px; font-size: 1.15rem; }
+    .card p { margin: 0; color: var(--cream-muted); font-size: 0.92rem; }
+    .install {
+      display: block; text-align: center; margin-top: 14px; padding: 11px 14px; border-radius: 12px;
+      background: var(--terracotta); color: #fff; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none; box-shadow: 0 0 14px rgba(216, 98, 44, 0.5); font-size: 0.88rem;
+    }
+    .foot { margin-top: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #a88a6d; }
+    .panel { background: var(--wood); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-top: 16px; }
+    .panel h3 { margin: 0 0 8px; color: var(--src); }
+    .panel p, .panel li { color: var(--cream-muted); }
+    .panel ul, .panel ol { padding-left: 20px; margin: 8px 0; }
+    pre {
+      background: #0d0603; border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+      color: var(--cream); overflow-x: auto; font-size: 0.86rem; line-height: 1.5;
+    }
+    code { color: var(--src); }
+    .warn { border-color: rgba(255, 211, 77, 0.5); background: rgba(255, 211, 77, 0.06); }
+    footer { text-align: center; color: #8c7458; font-size: 0.82rem; padding: 50px 0 30px; }
+    @media (max-width: 600px) {
+      header.top nav { display: none; }
+      .cat-head { flex-wrap: wrap; }
+      .cat-head .rule { margin-left: 0; text-align: left; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/logo.png" alt=""><span class="name">WaxClub</span></a>
+      <nav><a href="/">Home</a><a href="#install">How to install</a><a href="#copyright">Lyrics &amp; copyright</a><a href="#my-lyrics">Your lyrics files</a></nav>
+    </header>
+
+    <div class="hero">
+      <h1 class="retro">Plugins</h1>
+      <p>Like choosing a 7" single on a jukebox: every plugin is a colored record with a code (L1, S2, C1…).
+        Plugins carry <b>no code</b> — each one only switches on a feature that already comes with the app,
+        so nothing is ever run on your phone.</p>
+      <div class="chips">
+        <a class="chip" href="#language"><span class="dot" style="background:var(--lang)"></span>Language (L)</a>
+        <a class="chip" href="#display"><span class="dot" style="background:var(--disp)"></span>Display (D)</a>
+        <a class="chip" href="#sources"><span class="dot" style="background:var(--src)"></span>Lyrics sources (S)</a>
+        <a class="chip" href="#ai"><span class="dot" style="background:var(--ai)"></span>AI (A)</a>
+        <a class="chip" href="#connections"><span class="dot" style="background:var(--conn)"></span>Connections (C)</a>
+        <a class="chip" href="#hardware"><span class="dot" style="background:var(--hw)"></span>Hardware (H)</a>
+      </div>
+    </div>
+
+    <section id="install" class="cat">
+      <div class="cat-head"><h2 class="retro">How to install</h2></div>
+      <div class="steps">
+        <div class="step"><span class="n">1</span>Open this page in your <b>phone's browser</b> (with WaxClub installed).</div>
+        <div class="step"><span class="n">2</span>Tap <b>Install</b> on a plugin: WaxClub opens and installs it by itself.</div>
+        <div class="step"><span class="n">3</span>Not signed in yet? The app asks you to <b>sign in or create your account</b> first, then installs the plugin.</div>
+        <div class="step"><span class="n">4</span>Turn plugins on and off any time in the app's <b>Plugin Jukebox</b>.</div>
+      </div>
+    </section>
+
+    <section id="language" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--lang)">L</span><h2 class="retro">Language</h2><span class="rule">One at a time: the app's menus and tips</span></div>
+      <div class="grid" data-cat="lang"></div>
+    </section>
+
+    <section id="display" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--disp)">D</span><h2 class="retro">Display</h2><span class="rule">Several at once: what you see on the phone and the TV</span></div>
+      <div class="grid" data-cat="disp"></div>
+    </section>
+
+    <section id="sources" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--src)">S</span><h2 class="retro">Lyrics sources</h2><span class="rule">Several at once: WaxClub tries them in order (S1 first) until it finds the lyrics. None comes with the app.</span></div>
+      <div class="grid" data-cat="src"></div>
+    </section>
+
+    <section id="ai" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--ai)">A</span><h2 class="retro">AI</h2><span class="rule">Several; always marked as AI-generated</span></div>
+      <div class="grid" data-cat="ai"></div>
+    </section>
+
+    <section id="connections" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--conn)">C</span><h2 class="retro">Connections</h2><span class="rule">Link WaxClub to your music services</span></div>
+      <div class="grid" data-cat="conn"></div>
+    </section>
+
+    <section id="hardware" class="cat">
+      <div class="cat-head"><span class="letter" style="background:var(--hw)">H</span><h2 class="retro">Hardware</h2><span class="rule">Tools for your turntable</span></div>
+      <div class="grid" data-cat="hw"></div>
+    </section>
+
+    <section id="copyright" class="cat">
+      <div class="cat-head"><h2 class="retro">Lyrics &amp; copyright</h2></div>
+      <div class="panel">
+        <p>Song lyrics are creative works protected by copyright: they belong to the songwriters and their music
+          publishers. Showing them in an app normally needs a license from those rights holders.</p>
+        <ul>
+          <li><b>WaxClub does not sell, store or distribute lyrics.</b> The app comes with no lyrics source; you choose
+            which ones to install.</li>
+          <li><b>Web lyrics sources (S1–S4)</b> look the song up on that website, the way your browser would. Each site is
+            responsible for the lyrics it publishes and for its licenses; WaxClub only displays the result to you,
+            for personal listening at home.</li>
+          <li><b>My lyrics files (S5)</b> shows lyrics files that <b>you</b> have the right to use — bought or licensed,
+            written by you, in the public domain, or used with the rights holder's permission. Your files stay on your phone;
+            WaxClub never uploads or shares them.</li>
+          <li>Don't share lyrics files you don't own, and don't use WaxClub to show lyrics in public (bars, events,
+            broadcasts): public performance needs its own licenses.</li>
+        </ul>
+        <p style="font-size:0.85rem">This is general information, not legal advice. Copyright rules vary from country to country.</p>
+      </div>
+    </section>
+
+    <section id="my-lyrics" class="cat">
+      <div class="cat-head"><h2 class="retro">Your lyrics files (S5)</h2></div>
+      <div class="panel">
+        <h3>File type</h3>
+        <ul>
+          <li><code>.lrc</code> — <b>synced lyrics</b> (recommended): each line starts with the time it is sung, <code>[mm:ss.xx]</code>.</li>
+          <li><code>.txt</code> — plain lyrics, no times: WaxClub spreads the lines over the song.</li>
+          <li>Save as <b>UTF-8</b> text (accents and other alphabets stay right). Up to 512 KB per file.</li>
+        </ul>
+
+        <h3>How WaxClub knows which song it is</h3>
+        <p>Best: put the artist and the song title in tags at the top of the <code>.lrc</code> file.
+          If the tags are missing, the <b>file name</b> must be <code>Artist - Song.lrc</code> (space, hyphen, space).</p>
+<pre>[ar:The Beatles]
+[ti:Here Comes the Sun]
+[al:Abbey Road]
+[length:03:05]
+[00:00.80]Here comes the sun, doo-doo-doo-doo
+[00:05.10]Here comes the sun, and I say
+[00:08.90]It's all right</pre>
+        <p>Without tags, the same file named <code>The Beatles - Here Comes the Sun.lrc</code> works too.
+          Write the artist and title as they appear on the record; capitals, accents and "The" don't matter.
+          <code>[al:]</code> (album) and <code>[length:]</code> (song length) are optional.</p>
+
+        <h3>Where to keep them</h3>
+        <ol>
+          <li>On your computer, create a folder called <code>WaxClub Lyrics</code> <b>inside your Google Drive, OneDrive or
+            Dropbox folder</b> (the one their desktop app keeps in sync). You can use subfolders, e.g.
+            <code>WaxClub Lyrics/The Beatles/Abbey Road/</code>.</li>
+          <li>Save your <code>.lrc</code> / <code>.txt</code> files there. The cloud copies them for you — no need to share
+            folders on your network.</li>
+          <li>In WaxClub: <b>Plugins → S5 My lyrics files → Add lyrics files</b>, open Google Drive, OneDrive or Dropbox in the
+            file picker, go to <code>WaxClub Lyrics</code> and select the files (you can select many at once).</li>
+          <li>Your lyrics always win over the web sources for that song.</li>
+        </ol>
+      </div>
+      <div class="panel warn">
+        <p style="margin:0">Only add lyrics you have the right to use. WaxClub shows them only to you, on your phone and your TV,
+          while your record plays.</p>
+      </div>
+    </section>
+
+    <footer>
+      © WaxClub — Vinyl Social Club · <a href="/">waxclub.com.br</a>
+    </footer>
+  </div>
+
+  <script>
+    // Catálogo: status "built" (vem com o app), "avail" (instala pelo site) ou "soon" (em breve)
+    var plugins = [
+      ['lang', 'L1', 'English', 'built', 'Menus, buttons and tips in English. Comes with the app; only one language plays at a time.'],
+      ['lang', 'L2', 'Español', 'soon', 'Spanish menus and tips.'],
+      ['lang', 'L3', 'Français', 'soon', 'French menus and tips.'],
+      ['lang', 'L4', 'Deutsch', 'soon', 'German menus and tips.'],
+      ['lang', 'L5', '日本語 (Japanese)', 'soon', 'Japanese menus and tips.'],
+      ['lang', 'L6', 'Português', 'soon', 'Portuguese menus and tips.'],
+      ['disp', 'D1', 'Synced Lyrics', 'built', 'Shows the lyrics in sync with your record on the phone and the TV, with large, easy-to-read type. Lyrics come from the sources you install (S).'],
+      ['disp', 'D2', 'Record Curiosities', 'built', 'When a song has no lyrics: short facts about the record and the track, plus recent news about the artist, each with its source (Wikipedia, Discogs pressing notes or the news outlet).'],
+      ['disp', 'D3', 'Analog VU Meters', 'soon', 'A pair of classic needle VU meters with warm amber backlight, dancing to the music on your TV.'],
+      ['src', 'S1', 'LRCLIB', 'avail', 'Synced lyrics (with timestamps) from the open LRCLIB database. The first web source WaxClub tries.', 'lyrics.lrclib'],
+      ['src', 'S2', 'NetEase Cloud Music', 'avail', 'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.', 'lyrics.netease'],
+      ['src', 'S3', 'Megalobiz', 'avail', 'Community archive of synced lyrics (LRC files). Tried after NetEase.', 'lyrics.megalobiz'],
+      ['src', 'S4', 'Lyrics.ovh', 'avail', 'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.', 'lyrics.lyricsovh'],
+      ['src', 'S5', 'My lyrics files', 'avail', 'Shows lyrics files you have the right to use (.lrc or .txt), picked from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources. See “Your lyrics files” below.', 'lyrics.myfiles'],
+      ['ai', 'A1', 'AI Curiosities', 'soon', 'Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.'],
+      ['ai', 'A2', 'AI Translation', 'soon', 'Curiosities and news translated into your language (WaxClub content is in English).'],
+      ['conn', 'C1', 'Discogs', 'built', 'Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.'],
+      ['conn', 'C2', 'Last.fm', 'soon', 'Scrobble every track you play on vinyl to your Last.fm profile.'],
+      ['hw', 'H1', 'Strobe Calibrator', 'soon', "Uses your phone's flash as a 50/60 Hz strobe to check the speed marks on your platter."],
+      ['hw', 'H2', 'Stylus Hours', 'soon', 'Counts the hours your needle has played and reminds you when it is time to replace it.']
+    ];
+    var colors = { lang: 'var(--lang)', disp: 'var(--disp)', src: 'var(--src)', ai: 'var(--ai)', conn: 'var(--conn)', hw: 'var(--hw)' };
+    var badges = { built: ['b-built', 'Comes with the app'], avail: ['b-avail', 'Available'], soon: ['b-soon', 'Coming soon'] };
+    var isAndroid = /Android/i.test(navigator.userAgent);
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text) e.textContent = text;
+      return e;
+    }
+
+    plugins.forEach(function (p) {
+      var grid = document.querySelector('.grid[data-cat="' + p[0] + '"]');
+      var card = el('div', 'card' + (p[3] === 'soon' ? ' soon' : ''));
+      var top = el('div');
+      var meta = el('div', 'meta');
+      var disc = el('div', 'disc');
+      var label = el('span', null, p[1]);
+      label.style.background = colors[p[0]];
+      disc.appendChild(label);
+      meta.appendChild(disc);
+      meta.appendChild(el('span', 'badge ' + badges[p[3]][0], badges[p[3]][1]));
+      top.appendChild(meta);
+      top.appendChild(el('h3', null, p[2]));
+      top.appendChild(el('p', null, p[4]));
+      card.appendChild(top);
+      if (p[3] === 'avail' && p[5]) {
+        var a = el('a', 'install', 'Install');
+        var id = p[5];
+        a.href = '/install/?plugin=' + id;
+        a.addEventListener('click', function (e) {
+          if (!isAndroid) return; // iPhone / computador: página de instalação
+          e.preventDefault();
+          var fallback = location.origin + '/install/?plugin=' + encodeURIComponent(id) + '&noapp=1';
+          location.href = 'intent://plugin/install?id=' + encodeURIComponent(id) +
+            '#Intent;scheme=waxclub;package=com.waxclub.app;S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end';
+        });
+        card.appendChild(a);
+      } else {
+        card.appendChild(el('div', 'foot', p[3] === 'built' ? 'On the platter' : 'Coming soon'));
+      }
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

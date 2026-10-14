@@ -61,7 +61,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -69,7 +70,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -81,7 +83,8 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -89,9 +92,7 @@ abstract class AppLocalizations {
   ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('en')
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
   /// No description provided for @flipTheRecord.
   ///
@@ -3620,9 +3621,76 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not installed yet. Install it here or from waxclub.com.br.'**
   String get jukeboxNotInstalledHint;
+
+  /// No description provided for @pluginMyLyricsName.
+  ///
+  /// In en, this message translates to:
+  /// **'My lyrics files'**
+  String get pluginMyLyricsName;
+
+  /// No description provided for @pluginMyLyricsAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'You (your own files)'**
+  String get pluginMyLyricsAuthor;
+
+  /// No description provided for @pluginMyLyricsLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared'**
+  String get pluginMyLyricsLicense;
+
+  /// No description provided for @pluginMyLyricsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.'**
+  String get pluginMyLyricsDesc;
+
+  /// No description provided for @myLyricsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No lyrics files yet} =1{1 lyrics file on this phone} other{{count} lyrics files on this phone}}'**
+  String myLyricsCount(int count);
+
+  /// No description provided for @myLyricsHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Use .lrc files (UTF-8) with the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Plain .txt works too, without timestamps.'**
+  String get myLyricsHowTo;
+
+  /// No description provided for @myLyricsRights.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics are protected by copyright. Only add files you have the right to use; WaxClub just shows them to you while the record plays and never uploads or shares them.'**
+  String get myLyricsRights;
+
+  /// No description provided for @myLyricsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Add lyrics files'**
+  String get myLyricsImport;
+
+  /// No description provided for @myLyricsImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No lyrics added.} =1{1 lyrics file added.} other{{count} lyrics files added.}}'**
+  String myLyricsImported(int count);
+
+  /// No description provided for @myLyricsSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not understood (missing artist/song or not .lrc/.txt): {files}'**
+  String myLyricsSkipped(String files);
+
+  /// No description provided for @myLyricsClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get myLyricsClear;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3631,24 +3699,23 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

@@ -1123,6 +1123,18 @@ class WaxClubEngine extends ChangeNotifier {
     // sincronizada e só usa o texto simples guardado se a rede não trouxer nada melhor.
     _ResolvedLyrics? plainFallback;
 
+    // 0. Letra que o próprio usuário importou (plugin S5): vale mais que memória, cache e rede
+    final mine = LyricsProviderService.fromMyLyrics(track.title, track.artist, albumName: track.album);
+    if (mine != null) {
+      return _ResolvedLyrics(
+        lrcContent: mine.syncedLyrics,
+        durationSeconds: mine.durationSeconds,
+        album: track.album,
+        source: 'local',
+        lyricsSource: 'local',
+      );
+    }
+
     // 1. Prefetch em memória
     final prefetched = _prefetchService.getPrefetched(track.title, track.artist) ??
         _prefetchService.getPrefetched(track.title);

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'local_lyrics_library.dart';
 import 'lrclib_service.dart';
 
 /// Provedor orquestrador em cascata de letras para o WaxClub.
@@ -26,6 +27,23 @@ class LyricsProviderService {
   static bool Function(String source) sourceEnabled = _allSources;
   static bool _allSources(String _) => true;
 
+  /// Plugin S5 "My lyrics files": letras do próprio usuário no celular (engine 'local').
+  static LocalLyricsLibrary? myLyrics;
+
+  /// Letra que o próprio usuário importou para esta música (com o plugin S5 ligado).
+  static LrcResponse? fromMyLyrics(String trackName, String artistName, {String? albumName}) {
+    final lib = myLyrics;
+    if (lib == null || !sourceEnabled('local')) return null;
+    final e = lib.find(trackName, artistName);
+    if (e == null) return null;
+    return LrcResponse(
+      syncedLyrics: e.lyrics,
+      durationSeconds: e.durationSeconds,
+      albumName: e.album ?? albumName,
+      source: 'local',
+    );
+  }
+
   /// Busca letras e metadados percorrendo a cascata de provedores.
   /// Se [preferredSource] for informado, tenta essa fonte primeiro.
   /// Retorna assim que encontrar uma letra com timestamps sincronizados.
@@ -36,6 +54,10 @@ class LyricsProviderService {
     int? durationSeconds,
     String? preferredSource,
   }) async {
+    // ════════ Letras do próprio usuário (plugin S5): sempre primeiro ════════
+    final mine = fromMyLyrics(trackName, artistName, albumName: albumName);
+    if (mine != null) return mine;
+
     // ════════ 0. Fonte Preferida (se especificada) ════════
     // 'lyrics.ovh' (texto plano, sem timestamps) nunca passa na validação de LRC sincronizado:
     // não é tentada antecipadamente nem excluída da cascata, ficando como último recurso.

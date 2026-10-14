@@ -1335,5 +1335,37 @@
   "jukeboxOpenSite": "Open the plugin page",
   "jukeboxInstall": "Install",
   "jukeboxUninstall": "Uninstall",
-  "jukeboxNotInstalledHint": "Not installed yet. Install it here or from waxclub.com.br."
+  "jukeboxNotInstalledHint": "Not installed yet. Install it here or from waxclub.com.br.",
+  "pluginMyLyricsName": "My lyrics files",
+  "pluginMyLyricsAuthor": "You (your own files)",
+  "pluginMyLyricsLicense": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
+  "pluginMyLyricsDesc": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.",
+  "myLyricsCount": "{count, plural, =0{No lyrics files yet} =1{1 lyrics file on this phone} other{{count} lyrics files on this phone}}",
+  "@myLyricsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myLyricsHowTo": "Use .lrc files (UTF-8) with the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Plain .txt works too, without timestamps.",
+  "myLyricsRights": "Lyrics are protected by copyright. Only add files you have the right to use; WaxClub just shows them to you while the record plays and never uploads or shares them.",
+  "myLyricsImport": "Add lyrics files",
+  "myLyricsImported": "{count, plural, =0{No lyrics added.} =1{1 lyrics file added.} other{{count} lyrics files added.}}",
+  "@myLyricsImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myLyricsSkipped": "Not understood (missing artist/song or not .lrc/.txt): {files}",
+  "@myLyricsSkipped": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      }
+    }
+  },
+  "myLyricsClear": "Remove all"
 }
