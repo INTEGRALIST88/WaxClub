@@ -165,6 +165,50 @@ function migrations(): array
             "UPDATE collection_items SET synced_at = updated_at",
             "ALTER TABLE collection_items ADD KEY ix_items_user_synced (user_id, synced_at)",
         ],
+        // 1.3.21: login obrigatório com senha, perfil com nome de usuário e local, base de cidades
+        3 => [
+            "ALTER TABLE users
+                ADD COLUMN username VARCHAR(30) NULL AFTER email,
+                ADD COLUMN password_hash VARCHAR(255) NULL,
+                ADD COLUMN email_verified_at DATETIME(3) NULL,
+                ADD COLUMN country_code CHAR(2) NULL,
+                ADD COLUMN state_code VARCHAR(20) NULL,
+                ADD COLUMN state_name VARCHAR(120) NULL,
+                ADD COLUMN city_id INT UNSIGNED NULL",
+            "ALTER TABLE users ADD UNIQUE KEY uq_users_username (username)",
+            // quem já entrou pelo código do e-mail já confirmou o endereço
+            "UPDATE users SET email_verified_at = created_at WHERE email_verified_at IS NULL",
+            "ALTER TABLE login_codes ADD COLUMN purpose VARCHAR(16) NOT NULL DEFAULT 'login'",
+            "CREATE TABLE IF NOT EXISTS auth_failures (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(254) NOT NULL,
+                ip VARCHAR(45) NULL,
+                created_at DATETIME(3) NOT NULL,
+                KEY ix_fail_email (email, created_at),
+                KEY ix_fail_ip (ip, created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS geo_countries (
+                code CHAR(2) PRIMARY KEY,
+                name VARCHAR(120) NOT NULL,
+                has_states TINYINT(1) NOT NULL DEFAULT 0
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS geo_states (
+                country_code CHAR(2) NOT NULL,
+                code VARCHAR(20) NOT NULL,
+                name VARCHAR(120) NOT NULL,
+                PRIMARY KEY (country_code, code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS geo_cities (
+                id INT UNSIGNED PRIMARY KEY,
+                country_code CHAR(2) NOT NULL,
+                state_code VARCHAR(20) NOT NULL DEFAULT '',
+                name VARCHAR(200) NOT NULL,
+                search_name VARCHAR(200) NOT NULL,
+                population INT UNSIGNED NOT NULL DEFAULT 0,
+                KEY ix_city_state (country_code, state_code, search_name),
+                KEY ix_city_country (country_code, search_name)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 
@@ -188,7 +232,20 @@ function migrate(PDO $pdo): void
 
 function schema_version(): int
 {
-    return (int) (db()->query("SELECT v FROM meta WHERE k = 'schema'")->fetchColumn() ?: 0);
+    return (int) (meta_get('schema') ?? 0);
+}
+
+function meta_get(string $key): ?string
+{
+    $q = db()->prepare('SELECT v FROM meta WHERE k = ?');
+    $q->execute([$key]);
+    $v = $q->fetchColumn();
+    return $v === false ? null : (string) $v;
+}
+
+function meta_set(string $key, string $value): void
+{
+    db()->prepare('REPLACE INTO meta (k, v) VALUES (?, ?)')->execute([$key, $value]);
 }
 
 // ---------- tempo ----------

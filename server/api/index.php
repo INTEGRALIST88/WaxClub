@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require __DIR__ . '/lib/bootstrap.php';
+require __DIR__ . '/lib/mail.php';
+require __DIR__ . '/lib/geo.php';
 require __DIR__ . '/lib/auth.php';
 require __DIR__ . '/lib/collection.php';
 
@@ -15,6 +17,16 @@ $routes = [
     ['GET', '#^/(v1(/health)?)?$#', function (): void {
         json_out(200, ['ok' => true, 'service' => 'waxclub-api', 'version' => API_VERSION, 'schema' => schema_version()]);
     }],
+    ['POST', '#^/v1/auth/register$#', 'auth_register'],
+    ['POST', '#^/v1/auth/verify-email$#', 'auth_verify_email'],
+    ['POST', '#^/v1/auth/verify-email/resend$#', 'auth_verify_resend'],
+    ['POST', '#^/v1/auth/login$#', 'auth_login'],
+    ['POST', '#^/v1/auth/password/forgot$#', 'auth_password_forgot'],
+    ['POST', '#^/v1/auth/password/reset$#', 'auth_password_reset'],
+    ['GET', '#^/v1/auth/username-available$#', 'auth_username_available'],
+    ['GET', '#^/v1/geo/countries$#', 'geo_countries'],
+    ['GET', '#^/v1/geo/states$#', 'geo_states'],
+    ['GET', '#^/v1/geo/cities$#', 'geo_cities'],
     ['POST', '#^/v1/auth/email/start$#', 'auth_email_start'],
     ['POST', '#^/v1/auth/email/verify$#', 'auth_email_verify'],
     ['POST', '#^/v1/auth/google$#', 'auth_google'],
