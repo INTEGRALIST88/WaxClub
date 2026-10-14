@@ -314,7 +314,43 @@ void main() {
       engine.dispose();
     });
 
-    test('desligar a chave encerra a escuta manual; sem disco não começa', () async {
+    test('faixas emendadas (Sgt. Pepper\'s): no fim da minutagem a próxima fica à espera e começa no fim dela', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final shazam = _CountingShazam();
+      final engine = WaxClubEngine(
+        recordService: _MusicPlayingRecord(),
+        shazamService: shazam,
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      );
+      WaxClubEngine.manualGapSeconds = 0.5;
+      final lp = [
+        const TrackEntry(position: 1, title: 'Sgt. A1', number: 'A1', side: 'A', lengthMs: 3000),
+        const TrackEntry(position: 2, title: 'Sgt. A2', number: 'A2', side: 'A', lengthMs: 3000),
+        const TrackEntry(position: 3, title: 'Sgt. B1', number: 'B1', side: 'B', lengthMs: 3000),
+      ];
+      await engine.prepareScannedRecord(albumTitle: 'Sgt', artist: 'Banda', tracklist: lp, source: 'discogs');
+      final started = DateTime.now();
+      expect(await engine.startManualPlayback(trackIndex: 0, useMic: true), isTrue);
+
+      // A minutagem da A1 acaba: a A2 aparece na hora, em 0:00, à espera (a A1 não passa da minutagem)
+      await _waitFor(() => engine.currentTrack?.title == 'Sgt. A2');
+      expect(DateTime.now().difference(started).inMilliseconds, lessThan(3400));
+      expect(engine.isManualParked, isTrue);
+      expect(engine.telemetry.statusMessage, contains('Next: A2'));
+
+      // Sem sulco (música contínua): a A2 começou no fim da minutagem da A1
+      await _waitFor(() => !engine.isManualParked);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(engine.telemetry.currentPositionSeconds, greaterThan(0.8), reason: 'contada desde o fim da minutagem');
+      expect(shazam.calls, 0);
+      engine.stopManual();
+      engine.dispose();
+    });
+
+    test('desligar a chave no meio da música não para nada (o automático tenta assumir); sem disco não começa', () async {
       final cache = VinylCacheService(storageDirectory: dir);
       await cache.init();
       final engine = WaxClubEngine(
@@ -331,6 +367,8 @@ void main() {
       await engine.startManualPlayback(trackIndex: 1, useMic: false);
       expect(engine.currentTrack?.title, 'Faixa A2');
       engine.setManualMode(false);
+      expect(engine.isManualPlaying, isTrue, reason: 'trocar para o automático no meio da música não para nada');
+      engine.stopManual();
       expect(engine.isManualPlaying, isFalse);
       engine.dispose();
     });

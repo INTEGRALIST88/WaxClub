@@ -1964,6 +1964,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timeSyncTapHint => 'Tap to shift the timing';
 
   @override
+  String manualNextWaiting(String number, String title) {
+    return 'Next: $number $title — starts with the music.';
+  }
+
+  @override
+  String get manualSwitchingToAuto => 'Listening to switch to automatic…';
+
+  @override
+  String get manualKeptNotRecognized =>
+      'Not recognized: Manual mode keeps going.';
+
+  @override
+  String get manualContinueHint =>
+      'Manual mode on: the song keeps going by the record\'s timing. Tap the line being sung to calibrate.';
+
+  @override
   String get manualAlreadyPlaying =>
       'The music was already playing: tap the line being sung to calibrate.';
 

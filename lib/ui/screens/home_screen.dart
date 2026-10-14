@@ -478,7 +478,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
         backgroundColor: AppTheme.surfaceLight,
-        content: Text(on ? l10n.manualOnHint : l10n.manualOffHint, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          on ? (_engine.isManualPlaying ? l10n.manualContinueHint : l10n.manualOnHint) : l10n.manualOffHint,
+          style: const TextStyle(color: Colors.white),
+        ),
       ));
   }
 

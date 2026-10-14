@@ -1236,6 +1236,20 @@
   "groupByAlbum": "Album",
   "lyricsTapToCalibrate": "Tap the line being sung to calibrate",
   "timeSyncTapHint": "Tap to shift the timing",
+  "manualNextWaiting": "Next: {number} {title} — starts with the music.",
+  "@manualNextWaiting": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "manualSwitchingToAuto": "Listening to switch to automatic…",
+  "manualKeptNotRecognized": "Not recognized: Manual mode keeps going.",
+  "manualContinueHint": "Manual mode on: the song keeps going by the record's timing. Tap the line being sung to calibrate.",
   "manualAlreadyPlaying": "The music was already playing: tap the line being sung to calibrate.",
   "manualPlayButton": "PLAY",
   "manualStopButton": "STOP",

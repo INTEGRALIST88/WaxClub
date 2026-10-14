@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.7] — 14/10/2026 (Minutagem sem Ultrapassar, Troca de Modo sem Parar e Acerto da Letra no Automático)
+
+* **Modo Manual não passa da minutagem:** antes, no fim da faixa, o app dava até ~8 s extras à faixa que acabou (e mais 2 s de tempo morto) esperando o sulco — em discos com faixas emendadas (Sgt. Pepper's: a 1ª entra na 2ª sem silêncio) a letra ficava passando. Agora, no fim da minutagem, a **próxima faixa já aparece em 0:00, à espera** ("Next: A2 … — starts with the music"), também na TV. Ela começa:
+  * no **som dela**, se o microfone ouvir o sulco e a volta do som;
+  * **no fim da minutagem**, se não houver silêncio (faixas emendadas) — a contagem já vem acertada;
+  * sem microfone, depois do tempo morto entre faixas;
+  * ou no toque na linha cantada (começa naquele ponto).
+* **Automático → Manual no meio da música:** é a mesma sessão — a faixa continua de onde está, agora pela minutagem do disco (com o microfone no fim de cada faixa); não pede ▶ de novo. No fim do lado, já fica esperando a virada.
+* **Manual → automático no meio da música:** escuta na hora e sincroniza pelo reconhecimento (o disco continua travado). Se não reconhecer ou não entender, **volta ao Manual sem parar nada** ("Not recognized: Manual mode keeps going").
+* **Automático: tocar na linha cantada acerta a letra baixada** quando os horários dela não batem com o disco — soma ou tira milissegundos dos horários da letra (até ±30 s, salvo para a faixa). A posição da música, a rotação, a minutagem e as escutas de conferência não mudam (antes o toque movia a posição da música).
+* Testes: faixas emendadas (próxima à espera no fim da minutagem, começa no fim dela), automático → Manual na mesma sessão, Manual → automático (reconhecida e não reconhecida), toque na linha no automático — 268 no total.
+
+---
 ## [v1.4.6] — 14/10/2026 (Time Sync em 5 Colunas)
 
 * **"Lyrics sync" virou "Time sync"** no painel da transmissão (nem todo mundo usa o plugin de letra).

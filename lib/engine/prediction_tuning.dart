@@ -68,6 +68,10 @@ class PredictionTuning {
   /// Limite máximo do bias manual de letras aplicado via nudge (+/- 5.0s).
   static const double maxNudgeBiasSeconds = 5.0;
 
+  /// Toque na linha cantada no automático: a letra baixada pode estar bem fora (outra versão, introdução
+  /// diferente), então o deslocamento pelo toque vai além do ±0.5 s.
+  static const double maxLineTapBiasSeconds = 30.0;
+
   /// Tempo de debounce para persistência do deslocamento (nudge) de letra no cache.
   static const Duration nudgeDebounceDuration = Duration(seconds: 3);
 }

@@ -347,8 +347,96 @@ class WaxClubEngine extends ChangeNotifier {
     if (_manualMode == on) return;
     _manualMode = on;
     _logService.log('manual_mode', {'on': on});
-    if (!on && (isManualPlaying || _manualPendingIndex != null)) _stopManual(l10n.manualModeOffStatus);
+    if (on) {
+      _continueAsManual();
+    } else if (isManualPlaying) {
+      // Manual → automático com a música tocando: escuta já; sem reconhecer, o Manual segue
+      unawaited(_handoffToAutomatic());
+    } else if (_manualPendingIndex != null) {
+      _stopManual(l10n.manualModeOffStatus);
+    }
     notifyListeners();
+  }
+
+  /// Automático → Manual com a música tocando: é a mesma sessão — a faixa atual continua de onde está,
+  /// agora pelo relógio do disco (minutagem + microfone só pelo volume). No fim do lado, espera a virada.
+  void _continueAsManual() {
+    final track = _currentTrack;
+    final tracks = manualRecordTracklist;
+    if (isManualPlaying || track == null || tracks.isEmpty) return;
+    if (isAwaitingSideFlip) {
+      final nextSide = _nextSideLabel;
+      final i = nextSide == null ? -1 : tracks.indexWhere((t) => t.side == nextSide);
+      if (i < 0) return;
+      _cancelAutomaticFlow();
+      _manualTracks = List.of(tracks);
+      _manualUseMic = true;
+      _manualIndex = -1;
+      _manualPendingIndex = i;
+      final side = i > 0 ? (tracks[i - 1].side ?? '') : '';
+      _logService.log('manual_continue', {'awaitingFlip': true, 'next': tracks[i].title});
+      _updateStatus(CalibrationStatus.waitingEndOfSide, l10n.manualFlipAndPlay(side), isMicActive: false);
+      return;
+    }
+    if (_tStart == null || _isPaused || _awaitingNeedle) return;
+    final i = TracklistMatcher.findIndex(tracks, track.title);
+    if (i < 0) return;
+    final now = DateTime.now();
+    final speed = effectiveSpeedFactor;
+    final pos = _baseOffset + now.difference(_tStart!).inMilliseconds / 1000.0 * speed;
+    final bias = _lyricBiasSeconds;
+    _cancelAutomaticFlow();
+    _manualTracks = List.of(tracks);
+    _manualUseMic = true;
+    _manualPendingIndex = null;
+    _manualIndex = i;
+    _manualTimelineBeforeTrack = 0.0;
+    final lp = tracks[i].lengthMs;
+    if (lp != null && lp > 0) _trackDurationSeconds = lp / 1000.0;
+    _lyricBiasSeconds = bias; // o acerto da letra desta faixa continua valendo
+    _logService.log('manual_continue', {'track': track.title, 'position': pos});
+    _manualStartAt(now.subtract(Duration(milliseconds: (pos / speed * 1000).round())));
+  }
+
+  /// Manual → automático com a música tocando: escuta já e sincroniza pelo reconhecimento. Sem reconhecer
+  /// (ou sem entender), volta ao Modo Manual sem parar nada: a faixa segue pelo relógio do disco.
+  Future<void> _handoffToAutomatic() async {
+    final mySession = _sessionId;
+    _manualWatchTimer?.cancel();
+    _manualWatching = false;
+    _manualWatchGen++;
+    _telemetry = _telemetry.copyWith(statusMessage: l10n.manualSwitchingToAuto, isMicActive: true);
+    notifyListeners();
+    final heard = await _captureAndIdentify(
+      checkpoints: PredictionTuning.robustCheckpoints,
+      priority: RecordPriority.user,
+      useSilenceGate: false,
+    );
+    if (_sessionId != mySession || _isDisposed) return;
+    final track = heard.track;
+    if (_manualMode || !isManualPlaying || track == null) {
+      if (!isManualPlaying) return;
+      // Segue o baile no Manual
+      if (!_manualMode) {
+        _manualMode = true;
+        _logService.log('manual_mode', {'on': true, 'reason': 'auto_not_recognized'});
+        _telemetry = _telemetry.copyWith(statusMessage: l10n.manualKeptNotRecognized);
+      }
+      _telemetry = _telemetry.copyWith(isMicActive: false);
+      _scheduleManualAdvance();
+      notifyListeners();
+      return;
+    }
+    // Reconhecida: o automático assume daqui (mesmo disco travado), sem recomeçar a sessão
+    _logService.log('manual_to_auto', {'track': track.title});
+    final session = ++_sessionId;
+    _recordService.cancelRecording();
+    _tickerTimer?.cancel();
+    _tickerTimer = null;
+    _clearManualState();
+    _isPaused = false;
+    _telemetry = _telemetry.copyWith(isUserListening: true, isMicActive: false, clearSideEndLabel: true, sideEndLabel: null);
+    await _transitionToNewTrack(track, heard.captureStart, session);
   }
 
   void _resetManualMode(String reason) {
@@ -2527,6 +2615,7 @@ class WaxClubEngine extends ChangeNotifier {
   /// O nudge altera [_lyricBiasSeconds] e NÃO [_baseOffset], deslocando a busca da linha ativa sem
   /// corromper a barra de progresso ou ser apagado pelo realinhamento acústico periódico.
   void nudgeSync(double deltaSeconds) {
+    if (_manualParked) return; // a faixa ainda não começou
     // Modo Manual: a letra e as trocas de faixa seguem o relógio do disco; o ajuste move esse relógio
     // (vale para o resto do lado, não só para a música) e reagenda a troca de faixa
     if (isManualPlaying && _tStart != null && !_isPaused) {
@@ -2584,6 +2673,12 @@ class WaxClubEngine extends ChangeNotifier {
   /// Vai para a posição [seconds] da música (barra de progresso, realinhamento). Avisa a TV; no Modo
   /// Manual move o relógio do disco (letra e trocas de faixa) em vez de agendar a escuta do automático.
   void seekTo(double seconds) {
+    if (_manualParked) {
+      // A faixa à espera já está tocando nesse ponto: começa daqui
+      _manualUnpark();
+      _manualStartAt(DateTime.now().subtract(Duration(milliseconds: (math.max(0.0, seconds) / effectiveSpeedFactor * 1000).round())));
+      return;
+    }
     if (isManualPlaying && _tStart != null && !_isPaused) {
       _rebaseManualClock();
       if (_manualOnsetUncertain) {
@@ -2610,8 +2705,29 @@ class WaxClubEngine extends ChangeNotifier {
   }
 
   /// Toque na linha da letra que está sendo cantada ([lineSeconds] = horário da linha): ela vira a
-  /// linha ativa no celular e na TV. O ajuste ±0.5 s em vigor é descontado.
-  void syncToLine(double lineSeconds) => seekTo(lineSeconds - (isManualPlaying ? 0.0 : _lyricBiasSeconds));
+  /// linha ativa no celular e na TV.
+  /// * **Modo Manual:** acerta o relógio do disco (letra e trocas de faixa).
+  /// * **Automático:** a posição da música vem do reconhecimento e está certa; o que não bate é o horário
+  ///   da letra baixada. O toque só desloca a letra (milissegundos a mais ou a menos nos horários, salvos
+  ///   para a faixa) — a rotação, a minutagem e as escutas de conferência não mudam.
+  void syncToLine(double lineSeconds) {
+    if (isManualPlaying || _currentTrack == null || _tStart == null || _isPaused) {
+      seekTo(lineSeconds - _lyricBiasSeconds);
+      return;
+    }
+    final position = _baseOffset + DateTime.now().difference(_tStart!).inMilliseconds / 1000.0 * effectiveSpeedFactor;
+    _lyricBiasSeconds = (lineSeconds - position).clamp(-PredictionTuning.maxLineTapBiasSeconds, PredictionTuning.maxLineTapBiasSeconds);
+    _logService.log('lyric_offset_tap', {'bias': _lyricBiasSeconds, 'track': _currentTrack?.title});
+    const leadTimeMs = 450;
+    _activeLineIndex = LrcParser.findActiveIndex(
+      _lyrics,
+      Duration(milliseconds: (((position + _lyricBiasSeconds) * 1000) + leadTimeMs).round()),
+    );
+    _telemetry = _telemetry.copyWith(activeLineIndex: _activeLineIndex);
+    notifyListeners();
+    _sendCastSyncWithTvLookahead();
+    _scheduleNudgeSave();
+  }
 
   /// Permite ajuste fino manual do pitch slider (+/- 0.05).
   void setManualPitchAdjustment(double delta) {
@@ -2703,7 +2819,6 @@ class WaxClubEngine extends ChangeNotifier {
   Timer? _manualAdvanceTimer;
   Timer? _manualWatchTimer;
   bool _manualWatching = false;
-  bool _manualGraceUsed = false;
   final ManualBoundaryDetector _manualDetector = ManualBoundaryDetector();
   final ManualTimingEstimator _manualTiming = ManualTimingEstimator();
 
@@ -2733,6 +2848,17 @@ class WaxClubEngine extends ChangeNotifier {
   /// a faixa inteira até o sulco seguinte (que acerta a troca) e o toque na linha cantada calibra.
   bool _manualOnsetUncertain = false;
   bool get manualOnsetUncertain => _manualOnsetUncertain;
+
+  /// A minutagem da faixa acabou: a seguinte já aparece em 0:00, à espera do começo dela (a letra nunca
+  /// passa da minutagem). Guarda os dados da faixa anterior para a medida do microfone.
+  bool _manualParked = false;
+  bool get isManualParked => _manualParked;
+  DateTime? _manualParkPrevOnset;
+  double? _manualParkPrevListed;
+  bool _manualParkPrevFromMic = false;
+
+  /// Cada escuta do sulco tem um número: uma escuta antiga que ainda esteja gravando sai sozinha.
+  int _manualWatchGen = 0;
   final ManualOnsetDetector _manualOnsetDetector = ManualOnsetDetector();
 
   /// Rotação estimada na sessão do Modo Manual (fração; 0.01 = 1% mais rápida).
@@ -2830,6 +2956,8 @@ class WaxClubEngine extends ChangeNotifier {
     _manualTimelineBeforeTrack = 0.0;
     _manualTiming.reset();
     _manualOnsetUncertain = false;
+    _manualParked = false;
+    _manualWatchGen++;
     _manualIndex = -1;
     _manualPendingIndex = null;
     _manualTracks = [];
@@ -2927,7 +3055,6 @@ class WaxClubEngine extends ChangeNotifier {
     _manualTrackOnset = onset;
     _manualOnsetFromMic = fromMic && !uncertain;
     _manualOnsetUncertain = uncertain && _manualUseMic;
-    _manualGraceUsed = false;
     final elapsed = math.max(0.0, now.difference(onset).inMilliseconds / 1000.0);
     _baseOffset = elapsed * effectiveSpeedFactor;
     _currentPositionSeconds = _baseOffset;
@@ -2951,6 +3078,7 @@ class WaxClubEngine extends ChangeNotifier {
 
   /// Agenda a próxima faixa para o fim desta (minutagem + tempo morto entre faixas).
   void _scheduleManualAdvance() {
+    if (_manualParked) return;
     _manualAdvanceTimer?.cancel();
     final d = _trackDurationSeconds;
     if (!isManualPlaying || _tStart == null || _isPaused || d == null || d <= 0) return;
@@ -2968,39 +3096,82 @@ class WaxClubEngine extends ChangeNotifier {
         }
       });
     }
-    final seconds = toEnd + manualGapSeconds;
+    // No fim da minutagem (não depois): a próxima faixa fica à espera
+    final seconds = toEnd;
     _manualAdvanceTimer = Timer(Duration(milliseconds: (math.max(0.0, seconds) * 1000).round()), () {
       if (_sessionId == mySession && !_isDisposed) _manualAdvanceFromTimer(mySession);
     });
   }
 
-  /// Fim da faixa pela minutagem. Com o microfone escutando: no meio de um silêncio, espera o som da
-  /// próxima faixa; se a música ainda toca (faixas emendadas ou minutagem curta), dá um prazo extra.
+  /// Fim da faixa pela minutagem: a letra não passa dela. A próxima faixa do mesmo lado fica à espera em
+  /// 0:00 até o microfone ouvir o começo dela (sulco + volta do som); sem sulco (faixas emendadas, como
+  /// em Sgt. Pepper's) ela começa no fim da minutagem. A última do lado pede a virada.
   void _manualAdvanceFromTimer(int mySession) {
-    if (_manualWatching) {
-      final now = DateTime.now();
-      if (_manualDetector.inGap && !_manualDetector.gapTooLong(now)) {
-        _manualAdvanceTimer = Timer(const Duration(milliseconds: 400), () {
-          if (_sessionId == mySession && !_isDisposed) _manualAdvanceFromTimer(mySession);
-        });
-        return;
-      }
-      if (!_manualDetector.inGap && !_manualGraceUsed) {
-        _manualGraceUsed = true;
-        final grace = math.max(manualSegueGraceSeconds, _manualEndTolerance);
-        _manualAdvanceTimer = Timer(Duration(milliseconds: (grace * 1000).round()), () {
-          if (_sessionId == mySession && !_isDisposed) _manualAdvanceFromTimer(mySession);
-        });
-        return;
-      }
+    final i = _manualIndex;
+    if (i < 0 || _manualParked) return;
+    if (!_manualBoundaryUsable(i)) {
+      unawaited(_manualAdvance(mySession));
+      return;
     }
-    _manualAdvance(mySession);
+    unawaited(_manualPark(mySession, i));
+  }
+
+  Future<void> _manualPark(int mySession, int index) async {
+    final expectedEnd = _manualExpectedEnd ?? DateTime.now();
+    _manualParkPrevOnset = _manualTrackOnset;
+    _manualParkPrevListed = _trackDurationSeconds;
+    _manualParkPrevFromMic = _manualOnsetFromMic;
+    _manualParked = true;
+    _manualAdvanceTimer?.cancel();
+    _tickerTimer?.cancel();
+    _tickerTimer = null;
+    _manualTimelineBeforeTrack += _currentPositionSeconds;
+    final ok = await _manualShowTrack(index + 1, mySession);
+    if (!ok || _sessionId != mySession || _isDisposed || !_manualParked) return;
+    final e = _manualTracks[index + 1];
+    _logService.log('manual_parked', {'next': e.title});
+    _updateStatus(
+      CalibrationStatus.playingUncalibrated,
+      l10n.manualNextWaiting(e.number ?? '${index + 2}', e.title),
+      isMicActive: _manualWatching,
+    );
+    _sendCastSyncWithTvLookahead();
+    _manualAdvanceTimer?.cancel();
+    _manualAdvanceTimer = Timer(Duration(milliseconds: (manualGapSeconds * 1000).round()), () => _manualParkTimeout(mySession, expectedEnd));
+  }
+
+  /// O começo da faixa à espera não foi ouvido no tempo do sulco: no meio de um silêncio, espera o som
+  /// voltar; sem silêncio (faixas emendadas) ela começou no fim da minutagem; sem microfone, começa agora.
+  void _manualParkTimeout(int mySession, DateTime expectedEnd) {
+    if (_sessionId != mySession || _isDisposed || !_manualParked) return;
+    final now = DateTime.now();
+    final inGap = _manualWatching && _manualDetector.inGap;
+    if (inGap && !_manualDetector.gapTooLong(now)) {
+      _manualAdvanceTimer = Timer(const Duration(milliseconds: 400), () => _manualParkTimeout(mySession, expectedEnd));
+      return;
+    }
+    _manualUnpark();
+    _logService.log('manual_park_timeout', {'segue': _manualUseMic && !inGap});
+    _manualStartAt(_manualUseMic && !inGap ? expectedEnd : now);
+  }
+
+  void _manualUnpark() {
+    _manualAdvanceTimer?.cancel();
+    _manualParked = false;
+    _manualWatching = false;
+    _manualWatchGen++;
   }
 
   /// Escuta curta e contínua do fim da faixa [index] até achar o sulco e o começo da seguinte.
   Future<void> _manualWatchBoundary(int mySession, int index) async {
     if (_manualWatching) return;
     _manualWatching = true;
+    final gen = ++_manualWatchGen;
+    bool alive() =>
+        _sessionId == mySession &&
+        !_isDisposed &&
+        gen == _manualWatchGen &&
+        ((_manualIndex == index && !_manualParked) || (_manualParked && _manualIndex == index + 1));
     _manualDetector.reset();
     final tol = _manualEndTolerance;
     final extra = manualGapSeconds + math.max(manualSegueGraceSeconds, tol) + ManualBoundaryDetector.maxGapSeconds + 3;
@@ -3014,9 +3185,9 @@ class WaxClubEngine extends ChangeNotifier {
     _telemetry = _telemetry.copyWith(isMicActive: true);
     notifyListeners();
     try {
-      while (_sessionId == mySession && !_isDisposed && _manualIndex == index && DateTime.now().isBefore(deadline)) {
+      while (alive() && DateTime.now().isBefore(deadline)) {
         final outcome = await _captureLevelOnly(chunk: const Duration(milliseconds: 1000));
-        if (_sessionId != mySession || _isDisposed || _manualIndex != index) return;
+        if (!alive()) return;
         final dbs = outcome.report?.windowDbs ?? const <double>[];
         if (outcome.cancelled || dbs.isEmpty) {
           await Future.delayed(const Duration(milliseconds: 200));
@@ -3030,7 +3201,7 @@ class WaxClubEngine extends ChangeNotifier {
         }
       }
     } finally {
-      if (_manualWatching) {
+      if (_manualWatching && gen == _manualWatchGen) {
         _manualWatching = false;
         _telemetry = _telemetry.copyWith(isMicActive: false);
         notifyListeners();
@@ -3061,14 +3232,16 @@ class WaxClubEngine extends ChangeNotifier {
   /// O microfone achou o fim da faixa e o começo da seguinte: mede a faixa (rotação, se a minutagem
   /// for confiável) e começa a próxima exatamente no som dela.
   Future<void> _manualBoundaryFound(int mySession, int index, ManualBoundary b) async {
-    final onset = _manualTrackOnset;
-    final listed = _trackDurationSeconds;
+    final parked = _manualParked;
+    final onset = parked ? _manualParkPrevOnset : _manualTrackOnset;
+    final listed = parked ? _manualParkPrevListed : _trackDurationSeconds;
+    final onsetFromMic = parked ? _manualParkPrevFromMic : _manualOnsetFromMic;
     _logService.log('manual_boundary', {
       'track': _manualTracks[index].title,
       'gap': b.gapSeconds,
       'position': _currentPositionSeconds,
     });
-    if (_manualOnsetFromMic && onset != null && listed != null && listed > 0 && manualDurationsReliable) {
+    if (onsetFromMic && onset != null && listed != null && listed > 0 && manualDurationsReliable) {
       final measured = b.silenceStart.difference(onset).inMilliseconds / 1000.0;
       final ratio = _manualTiming.addTrackMeasurement(listed, measured);
       if (ratio != null) {
@@ -3076,6 +3249,12 @@ class WaxClubEngine extends ChangeNotifier {
       }
     }
     _manualAdvanceTimer?.cancel();
+    if (parked) {
+      // A faixa já estava à espera em 0:00: começa exatamente no som dela
+      _manualUnpark();
+      _manualStartAt(b.onset, fromMic: true);
+      return;
+    }
     await _manualAdvance(mySession, onset: b.onset, fromMic: true);
   }
 

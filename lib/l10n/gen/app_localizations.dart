@@ -3334,6 +3334,30 @@ abstract class AppLocalizations {
   /// **'Tap to shift the timing'**
   String get timeSyncTapHint;
 
+  /// No description provided for @manualNextWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {number} {title} — starts with the music.'**
+  String manualNextWaiting(String number, String title);
+
+  /// No description provided for @manualSwitchingToAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening to switch to automatic…'**
+  String get manualSwitchingToAuto;
+
+  /// No description provided for @manualKeptNotRecognized.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recognized: Manual mode keeps going.'**
+  String get manualKeptNotRecognized;
+
+  /// No description provided for @manualContinueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode on: the song keeps going by the record\'s timing. Tap the line being sung to calibrate.'**
+  String get manualContinueHint;
+
   /// No description provided for @manualAlreadyPlaying.
   ///
   /// In en, this message translates to:
