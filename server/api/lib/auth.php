@@ -132,8 +132,7 @@ function send_login_email(string $email, string $code): bool
         return true;
     }
     // sem SMTP (ou SMTP recusado): envio local do servidor, que pode cair no spam
-    $GLOBALS['mail_delivery'] = isset($GLOBALS['smtp_error']) ? 'fallback (' . $GLOBALS['smtp_error'] . ')' : 'mail';
-    return mail($email, $subject, $text, implode("\r\n", $headers), '-f' . $from);
+    $GLOBALS['mail_delivery'] = isset($GLOBALS['smtp_error']) ? 'fallback (' . $GLOBALS['smtp_error'] . ')' : 'mail';    return mail($email, $subject, $text, implode("\r\n", $headers), '-f' . $from);
 }
 
 /** Cliente SMTP mínimo (SSL implícito na porta 465, AUTH LOGIN). */
