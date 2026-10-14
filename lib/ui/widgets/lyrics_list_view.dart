@@ -196,7 +196,7 @@ class _LyricsListViewState extends State<LyricsListView> {
             ),
           ),
           const SizedBox(height: 28),
-          const RetroText(kAppName, fontSize: 34),
+          const RetroText(kAppName, fontSize: 44),
           const SizedBox(height: 4),
           const Text(
             kAppTagline,

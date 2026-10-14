@@ -283,7 +283,7 @@ lib/
 | **Coleção sincronizada com a conta (envio do que mudou, recebimento dos outros aparelhos, o mais recente vence) e audições como cópia de segurança** | `AccountService.sync`, `CollectionService.changedSince/removedSince/applyRemote`; API `/v1/collection/sync`, `/v1/collection?since=`, `/v1/plays` | ✅ Conforme (v1.3.20) |
 | **Login obrigatório antes do app (e-mail e senha; Google quando configurado); cadastro com usuário, país, estado e cidade em listas com busca; confirmação do e-mail e esqueci a senha** | `AuthGate`, `SignInScreen`, `SignUpScreen`, `VerifyEmailScreen`, `ForgotPasswordScreen`, `ProfileFormScreen`, `LocationFields` (`lib/ui/screens/auth/`); API `/v1/auth/*`, `/v1/geo/*` (GeoNames) | ✅ Conforme (v1.3.21) |
 | **Discogs como plugin pré-instalado C1 na categoria Connections (laranja): conectar/desconectar a conta e ligar/desligar na jukebox** | `PluginCategory.connections`, `PluginCatalog.discogsId`, `PluginConnection` + `PluginStore.bindConnection` (`plugin_catalog.dart`), ficha em `plugin_jukebox_screen.dart`, ligação em `home_screen.dart` | ✅ Conforme (v1.3.22) |
-| **Letra retrô 3D (Masterday) na música/banda, títulos das telas, saudação e marca** | `RetroText` (`lib/ui/widgets/retro_text.dart`), fonte em `assets/fonts/Masterday.otf` (licença só pessoal: comprar a comercial antes de publicar) | ✅ Conforme (v1.3.23) |
+| **Letra retrô 3D (Berdano) na música/banda, títulos das telas e todos os títulos em creme (Ajuda, coleção, janelas), saudação e marca** | `RetroText` (`lib/ui/widgets/retro_text.dart`), fonte em `assets/fonts/Berdano-Regular.otf` (fora do Git; comprar a licença comercial antes de publicar) | ✅ Conforme (v1.3.24) |
 | **TVs Samsung/LG sem Chromecast por Smart View / Miracast: letra na TV, painel no celular (sem navegador, sem app na TV)** | Android `Presentation` (`SecondScreenController.kt`) + `SecondScreenService` | ✅ Conforme (v1.3.18) |
 | **Só inglês: English pré-instalado; outros idiomas e a tradução por IA de notícias/curiosidades virão pelo site** | `PluginCatalog` (L1, A2), aviso na Jukebox | ✅ Conforme (v1.3.17) |
 | **Notícias recentes do artista em inglês junto das curiosidades** | [`news_service.dart`](lib/services/news_service.dart) (Google News RSS) + `CuriosityKind.news` | ✅ Conforme (v1.3.17) |
@@ -426,7 +426,7 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 * Repositório privado: a página da TV e as capas já estão no site `waxclub.com.br/tv/` (Hostinger); depois de trocar a URL no console do Cast, tirar `index.html` + `covers/` do GitHub Pages e deixar o repositório privado.
 
 ### 6.3 Pendências do lado do usuário
-* **Comprar a licença comercial da fonte Masterday** (app + web) em subectype.com antes de publicar o app ou usar a fonte no site (hoje: licença só pessoal).
+* **Comprar a licença comercial da fonte Berdano** (RantautypeStudio, rantaustudio.com/license; app + web) antes de publicar o app ou usar a fonte no site. (A Masterday saiu do app na 1.3.24.)
 * Datas de shows pela cidade do usuário: criar a chave da Ticketmaster Discovery API e/ou pedir o app_id da Bandsintown; pedir a cidade no app até a conta existir (deixado para depois em 13/10/2026).
 * Publicar no GitHub (Push origin no GitHub Desktop).
 * Atualizar a URL do receptor no console do Google Cast (App ID 27687E0B) para `https://waxclub.com.br/tv/` (site na Hostinger desde 13/10/2026; a cópia no GitHub Pages fica até essa troca).

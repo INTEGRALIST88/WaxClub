@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/track_entry.dart';
 import '../theme/app_theme.dart';
@@ -79,7 +80,7 @@ class _ManualStartSheetState extends State<ManualStartSheet> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(l10n.manualStartTitle, style: const TextStyle(color: AppTheme.cream, fontSize: 18, fontWeight: FontWeight.w800)),
+          child: RetroText(l10n.manualStartTitle, fontSize: 24, depth: 2, maxLines: 2),
         ),
         if (widget.album != null)
           Padding(

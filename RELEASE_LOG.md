@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.24] — 14/10/2026 (Fonte Berdano, Maior e em Todos os Títulos Creme)
+
+* **Fonte da letra retrô trocada para Berdano** (escolha do usuário; RantautypeStudio), mais legível que a Masterday, com todos os acentos.
+* **Tudo maior:** títulos das telas 28, nome da música 25 e banda 18 (em pé; deitado 22/16), saudação 40, "Welcome to WaxClub" 38, marca WaxClub 26/44. A faixa da música na barra em pé passou de 64 para 86 de altura.
+* **Todos os títulos em creme** agora usam a letra retrô: tópicos da **Ajuda**, **My Collection** (nome dos discos na lista e no detalhe, coleção vazia), @usuário na conta, janelas "Add to collection", "Not in the recognition catalog", "Let's listen?", guia da câmera, Modo Manual e as listas de país/estado/cidade.
+* ⚠️ Licença: a Berdano baixada é "All Rights Reserved" (rantaustudio.com/license) — comprar a licença comercial (app + web) antes de publicar; a fonte fica fora do repositório público. A Masterday saiu do app.
+
+---
 ## [v1.3.23] — 14/10/2026 (Letra Retrô 3D)
 
 * **Letra retrô 3D** (fonte **Masterday**, embutida no app, com todos os acentos): miolo creme, contorno marrom e relevo para baixo/direita, como a amostra do usuário. Feita por código (camadas de texto), não com recortes de imagem.

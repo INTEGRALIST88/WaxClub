@@ -30,8 +30,7 @@ Future<bool> runRecordFoundFlow(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: AppTheme.surface,
-      title: Text(already ? release.albumTitle : l10n.foundAddToCollectionTitle,
-          style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800)),
+      title: RetroText(already ? release.albumTitle : l10n.foundAddToCollectionTitle, fontSize: 24, depth: 2, maxLines: 3),
       content: RecordSummary(release: release, trackCount: tracklist.length, note: already ? l10n.foundAlreadyInCollection : null),
       actions: already
           ? [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.ok))]
@@ -85,7 +84,7 @@ Future<bool> runRecordFoundFlow(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
-        title: Text(l10n.catalogNotFoundTitle, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800)),
+        title: RetroText(l10n.catalogNotFoundTitle, fontSize: 24, depth: 2, maxLines: 3),
         content: Text(l10n.catalogNotFoundBody, style: const TextStyle(color: Colors.white70, height: 1.4)),
         actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok))],
       ),
@@ -98,7 +97,7 @@ Future<bool> runRecordFoundFlow(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: AppTheme.surface,
-      title: Text(l10n.letsListenTitle, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800)),
+      title: RetroText(l10n.letsListenTitle, fontSize: 24, depth: 2, maxLines: 3),
       content: Text(l10n.letsListenBody(release.albumTitle), style: const TextStyle(color: Colors.white70, height: 1.4)),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.no)),
@@ -305,7 +304,7 @@ class _CollectionEntryScreenState extends State<CollectionEntryScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: RetroText(l10n.entryTitle, fontSize: 22, depth: 3),
+        title: RetroText(l10n.entryTitle, fontSize: 28, depth: 3),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),

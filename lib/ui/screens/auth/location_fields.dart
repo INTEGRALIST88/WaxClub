@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../widgets/retro_text.dart';
 import '../../../l10n/l10n.dart';
 import '../../../services/account/account_service.dart';
 import '../../theme/app_theme.dart';
@@ -255,8 +256,7 @@ class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-              child: Text(widget.title,
-                  style: const TextStyle(color: AppTheme.cream, fontSize: 18, fontWeight: FontWeight.w800)),
+              child: RetroText(widget.title, fontSize: 24, depth: 2),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

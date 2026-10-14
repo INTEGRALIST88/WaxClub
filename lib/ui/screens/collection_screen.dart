@@ -72,7 +72,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RetroText(l10n.myCollection, fontSize: 21, depth: 3),
+                RetroText(l10n.myCollection, fontSize: 26, depth: 3),
                 Text(l10n.recordCount(items.length),
                     style: const TextStyle(fontSize: 12, color: Colors.white60)),
               ],
@@ -129,8 +129,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
             children: [
               Icon(Icons.library_music_outlined, size: 64, color: AppTheme.wood),
               SizedBox(height: 16),
-              Text(l10n.collectionEmpty,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.cream)),
+              RetroText(l10n.collectionEmpty, fontSize: 28, depth: 3, maxLines: 2, textAlign: TextAlign.center),
               SizedBox(height: 10),
               Text(
                 l10n.collectionEmptyHint,
@@ -176,10 +175,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.album,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800, fontSize: 15)),
+                    RetroText(item.album, fontSize: 21, depth: 2),
                     const SizedBox(height: 2),
                     Text(item.artist,
                         maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13)),
@@ -235,8 +231,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.album,
-                          style: const TextStyle(color: AppTheme.cream, fontSize: 18, fontWeight: FontWeight.w900)),
+                      RetroText(item.album, fontSize: 26, depth: 3, maxLines: 3),
                       const SizedBox(height: 3),
                       Text(item.artist, style: const TextStyle(color: Colors.white70)),
                       if (item.year != null || item.format != null)

@@ -46,7 +46,7 @@ class HelpScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: RetroText(l10n.help, fontSize: 24, depth: 3),
+        title: RetroText(l10n.help, fontSize: 28, depth: 3),
       ),
       body: Stack(
         children: [
@@ -63,7 +63,7 @@ class HelpScreen extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     child: ExpansionTile(
                       leading: Icon(t.icon, color: AppTheme.orange),
-                      title: Text(t.title, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w700)),
+                      title: RetroText(t.title, fontSize: 22, depth: 2, maxLines: 2),
                       iconColor: AppTheme.cream,
                       collapsedIconColor: Colors.white54,
                       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),

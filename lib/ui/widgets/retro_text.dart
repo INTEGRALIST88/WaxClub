@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Letra retrô 3D da marca (fonte Masterday): miolo creme, contorno marrom e "degraus" de sombra
+/// Letra retrô 3D da marca (fonte Berdano): miolo creme, contorno marrom e "degraus" de sombra
 /// para baixo e para a direita, como na amostra do usuário. Só para textos curtos de destaque
 /// (música/banda, títulos das telas, saudação, nome WaxClub) — a letra da música fica na fonte normal.
 class RetroText extends StatelessWidget {
@@ -26,7 +26,7 @@ class RetroText extends StatelessWidget {
     this.depth = 4,
   });
 
-  static const String fontFamily = 'Masterday'; // l10n-ignore
+  static const String fontFamily = 'Berdano'; // l10n-ignore
   static const Color retroBrown = Color(0xFF4A2814);
 
   @override

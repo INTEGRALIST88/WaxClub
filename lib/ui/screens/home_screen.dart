@@ -556,14 +556,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RetroText(track.title, fontSize: 19, depth: 2),
+                  RetroText(track.title, fontSize: 25, depth: 3),
                   Row(
                     children: [
                       if (_engine.isAlbumLocked) ...[
                         const Icon(Icons.album, size: 13, color: AppTheme.cream),
                         const SizedBox(width: 4),
                       ],
-                      Expanded(child: RetroText(artistAlbum, fontSize: 14, depth: 1)),
+                      Expanded(child: RetroText(artistAlbum, fontSize: 18, depth: 2)),
                     ],
                   ),
                   if (sideEnd != null || next != null) ...[
@@ -1061,7 +1061,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 flexibleSpace: const _WoodTopPanel(),
                 // Em pé, com música tocando: música, banda · disco e "a seguir" numa faixa abaixo do disco
                 bottom: (compactBar && _engine.currentTrack != null)
-                    ? PreferredSize(preferredSize: const Size.fromHeight(64), child: _portraitTrackInfo())
+                    ? PreferredSize(preferredSize: const Size.fromHeight(86), child: _portraitTrackInfo())
                     : null,
                 // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
                 leadingWidth: logoSize + 22,
@@ -1123,7 +1123,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 children: [
                                   if (_engine.currentTrack != null) ...[
                                     // Linha 1: Nome da Música (+20% em destaque)
-                                    RetroText(_engine.currentTrack!.title, fontSize: 18, depth: 2),
+                                    RetroText(_engine.currentTrack!.title, fontSize: 22, depth: 2),
                                     // Linha 2: Nome do Disco (com ícone de disco neon se travado)
                                     Row(
                                       children: [
@@ -1139,8 +1139,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                                         _engine.currentTrack!.album!.isNotEmpty)
                                                     ? _engine.currentTrack!.album!
                                                     : (_engine.currentTrack?.artist ?? l10n.unknownAlbum)),
-                                            fontSize: 13.5,
-                                            depth: 1,
+                                            fontSize: 16,
+                                            depth: 2,
                                           ),
                                         ),
                                       ],
@@ -1184,7 +1184,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Row(
                                       children: [
                                         // O nome tem prioridade: só a versão encolhe quando falta espaço
-                                        RetroText(kAppName, fontSize: compactBar ? 17 : 20, depth: 2),
+                                        RetroText(kAppName, fontSize: compactBar ? 22 : 26, depth: 2),
                                         const SizedBox(width: 6),
                                         // Versão: some primeiro quando falta espaço
                                         Flexible(

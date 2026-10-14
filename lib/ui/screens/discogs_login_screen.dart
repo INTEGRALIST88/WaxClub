@@ -126,7 +126,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: Colors.white,
-        title: RetroText(l10n.signInToDiscogs, fontSize: 20, depth: 3),
+        title: RetroText(l10n.signInToDiscogs, fontSize: 26, depth: 3),
         actions: [
           if (_web != null)
             IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: l10n.reload),

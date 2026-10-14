@@ -94,7 +94,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       appBar: AppBar(
         backgroundColor: _bg,
         foregroundColor: AppTheme.cream,
-        title: RetroText(l10n.jukeboxTitle, fontSize: 22, depth: 3),
+        title: RetroText(l10n.jukeboxTitle, fontSize: 28, depth: 3),
       ),
       body: AnimatedBuilder(
         animation: _store,

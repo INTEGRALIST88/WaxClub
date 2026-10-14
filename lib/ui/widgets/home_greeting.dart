@@ -100,7 +100,7 @@ class HomeGreeting extends StatelessWidget {
                   onTap: onEditName,
                   child: RetroText(
                     greeting.title,
-                    fontSize: compact ? 24 : 32,
+                    fontSize: compact ? 30 : 40,
                     maxLines: 3,
                     textAlign: TextAlign.center,
                   ),

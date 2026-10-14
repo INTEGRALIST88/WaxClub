@@ -84,7 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return AuthScaffold(
       showLogo: true,
       children: [
-        Center(child: RetroText(l10n.authWelcome, fontSize: 30, maxLines: 2, textAlign: TextAlign.center)),
+        Center(child: RetroText(l10n.authWelcome, fontSize: 38, maxLines: 2, textAlign: TextAlign.center)),
         const SizedBox(height: 8),
         Text(l10n.authSubtitle, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, height: 1.4)),
         const SizedBox(height: 24),

@@ -72,7 +72,7 @@ class _AccountScreenState extends State<AccountScreen> {
           appBar: AppBar(
             backgroundColor: AppTheme.surface,
             foregroundColor: AppTheme.cream,
-            title: RetroText(l10n.accountTitle, fontSize: 22, depth: 3),
+            title: RetroText(l10n.accountTitle, fontSize: 28, depth: 3),
           ),
           body: Stack(
             children: [
@@ -109,9 +109,7 @@ class _AccountScreenState extends State<AccountScreen> {
       const Icon(Icons.account_circle_outlined, size: 64, color: AppTheme.cream),
       const SizedBox(height: 8),
       if (a.username != null)
-        Text('@${a.username}', // l10n-ignore
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.cream, fontSize: 20, fontWeight: FontWeight.w800)),
+        Center(child: RetroText('@${a.username}', fontSize: 30, depth: 3)), // l10n-ignore
       const SizedBox(height: 4),
       Text(a.email, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
       if (a.locationLabel.isNotEmpty) ...[

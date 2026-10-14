@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../theme/app_theme.dart';
 
@@ -53,8 +54,7 @@ class _RecordScanGuideState extends State<_RecordScanGuide> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.scanHowTo,
-                  style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800, fontSize: 16)),
+              RetroText(l10n.scanHowTo, fontSize: 22, depth: 2, maxLines: 2, textAlign: TextAlign.center),
               const SizedBox(height: 8),
               Flexible(
                 child: PageView(

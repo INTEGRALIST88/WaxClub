@@ -59,7 +59,7 @@ class AuthScaffold extends StatelessWidget {
           : AppBar(
               backgroundColor: AppTheme.surface,
               foregroundColor: AppTheme.cream,
-              title: RetroText(title!, fontSize: 22, depth: 3),
+              title: RetroText(title!, fontSize: 28, depth: 3),
             ),
       body: Stack(
         children: [

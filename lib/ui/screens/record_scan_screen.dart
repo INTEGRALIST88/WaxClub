@@ -230,7 +230,7 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: RetroText(l10n.scanTitle, fontSize: 22, depth: 3),
+        title: RetroText(l10n.scanTitle, fontSize: 28, depth: 3),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline_rounded),
