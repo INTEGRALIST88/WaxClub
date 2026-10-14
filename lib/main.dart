@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_info.dart';
 import 'package:flutter/services.dart';
 import 'services/account/account_service.dart';
+import 'services/account/google_auth.dart';
 import 'ui/screens/auth/auth_gate.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/theme/app_theme.dart';
@@ -35,7 +36,7 @@ class WaxClubApp extends StatefulWidget {
 }
 
 class _WaxClubAppState extends State<WaxClubApp> {
-  late final AccountService _account = widget.account ?? AccountService();
+  late final AccountService _account = widget.account ?? (AccountService()..onSignedOut = GoogleAuth.signOut);
 
   @override
   void dispose() {
@@ -59,6 +60,7 @@ class _WaxClubAppState extends State<WaxClubApp> {
       home: AuthGate(
         account: _account,
         app: (_) => HomeScreen(account: _account),
+        googleSignIn: widget.account == null ? GoogleAuth.signIn : null,
       ),
     );
   }

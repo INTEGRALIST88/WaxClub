@@ -391,7 +391,11 @@ class AccountService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Chamado ao sair da conta (ex.: desconectar o Google para a próxima entrada mostrar a escolha de conta).
+  Future<void> Function()? onSignedOut;
+
   Future<void> _clearSession() async {
+    unawaited(onSignedOut?.call());
     _syncTimer?.cancel();
     _token = null;
     _account = null;

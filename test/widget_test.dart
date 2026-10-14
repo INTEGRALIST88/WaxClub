@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:waxclub/main.dart';
+import 'package:waxclub/ui/screens/auth/auth_screens.dart';
 
 import 'helpers/fake_account.dart';
 
@@ -34,6 +35,20 @@ void main() {
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.byTooltip('My Collection'), findsNothing, reason: 'o app só abre depois do login');
     await closeApp(tester);
+  });
+
+  testWidgets('com o login do Google configurado, aparece "Continue with Google"', (tester) async {
+    var asked = false;
+    await tester.pumpWidget(MaterialApp(
+      home: SignInScreen(account: fakeAccount(signedIn: false), googleSignIn: () async {
+        asked = true;
+        return null; // usuário cancelou a escolha da conta
+      }),
+    ));
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pump();
+    expect(asked, isTrue);
+    expect(find.text('Welcome to WaxClub'), findsOneWidget);
   });
 
   testWidgets('conta sem nome de usuário/local (Google ou login antigo): pede para completar o perfil', (tester) async {

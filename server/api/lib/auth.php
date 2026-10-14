@@ -7,6 +7,7 @@ const SESSION_DAYS = 180;
 const CODE_MINUTES = 15;
 const CODE_MAX_ATTEMPTS = 5;
 const PASSWORD_MIN = 8;
+const GOOGLE_WEB_CLIENT_ID = '191594960482-stdsa9ahvrou6k025ftecf5vhs2pj1ll.apps.googleusercontent.com';
 const RESERVED_USERNAMES = ['admin', 'administrator', 'root', 'support', 'help', 'waxclub', 'api', 'system', 'moderator', 'staff'];
 
 function normalize_email(?string $email): ?string
@@ -359,7 +360,8 @@ function auth_email_verify(): void
 // POST /v1/auth/google {idToken, device?}
 function auth_google(): void
 {
-    $clientIds = array_filter(array_map('trim', explode(',', cfg('GOOGLE_CLIENT_IDS'))));
+    // ID do cliente "Aplicativo da Web" do projeto Google Cloud "waxclub" (público; o .env pode trocar ou somar outros)
+    $clientIds = array_filter(array_map('trim', explode(',', cfg('GOOGLE_CLIENT_IDS', GOOGLE_WEB_CLIENT_ID))));
     if (!$clientIds) {
         fail(503, 'google_not_configured');
     }

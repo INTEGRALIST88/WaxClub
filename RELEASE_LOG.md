@@ -10,9 +10,9 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
 * **Esqueci a senha:** código no e-mail + senha nova; entra na conta e encerra as outras sessões.
 * **Completar o perfil:** quem entrou pelo código antigo (1.3.20) ou, no futuro, pelo Google escolhe nome de usuário e local antes de usar o app.
 * **Tela da conta:** @usuário, e-mail e local, "Edit profile", sincronização, sair e apagar a conta (sair volta para a tela de login).
-* **Google:** o servidor já aceita; o botão "Continue with Google" aparece quando o Client ID do Google Cloud for configurado. **Apple** fica para depois (decisão do usuário).
+* **Login com Google** ("Continue with Google", Credential Manager do Android via `google_sign_in` 7.2): projeto Google Cloud "waxclub" com cliente Android (`com.waxclub.app` + SHA-1 da chave de assinatura) e cliente Web (o idToken é conferido pela API). Conta nova pelo Google completa o perfil (usuário e local) antes de usar o app. **Apple** fica para depois (decisão do usuário).
 * **Servidor (API, esquema 3):** `/v1/auth/register`, `/verify-email`, `/login`, `/password/forgot`, `/password/reset`, `/username-available`; perfil com usuário e local; base de países (252), estados (3.768) e cidades (161.702) do **GeoNames** (CC BY 4.0, crédito na Ajuda e no site) em `/v1/geo/*`; senhas guardadas só como hash; limite de tentativas de login. E-mails pela caixa `waxclub@waxclub.com.br` (SMTP).
-* Testes: `widget_test.dart` (login como primeira tela, completar o perfil), `account_service_test.dart` (senha, cadastro com local, confirmação, conta não confirmada, listas e perfil) — 236 no total.
+* Testes: `widget_test.dart` (login como primeira tela, completar o perfil), `account_service_test.dart` (senha, cadastro com local, confirmação, conta não confirmada, listas e perfil) — 237 no total.
 
 ---
 ## [v1.3.20] — 13/10/2026 (Conta WaxClub e Sincronização da Coleção)

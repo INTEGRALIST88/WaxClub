@@ -32,6 +32,7 @@ dependencies:
   mobile_scanner: ^7.4.2
   image_picker: ^1.2.4
   google_mlkit_text_recognition: ^0.17.1
+  google_sign_in: ^7.2.0
 
 dependency_overrides:
   # 1.5.0: mesma versão exigida por record_android/record_web; habilita AndroidRecordConfig.audioSource
