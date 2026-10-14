@@ -2997,6 +2997,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location data © GeoNames (geonames.org), CC BY 4.0.'**
   String get geoAttribution;
+
+  /// No description provided for @pluginCatConnections.
+  ///
+  /// In en, this message translates to:
+  /// **'Connections'**
+  String get pluginCatConnections;
+
+  /// No description provided for @pluginRuleConnections.
+  ///
+  /// In en, this message translates to:
+  /// **'Link WaxClub to other music services. Each connection signs in to that service; you can turn it off or disconnect at any time.'**
+  String get pluginRuleConnections;
+
+  /// No description provided for @pluginDiscogsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Discogs'**
+  String get pluginDiscogsName;
+
+  /// No description provided for @pluginDiscogsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Discogs account to search the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes in the curiosities.'**
+  String get pluginDiscogsDesc;
+
+  /// No description provided for @pluginLicenseDiscogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Discogs API (data © Discogs). Your Discogs sign-in stays on this phone.'**
+  String get pluginLicenseDiscogs;
+
+  /// No description provided for @jukeboxNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'No account connected yet.'**
+  String get jukeboxNotConnected;
+
+  /// No description provided for @jukeboxDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get jukeboxDisconnect;
+
+  /// No description provided for @jukeboxConnectAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your {service} account'**
+  String jukeboxConnectAccount(String service);
 }
 
 class _AppLocalizationsDelegate

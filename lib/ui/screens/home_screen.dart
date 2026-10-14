@@ -32,6 +32,7 @@ import '../widgets/wood_tile_button.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
+import 'discogs_login_screen.dart';
 import 'help_screen.dart';
 
 /// Tela principal do aplicativo WaxClub.
@@ -101,6 +102,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _collection.load();
     _account.attachCollection(_collection);
     _account.load();
+    // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
+    _plugins.bindConnection(PluginCatalog.discogsId, PluginConnection(
+      listenable: _discogsAuth,
+      isEnabled: () => _discogsAuth.wantsEnabled,
+      setEnabled: _discogsAuth.setEnabled,
+      isConnected: () => _discogsAuth.isLoggedIn,
+      accountName: () => _discogsAuth.username,
+      connect: _connectDiscogs,
+      disconnect: _discogsAuth.logout,
+    ));
+    _discogsAuth.load().then((_) => _plugins.load());
     _engine.castService.runInitialBackgroundDiscovery();
 
     // Lembrete periódico a cada 1 minuto (60 segundos)
@@ -154,6 +166,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_recordPlayIfNew);
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
+    _plugins.dispose();
     _account.detachCollection(_collection);
     if (widget.account == null) _account.dispose();
     _collection.dispose();
@@ -365,6 +378,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   void _openHelp() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => HelpScreen(onExportLogs: _exportSessionLogs)));
+  }
+
+  /// Login do Discogs pelo plugin C1; ao conectar, o plugin fica ligado.
+  Future<bool> _connectDiscogs() async {
+    final connected = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => DiscogsLoginScreen(auth: _discogsAuth)),
+    );
+    if (connected == true) await _discogsAuth.setEnabled(true);
+    return connected == true;
   }
 
   void _openCollection() {

@@ -10,7 +10,8 @@ import '../../l10n/l10n.dart';
 enum PluginCategory {
   language('L', Color(0xFF5FE08F), exclusive: true),
   display('D', Color(0xFF2FD6F0)),
-  ai('A', Color(0xFFB590FF));
+  ai('A', Color(0xFFB590FF)),
+  connections('C', Color(0xFFFF9A3C));
 
   /// Letra do código de seleção na cartela (L1, D2, A1...).
   final String letter;
@@ -27,12 +28,14 @@ enum PluginCategory {
         PluginCategory.language => l10n.pluginCatLanguage,
         PluginCategory.display => l10n.pluginCatDisplay,
         PluginCategory.ai => l10n.pluginCatAi,
+        PluginCategory.connections => l10n.pluginCatConnections,
       };
 
   String get rule => switch (this) {
         PluginCategory.language => l10n.pluginRuleLanguage,
         PluginCategory.display => l10n.pluginRuleDisplay,
         PluginCategory.ai => l10n.pluginRuleAi,
+        PluginCategory.connections => l10n.pluginRuleConnections,
       };
 
   static PluginCategory? fromLetter(String letter) {
@@ -143,7 +146,44 @@ class PluginCatalog {
           description: l10n.pluginAiTranslateDesc,
           availability: PluginAvailability.comingSoon,
         ),
+        PluginInfo(
+          id: discogsId,
+          category: PluginCategory.connections,
+          number: 1,
+          name: l10n.pluginDiscogsName,
+          author: l10n.pluginAuthorBuiltIn,
+          license: l10n.pluginLicenseDiscogs,
+          description: l10n.pluginDiscogsDesc,
+          availability: PluginAvailability.builtIn,
+        ),
       ];
+
+  /// Plugin C1: conta Discogs (busca de prensagens, coleção no Discogs).
+  static const String discogsId = 'connect.discogs';
+}
+
+/// Plugin de conexão com um serviço externo (categoria Connections). O estado vem do próprio serviço
+/// (ex.: [DiscogsAuthService]): ligado/desligado, conta conectada, entrar e sair da conta.
+class PluginConnection {
+  final Listenable listenable;
+  final bool Function() isEnabled;
+  final Future<void> Function(bool enabled) setEnabled;
+  final bool Function() isConnected;
+  final String? Function() accountName;
+
+  /// Abre o login do serviço; `true` quando a conta foi conectada.
+  final Future<bool> Function() connect;
+  final Future<void> Function() disconnect;
+
+  const PluginConnection({
+    required this.listenable,
+    required this.isEnabled,
+    required this.setEnabled,
+    required this.isConnected,
+    required this.accountName,
+    required this.connect,
+    required this.disconnect,
+  });
 }
 
 /// Quais plugins estão instalados e ligados ("no prato"), guardado no aparelho
@@ -174,7 +214,30 @@ class PluginStore extends ChangeNotifier {
   }
 
   bool isInstalled(PluginInfo p) => p.isBuiltIn || _installed.contains(p.id);
-  bool isActive(PluginInfo p) => _active.contains(p.id);
+  bool isActive(PluginInfo p) => _connections[p.id]?.isEnabled() ?? _active.contains(p.id);
+
+  final Map<String, PluginConnection> _connections = {};
+
+  /// Embutidos que apareceram nesta versão do app (entram ligados).
+  final Set<String> _newBuiltIns = {};
+
+  PluginConnection? connectionFor(PluginInfo p) => _connections[p.id];
+
+  /// Liga um plugin de conexão ao serviço que guarda o estado dele. Plugin novo nesta versão entra ligado.
+  void bindConnection(String id, PluginConnection connection) {
+    _connections[id]?.listenable.removeListener(notifyListeners);
+    _connections[id] = connection;
+    connection.listenable.addListener(notifyListeners);
+    if (_loaded && _newBuiltIns.remove(id)) connection.setEnabled(true);
+  }
+
+  @override
+  void dispose() {
+    for (final c in _connections.values) {
+      c.listenable.removeListener(notifyListeners);
+    }
+    super.dispose();
+  }
 
   /// Pode ser ligado/desligado pelo usuário agora.
   bool canToggle(PluginInfo p) {
@@ -215,6 +278,12 @@ class PluginStore extends ChangeNotifier {
   /// Retorna `false` se não for permitido (anunciado, travado, não instalado).
   Future<bool> toggle(PluginInfo p) async {
     if (!canToggle(p)) return false;
+    final connection = _connections[p.id];
+    if (connection != null) {
+      await connection.setEnabled(!connection.isEnabled());
+      notifyListeners();
+      return true;
+    }
     if (isActive(p)) {
       _active.remove(p.id);
     } else {
@@ -263,6 +332,7 @@ class PluginStore extends ChangeNotifier {
         final seen = j.containsKey('seenBuiltIns')
             ? (j['seenBuiltIns'] as List<dynamic>).whereType<String>().toSet()
             : const {'lang.en', 'display.lyrics'};
+        _newBuiltIns.addAll(catalog.where((p) => p.isBuiltIn && !seen.contains(p.id)).map((p) => p.id));
         _active
           ..clear()
           ..addAll(active)
@@ -271,11 +341,20 @@ class PluginStore extends ChangeNotifier {
               p.isBuiltIn && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
         // Idioma: se nenhum ativo, o padrão
         _applyLanguageDefault();
+      } else {
+        _newBuiltIns.addAll(catalog.where((p) => p.isBuiltIn).map((p) => p.id)); // primeira abertura
       }
     } catch (e) {
       debugPrint('[PluginStore] Arquivo de plugins ilegível: $e');
     }
     _loaded = true;
+    // Conexões novas nesta versão (ex.: Discogs na 1.3.22) entram ligadas
+    final hadNew = _newBuiltIns.isNotEmpty;
+    for (final id in _connections.keys.where(_newBuiltIns.contains).toList()) {
+      _newBuiltIns.remove(id);
+      await _connections[id]!.setEnabled(true);
+    }
+    if (hadNew) await _save(); // grava os embutidos vistos (não volta a ligar o que o usuário desligar)
     notifyListeners();
   }
 

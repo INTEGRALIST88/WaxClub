@@ -1158,5 +1158,20 @@
   "authErrorLocation": "Choose your country, state and city.",
   "authErrorTooManyAttempts": "Too many attempts. Wait 15 minutes and try again.",
   "authErrorRequired": "Fill in all the fields.",
-  "geoAttribution": "Location data © GeoNames (geonames.org), CC BY 4.0."
+  "geoAttribution": "Location data © GeoNames (geonames.org), CC BY 4.0.",
+  "pluginCatConnections": "Connections",
+  "pluginRuleConnections": "Link WaxClub to other music services. Each connection signs in to that service; you can turn it off or disconnect at any time.",
+  "pluginDiscogsName": "Discogs",
+  "pluginDiscogsDesc": "Connect your Discogs account to search the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes in the curiosities.",
+  "pluginLicenseDiscogs": "Discogs API (data © Discogs). Your Discogs sign-in stays on this phone.",
+  "jukeboxNotConnected": "No account connected yet.",
+  "jukeboxDisconnect": "Disconnect",
+  "jukeboxConnectAccount": "Connect your {service} account",
+  "@jukeboxConnectAccount": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  }
 }

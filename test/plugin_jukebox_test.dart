@@ -23,9 +23,38 @@ const _theme = PluginInfo(
   description: 'Theme',
 );
 
+/// Serviço de conta falso (no app é o DiscogsAuthService).
+class _FakeDiscogs extends ChangeNotifier {
+  bool enabled = false;
+  String? user;
+
+  void set({bool? enabled, String? user}) {
+    if (enabled != null) this.enabled = enabled;
+    if (user != null) this.user = user;
+    notifyListeners();
+  }
+
+  late final PluginConnection connection = PluginConnection(
+    listenable: this,
+    isEnabled: () => enabled,
+    setEnabled: (v) async => set(enabled: v),
+    isConnected: () => user != null,
+    accountName: () => user,
+    connect: () async {
+      set(user: 'vinylfan', enabled: true);
+      return true;
+    },
+    disconnect: () async {
+      user = null;
+      notifyListeners();
+    },
+  );
+}
+
 void main() {
   test('categorias: letra, cor e regra; idioma é um por vez', () {
-    expect(PluginCategory.values.map((c) => c.letter), ['L', 'D', 'A']);
+    expect(PluginCategory.values.map((c) => c.letter), ['L', 'D', 'A', 'C']);
+    expect(PluginCategory.connections.label, 'Connections');
     expect(PluginCategory.language.exclusive, isTrue);
     expect(PluginCategory.display.exclusive, isFalse);
     expect(PluginCategory.fromLetter('a'), PluginCategory.ai);
@@ -59,6 +88,48 @@ void main() {
     expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2', 'D9']);
     await store.toggle(_theme);
     expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2']);
+  });
+
+  test('Discogs vem pré-instalado (C1) e o estado fica no serviço do Discogs', () async {
+    final service = _FakeDiscogs();
+    final store = PluginStore()..bindConnection(PluginCatalog.discogsId, service.connection);
+    final discogs = store.byCode('C1')!;
+    expect(discogs.name, 'Discogs');
+    expect(discogs.isBuiltIn, isTrue);
+    expect(store.isInstalled(discogs), isTrue);
+
+    // primeira abertura desta versão: a conexão nova entra ligada
+    await store.load();
+    expect(service.enabled, isTrue);
+    expect(store.isActive(discogs), isTrue);
+
+    // ligar/desligar na jukebox muda o serviço; mudar no serviço aparece na jukebox
+    expect(await store.toggle(discogs), isTrue);
+    expect(service.enabled, isFalse);
+    service.set(enabled: true);
+    expect(store.isActive(discogs), isTrue);
+  });
+
+  testWidgets('plugin de conexão: sem conta mostra "Connect your Discogs account"; conectado mostra a conta', (tester) async {
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final service = _FakeDiscogs();
+    final store = PluginStore()..bindConnection(PluginCatalog.discogsId, service.connection);
+
+    await tester.pumpWidget(MaterialApp(home: PluginJukeboxScreen(store: store)));
+    await tester.pump(const Duration(milliseconds: 100));
+    for (final key in ['C', '1', 'Select']) {
+      await tester.tap(find.text(key).first);
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('No account connected yet.'), findsOneWidget);
+
+    await tester.tap(find.text('Connect your Discogs account'));
+    await tester.pump();
+    expect(find.text('Connected as vinylfan'), findsOneWidget);
+    expect(find.text('Disconnect'), findsOneWidget);
   });
 
   testWidgets('jukebox: discos por categoria e seleção pelo teclado abre o plugin', (tester) async {

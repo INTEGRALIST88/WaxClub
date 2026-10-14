@@ -1772,4 +1772,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get geoAttribution =>
       'Location data © GeoNames (geonames.org), CC BY 4.0.';
+
+  @override
+  String get pluginCatConnections => 'Connections';
+
+  @override
+  String get pluginRuleConnections =>
+      'Link WaxClub to other music services. Each connection signs in to that service; you can turn it off or disconnect at any time.';
+
+  @override
+  String get pluginDiscogsName => 'Discogs';
+
+  @override
+  String get pluginDiscogsDesc =>
+      'Connect your Discogs account to search the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes in the curiosities.';
+
+  @override
+  String get pluginLicenseDiscogs =>
+      'Discogs API (data © Discogs). Your Discogs sign-in stays on this phone.';
+
+  @override
+  String get jukeboxNotConnected => 'No account connected yet.';
+
+  @override
+  String get jukeboxDisconnect => 'Disconnect';
+
+  @override
+  String jukeboxConnectAccount(String service) {
+    return 'Connect your $service account';
+  }
 }

@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.22] — 14/10/2026 (Discogs como Plugin — Categoria Connections)
+
+* **Nova categoria de plugins "Connections"** (letra **C**, compacto laranja) na Plugin Jukebox: serviços externos ligados à conta do usuário em cada serviço.
+* **Discogs pré-instalado como plugin C1:** a ficha mostra a conta conectada ("Connected as …" + **Disconnect**) ou o botão **"Connect your Discogs account"** (login do Discogs pela API, como antes); ligar/desligar o plugin liga/desliga a busca de prensagens no Discogs, a coleção no Discogs e as notas da prensagem nas curiosidades.
+* O estado do plugin fica no próprio serviço do Discogs: a caixa "Search Discogs" da tela "Change record" e a jukebox mostram sempre a mesma coisa. Na primeira abertura desta versão o plugin entra ligado (sem conta conectada, nada muda até conectar); se o usuário desligar, continua desligado.
+* Plugins de conexão novos no futuro (Last.fm, Spotify...) usam o mesmo modelo (`PluginConnection`).
+* Testes: `plugin_jukebox_test.dart` (categoria C, Discogs C1 pré-instalado e ligado, estado vindo do serviço, conectar/desconectar na ficha) — 239 no total.
+
+---
 ## [v1.3.21] — 14/10/2026 (Login Obrigatório e Cadastro Completo)
 
 * **Login antes de abrir o app:** a primeira tela é a de entrada (e-mail e senha). A sessão fica salva: o login só volta depois de sair da conta.

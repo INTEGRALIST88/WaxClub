@@ -533,6 +533,57 @@ class _PluginSheet extends StatefulWidget {
 }
 
 class _PluginSheetState extends State<_PluginSheet> {
+  bool _busy = false;
+
+  /// Plugin de conexão (Connections): conta do serviço, entrar e sair.
+  List<Widget> _connection(PluginInfo p, PluginConnection c) {
+    final connected = c.isConnected();
+    Future<void> run(Future<void> Function() action) async {
+      setState(() => _busy = true);
+      try {
+        await action();
+      } finally {
+        if (mounted) setState(() => _busy = false);
+      }
+    }
+
+    return [
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Icon(connected ? Icons.link : Icons.link_off, color: p.category.color, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              connected ? l10n.connectedAs(c.accountName() ?? l10n.yourAccount) : l10n.jukeboxNotConnected,
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ),
+          if (connected)
+            TextButton(
+              onPressed: _busy ? null : () => run(c.disconnect),
+              child: Text(l10n.jukeboxDisconnect, style: const TextStyle(color: Colors.white54)),
+            ),
+        ],
+      ),
+      if (!connected) ...[
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _busy ? null : () => run(() async => await c.connect()),
+            icon: const Icon(Icons.login),
+            label: Text(l10n.jukeboxConnectAccount(p.name)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: p.category.color,
+              side: BorderSide(color: p.category.color),
+            ),
+          ),
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = widget.plugin;
@@ -584,6 +635,7 @@ class _PluginSheetState extends State<_PluginSheet> {
               ),
             const SizedBox(height: 14),
             Text(status, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
+            if (store.connectionFor(p) case final c?) ..._connection(p, c),
             const SizedBox(height: 12),
             if (store.canToggle(p))
               SizedBox(

@@ -124,6 +124,9 @@ class DiscogsAuthService extends ChangeNotifier {
   /// Caixa "Consultar Discogs" marcada (lembrada entre sessões).
   bool get isEnabled => _enabled && isLoggedIn;
 
+  /// Plugin C1 (Discogs) ligado na jukebox, com ou sem conta conectada.
+  bool get wantsEnabled => _enabled;
+
   /// O app tem chaves próprias cadastradas no Discogs (login pela tela do Discogs).
   bool get supportsOAuthLogin => _consumerKey.isNotEmpty && _consumerSecret.isNotEmpty;
 
