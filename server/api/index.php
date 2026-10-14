@@ -7,6 +7,7 @@ require __DIR__ . '/lib/mail.php';
 require __DIR__ . '/lib/geo.php';
 require __DIR__ . '/lib/auth.php';
 require __DIR__ . '/lib/collection.php';
+require __DIR__ . '/lib/curiosities.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -39,6 +40,8 @@ $routes = [
     ['PUT', '#^/v1/collection/(.+)$#', 'collection_put'],
     ['DELETE', '#^/v1/collection/(.+)$#', 'collection_delete'],
     ['GET', '#^/v1/plays$#', 'plays_list'],
+    ['GET', '#^/v1/curiosities$#', 'curiosities_get'],
+    ['POST', '#^/v1/curiosities$#', 'curiosities_put'],
     ['POST', '#^/v1/plays$#', 'plays_add'],
 ];
 

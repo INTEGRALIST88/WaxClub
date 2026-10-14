@@ -1220,5 +1220,15 @@
   "playRecordPlayAndAdd": "Play and add to collection",
   "playRecordJustPlay": "Just play",
   "playRecordInCollection": "In your collection",
-  "playRecordNoTracks": "The track list of this record was not found. Try another pressing."
+  "playRecordNoTracks": "The track list of this record was not found. Try another pressing.",
+  "curiositiesTooltip": "Curiosities about this record",
+  "curiositiesEmpty": "No curiosities found for this record yet.",
+  "curiositiesSource": "Source: {source}",
+  "@curiositiesSource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  }
 }

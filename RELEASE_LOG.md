@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.2] — 14/10/2026 (Curiosidades no Idioma do Artista, Banco Compartilhado e ⓘ na Coleção)
+
+* **My Collection:** ícone **ⓘ** à direita de cada disco, que **brilha prateado um disco após o outro** ao abrir a tela. Só aparece com o plugin **Curiosidades (D2)** ligado. O toque abre o popup das curiosidades do disco, cada uma com a fonte.
+* **Banco compartilhado na Hostinger:** tabela `record_curiosities` (esquema 4) — uma linha por curiosidade, ligada ao disco (artista|disco normalizado; e o id do Discogs, quando houver), à faixa e ao idioma. Rotas `GET/POST /v1/curiosities`. O app **procura no banco antes da web** e **grava imediatamente** o que achar na web; os discos já pesquisados por qualquer usuário saem direto do banco.
+* **Idioma do artista:** as curiosidades agora são buscadas **no idioma em que o artista canta ou fala** (detectado pelo nome do disco, títulos das faixas e, tocando, pela letra — `LanguageDetector`: inglês, português, espanhol, francês, italiano, alemão e, pela escrita, japonês, coreano, chinês, russo, grego, árabe, hebraico), na Wikipedia daquele idioma; se não houver nada, a inglesa entra como reserva. Muda a regra anterior "curiosidades sempre em inglês" (decisão do usuário); as notícias continuam em inglês.
+* Escolha de frases das curiosidades funciona em outros idiomas (maiúsculas acentuadas, palavras-chave em pt/es/it/fr/de).
+* Testes: `curiosities_language_test.dart` (idioma, banco antes da web, gravação no banco, frases em português) — 252 no total.
+
+---
 ## [v1.4.1] — 14/10/2026 (Modo Manual: Ajuste que Funciona, Microfone nas Trocas de Faixa e Rotação da Sessão)
 
 * **Ajuste ±0.5 s no Modo Manual corrigido** (celular e TV): antes deslocava só a letra da música atual, era salvo por música e a troca de faixa continuava no horário antigo — a próxima música desfazia a correção. Agora o ajuste **move o relógio do disco**: letra e trocas de faixa juntas, valendo para o resto do lado (zera ao parar).

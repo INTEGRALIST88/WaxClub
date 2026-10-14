@@ -34,6 +34,7 @@ import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
 import 'account_screen.dart';
+import '../../services/language_detector.dart';
 import 'play_record_screen.dart';
 import 'record_found_flow.dart';
 import '../../services/tracklist_provider.dart';
@@ -407,6 +408,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         discogs: _discogsConnection,
         onAddRecord: _openRecordScan,
         onPlayItem: _playCollectionItem,
+        curiositiesFor: _curiositiesOn ? _curiositiesForItem : null,
       ),
     ));
   }
@@ -505,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   // ---------- Curiosidades (sem letra) ----------
-  final CuriositiesService _curiositiesService = CuriositiesService();
+  late final CuriositiesService _curiositiesService = CuriositiesService(remote: AccountCuriositiesRemote(_account));
   RecordCuriosities? _curiosities;
   String? _curiositiesKey;
 
@@ -538,7 +540,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _curiosities = null;
       () async {
         final notes = await _discogsNotesFor(album);
-        return _curiositiesService.forTrack(artist: track.artist, album: album, track: track.title, discogsNotes: notes);
+        return _curiositiesService.forTrack(
+          artist: track.artist,
+          album: album,
+          track: track.title,
+          discogsNotes: notes,
+          lang: _artistLanguage(album, artist, lyrics: _engine.lyrics.map((l) => l.text).join(' ')),
+        );
       }()
           .then((c) {
         if (mounted && _curiositiesKey == key) setState(() => _curiosities = c);
@@ -551,6 +559,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       cast.sendCuriosities(c, sideStart: _isSideStart);
     }
     if (!cast.isConnected) _curiositiesSentKey = null;
+  }
+
+  /// Idioma em que o artista canta (disco, faixas e, tocando, a letra), guardado por disco.
+  final Map<String, String> _languageByRecord = {};
+  String _artistLanguage(String album, String artist, {String lyrics = ''}) {
+    final key = '$artist|$album'; // l10n-ignore
+    final known = _languageByRecord[key];
+    if (known != null && lyrics.isEmpty) return known;
+    final titles = _engine.cacheService.getTracklist(album, artist).map((t) => t.title).join(' ');
+    final lang = LanguageDetector.detect('$album $titles $lyrics');
+    // Com a letra a detecção é melhor; sem ela, guarda a primeira resposta
+    if (lyrics.isNotEmpty || known == null) _languageByRecord[key] = lang;
+    return _languageByRecord[key]!;
+  }
+
+  /// Curiosidades de um disco da coleção (popup do ⓘ), no idioma do artista.
+  Future<List<Curiosity>> _curiositiesForItem(CollectionItem item) async {
+    _albumCatalogCreated = true;
+    final notes = item.discogsReleaseId == null ? null : await _albumCatalog.discogsNotes(item.discogsReleaseId!);
+    return _curiositiesService.albumFacts(
+      artist: item.artist,
+      album: item.album,
+      lang: _artistLanguage(item.album, item.artist),
+      discogsNotes: notes,
+      discogsReleaseId: item.discogsReleaseId,
+    );
   }
 
   /// O automático não reconhece a música há ~90 s: oferece o Modo Manual (letra pela minutagem).

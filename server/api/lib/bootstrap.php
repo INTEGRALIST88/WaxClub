@@ -209,6 +209,24 @@ function migrations(): array
                 KEY ix_city_country (country_code, search_name)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // 1.4.2: curiosidades dos discos compartilhadas (uma linha por curiosidade, por disco e idioma)
+        4 => [
+            "CREATE TABLE IF NOT EXISTS record_curiosities (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                record_key VARCHAR(255) NOT NULL,
+                track_key VARCHAR(255) NOT NULL DEFAULT '',
+                kind VARCHAR(8) NOT NULL,
+                lang CHAR(2) NOT NULL,
+                position TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                text TEXT NOT NULL,
+                source VARCHAR(60) NOT NULL,
+                url VARCHAR(500) NULL,
+                discogs_release_id VARCHAR(20) NULL,
+                created_by BIGINT UNSIGNED NULL,
+                created_at DATETIME(3) NOT NULL,
+                KEY ix_curiosities_record (record_key(150), kind, track_key(100), lang)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

@@ -1936,4 +1936,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get playRecordNoTracks =>
       'The track list of this record was not found. Try another pressing.';
+
+  @override
+  String get curiositiesTooltip => 'Curiosities about this record';
+
+  @override
+  String get curiositiesEmpty => 'No curiosities found for this record yet.';
+
+  @override
+  String curiositiesSource(String source) {
+    return 'Source: $source';
+  }
 }

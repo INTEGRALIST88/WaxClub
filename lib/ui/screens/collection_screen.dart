@@ -9,6 +9,8 @@ import '../theme/wood.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../widgets/wood_tile_button.dart';
 import 'sync_screen.dart';
+import '../../services/curiosities_service.dart';
+import '../widgets/curiosity_badge.dart';
 
 /// Datas relativas da coleção e da conta ("Today 14:05", "Yesterday 09:10"...).
 class CollectionScreenFormat {
@@ -34,6 +36,9 @@ class CollectionScreen extends StatefulWidget {
   /// "Play" no detalhe de um disco: prepara o disco para tocar.
   final void Function(CollectionItem item)? onPlayItem;
 
+  /// Curiosidades do disco (ⓘ à direita de cada disco); nulo com o plugin de Curiosidades (D2) desligado.
+  final Future<List<Curiosity>> Function(CollectionItem item)? curiositiesFor;
+
   const CollectionScreen({
     super.key,
     required this.collection,
@@ -42,13 +47,29 @@ class CollectionScreen extends StatefulWidget {
     this.discogs,
     this.onAddRecord,
     this.onPlayItem,
+    this.curiositiesFor,
   });
 
   @override
   State<CollectionScreen> createState() => _CollectionScreenState();
 }
 
-class _CollectionScreenState extends State<CollectionScreen> {
+class _CollectionScreenState extends State<CollectionScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _shine = AnimationController(vsync: this, duration: const Duration(seconds: 1));
+
+  /// Brilho prateado do ⓘ ao abrir a tela, disco após disco.
+  void _startShine() {
+    if (widget.curiositiesFor == null || !mounted) return;
+    final n = widget.collection.count.clamp(1, 60);
+    _shine.duration = Duration(milliseconds: n * CuriosityBadge.stepMs + CuriosityBadge.glowMs);
+    _shine.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _shine.dispose();
+    super.dispose();
+  }
   CollectionSort _sort = CollectionSort.recentlyPlayed;
 
   static Map<CollectionSort, String> get _sortLabels => {
@@ -61,6 +82,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
   @override
   void initState() {
     super.initState();
+    widget.collection.load().then((_) => _startShine());
     widget.collection.load();
   }
 
@@ -136,7 +158,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (_, i) => _tile(items[i]),
+                  itemBuilder: (_, i) => _tile(items[i], i),
                 ),
             ],
           ),
@@ -181,7 +203,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
         child: Icon(Icons.album, color: AppTheme.wood, size: size * 0.6),
       );
 
-  Widget _tile(CollectionItem item) {
+  Widget _tile(CollectionItem item, [int index = 0]) {
     final stats = widget.collection.statsFor(item.album, item.artist);
     return Material(
       color: AppTheme.surface.withValues(alpha: 0.92),
@@ -213,10 +235,64 @@ class _CollectionScreenState extends State<CollectionScreen> {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white38),
+              if (widget.curiositiesFor != null)
+                CuriosityBadge(
+                  shine: _shine,
+                  shineTotal: _shine.duration ?? const Duration(seconds: 1),
+                  index: index,
+                  tooltip: l10n.curiositiesTooltip,
+                  onTap: () => _showCuriosities(item),
+                )
+              else
+                const Icon(Icons.chevron_right, color: Colors.white38),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Popup das curiosidades do disco (banco compartilhado, ou baixadas agora), com a fonte de cada uma.
+  void _showCuriosities(CollectionItem item) {
+    final future = widget.curiositiesFor!(item);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: RetroText(item.album, fontSize: 24, depth: 2, maxLines: 2),
+        content: SizedBox(
+          width: 420,
+          child: FutureBuilder<List<Curiosity>>(
+            future: future,
+            builder: (context, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const SizedBox(
+                  height: 120,
+                  child: Center(child: CircularProgressIndicator(color: AppTheme.orange)),
+                );
+              }
+              final facts = snap.data ?? const <Curiosity>[];
+              if (facts.isEmpty) {
+                return Text(l10n.curiositiesEmpty, style: const TextStyle(color: Colors.white70, height: 1.4));
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                itemCount: facts.length,
+                separatorBuilder: (_, __) => const Divider(color: Colors.white12, height: 20),
+                itemBuilder: (_, i) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(facts[i].text, style: const TextStyle(color: Colors.white, height: 1.45, fontSize: 14.5)),
+                    const SizedBox(height: 4),
+                    Text(l10n.curiositiesSource(facts[i].source),
+                        style: const TextStyle(color: AppTheme.orange, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.close))],
       ),
     );
   }

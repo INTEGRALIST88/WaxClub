@@ -3285,6 +3285,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The track list of this record was not found. Try another pressing.'**
   String get playRecordNoTracks;
+
+  /// No description provided for @curiositiesTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Curiosities about this record'**
+  String get curiositiesTooltip;
+
+  /// No description provided for @curiositiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No curiosities found for this record yet.'**
+  String get curiositiesEmpty;
+
+  /// No description provided for @curiositiesSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {source}'**
+  String curiositiesSource(String source);
 }
 
 class _AppLocalizationsDelegate

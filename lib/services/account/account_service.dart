@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../collection_service.dart';
+import '../curiosities_service.dart';
 
 /// Conta WaxClub do usuário (servidor em https://api.waxclub.com.br).
 class WaxClubAccount {
@@ -318,6 +319,35 @@ class AccountService extends ChangeNotifier {
     return j['valid'] == true ? j['available'] == true : null;
   }
 
+  // ---------- curiosidades compartilhadas (banco da Hostinger) ----------
+
+  /// Curiosidades do disco [record] (ou da faixa [track]) no idioma [lang]; nula sem conta ou sem rede.
+  Future<List<Curiosity>?> fetchCuriosities(String record, String lang, {String? track}) async {
+    if (!isSignedIn) return null;
+    final qs = [
+      'record=${Uri.encodeQueryComponent(record)}',
+      'lang=${Uri.encodeQueryComponent(lang)}',
+      if (track != null) 'track=${Uri.encodeQueryComponent(track)}',
+    ].join('&');
+    final j = await _request('GET', '/curiosities?$qs');
+    return [
+      for (final c in (j['items'] as List? ?? const []).cast<Map<String, dynamic>>())
+        Curiosity(c['text'] as String, c['source'] as String? ?? 'Wikipedia', url: c['url'] as String?),
+    ];
+  }
+
+  /// Grava (substitui) as curiosidades do disco/faixa naquele idioma.
+  Future<void> saveCuriosities(String record, String lang, List<Curiosity> items, {String? track, String? discogsReleaseId}) async {
+    if (!isSignedIn || items.isEmpty) return;
+    await _request('POST', '/curiosities', body: {
+      'record': record,
+      'lang': lang,
+      if (track != null) 'track': track,
+      if (discogsReleaseId != null) 'discogsReleaseId': discogsReleaseId,
+      'items': [for (final c in items) c.toJson()],
+    });
+  }
+
   Map<String, dynamic> _locationBody(LocationChoice l) => {
         'countryCode': l.country.code,
         if (l.state != null) 'stateCode': l.state!.code,
@@ -530,4 +560,18 @@ class AccountService extends ChangeNotifier {
     _collection?.removeListener(_onCollectionChanged);
     super.dispose();
   }
+}
+
+/// O banco compartilhado das curiosidades pela conta WaxClub.
+class AccountCuriositiesRemote implements CuriositiesRemote {
+  final AccountService account;
+  AccountCuriositiesRemote(this.account);
+
+  @override
+  Future<List<Curiosity>?> fetch(String record, String lang, {String? track}) =>
+      account.fetchCuriosities(record, lang, track: track);
+
+  @override
+  Future<void> save(String record, String lang, List<Curiosity> items, {String? track, String? discogsReleaseId}) =>
+      account.saveCuriosities(record, lang, items, track: track, discogsReleaseId: discogsReleaseId);
 }
