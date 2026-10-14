@@ -17,8 +17,7 @@ void main() {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: AppTheme.surface,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
+      systemNavigationBarIconBrightness: Brightness.light,),
   );
 
   runApp(const WaxClubApp());
