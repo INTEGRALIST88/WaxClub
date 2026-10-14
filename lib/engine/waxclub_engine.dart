@@ -1118,7 +1118,60 @@ class WaxClubEngine extends ChangeNotifier {
   }
 
   /// Resolução de letras em cascata estrita cache-first (D11).
+  /// Fonte da letra que está na tela ('local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'), para o
+  /// painel de plugins marcar qual S está em uso; nulo sem letra ou de origem desconhecida.
+  String? _lyricsSource;
+  String? get lyricsSource => _lyricsSource;
+
   Future<_ResolvedLyrics> _resolveLyricsFor(TrackInfo track) async {
+    final r = await _resolveLyrics(track);
+    final content = r.lrcContent;
+    _lyricsSource = (content == null || content.isEmpty)
+        ? null
+        : (r.lyricsSource ?? _cacheService.getLyricsSource(track.title, track.artist));
+    return r;
+  }
+
+  /// As fontes de letras mudaram no painel (ligou, desligou ou reordenou): busca de novo a letra da faixa
+  /// que está tocando, na nova ordem e sem o cache, e já mostra no celular e na TV. Sem letra em nenhuma
+  /// fonte ligada, a letra some (e entram as curiosidades, se o D1 estiver ligado).
+  Future<void> reloadLyricsForCurrentTrack() async {
+    final track = _currentTrack;
+    if (track == null) return;
+    final session = _sessionId;
+    LrcResponse? r = LyricsProviderService.myLyricsFirst()
+        ? LyricsProviderService.fromMyLyrics(track.title, track.artist, albumName: track.album)
+        : null;
+    r ??= await _lyricsService.fetchLyricsDetails(
+      trackName: track.title,
+      artistName: track.artist,
+      albumName: track.album,
+      durationSeconds: _trackDurationSeconds?.round(),
+    );
+    if (_isDisposed || session != _sessionId || _currentTrack?.title != track.title) return;
+    final lrc = r?.syncedLyrics;
+    _lyrics = (lrc == null || lrc.isEmpty) ? [] : LrcParser.parse(lrc, estimatedDurationSeconds: _trackDurationSeconds);
+    _lyricsSource = (lrc == null || lrc.isEmpty) ? null : r?.source;
+    _currentTrack = track.copyWith(lrcContent: lrc);
+    if (lrc != null && lrc.isNotEmpty) {
+      await _cacheService.cacheTrack(_currentTrack!, lrc);
+      if (r?.source != null) await _cacheService.saveLyricsSource(track.title, track.artist, r!.source!);
+    }
+    _logService.log('lyrics_reloaded', {'track': track.title, 'source': _lyricsSource});
+    const leadTimeMs = 450;
+    _activeLineIndex = LrcParser.findActiveIndex(
+      _lyrics,
+      Duration(milliseconds: (((_currentPositionSeconds + _lyricBiasSeconds) * 1000) + leadTimeMs).round()),
+    );
+    _telemetry = _telemetry.copyWith(activeLineIndex: _activeLineIndex);
+    notifyListeners();
+    if (_castService.isConnected && _currentTrack != null) {
+      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _sendCastSyncWithTvLookahead();
+    }
+  }
+
+  Future<_ResolvedLyrics> _resolveLyrics(TrackInfo track) async {
     // Letra em texto simples (sem timestamps) não encerra a busca: tenta antes a rede por uma versão
     // sincronizada e só usa o texto simples guardado se a rede não trouxer nada melhor.
     _ResolvedLyrics? plainFallback;
@@ -1160,7 +1213,9 @@ class WaxClubEngine extends ChangeNotifier {
 
     // 2. Cache em disco (0 chamadas HTTP)
     final cached = _cacheService.findCachedTrack(track.title, track.artist);
-    if (cached != null && cached.lrcContent != null && cached.lrcContent!.isNotEmpty) {
+    final cachedSource = cached?.lyricsSource;
+    final cachedSourceOff = cachedSource != null && !LyricsProviderService.sourceEnabled(cachedSource);
+    if (cached != null && cached.lrcContent != null && cached.lrcContent!.isNotEmpty && !cachedSourceOff) {
       final dur = cached.durationMs != null && cached.durationMs! > 0 ? (cached.durationMs! / 1000.0) : null;
       final fromCache = _ResolvedLyrics(
         lrcContent: cached.lrcContent,
@@ -1178,7 +1233,8 @@ class WaxClubEngine extends ChangeNotifier {
 
     // 3. Cascata de rede
     debugPrint('[WaxClubEngine] 🌐 Buscando letra na rede para "${track.title}"...');
-    final preferredSource = _cacheService.getLyricsSource(track.title, track.artist);
+    // A fonte de antes só vai na frente se ainda estiver ligada (o painel manda na ordem)
+    final preferredSource = cachedSourceOff ? null : _cacheService.getLyricsSource(track.title, track.artist);
     final details = await _lyricsService.fetchLyricsDetails(
       trackName: track.title,
       artistName: track.artist,

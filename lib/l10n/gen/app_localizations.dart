@@ -3789,6 +3789,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{plugin} comes with WaxClub and can\'t be ejected. Tap it in the panel to turn it off.'**
   String ejectBuiltInInfo(String plugin);
+
+  /// No description provided for @photosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos of your record'**
+  String get photosTitle;
+
+  /// No description provided for @photosEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.'**
+  String get photosEmpty;
+
+  /// No description provided for @photosTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get photosTake;
+
+  /// No description provided for @photosFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'From gallery'**
+  String get photosFromGallery;
+
+  /// No description provided for @photosLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the photos. Check your internet.'**
+  String get photosLoadFailed;
+
+  /// No description provided for @photosUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the photo. Check your internet and try again.'**
+  String get photosUploadFailed;
+
+  /// No description provided for @photosTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'This record already has the maximum number of photos (40).'**
+  String get photosTooMany;
+
+  /// No description provided for @photosCameraFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the camera or the gallery.'**
+  String get photosCameraFailed;
+
+  /// No description provided for @photosDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete photo'**
+  String get photosDelete;
+
+  /// No description provided for @photosDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this photo?'**
+  String get photosDeleteTitle;
+
+  /// No description provided for @photosDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete the photo. Try again.'**
+  String get photosDeleteFailed;
 }
 
 class _AppLocalizationsDelegate

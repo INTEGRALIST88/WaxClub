@@ -227,6 +227,22 @@ function migrations(): array
                 KEY ix_curiosities_record (record_key(150), kind, track_key(100), lang)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // 1.4.16: fotos dos discos tiradas pelo usuário (no banco, ligadas ao disco e ao usuário)
+        5 => [
+            "CREATE TABLE IF NOT EXISTS record_photos (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                user_id BIGINT UNSIGNED NOT NULL,
+                item_key VARCHAR(255) NOT NULL,
+                mime VARCHAR(30) NOT NULL,
+                width SMALLINT UNSIGNED NOT NULL,
+                height SMALLINT UNSIGNED NOT NULL,
+                size INT UNSIGNED NOT NULL,
+                data MEDIUMBLOB NOT NULL,
+                created_at DATETIME(3) NOT NULL,
+                KEY ix_photos_user_item (user_id, item_key(150)),
+                CONSTRAINT fk_photos_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

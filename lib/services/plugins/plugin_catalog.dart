@@ -15,7 +15,7 @@ enum PluginCategory {
   ai('A', Color(0xFFB590FF)),
   connections('C', Color(0xFFFF9A3C));
 
-  /// Letra do código de seleção na cartela (L1, D2, A1...).
+  /// Letra do código de seleção na cartela (L1, D1, A1...).
   final String letter;
 
   /// Cor do vinil do compacto.
@@ -115,21 +115,12 @@ class PluginCatalog {
           description: l10n.pluginEnglishDesc,
           availability: PluginAvailability.builtIn,
         ),
-        PluginInfo(
-          id: 'display.lyrics',
-          category: PluginCategory.display,
-          number: 1,
-          name: l10n.pluginLyricsName,
-          author: l10n.pluginAuthorBuiltIn,
-          license: l10n.pluginLicenseLyrics,
-          description: l10n.pluginLyricsDesc,
-          availability: PluginAvailability.builtIn,
-          locked: true,
-        ),
+        // (Até a 1.4.15 o D1 era "Synced lyrics", travado; as letras agora são os plugins S e a exibição
+        // delas é do próprio app — o D1 passou a ser as Curiosidades.)
         PluginInfo(
           id: 'display.curiosities',
           category: PluginCategory.display,
-          number: 2,
+          number: 1,
           name: l10n.pluginCuriositiesName,
           author: l10n.pluginAuthorBuiltIn,
           license: l10n.pluginLicenseCuriosities,
@@ -475,6 +466,17 @@ class PluginStore extends ChangeNotifier {
     final moved = list.removeAt(from);
     list.insert(to.clamp(0, list.length), moved);
     final ids = list.map((p) => p.id).toList();
+    _order
+      ..removeWhere(ids.contains)
+      ..insertAll(0, ids);
+    notifyListeners();
+    await _save();
+  }
+
+  /// Grava a ordem do painel inteira (ids da esquerda para a direita), depois de um arraste.
+  Future<void> setPanelOrder(List<String> ids) async {
+    final current = panelPlugins().map((p) => p.id).toList();
+    if (ids.length == current.length && List.generate(ids.length, (i) => ids[i] == current[i]).every((x) => x)) return;
     _order
       ..removeWhere(ids.contains)
       ..insertAll(0, ids);

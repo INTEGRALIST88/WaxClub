@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.16] — 14/10/2026 (Painel que Arrasta e Faz Efeito, D1 = Curiosidades e Fotos dos Discos)
+
+* **Painel de plugins — arrastar de verdade, com animação suave:** o arraste começa assim que o dedo se move (antes exigia segurar e não funcionava); enquanto arrasta, as outras caixinhas **deslizam abrindo espaço** e o lugar de destino aparece contornado; soltar grava a ordem; soltar fora da linha pergunta se quer ejetar. A animação é própria e roda mesmo com as animações do Android desligadas.
+* **Ligar/desligar faz efeito na hora:**
+  * Fontes de letras (S): ligar, desligar, reordenar ou ejetar **busca de novo a letra da música que está tocando** na nova ordem, sem o cache, e já mostra no celular e na TV. Sem fonte ligada com a letra, ela some (e entram as curiosidades, com o D1 ligado). A letra guardada de uma fonte desligada não é mais usada.
+  * A caixinha da fonte que está fornecendo a letra na tela fica **marcada** (contorno creme e ♪).
+* **D1 agora é Record Curiosities:** o antigo D1 "Synced lyrics" (travado) saiu — as letras são os plugins S e a exibição delas é do próprio app. No site, D2 passa a ser o VU analógico (em breve).
+* **Fotos dos seus discos** (detalhe do disco em My Collection → "Photos of your record"): **Take photo** (câmera) ou **From gallery** (várias de uma vez), quantas quiser (até 40 por disco). Reduzidas no aparelho (lado maior 1600 px, qualidade 80%) e guardadas **no banco do WaxClub**, ligadas ao disco e à sua conta — só você vê. Tocar abre em tela cheia com zoom e a lixeira (com confirmação).
+  * API: `GET/POST /v1/photos?item=`, `GET/DELETE /v1/photos/{id}`; tabela `record_photos` (esquema 5; JPEG, PNG ou WebP, até 1,5 MB e 2048 px).
+* **Xiaomi sem capas e sem reconhecer:** não era o app — o Xiaomi estava sem internet (Wi-Fi desconectado da rede "Sala" e dados móveis desligados).
+* Testes: arrastar/ejetar com o novo arraste, recarga da letra ao desligar a fonte em uso (e sem fonte nenhuma), chamadas de fotos — 295 no total.
+
+---
 ## [v1.4.15] — 14/10/2026 (Ejetar Plugin do Painel, ⓘ Cromado e Brilho que Vai Até o Fim)
 
 * **Painel de plugins — ejetar:** segurar uma caixinha e soltar **fora da linha** (para cima ou para baixo, até fora da tela) abre *"Eject this plugin?"* — **Eject** tira o plugin do aparelho (dá para instalar de novo pela jukebox ou pelo site); **Cancel** mantém. Plugin que vem com o app (D2) não é ejetado: o aviso explica que basta tocar para desligar.

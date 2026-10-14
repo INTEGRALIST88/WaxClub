@@ -19,7 +19,7 @@ void main() {
   test('painel: só plugins que mudam a tela (exibição e letras), sem os travados e os em breve', () {
     final store = PluginStore(directory: dir, bundleLyricsSources: true);
     final codes = store.panelPlugins().map((p) => p.code).toList();
-    expect(codes, ['D2', 'S1', 'S2', 'S3', 'S4'], reason: 'D1 é travado; S5 não está instalado; L, A e C ficam de fora');
+    expect(codes, ['D1', 'S1', 'S2', 'S3', 'S4'], reason: 'S5 não está instalado; L, A e C ficam de fora');
   });
 
   test('arrastar muda a ordem, fica salvo e vira a ordem da busca de letras', () async {
@@ -29,7 +29,7 @@ void main() {
 
     // NetEase (S2, posição 2) para o começo
     await store.movePanelPlugin(2, 0);
-    expect(store.panelPlugins().map((p) => p.code).toList(), ['S2', 'D2', 'S1', 'S3', 'S4']);
+    expect(store.panelPlugins().map((p) => p.code).toList(), ['S2', 'D1', 'S1', 'S3', 'S4']);
     expect(store.lyricsEngineOrder(), ['netease', 'lrclib', 'megalobiz', 'lyrics.ovh']);
 
     // Desligada não entra na busca
@@ -66,7 +66,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(body: SizedBox(width: 360, child: PluginPanelStrip(store: store))),
     ));
-    expect(find.text('D2'), findsOneWidget);
+    expect(find.text('D1'), findsOneWidget);
     expect(find.text('S4'), findsOneWidget);
     final w = tester.getSize(find.ancestor(of: find.text('S1'), matching: find.byType(InkWell))).width;
     expect(w, closeTo((360 - 16) / 5 - 4, 1), reason: '5 caixinhas na largura da tela');
@@ -106,8 +106,8 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    // S2 solto em cima do D2: vai para o começo
-    await drag('S2', tester.getCenter(find.text('D2')));
+    // S2 solto em cima do D1: vai para o começo (o arraste começa direto, sem precisar segurar)
+    await drag('S2', tester.getCenter(find.text('D1')));
     expect(store.panelPlugins().first.code, 'S2');
 
     // S3 arrastado bem para baixo: pergunta; Cancel mantém
@@ -125,12 +125,12 @@ void main() {
     expect(store.isInstalled(store.byCode('S3')!), isFalse);
     expect(find.text('S3'), findsNothing);
 
-    // Embutido (D2): não ejeta, só explica
-    await drag('D2', tester.getCenter(find.text('D2')) - const Offset(0, 150));
+    // Embutido (D1): não ejeta, só explica
+    await drag('D1', tester.getCenter(find.text('D1')) - const Offset(0, 150));
     expect(find.text('Built-in plugin'), findsOneWidget);
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    expect(find.text('D2'), findsOneWidget);
+    expect(find.text('D1'), findsOneWidget);
   });
 }
 

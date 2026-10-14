@@ -102,15 +102,14 @@ void main() {
         .writeAsString(jsonEncode({'version': 1, 'installed': [], 'active': ['lang.en', 'display.lyrics']}));
     final store = PluginStore(directory: dir);
     await store.load();
-    final d2 = store.byCode('D2')!;
+    final d2 = store.byCode('D1')!;
     expect(store.isActive(d2), isTrue, reason: 'novo embutido entra ligado');
     expect(store.canToggle(d2), isTrue);
     await store.toggle(d2); // usuário desliga
 
     final reopened = PluginStore(directory: dir);
     await reopened.load();
-    expect(reopened.isActive(reopened.byCode('D2')!), isFalse, reason: 'a escolha do usuário é respeitada');
-    expect(reopened.isActive(reopened.byCode('D1')!), isTrue);
+    expect(reopened.isActive(reopened.byCode('D1')!), isFalse, reason: 'a escolha do usuário é respeitada');
     await dir.delete(recursive: true);
   });
 }

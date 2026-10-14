@@ -104,6 +104,25 @@ class LocationChoice {
 }
 
 /// Erro devolvido pela API (`error` do JSON) ou de rede (`network`).
+/// Foto de um disco da coleção, guardada no banco do WaxClub (só o dono vê).
+class RecordPhoto {
+  final int id;
+  final int width;
+  final int height;
+  final int size;
+  final DateTime? createdAt;
+
+  const RecordPhoto({required this.id, required this.width, required this.height, required this.size, this.createdAt});
+
+  factory RecordPhoto.fromJson(Map<String, dynamic> j) => RecordPhoto(
+        id: (j['id'] as num).toInt(),
+        width: (j['width'] as num? ?? 0).toInt(),
+        height: (j['height'] as num? ?? 0).toInt(),
+        size: (j['size'] as num? ?? 0).toInt(),
+        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? ''),
+      );
+}
+
 class AccountApiException implements Exception {
   final String code;
   final int status;
@@ -516,6 +535,46 @@ class AccountService extends ChangeNotifier {
     }
     await collection.applyRemote(upserts: upserts, deletions: deletions);
   }
+
+  // ---------- Fotos dos discos ----------
+
+  /// Fotos de um disco da coleção ([itemKey] = CollectionService.keyFor).
+  Future<List<RecordPhoto>> listPhotos(String itemKey) async {
+    final j = await _request('GET', '/photos?item=${Uri.encodeQueryComponent(itemKey)}');
+    return [
+      for (final p in (j['photos'] as List<dynamic>? ?? const []).whereType<Map<String, dynamic>>()) RecordPhoto.fromJson(p),
+    ];
+  }
+
+  /// Envia uma foto (JPEG, PNG ou WebP, já reduzida no aparelho) ligada ao disco.
+  Future<RecordPhoto> uploadPhoto(String itemKey, Uint8List image) async {
+    if (_token == null) throw const AccountApiException('unauthorized', 401);
+    final http.Response resp;
+    try {
+      resp = await _client
+          .post(
+            Uri.parse('$baseUrl/photos?item=${Uri.encodeQueryComponent(itemKey)}'),
+            headers: {'Authorization': 'Bearer $_token', 'Content-Type': 'application/octet-stream', 'Accept': 'application/json'},
+            body: image,
+          )
+          .timeout(const Duration(seconds: 60));
+    } catch (_) {
+      throw const AccountApiException('network', 0);
+    }
+    Map<String, dynamic> j = const {};
+    try {
+      final decoded = jsonDecode(utf8.decode(resp.bodyBytes));
+      if (decoded is Map<String, dynamic>) j = decoded;
+    } catch (_) {}
+    if (resp.statusCode >= 400) throw AccountApiException(j['error'] as String? ?? 'http_${resp.statusCode}', resp.statusCode);
+    return RecordPhoto.fromJson(j['photo'] as Map<String, dynamic>);
+  }
+
+  Future<void> deletePhoto(int id) => _request('DELETE', '/photos/$id');
+
+  /// Endereço da imagem (precisa de [authHeaders]).
+  String photoUrl(int id) => '$baseUrl/photos/$id';
+  Map<String, String> get authHeaders => {if (_token != null) 'Authorization': 'Bearer $_token'};
 
   Future<Map<String, dynamic>> _request(String method, String path, {Map<String, dynamic>? body, bool auth = true}) async {
     final req = http.Request(method, Uri.parse('$baseUrl$path'));

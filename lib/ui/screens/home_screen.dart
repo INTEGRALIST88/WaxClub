@@ -139,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
     // Plugin pedido pelo site ("Install" no navegador do celular): instala assim que os plugins carregam
     PluginLinks.instance.pending.addListener(_onPluginLink);
+    _plugins.addListener(_onPluginsChanged);
     PluginLinks.instance.start();
     _discogsAuth.load().then((_) => _plugins.load()).then((_) => _onPluginLink());
     _engine.castService.runInitialBackgroundDiscovery();
@@ -195,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
     PluginLinks.instance.pending.removeListener(_onPluginLink);
+    _plugins.removeListener(_onPluginsChanged);
     LyricsProviderService.sourceEnabled = (_) => true;
     LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh']; // l10n-ignore
     LyricsProviderService.myLyrics = null;
@@ -552,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   String? _curiositiesKey;
 
   /// Curiosidades do disco e da faixa no lugar da letra, quando não há letra e o plugin
-  /// "Record curiosities" (D2) está no prato. Busca na primeira vez (fica guardado no aparelho).
+  /// "Record curiosities" (D1) está no prato. Busca na primeira vez (fica guardado no aparelho).
   String? _curiositiesSentKey;
 
   bool get _curiositiesOn =>
@@ -759,6 +761,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   late final PluginInstaller _pluginInstaller = PluginInstaller(store: _plugins);
+
+  /// Fontes de letras ligadas, na ordem do painel, da última vez (para saber se mudou).
+  String? _sourcesSignature;
+
+  /// Ligou, desligou, reordenou ou ejetou uma fonte de letras no painel: a letra da faixa que está
+  /// tocando é buscada de novo na nova ordem (efeito na hora, no celular e na TV).
+  void _onPluginsChanged() {
+    if (!_plugins.isLoaded) return;
+    final sig = _plugins.lyricsEngineOrder().join(',');
+    final before = _sourcesSignature;
+    _sourcesSignature = sig;
+    if (before != null && before != sig && _engine.currentTrack != null) {
+      unawaited(_engine.reloadLyricsForCurrentTrack());
+    }
+  }
   final LocalLyricsLibrary _myLyrics = LocalLyricsLibrary();
   final List<CloudLyricsFolder> _clouds = [DropboxFolder(), OneDriveFolder(), GoogleDriveFolder()];
 
@@ -1310,7 +1327,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                       ),
-                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins)),
+                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, activeEngine: _engine.lyricsSource)),
                       if (showTrackStrip) SizedBox(height: 86, child: _portraitTrackInfo()),
                     ],
                   ),

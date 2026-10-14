@@ -61,14 +61,16 @@ void main() {
     expect(PluginCategory.fromLetter('X'), isNull);
   });
 
-  test('embutidos começam no prato: English (idioma) e Synced lyrics (exibição)', () {
+  test('embutidos começam no prato: English (idioma) e Curiosidades (D1); a letra não é mais plugin D', () {
     final store = PluginStore();
     final en = store.byCode('L1')!;
-    final lyrics = store.byCode('d1')!;
+    final curiosities = store.byCode('d1')!;
     expect(en.name, 'English');
+    expect(curiosities.id, 'display.curiosities');
     expect(store.isActive(en), isTrue);
-    expect(store.isActive(lyrics), isTrue);
-    expect(store.canToggle(lyrics), isFalse, reason: 'a letra é a única exibição que existe hoje');
+    expect(store.isActive(curiosities), isTrue);
+    expect(store.canToggle(curiosities), isTrue);
+    expect(store.byCode('D2'), isNull, reason: 'o antigo D1 (Synced lyrics) saiu: as letras são os plugins S');
     expect(store.canToggle(en), isFalse, reason: 'o idioma ativo só troca escolhendo outro');
     expect(store.byCode('A1')!.isComingSoon, isTrue);
     expect(store.notInstalled().every((p) => p.isComingSoon || p.isInstallable), isTrue,
@@ -86,9 +88,9 @@ void main() {
 
     await store.install(_theme);
     await store.toggle(_theme);
-    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2', 'D9']);
+    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D9']);
     await store.toggle(_theme);
-    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1', 'D2']);
+    expect(store.activeIn(PluginCategory.display).map((p) => p.code), ['D1']);
   });
 
   test('Discogs vem pré-instalado (C1) e o estado fica no serviço do Discogs', () async {

@@ -8,6 +8,7 @@ require __DIR__ . '/lib/geo.php';
 require __DIR__ . '/lib/auth.php';
 require __DIR__ . '/lib/collection.php';
 require __DIR__ . '/lib/curiosities.php';
+require __DIR__ . '/lib/photos.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -43,6 +44,10 @@ $routes = [
     ['GET', '#^/v1/curiosities$#', 'curiosities_get'],
     ['POST', '#^/v1/curiosities$#', 'curiosities_put'],
     ['POST', '#^/v1/plays$#', 'plays_add'],
+    ['GET', '#^/v1/photos$#', 'photos_list'],
+    ['POST', '#^/v1/photos$#', 'photos_add'],
+    ['GET', '#^/v1/photos/(\d+)$#', 'photos_get'],
+    ['DELETE', '#^/v1/photos/(\d+)$#', 'photos_delete'],
 ];
 
 $pathMatched = false;

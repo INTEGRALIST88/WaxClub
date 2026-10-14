@@ -2264,4 +2264,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String ejectBuiltInInfo(String plugin) {
     return '$plugin comes with WaxClub and can\'t be ejected. Tap it in the panel to turn it off.';
   }
+
+  @override
+  String get photosTitle => 'Photos of your record';
+
+  @override
+  String get photosEmpty =>
+      'No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.';
+
+  @override
+  String get photosTake => 'Take photo';
+
+  @override
+  String get photosFromGallery => 'From gallery';
+
+  @override
+  String get photosLoadFailed =>
+      'Couldn\'t load the photos. Check your internet.';
+
+  @override
+  String get photosUploadFailed =>
+      'Couldn\'t save the photo. Check your internet and try again.';
+
+  @override
+  String get photosTooMany =>
+      'This record already has the maximum number of photos (40).';
+
+  @override
+  String get photosCameraFailed => 'Couldn\'t open the camera or the gallery.';
+
+  @override
+  String get photosDelete => 'Delete photo';
+
+  @override
+  String get photosDeleteTitle => 'Delete this photo?';
+
+  @override
+  String get photosDeleteFailed => 'Couldn\'t delete the photo. Try again.';
 }

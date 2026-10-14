@@ -11,6 +11,7 @@ import '../widgets/wood_tile_button.dart';
 import 'sync_screen.dart';
 import '../../services/curiosities_service.dart';
 import '../widgets/curiosity_badge.dart';
+import '../widgets/record_photos_section.dart';
 import '../../services/collection_grouping.dart';
 
 /// Datas relativas da coleção e da conta ("Today 14:05", "Yesterday 09:10"...).
@@ -37,7 +38,7 @@ class CollectionScreen extends StatefulWidget {
   /// "Play" no detalhe de um disco: prepara o disco para tocar.
   final void Function(CollectionItem item)? onPlayItem;
 
-  /// Curiosidades do disco (ⓘ à direita de cada disco); nulo com o plugin de Curiosidades (D2) desligado.
+  /// Curiosidades do disco (ⓘ à direita de cada disco); nulo com o plugin de Curiosidades (D1) desligado.
   final Future<List<Curiosity>> Function(CollectionItem item)? curiositiesFor;
 
   const CollectionScreen({
@@ -540,6 +541,11 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
             ),
             const SizedBox(height: 4),
             Text(l10n.addedWhen(formatWhen(item.addedAt)), style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            // Fotos do disco do usuário (guardadas na conta WaxClub)
+            if (widget.account?.isSignedIn == true) ...[
+              _section(l10n.photosTitle),
+              RecordPhotosSection(account: widget.account!, itemKey: CollectionService.keyFor(item.album, item.artist)),
+            ],
             if (tracks.isNotEmpty) ...[
               _section(l10n.tracklist),
               for (final t in tracks)

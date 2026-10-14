@@ -1475,5 +1475,16 @@
         "type": "String"
       }
     }
-  }
+  },
+  "photosTitle": "Photos of your record",
+  "photosEmpty": "No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.",
+  "photosTake": "Take photo",
+  "photosFromGallery": "From gallery",
+  "photosLoadFailed": "Couldn't load the photos. Check your internet.",
+  "photosUploadFailed": "Couldn't save the photo. Check your internet and try again.",
+  "photosTooMany": "This record already has the maximum number of photos (40).",
+  "photosCameraFailed": "Couldn't open the camera or the gallery.",
+  "photosDelete": "Delete photo",
+  "photosDeleteTitle": "Delete this photo?",
+  "photosDeleteFailed": "Couldn't delete the photo. Try again."
 }
