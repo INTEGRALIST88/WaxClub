@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpChangeRecord2.
   ///
   /// In en, this message translates to:
-  /// **'Tick \"Search Discogs\" to search the largest vinyl database. Your Discogs sign-in stays on this phone only.'**
+  /// **'Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.'**
   String get helpChangeRecord2;
 
   /// No description provided for @helpCollection.
@@ -571,7 +571,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCollection2.
   ///
   /// In en, this message translates to:
-  /// **'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session.'**
+  /// **'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones.'**
   String get helpCollection2;
 
   /// No description provided for @helpTv.
@@ -2293,7 +2293,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpPlugins1.
   ///
   /// In en, this message translates to:
-  /// **'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI. English comes preinstalled; other languages will be available on the official WaxClub website.'**
+  /// **'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display, lilac for AI and orange for connections to other services (C1 Discogs comes preinstalled). English comes preinstalled; other languages will be available on the official WaxClub website.'**
   String get helpPlugins1;
 
   /// No description provided for @helpPlugins2.
@@ -3045,6 +3045,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect your {service} account'**
   String jukeboxConnectAccount(String service);
+
+  /// No description provided for @helpAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your WaxClub account'**
+  String get helpAccount;
+
+  /// No description provided for @helpAccount1.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxClub opens with the sign-in screen: Continue with Google, or create an account with your email and a password (a 6-digit code sent to your email confirms it). Then choose a @username and your country, state or province and city. Your city will be used for concerts near you.'**
+  String get helpAccount1;
+
+  /// No description provided for @helpAccount2.
+  ///
+  /// In en, this message translates to:
+  /// **'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. In My Collection, the cloud button opens your account: edit your profile, sync now, sign out or delete the account.'**
+  String get helpAccount2;
 }
 
 class _AppLocalizationsDelegate

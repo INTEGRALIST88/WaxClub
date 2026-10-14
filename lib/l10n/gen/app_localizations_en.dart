@@ -286,7 +286,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpChangeRecord2 =>
-      'Tick \"Search Discogs\" to search the largest vinyl database. Your Discogs sign-in stays on this phone only.';
+      'Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.';
 
   @override
   String get helpCollection => 'Your collection';
@@ -297,7 +297,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCollection2 =>
-      'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session.';
+      'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones.';
 
   @override
   String get helpTv => 'Showing the lyrics on the TV';
@@ -1358,7 +1358,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPlugins1 =>
-      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display and lilac for AI. English comes preinstalled; other languages will be available on the official WaxClub website.';
+      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display, lilac for AI and orange for connections to other services (C1 Discogs comes preinstalled). English comes preinstalled; other languages will be available on the official WaxClub website.';
 
   @override
   String get helpPlugins2 =>
@@ -1801,4 +1801,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String jukeboxConnectAccount(String service) {
     return 'Connect your $service account';
   }
+
+  @override
+  String get helpAccount => 'Your WaxClub account';
+
+  @override
+  String get helpAccount1 =>
+      'WaxClub opens with the sign-in screen: Continue with Google, or create an account with your email and a password (a 6-digit code sent to your email confirms it). Then choose a @username and your country, state or province and city. Your city will be used for concerts near you.';
+
+  @override
+  String get helpAccount2 =>
+      'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. In My Collection, the cloud button opens your account: edit your profile, sync now, sign out or delete the account.';
 }

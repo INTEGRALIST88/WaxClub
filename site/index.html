@@ -3,196 +3,1811 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WaxClub — Vinyl Social Club</title>
-  <meta name="description" content="WaxClub listens to your turntable and shows the lyrics, the record and its stories on your phone and TV.">
+  <title>WaxClub — Vinyl Social Club | Where Analog Soul Meets Digital Precision</title>
+  <meta name="description" content="WaxClub listens to your analog turntable, recognizes the record, measures pitch drift, and projects synchronized lyrics and liner notes onto your phone and TV.">
   <meta property="og:title" content="WaxClub — Vinyl Social Club">
-  <meta property="og:description" content="Put a record on. WaxClub shows the lyrics, the record and its stories on your phone and TV.">
+  <meta property="og:description" content="Drop the needle. Watch the room come alive with real-time synchronized lyrics, live turntable speed compensation, and big-screen TV immersion.">
   <meta property="og:image" content="https://waxclub.com.br/logo.png">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+
   <style>
-    :root {
-      --cream: #f7e3c0;
-      --paper: #fbf6ee;
-      --line: #e9dfd0;
-      --brown: #4a2814;
-      --brown-soft: #7a4a2c;
-      --rust: #c8642f;
-      --text: #3b2416;
-      --muted: #7d6553;
+    /* =====================================================================
+       RETRO BERDANO FONT DEFINITION
+       Clean, authentic retro typography from Berdano.otf
+       ===================================================================== */
+    @font-face {
+      font-family: 'Berdano';
+      src: url('assets/fonts/Berdano.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
     }
+
+    /* =====================================================================
+       WAXCLUB RETRO-ANALOG & CHROME DESIGN SYSTEM
+       Rich Walnut Woods, Polished Chrome, Terracotta, Biscuit Cream & Neon
+       ===================================================================== */
+    :root {
+      --wood-darkest: #120903;
+      --wood-dark: #221107;
+      --wood-mid: #381c0d;
+      --wood-warm: #4d2713;
+      --wood-light: #6a3a1f;
+      
+      --cream: #fcecd2;
+      --cream-light: #fff8ef;
+      --cream-muted: #e5cdad;
+      --cream-dim: #b89c79;
+
+      --terracotta: #d8622c;
+      --terracotta-bright: #ea743e;
+      --terracotta-dark: #9e3d13;
+      --amber-glow: #ff9e2c;
+
+      --chrome-hi: #ffffff;
+      --chrome-light: #e8ecf2;
+      --chrome-mid: #b8c4d2;
+      --chrome-dark: #6e7b8c;
+      --chrome-deep: #3b4450;
+      
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 36px;
+    }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    
     body {
       margin: 0;
-      color: var(--text);
-      font-family: Montserrat, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--paper);
-      /* papel pautado, como a folha de amostra das letras */
-      background-image: repeating-linear-gradient(to bottom, transparent 0 63px, var(--line) 63px 64px);
-      line-height: 1.6;
+      color: var(--cream);
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      background-color: var(--wood-darkest);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(216, 98, 44, 0.16) 0%, transparent 60%),
+        radial-gradient(circle at 15% 35%, rgba(77, 40, 20, 0.45) 0%, transparent 50%),
+        radial-gradient(circle at 85% 65%, rgba(45, 23, 10, 0.6) 0%, transparent 50%),
+        linear-gradient(to right, rgba(0,0,0,0.65), transparent 15%, transparent 85%, rgba(0,0,0,0.65)),
+        repeating-linear-gradient(45deg, rgba(34, 17, 7, 0.95) 0px, rgba(34, 17, 7, 0.95) 3px, rgba(18, 9, 3, 0.98) 3px, rgba(18, 9, 3, 0.98) 7px);
+      line-height: 1.65;
+      overflow-x: hidden;
     }
 
-    /* Letra retrô 3D: miolo creme, contorno marrom e relevo para baixo/direita */
-    .retro {
-      font-family: Pacifico, cursive;
-      font-weight: 400;
+    /* Berdano 3D Vintage Typography Class */
+    .retro-berdano {
+      font-family: 'Berdano', cursive, sans-serif;
+      font-weight: normal;
       color: var(--cream);
-      -webkit-text-stroke: 0.06em var(--brown);
+      -webkit-text-stroke: 1.2px #261105;
       paint-order: stroke fill;
       text-shadow:
-        0.02em 0.02em 0 var(--brown), 0.04em 0.04em 0 var(--brown),
-        0.06em 0.06em 0 var(--brown), 0.08em 0.08em 0 var(--brown),
-        0.10em 0.10em 0 var(--brown),
-        0.14em 0.16em 0.18em rgba(74, 40, 20, 0.28);
-      letter-spacing: 0.01em;
+        1px 1px 0 #261105,
+        2px 2px 0 #261105,
+        3px 3px 0 #261105,
+        4px 4px 0 #140702,
+        5px 6px 14px rgba(0, 0, 0, 0.85);
+      letter-spacing: 0.02em;
       line-height: 1.25;
     }
-    .caps {
+
+    .caps-sub {
+      font-size: 0.85rem;
       font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--terracotta-bright);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Buttons */
+    .btn-chrome {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, #d8e0e8 40%, #9aa6b6 80%, #687586 100%);
+      color: #1a202c;
+      font-weight: 800;
+      font-size: 0.95rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--brown);
+      text-decoration: none;
+      box-shadow: 
+        0 6px 16px rgba(0,0,0,0.6),
+        inset 0 2px 2px rgba(255,255,255,0.9),
+        inset 0 -2px 3px rgba(0,0,0,0.4);
+      border: 1px solid #7d8b9c;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-chrome:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 40%, #acb8c8 80%, #7d8b9c 100%);
+      box-shadow: 
+        0 8px 24px rgba(0,0,0,0.8),
+        0 0 18px rgba(255,255,255,0.6);
     }
 
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
-
-    header.hero {
-      min-height: 92vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 48px 0 32px;
-    }
-    .hero img {
-      width: min(300px, 70vw);
-      height: auto;
-      filter: drop-shadow(0 18px 30px rgba(74, 40, 20, 0.25));
-    }
-    .hero h1 { font-size: clamp(3.6rem, 13vw, 7rem); margin: 8px 0 0; }
-    .hero .tag { font-size: clamp(0.85rem, 2.6vw, 1.05rem); margin: 4px 0 0; }
-    .hero .lead { max-width: 34rem; margin: 22px auto 0; font-size: 1.08rem; color: var(--muted); font-weight: 500; }
-    .badge {
-      display: inline-block;
-      margin-top: 28px;
-      padding: 12px 26px;
+    .btn-terracotta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
       border-radius: 999px;
-      background: var(--rust);
-      color: #fff7ec;
-      font-weight: 700;
-      letter-spacing: 0.06em;
+      background: linear-gradient(180deg, var(--terracotta-bright) 0%, var(--terracotta) 60%, var(--terracotta-dark) 100%);
+      color: var(--cream-light);
+      font-weight: 800;
+      font-size: 0.95rem;
       text-transform: uppercase;
-      font-size: 0.85rem;
-      box-shadow: 0 4px 0 var(--brown);
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      box-shadow: 
+        0 6px 16px rgba(0,0,0,0.6),
+        inset 0 2px 2px rgba(255,255,255,0.4),
+        inset 0 -2px 3px rgba(0,0,0,0.6);
+      border: 1px solid #ff884d;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-terracotta:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 8px 24px rgba(0,0,0,0.8),
+        0 0 20px rgba(234, 116, 62, 0.6);
     }
 
-    section { padding: 56px 0; }
-    section h2 { text-align: center; font-size: clamp(2.4rem, 8vw, 3.6rem); margin: 0 0 8px; }
-    section .sub { text-align: center; margin: 0 0 36px; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
+    /* =====================================================================
+       TOP NAVIGATION BAR
+       ===================================================================== */
+    nav.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, #2b1509 0%, #1a0c05 100%);
+      border-bottom: 2px solid #522b13;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.85);
     }
-    .card {
-      background: #fffaf2;
-      border: 2px solid var(--brown);
-      border-radius: 20px;
-      padding: 24px 22px;
-      box-shadow: 6px 6px 0 var(--brown);
-    }
-    .card h3 { font-size: 1.9rem; margin: 0 0 6px; }
-    .card p { margin: 0; color: var(--muted); font-weight: 500; }
-
-    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0 auto; max-width: 640px; }
-    .steps li {
-      counter-increment: step;
+    .topbar .wrap {
       display: flex;
-      gap: 18px;
-      align-items: baseline;
-      padding: 14px 0;
-      font-weight: 500;
+      align-items: center;
+      justify-content: space-between;
+      height: 80px;
     }
-    .steps li::before {
-      content: counter(step);
-      font-family: Pacifico, cursive;
-      font-size: 2rem;
-      color: var(--rust);
-      min-width: 1.4em;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand img.brand-icon {
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+      transition: transform 0.3s ease;
+    }
+    .brand:hover img.brand-icon {
+      transform: rotate(15deg) scale(1.08);
+    }
+    .brand-title {
+      font-size: 2.2rem;
+      line-height: 1;
+      display: block;
+    }
+    .brand .subtitle {
+      font-size: 0.68rem;
+      margin: 2px 0 0;
+      display: block;
+      color: var(--terracotta-bright);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      color: var(--cream-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .nav-links a:hover {
+      color: var(--cream-light);
+      background: rgba(216, 98, 44, 0.2);
+    }
+
+    /* =====================================================================
+       HERO SCREEN: PUNCHY TAGLINES & LIVE INTERACTIVE TURNTABLE COCKPIT
+       ===================================================================== */
+    header.hero {
+      padding: 56px 0 72px;
+      position: relative;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+    }
+    .hero-badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px;
+      background: rgba(216, 98, 44, 0.2);
+      border: 1px solid var(--terracotta);
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    .hero-badge-tag .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--terracotta-bright);
+      box-shadow: 0 0 10px var(--terracotta-bright);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+    
+    .hero-h1 {
+      font-size: clamp(3.2rem, 6.5vw, 5.2rem);
+      margin: 0 0 18px;
+      display: block;
+    }
+
+    .hero .tagline-quote {
+      font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+      font-weight: 800;
+      line-height: 1.35;
+      color: var(--cream-light);
+      margin: 0 0 18px;
+      border-left: 4px solid var(--terracotta-bright);
+      padding-left: 18px;
+      background: linear-gradient(90deg, rgba(216,98,44,0.15) 0%, transparent 100%);
+    }
+    .hero .lead-p {
+      font-size: 1.05rem;
+      color: var(--cream-muted);
+      line-height: 1.7;
+      margin: 0 0 32px;
+      max-width: 580px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Turntable 3D Presentation Widget */
+    .turntable-showcase {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .turntable-stand {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(145deg, #442211, #1d0d05);
+      border: 3px solid #6b371b;
+      border-radius: 36px;
+      padding: 24px;
+      box-shadow: 
+        0 24px 50px rgba(0,0,0,0.9),
+        inset 0 2px 4px rgba(255,255,255,0.15),
+        inset 0 -4px 10px rgba(0,0,0,0.8);
       text-align: center;
+    }
+    .turntable-stand::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 38px;
+      pointer-events: none;
+    }
+    
+    .spinning-vinyl-wrapper {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 16px;
+      cursor: pointer;
+    }
+    .spinning-vinyl {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: 
+        radial-gradient(circle, #2d160b 0%, #2d160b 28%, #111 29%, #111 32%, #1a1a1a 33%, #0e0e0e 45%, #181818 55%, #0e0e0e 65%, #181818 75%, #0d0d0d 95%, #252525 100%);
+      box-shadow: 
+        0 14px 28px rgba(0,0,0,0.8),
+        inset 0 0 20px rgba(0,0,0,0.95);
+      position: relative;
+      animation: spin-vinyl 1.8s linear infinite;
+      animation-play-state: running;
+      transition: transform 0.4s ease;
+    }
+    .spinning-vinyl.paused {
+      animation-play-state: paused;
+    }
+    @keyframes spin-vinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .vinyl-label-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #fbe6cb;
+      border: 3px solid #4a2410;
+      box-shadow: inset 0 0 10px rgba(74, 36, 16, 0.4), 0 0 6px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      text-align: center;
+    }
+    .vinyl-label-center img {
+      width: 80px;
+      height: auto;
+      pointer-events: none;
+    }
+    .vinyl-spindle-hole {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #111;
+      border: 2px solid #b8c4d2;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Chrome Tonearm */
+    .chrome-tonearm {
+      position: absolute;
+      top: 10px;
+      right: 18px;
+      width: 80px;
+      height: 220px;
+      pointer-events: none;
+      transform-origin: 65px 25px;
+      transform: rotate(18deg);
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      filter: drop-shadow(4px 10px 8px rgba(0,0,0,0.8));
+    }
+    .chrome-tonearm.resting {
+      transform: rotate(-10deg);
+    }
+
+    /* Audiophile telemetry readout */
+    .telemetry-display {
+      background: #0d0603;
+      border: 1px solid #542d17;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+    }
+    .tele-item { display: flex; flex-direction: column; gap: 2px; }
+    .tele-label { font-size: 0.65rem; color: #a38567; text-transform: uppercase; }
+    .tele-val { font-weight: 700; color: #ffbe6b; }
+    .tele-val.lock { color: #4ade80; }
+
+    /* Interactive pitch slider bar */
+    .pitch-control-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0,0,0,0.4);
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid #4a2814;
+    }
+    .pitch-btn {
+      background: linear-gradient(180deg, #d8e0e8 0%, #8896a6 100%);
+      border: 1px solid #4d5766;
+      border-radius: 6px;
+      color: #1a202c;
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .pitch-btn:hover { background: #fff; }
+    .pitch-slider {
+      flex: 1;
+      accent-color: var(--terracotta-bright);
+    }
+    .pitch-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--cream);
+      min-width: 48px;
+    }
+
+    /* Live Synchronized Lyric Box */
+    .live-lyric-box {
+      margin-top: 14px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #3d1f0f;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      text-align: center;
+    }
+    .lyric-prev { font-size: 0.8rem; color: #7a614d; }
+    .lyric-now { 
+      font-size: 1.05rem; 
+      font-weight: 800; 
+      color: #fff; 
+      text-shadow: 0 0 10px rgba(255, 158, 44, 0.8);
+      margin: 4px 0;
+      transition: color 0.3s;
+    }
+    .lyric-next { font-size: 0.8rem; color: #7a614d; }
+
+    /* =====================================================================
+       SECTION HEADERS
+       ===================================================================== */
+    section {
+      padding: 72px 0;
+      position: relative;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 48px;
+    }
+    .section-h2 {
+      font-size: clamp(2.6rem, 5vw, 4.2rem);
+      margin: 8px 0 12px;
+      display: block;
+    }
+    .section-header p.lead {
+      font-size: 1.1rem;
+      color: var(--cream-muted);
+      margin: 12px 0 0;
+    }
+
+    /* =====================================================================
+       EXPERIENCE & MECHANICAL PRECISION CARDS
+       ===================================================================== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+    }
+    .feature-card {
+      background: linear-gradient(180deg, #33190b 0%, #1f0e05 100%);
+      border: 2px solid #4a2612;
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: 
+        0 14px 28px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .feature-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .feature-icon-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: #2a1408;
+      border: 2px solid #5a3017;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    }
+    .feature-icon-badge img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+    .feature-card h3 {
+      font-size: 2.2rem;
+      margin: 0 0 10px;
+    }
+    .feature-card p {
+      color: var(--cream-muted);
+      font-size: 0.98rem;
+      line-height: 1.65;
+      margin: 0;
+    }
+    .feature-pill-badge {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--terracotta-bright);
+      background: rgba(216, 98, 44, 0.15);
+      border: 1px solid rgba(216, 98, 44, 0.4);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    /* =====================================================================
+       OFFICIAL PLUGINS JUKEBOX SECTION
+       ===================================================================== */
+    .jukebox-cabinet {
+      background: 
+        radial-gradient(ellipse at 50% 20%, rgba(216, 98, 44, 0.15) 0%, transparent 70%),
+        linear-gradient(180deg, #3b1e0d 0%, #1e0e05 100%);
+      border: 4px solid #6b3a1a;
+      border-radius: var(--radius-xl);
+      padding: 40px 36px 48px;
+      box-shadow: 
+        0 24px 60px rgba(0,0,0,0.9),
+        inset 0 2px 4px rgba(255,255,255,0.15),
+        inset 0 -8px 20px rgba(0,0,0,0.9);
+      position: relative;
+    }
+    .jukebox-neon-arch {
+      position: absolute;
+      top: -12px;
+      left: 10%;
+      right: 10%;
+      height: 18px;
+      border-top: 3px solid #ffaa4d;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      box-shadow: 0 -4px 18px rgba(255, 170, 77, 0.8);
+      pointer-events: none;
+    }
+
+    .jukebox-filter-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .filter-btn {
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: #251207;
+      border: 1px solid #4d2711;
+      color: var(--cream-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      color: #fff;
+      background: var(--terracotta);
+      border-color: #ff884d;
+      box-shadow: 0 0 16px rgba(216, 98, 44, 0.6);
+    }
+    .filter-btn.cat-lang.active { background: #166534; border-color: #4ade80; box-shadow: 0 0 16px rgba(74, 222, 128, 0.5); }
+    .filter-btn.cat-disp.active { background: #0e7490; border-color: #22d3ee; box-shadow: 0 0 16px rgba(34, 211, 238, 0.5); }
+    .filter-btn.cat-ai.active   { background: #6b21a8; border-color: #c084fc; box-shadow: 0 0 16px rgba(192, 132, 252, 0.5); }
+    .filter-btn.cat-conn.active { background: #c2410c; border-color: #ff9a3c; box-shadow: 0 0 16px rgba(255, 154, 60, 0.5); }
+    .filter-btn.cat-hw.active   { background: #475569; border-color: #cbd5e1; box-shadow: 0 0 16px rgba(203, 213, 225, 0.45); }
+
+    .plugins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 22px;
+    }
+
+    .plugin-card {
+      background: #241107;
+      border: 2px solid #44210d;
+      border-radius: var(--radius-md);
+      padding: 22px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.6);
+      transition: all 0.25s ease;
+    }
+    .plugin-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.8);
+    }
+    .plugin-card.reserved {
+      border-style: dashed;
+      border-color: #5c3016;
+      background: rgba(30, 14, 6, 0.6);
+    }
+    
+    .plugin-disc-mini {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #111;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+    }
+    .plugin-disc-label {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .plugin-disc-label.lang { background: #22c55e; }
+    .plugin-disc-label.disp { background: #06b6d4; }
+    .plugin-disc-label.ai   { background: #a855f7; }
+    .plugin-disc-label.conn { background: #ff9a3c; }
+    .plugin-disc-label.hw   { background: #94a3b8; }
+
+    .plugin-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .plugin-status-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .status-builtin { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+    .status-reserved { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px dashed #d97706; }
+    .status-coming { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
+
+    .plugin-card h4 {
+      font-size: 1.15rem;
+      margin: 0 0 6px;
+      color: var(--cream);
+      font-weight: 700;
+    }
+    .plugin-card p {
+      font-size: 0.85rem;
+      color: var(--cream-muted);
+      line-height: 1.5;
+      margin: 0 0 16px;
+    }
+    .plugin-footer {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #a88a6d;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 10px;
+    }
+
+    /* =====================================================================
+       USER MANUAL SECTION (6 CHAPTERS WITH STYLISH NUMBER DIALS)
+       ===================================================================== */
+    .manual-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .manual-step {
+      display: grid;
+      grid-template-columns: 88px 1fr 280px;
+      gap: 28px;
+      background: linear-gradient(180deg, #33190b 0%, #1f0e05 100%);
+      border: 2px solid #542d17;
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+      align-items: center;
+      position: relative;
+    }
+    
+    /* Chrome-Rimmed Number Dial for each step */
+    .step-dial-frame {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffffff 0%, #b8c4d2 40%, #586576 80%, #ffffff 100%);
+      padding: 3px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-dial-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #442211, #180a03);
+      border: 1px solid #6b371b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-dial-number {
+      font-size: 2.1rem;
+      line-height: 1;
+      display: block;
+    }
+
+    .manual-step-content h3 {
+      font-size: 2.2rem;
+      margin: 0 0 10px;
+    }
+    .manual-step-content p {
+      color: var(--cream-muted);
+      font-size: 0.98rem;
+      line-height: 1.65;
+      margin: 0 0 12px;
+    }
+    .manual-step-content ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--cream-dim);
+      font-size: 0.9rem;
+    }
+    .manual-step-content li { margin-bottom: 4px; }
+    
+    .manual-step-visual {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 2px solid #552a13;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+      background: #110803;
+      text-align: center;
+      padding: 10px;
+    }
+    .manual-step-visual img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    /* =====================================================================
+       LIVING ROOM & BIG SCREEN TV PRESENTATION
+       ===================================================================== */
+    .tv-immersion-block {
+      background: linear-gradient(135deg, #2e1509 0%, #170903 100%);
+      border: 3px solid #542a13;
+      border-radius: var(--radius-xl);
+      padding: 48px 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .tv-mockup-frame {
+      background: #000;
+      border: 8px solid #333a44;
+      border-radius: 18px;
+      box-shadow: 0 0 40px rgba(255, 158, 44, 0.25), 0 20px 40px rgba(0,0,0,0.9);
+      padding: 16px;
+      position: relative;
+    }
+    .tv-mockup-screen {
+      background: #12100e;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .tv-lyrics-line { font-size: 1.1rem; color: #5a483a; font-weight: 600; }
+    .tv-lyrics-active { 
+      font-size: 1.65rem; 
+      font-weight: 900; 
+      color: #fff; 
+      text-shadow: 0 0 14px rgba(255, 180, 80, 0.9); 
+      letter-spacing: 0.02em;
+    }
+
+    /* =====================================================================
+       DOWNLOAD & FOOTER
+       ===================================================================== */
+    .download-section {
+      text-align: center;
+      padding: 80px 0;
+      background: radial-gradient(circle at 50% 50%, rgba(216, 98, 44, 0.2) 0%, transparent 70%);
+    }
+    .download-card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #3d2010 0%, #1e0d05 100%);
+      border: 3px solid #6b3a1a;
+      border-radius: var(--radius-xl);
+      padding: 48px 36px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.9);
+      position: relative;
     }
 
     footer {
+      background: #110703;
+      border-top: 2px solid #3a1c0b;
+      padding: 48px 24px 64px;
       text-align: center;
-      padding: 40px 20px 56px;
-      color: var(--muted);
-      font-size: 0.85rem;
+      color: #8c6e54;
+      font-size: 0.88rem;
     }
-    footer .retro { font-size: 2rem; display: block; margin-bottom: 6px; }
+    .footer-title {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+    footer a { color: var(--terracotta-bright); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
 
-    @media (max-width: 480px) {
-      body { background-image: none; }
-      header.hero { min-height: auto; padding-top: 32px; }
-      .card { box-shadow: 4px 4px 0 var(--brown); }
+    /* =====================================================================
+       RESPONSIVE ADJUSTMENTS
+       ===================================================================== */
+    @media (max-width: 992px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero .tagline-quote { border-left: none; padding-left: 0; }
+      .hero .lead-p { margin-left: auto; margin-right: auto; }
+      .hero-actions { justify-content: center; }
+      .tv-immersion-block { grid-template-columns: 1fr; }
+      .manual-step { grid-template-columns: 80px 1fr; }
+      .manual-step-visual { grid-column: span 2; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .manual-step { grid-template-columns: 1fr; text-align: center; }
+      .step-dial-frame { margin: 0 auto 12px; }
+      .manual-step-visual { grid-column: span 1; }
+      .turntable-stand { padding: 16px; }
+      .spinning-vinyl-wrapper { width: 220px; height: 220px; }
+      .hero-h1 { font-size: 2.8rem; }
+      .section-h2 { font-size: 2.4rem; }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
+
+  <!-- =====================================================================
+       TOP CHROME-ACCENTED NAVIGATION BAR
+       ===================================================================== -->
+  <nav class="topbar">
     <div class="wrap">
-      <img src="logo.png" alt="WaxClub turntable logo" width="512" height="512">
-      <h1 class="retro">WaxClub</h1>
-      <p class="tag caps">Vinyl Social Club</p>
-      <p class="lead">Put a record on. WaxClub listens to your turntable and shows the lyrics, the record and its stories on your phone and on your TV.</p>
-      <span class="badge">Coming soon to Android</span>
+      <a href="#" class="brand">
+        <img src="logo.png" alt="WaxClub Wood Turntable Logo" class="brand-icon" width="512" height="512">
+        <div>
+          <span class="retro-berdano brand-title">WaxClub</span>
+          <span class="subtitle">Vinyl Social Club</span>
+        </div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#experience">The Experience</a></li>
+        <li><a href="#cockpit">Cockpit</a></li>
+        <li><a href="#plugins">Plugins</a></li>
+        <li><a href="#manual">User Manual</a></li>
+        <li><a href="#step-collection">Collection</a></li>
+        <li><a href="#download" class="btn-chrome" style="padding: 8px 18px; font-size: 0.78rem;">Coming Soon</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- =====================================================================
+       HERO SCREEN: PUNCHY TAGLINES & LIVE INTERACTIVE TURNTABLE COCKPIT
+       ===================================================================== -->
+  <header class="hero" id="cockpit">
+    <div class="wrap">
+      <div class="hero-grid">
+        
+        <!-- Left: Evocative Catchy Copy in Retro Berdano Font -->
+        <div class="hero-copy">
+          <div class="hero-badge-tag">
+            <span class="dot"></span>
+            <span class="caps-sub">Analog Soul &middot; Digital Precision</span>
+          </div>
+
+          <h1 class="retro-berdano hero-h1">Drop the needle.</h1>
+          
+          <div class="tagline-quote">
+            "Where your turntable speaks, the room sings, and every groove stays in pitch-perfect sync."
+          </div>
+          
+          <p class="lead-p">
+            WaxClub listens to your turntable through your phone's microphone, recognizes the song and the exact spot where the needle is, keeps up with your turntable's real speed and shows synchronized lyrics, the record's stories and what plays next &mdash; on your phone and on your TV.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#download" class="btn-terracotta">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Coming Soon to Android
+            </a>
+            <a href="#manual" class="btn-chrome">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              How It Works
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: 3D Turntable Simulator with Pitch Slider & Lyrics -->
+        <div class="turntable-showcase">
+          <div class="turntable-stand">
+            
+            <!-- Vinyl Record on Platter -->
+            <div class="spinning-vinyl-wrapper" id="vinylWrapper" title="Click to Pause / Spin Vinyl">
+              <div class="spinning-vinyl" id="vinylPlatter">
+                <div class="vinyl-label-center">
+                  <img src="logo.png" alt="WaxClub Disc Label">
+                </div>
+                <div class="vinyl-spindle-hole"></div>
+              </div>
+
+              <!-- Chrome Tonearm with needle -->
+              <svg class="chrome-tonearm" id="tonearmSvg" viewBox="0 0 100 240" fill="none">
+                <circle cx="70" cy="30" r="18" fill="url(#chromeGrad)" stroke="#4a5563" stroke-width="2"/>
+                <circle cx="70" cy="30" r="10" fill="#2d3748"/>
+                <circle cx="70" cy="30" r="4" fill="#cbd5e1"/>
+                <rect x="62" y="5" width="16" height="12" rx="2" fill="url(#chromeGrad)" stroke="#374151"/>
+                <path d="M 70 30 Q 66 110 40 170 L 32 205" stroke="url(#armTubeGrad)" stroke-width="5" stroke-linecap="round"/>
+                <polygon points="32,205 20,225 36,228 42,208" fill="#d8622c" stroke="#1a202c" stroke-width="1.5"/>
+                <circle cx="24" cy="227" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 4px #ffbe6b)"/>
+                <defs>
+                  <linearGradient id="chromeGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="40%" stop-color="#cbd5e1"/>
+                    <stop offset="70%" stop-color="#64748b"/>
+                    <stop offset="100%" stop-color="#f8fafc"/>
+                  </linearGradient>
+                  <linearGradient id="armTubeGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="50%" stop-color="#94a3b8"/>
+                    <stop offset="100%" stop-color="#475569"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            <!-- Real-time Audiophile Telemetry Display -->
+            <div class="telemetry-display">
+              <div class="tele-item">
+                <span class="tele-label">Mode</span>
+                <span class="tele-val lock" id="teleMode">33⅓ LP</span>
+              </div>
+              <div class="tele-item">
+                <span class="tele-label">Rotation</span>
+                <span class="tele-val" id="teleRpm">33.36 RPM</span>
+              </div>
+              <div class="tele-item">
+                <span class="tele-label">Pitch Drift</span>
+                <span class="tele-val" id="teleDrift">+0.2%</span>
+              </div>
+              <div class="tele-item">
+                <span class="tele-label">Acoustic Sync</span>
+                <span class="tele-val lock">LOCKED</span>
+              </div>
+            </div>
+
+            <!-- Pitch fine-adjustment slider -->
+            <div class="pitch-control-bar">
+              <button class="pitch-btn" onclick="adjustPitch(-0.1)">-0.1%</button>
+              <input type="range" min="-5.0" max="5.0" step="0.1" value="0.2" class="pitch-slider" id="pitchSlider" oninput="onPitchChange(this.value)">
+              <button class="pitch-btn" onclick="adjustPitch(0.1)">+0.1%</button>
+              <span class="pitch-readout" id="pitchValue">+0.2%</span>
+            </div>
+
+            <!-- Live Synchronized Lyric Preview -->
+            <div class="live-lyric-box">
+              <div class="lyric-prev" id="lyricPrev">When the vinyl spins into the midnight groove...</div>
+              <div class="lyric-now" id="lyricNow">&#9834; Every needle drop has a story to tell &#9834;</div>
+              <div class="lyric-next" id="lyricNext">And the warm brass chords fill the whole room.</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </div>
   </header>
 
-  <section>
+  <!-- =====================================================================
+       SECTION 2: THE WAXCLUB EXPERIENCE & HARDWARE FEATURES
+       ===================================================================== -->
+  <section id="experience">
     <div class="wrap">
-      <h2 class="retro">Drop the needle</h2>
-      <p class="sub caps">Everything your record deserves</p>
-      <div class="grid">
-        <div class="card">
-          <h3 class="retro">Lyrics</h3>
-          <p>Synced lyrics that follow your turntable, side by side, track by track.</p>
+      <div class="section-header">
+        <span class="caps-sub">Made for Real Turntables</span>
+        <h2 class="retro-berdano section-h2">The Experience</h2>
+        <p class="lead">
+          Belts stretch, motors warm up and the same song lives on a dozen different records. WaxClub was built around how vinyl really plays.
+        </p>
+      </div>
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <img src="assets/images/mic_chrome.png" alt="Microphone">
+              </div>
+              <span class="feature-pill-badge">Recognition</span>
+            </div>
+            <h3 class="retro-berdano">Needle Position</h3>
+            <p>
+              Your phone listens for a few seconds (4 to 12, depending on the song) and finds not only the song but the exact second the needle is at, so the lyrics start in the right place.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">Synced in seconds</span>
         </div>
-        <div class="card">
-          <h3 class="retro">On your TV</h3>
-          <p>Mirror the lyrics and the cover to the big screen with Chromecast or Smart View.</p>
+
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <img src="logo.png" alt="Turntable">
+              </div>
+              <span class="feature-pill-badge">Speed Check</span>
+            </div>
+            <h3 class="retro-berdano">Turntable Speed</h3>
+            <p>
+              Turntables rarely spin at exactly 33&#8531; RPM. WaxClub measures your turntable's real speed while songs play and keeps the lyrics on time. You can also fine-tune, reset or lock the speed.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">Learns your turntable</span>
         </div>
-        <div class="card">
-          <h3 class="retro">Stories</h3>
-          <p>Curiosities about the album, the songs and the latest news from the artist.</p>
+
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <img src="assets/images/btn_collection.png" alt="Record shelf">
+              </div>
+              <span class="feature-pill-badge">Your Pressing</span>
+            </div>
+            <h3 class="retro-berdano">Album Lock</h3>
+            <p>
+              Songs appear on albums, compilations and soundtracks. Once WaxClub knows which record is on your platter, it sticks to it: the next tracks come from that record's tracklist. Pick the exact pressing anytime with Change record.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">The record on your shelf</span>
         </div>
-        <div class="card">
-          <h3 class="retro">Collection</h3>
-          <p>Scan the barcode, grade your copy and keep your shelf in sync with Discogs.</p>
+
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <img src="assets/images/btn_manual_on.png" alt="Manual switch">
+              </div>
+              <span class="feature-pill-badge">No Recognition Needed</span>
+            </div>
+            <h3 class="retro-berdano">Manual Mode</h3>
+            <p>
+              Rare pressings, white labels or private recordings the recognition system doesn't know? Turn Manual on: the button becomes a chrome &#9654;, pick the track, drop the needle and WaxClub follows the record's track timing.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">Starts with the sound of the needle</span>
+        </div>
+
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <span class="retro-berdano" style="font-size: 2rem; color: #d8622c;">Ll</span>
+              </div>
+              <span class="feature-pill-badge">Line by Line</span>
+            </div>
+            <h3 class="retro-berdano">Synced Lyrics</h3>
+            <p>
+              Lyrics follow the music line by line on your phone and TV, and the next track is prepared ahead, so there is no wait between songs. Early or late? Nudge by &plusmn;0.5 s and WaxClub remembers it for that song.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">No gap between tracks</span>
+        </div>
+
+
+        <div class="feature-card">
+          <div>
+            <div class="feature-card-top">
+              <div class="feature-icon-badge">
+                <img src="assets/images/btn_camera.png" alt="Camera">
+              </div>
+              <span class="feature-pill-badge">Camera</span>
+            </div>
+            <h3 class="retro-berdano">Identify a Record</h3>
+            <p>
+              Point the camera at the barcode on the back cover, or photograph the catalog number on the spine or label. WaxClub finds your exact vinyl pressing and adds it to your collection.
+            </p>
+          </div>
+          <span style="font-size: 0.8rem; color: #8f745e; margin-top: 18px; font-weight: 600;">Vinyl LPs &amp; EPs only</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SECTION 3: OFFICIAL PLUGINS JUKEBOX (RESERVED SLOTS BY CATEGORY)
+       ===================================================================== -->
+  <section id="plugins">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="caps-sub">Pick a Single, Drop It on the Platter</span>
+        <h2 class="retro-berdano section-h2">Plugins</h2>
+        <p class="lead">
+          Like choosing a 7" single on a classic jukebox: each plugin is a colored record with a code (L1, D2, C1&hellip;). Plugins add languages, display styles, AI features, connections to your music services and, in the future, tools for your hardware.
+        </p>
+      </div>
+
+      <div class="jukebox-cabinet">
+        <div class="jukebox-neon-arch"></div>
+
+        <div class="jukebox-filter-nav">
+          <button class="filter-btn active" onclick="filterPlugins('all', this)">All</button>
+          <button class="filter-btn cat-lang" onclick="filterPlugins('language', this)">Language (L)</button>
+          <button class="filter-btn cat-disp" onclick="filterPlugins('display', this)">Display (D)</button>
+          <button class="filter-btn cat-ai" onclick="filterPlugins('ai', this)">AI (A)</button>
+          <button class="filter-btn cat-conn" onclick="filterPlugins('connections', this)">Connections (C)</button>
+          <button class="filter-btn cat-hw" onclick="filterPlugins('hardware', this)">Hardware (H)</button>
+        </div>
+
+        <div class="plugins-grid" id="pluginsGrid">
+
+          <div class="plugin-card" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L1</div>
+                </div>
+                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
+              </div>
+              <h4>English</h4>
+              <p>Menus, buttons and tips in English. Comes with the app; only one language plays at a time.</p>
+            </div>
+            <div class="plugin-footer">On the platter</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L2</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Espa&ntilde;ol</h4>
+              <p>Spanish menus and tips, downloadable from this website.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L3</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Fran&ccedil;ais</h4>
+              <p>French menus and tips, downloadable from this website.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L4</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Deutsch</h4>
+              <p>German menus and tips, downloadable from this website.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L5</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>&#26085;&#26412;&#35486; (Japanese)</h4>
+              <p>Japanese menus and tips, downloadable from this website.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="language">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label lang">L6</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Portugu&ecirc;s</h4>
+              <p>Portuguese menus and tips, downloadable from this website.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card" data-category="display">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label disp">D1</div>
+                </div>
+                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
+              </div>
+              <h4>Synced Lyrics</h4>
+              <p>Lyrics in sync with your record on the phone and the TV, with large, easy-to-read type and smooth scrolling. Always on.</p>
+            </div>
+            <div class="plugin-footer">On the platter</div>
+          </div>
+
+
+          <div class="plugin-card" data-category="display">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label disp">D2</div>
+                </div>
+                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
+              </div>
+              <h4>Record Curiosities</h4>
+              <p>When a song has no lyrics: short facts about the record and the track, plus recent news about the artist, each with its source (Wikipedia, Discogs pressing notes or the news outlet).</p>
+            </div>
+            <div class="plugin-footer">On the platter &middot; works offline</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="display">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label disp">D3</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Analog VU Meters</h4>
+              <p>A pair of classic needle VU meters with warm amber backlight, dancing to the music on your TV.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="ai">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label ai">A1</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>AI Curiosities</h4>
+              <p>Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="ai">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label ai">A2</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>AI Translation</h4>
+              <p>Curiosities and news translated into your language (WaxClub content is in English).</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card" data-category="connections">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label conn">C1</div>
+                </div>
+                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
+              </div>
+              <h4>Discogs</h4>
+              <p>Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.</p>
+            </div>
+            <div class="plugin-footer">On the platter</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="connections">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label conn">C2</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Last.fm</h4>
+              <p>Scrobble every track you play on vinyl to your Last.fm profile.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="hardware">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label hw">H1</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Strobe Calibrator</h4>
+              <p>Uses your phone's flash as a 50/60 Hz strobe to check the speed marks on your platter.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
+
+          <div class="plugin-card reserved" data-category="hardware">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label hw">H2</div>
+                </div>
+                <span class="plugin-status-badge status-coming">Coming Soon</span>
+              </div>
+              <h4>Stylus Hours</h4>
+              <p>Counts the hours your needle has played and reminds you when it is time to replace it.</p>
+            </div>
+            <div class="plugin-footer">Coming soon</div>
+          </div>
+
         </div>
       </div>
     </div>
   </section>
 
-  <section>
+  <!-- =====================================================================
+       SECTION 4: COMPREHENSIVE USER MANUAL (6 CHAPTERS WITH STYLISH DIALS)
+       ===================================================================== -->
+  <section id="manual">
     <div class="wrap">
-      <h2 class="retro">How it works</h2>
-      <p class="sub caps">Three steps, no fuss</p>
-      <ol class="steps">
-        <li>Open WaxClub next to your turntable and drop the needle.</li>
-        <li>The app recognizes the record and lines up the whole side.</li>
-        <li>Sit back: lyrics, cover and stories play along on your phone or TV.</li>
-      </ol>
+      <div class="section-header">
+        <span class="caps-sub">Step by Step</span>
+        <h2 class="retro-berdano section-h2">User Manual</h2>
+        <p class="lead">
+          From your first sign-in to flipping to side B. Everything here is also in the app, under Help (the question mark button).
+        </p>
+      </div>
+
+      <div class="manual-timeline">
+
+        <div class="manual-step" id="step-account">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">01</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Join the Club</h3>
+            <p>
+              WaxClub opens with the sign-in screen:
+            </p>
+            <ul>
+              <li><strong>Continue with Google</strong>, or create an account with your email and a password (a 6-digit code confirms your email).</li>
+              <li>Choose a <strong>@username</strong> and pick your country, state or province and city from the lists. Your city will be used for concerts near you.</li>
+              <li>You stay signed in on your phone. Forgot your password? Tap <em>Forgot password?</em> and use the code sent to your email.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="logo.png" alt="Your WaxClub account">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Your WaxClub account</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">02</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Drop the Needle</h3>
+            <p>
+              Put a record on and lower the needle. Keep the phone close to the speakers:
+            </p>
+            <ul>
+              <li>Tap the <strong>microphone</strong> button. WaxClub listens for 4 seconds, or up to 12 for harder songs.</li>
+              <li>It identifies the song and the exact point the needle is at, and the lyrics start in sync.</li>
+              <li>Avoid talking near the phone while it listens. If nothing is ever recognized, another app may be using the microphone; WaxClub warns you.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="assets/images/mic_chrome.png" alt="Listening">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Listening</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">03</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Speed &amp; Timing</h3>
+            <p>
+              WaxClub keeps the lyrics in time on its own:
+            </p>
+            <ul>
+              <li>It measures your turntable's real speed while songs play and checks the sync now and then through the microphone.</li>
+              <li>At the end of each track it predicts the next one from the record&rsquo;s tracklist and confirms it by listening.</li>
+              <li>Lyrics a little early or late? Use the <strong>&minus;0.5 s / +0.5 s</strong> buttons; the offset is remembered for that song. In the controls you can also fine-tune, reset or lock the speed.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="logo.png" alt="Always in time">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Always in time</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">04</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Lyrics on the TV</h3>
+            <p>
+              No apps to install on the TV. Phone and TV must be on the same Wi-Fi:
+            </p>
+            <ul>
+              <li><strong>Chromecast and Google TV:</strong> tap the cast icon; your devices appear automatically.</li>
+              <li><strong>Samsung, LG and other TVs:</strong> mirror your phone with Smart View, Cast or Wireless display (Miracast). The TV shows only the lyrics and the phone becomes the control panel.</li>
+              <li>TV not found? Check it is on and on the same Wi-Fi, then tap <em>Search again</em>.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="assets/images/btn_plugins.png" alt="Two screens">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Two screens</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">05</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Flip the Record</h3>
+            <p>
+              Vinyl has two sides, and WaxClub follows the ritual:
+            </p>
+            <ul>
+              <li>When a side ends, the button turns into <strong>Flip the record</strong>.</li>
+              <li>Tap it before or after you flip: the lyrics of the first track of the new side appear right away and start as soon as the needle hits the music.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="logo.png" alt="Side A &rarr; Side B">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Side A &rarr; Side B</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">06</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Manual Mode</h3>
+            <p>
+              For rare pressings, white labels and private recordings the recognition system does not know:
+            </p>
+            <ul>
+              <li>Turn on the <strong>Manual</strong> switch (the wooden on/off button). The microphone button becomes a chrome <strong>&#9654;</strong>.</li>
+              <li>Tap &#9654;, pick the track where the needle starts and drop the needle. The microphone only listens for the start; lyrics and track changes follow the record&rsquo;s track timing.</li>
+              <li>After a while without recognition, WaxClub suggests Manual mode. The switch turns off by itself when the record ends.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="assets/images/btn_manual_on.png" alt="Track timing mode">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Track timing mode</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step" id="step-collection">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">07</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">Identify &amp; Collect</h3>
+            <p>
+              Build your collection, synced to your WaxClub account:
+            </p>
+            <ul>
+              <li>Tap <strong>Identify</strong> (the camera button) and point at the barcode, or photograph the catalog number on the spine or label. You can also type the artist and album.</li>
+              <li>Pick your exact pressing (only vinyl is listed) and add it to <strong>My Collection</strong> with a rating, the media and sleeve condition (Discogs grading, from Mint to Poor) and notes.</li>
+              <li>WaxClub counts how many times each record was played. With the Discogs plugin (C1) connected, the record also goes to your Discogs collection.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="assets/images/btn_collection.png" alt="My Collection">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">My Collection</div>
+          </div>
+        </div>
+
+
+        <div class="manual-step">
+          <div class="step-dial-frame">
+            <div class="step-dial-inner">
+              <span class="retro-berdano step-dial-number">08</span>
+            </div>
+          </div>
+          <div class="manual-step-content">
+            <h3 class="retro-berdano">The Plugin Jukebox</h3>
+            <p>
+              Tap <strong>Plugins</strong> (the jack plug button):
+            </p>
+            <ul>
+              <li>Each plugin is a colored 7" single: green for languages, cyan for display, lilac for AI and orange for connections.</li>
+              <li>Tap a record or type its code (for example C1) on the keypad and press <em>Select</em> to see details and turn it on or off.</li>
+              <li>English comes preinstalled; other languages will be available on this website.</li>
+            </ul>
+          </div>
+          <div class="manual-step-visual">
+            <img src="assets/images/btn_plugins.png" alt="Plugins">
+            <div style="font-size: 0.72rem; color: #8c6e54; margin-top: 6px; font-weight: 700;">Plugins</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TV Big Screen Showcase Box -->
+      <div class="tv-immersion-block">
+        <div>
+          <span class="caps-sub">No Apps on the TV</span>
+          <h3 class="retro-berdano" style="font-size: 2.2rem; margin: 6px 0 14px;">The Living Room Experience</h3>
+          <p style="color: var(--cream-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;">
+            Your phone becomes the control desk &mdash; speed, timing nudges and the tracklist &mdash; while the TV shows what matters: large, readable lyrics, the cover and the record's stories.
+          </p>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <span class="badge" style="background: #251207; border: 1px solid #542d17; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;">Chromecast</span>
+            <span class="badge" style="background: #251207; border: 1px solid #542d17; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;">Samsung Smart View</span>
+            <span class="badge" style="background: #251207; border: 1px solid #542d17; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;">Miracast</span>
+            <span class="badge" style="background: #251207; border: 1px solid #542d17; padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;">Google TV</span>
+          </div>
+        </div>
+        <div class="tv-mockup-frame">
+          <div class="tv-mockup-screen">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2018; padding-bottom: 8px;">
+              <span style="font-size: 0.75rem; color: #ffbe6b; font-weight: 800;">WAXCLUB &middot; 33&#8531; RPM</span>
+              <span style="font-size: 0.75rem; color: #4ade80; font-weight: 800;">SIDE A &middot; TRACK 02</span>
+            </div>
+            <div style="padding: 18px 0;">
+              <div class="tv-lyrics-line">Caught in a rhythm that the radio forgot</div>
+              <div class="tv-lyrics-active">&#9834; WE'RE DANCING ON VINYL TONIGHT &#9834;</div>
+              <div class="tv-lyrics-line">Where the needle meets the magic of the sound</div>
+            </div>
+            <div style="font-size: 0.75rem; color: #887462; border-top: 1px solid #2a2018; padding-top: 8px;">
+              Up Next: <strong>Track 03 &middot; Midnight Groove (4:12)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
+  <!-- =====================================================================
+       DOWNLOAD & SOCIAL CLUB SECTION
+       ===================================================================== -->
+  <section class="download-section" id="download">
+    <div class="wrap">
+      <div class="download-card">
+        <span class="caps-sub">For Android</span>
+        <h2 class="retro-berdano section-h2">Join the Club</h2>
+        <p style="color: var(--cream-muted); font-size: 1.1rem; line-height: 1.7; margin: 0 auto 32px; max-width: 520px;">
+          WaxClub is in private testing and coming soon to Google Play. Put your phone near your turntable, drop the needle and let the room sing along.
+        </p>
+
+        <div style="display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;">
+          <span class="btn-chrome" style="padding: 16px 36px; font-size: 1.05rem; cursor: default;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Coming Soon to Google Play
+          </span>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #886a52; margin-top: 24px;">
+          Works with any turntable and speakers. Your phone listens through its own microphone &mdash; no cables needed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       FOOTER
+       ===================================================================== -->
   <footer>
-    <span class="retro">WaxClub</span>
-    Vinyl Social Club · waxclub.com.br
-    <br><small>Location data © <a href="https://www.geonames.org/" style="color:inherit">GeoNames</a>, CC BY 4.0</small>
+    <div class="wrap">
+      <span class="retro-berdano footer-title">WaxClub</span>
+      <p style="font-weight: 700; color: #c4a485; margin: 4px 0 12px; letter-spacing: 0.08em; text-transform: uppercase;">
+        Vinyl Social Club &middot; waxclub.com.br
+      </p>
+      <p style="max-width: 600px; margin: 0 auto 18px; font-size: 0.82rem; color: #6b533e;">
+        For everyone who still loves the warmth of the groove, the ritual of side A and side B, and singing along with the record.
+      </p>
+      <p style="font-size: 0.75rem; color: #523f2f;">
+        Location data &copy; <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>, CC BY 4.0 &middot; Discogs is a trademark of Zink Media, LLC. WaxClub is not affiliated with Discogs.
+      </p>
+    </div>
   </footer>
+
+  <!-- =====================================================================
+       INTERACTIVE JAVASCRIPT: VINYL SPIN, PITCH DRIFT, AND FILTER
+       ===================================================================== -->
+  <script>
+    // 1. Vinyl play/pause toggle with tonearm animation
+    const vinylPlatter = document.getElementById('vinylPlatter');
+    const tonearmSvg = document.getElementById('tonearmSvg');
+    const vinylWrapper = document.getElementById('vinylWrapper');
+    let isPlaying = true;
+
+    vinylWrapper.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        vinylPlatter.classList.remove('paused');
+        tonearmSvg.classList.remove('resting');
+        document.getElementById('teleMode').textContent = '33⅓ LP';
+        document.getElementById('teleMode').style.color = '#4ade80';
+      } else {
+        vinylPlatter.classList.add('paused');
+        tonearmSvg.classList.add('resting');
+        document.getElementById('teleMode').textContent = 'PAUSED';
+        document.getElementById('teleMode').style.color = '#ff884d';
+      }
+    });
+
+    // 2. Interactive Pitch Drift Slider
+    function onPitchChange(val) {
+      const num = parseFloat(val);
+      const sign = num >= 0 ? '+' : '';
+      const formatted = sign + num.toFixed(1) + '%';
+      document.getElementById('pitchValue').textContent = formatted;
+      document.getElementById('teleDrift').textContent = formatted;
+      
+      const nominalRpm = 33.333;
+      const actualRpm = nominalRpm * (1 + num / 100);
+      document.getElementById('teleRpm').textContent = actualRpm.toFixed(2) + ' RPM';
+      
+      const baseDuration = 1.8;
+      const newDuration = baseDuration / (1 + num / 100);
+      vinylPlatter.style.animationDuration = newDuration.toFixed(3) + 's';
+    }
+
+    function adjustPitch(step) {
+      const slider = document.getElementById('pitchSlider');
+      let val = parseFloat(slider.value) + step;
+      if (val > 5.0) val = 5.0;
+      if (val < -5.0) val = -5.0;
+      slider.value = val.toFixed(1);
+      onPitchChange(slider.value);
+    }
+
+    // 3. Jukebox Category Filter
+    function filterPlugins(category, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.plugin-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // 4. Simulated Lyrics ticker cycle
+    const lyricsList = [
+      { prev: "When the vinyl spins into the midnight groove...", now: "♪ Every needle drop has a story to tell ♪", next: "And the warm brass chords fill the whole room." },
+      { prev: "Every needle drop has a story to tell", now: "♪ Analog soul and pure mechanical rhythm ♪", next: "Where memories are etched into continuous sound." },
+      { prev: "Analog soul and pure mechanical rhythm", now: "♪ Follow the groove across the turntable plate ♪", next: "Until the final run-out groove bids goodnight." }
+    ];
+    let lyricIdx = 0;
+    setInterval(() => {
+      if (!isPlaying) return;
+      lyricIdx = (lyricIdx + 1) % lyricsList.length;
+      document.getElementById('lyricPrev').textContent = lyricsList[lyricIdx].prev;
+      document.getElementById('lyricNow').textContent = lyricsList[lyricIdx].now;
+      document.getElementById('lyricNext').textContent = lyricsList[lyricIdx].next;
+    }, 6000);
+  </script>
+
 </body>
 </html>

@@ -22,6 +22,7 @@ class HelpScreen extends StatelessWidget {
 
   /// Tópicos do manual no idioma atual.
   static List<HelpTopic> get topics => [
+        HelpTopic(Icons.account_circle_outlined, l10n.helpAccount, [l10n.helpAccount1, l10n.helpAccount2]),
         HelpTopic(Icons.play_circle_outline, l10n.helpGettingStarted, [l10n.helpGettingStarted1, l10n.helpGettingStarted2]),
         HelpTopic(Icons.view_compact_alt_outlined, l10n.helpTopBar, [l10n.helpTopBar1, l10n.helpTopBar2]),
         HelpTopic(Icons.mic_none, l10n.helpListening, [l10n.helpListening1, l10n.helpListening2, l10n.helpListening3]),
