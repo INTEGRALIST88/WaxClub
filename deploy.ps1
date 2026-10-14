@@ -83,13 +83,15 @@ $siteDir = Join-Path $projectDir "build\waxclub_site"
 $siteZip = Join-Path $projectDir "build\waxclub_site.zip"
 if (Test-Path -LiteralPath $siteDir) { Remove-Item -LiteralPath $siteDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path "$siteDir\tv" | Out-Null
-Copy-Item -LiteralPath "$projectDir\site\index.html" -Destination "$siteDir\index.html" -Force
-Copy-Item -LiteralPath "$projectDir\icon_512.png" -Destination "$siteDir\icon_512.png" -Force
+# (o waxclub.env da API fica FORA do public_html; o deploy por ZIP apagaria um arquivo deixado na raiz)
+foreach ($f in @('index.html', 'logo.png', '.htaccess')) {
+    Copy-Item -LiteralPath "$projectDir\site\$f" -Destination "$siteDir\$f" -Force
+}
 Copy-Item -LiteralPath "$projectDir\web_receiver\index.html" -Destination "$siteDir\tv\index.html" -Force
 if (Test-Path "$projectDir\covers") { Copy-Item -LiteralPath "$projectDir\covers" -Destination "$siteDir\tv\covers" -Recurse -Force }
 if (Test-Path -LiteralPath $siteZip) { Remove-Item -LiteralPath $siteZip -Force }
 # tar do Windows (bsdtar): caminhos com "/" no ZIP; o Compress-Archive do PowerShell 5.1 grava "\" e quebra no Linux
-& tar.exe -a -c -f $siteZip -C $siteDir index.html icon_512.png tv
+& tar.exe -a -c -f $siteZip -C $siteDir index.html logo.png .htaccess tv
 if ($LASTEXITCODE -ne 0) { throw "Falha ao gerar o ZIP do site (tar, codigo $LASTEXITCODE)." }
 Remove-Item -LiteralPath $siteDir -Recurse -Force
 Write-Host ("[OK] Site gerado: {0} ({1:N1} MB) - publicar na Hostinger (waxclub.com.br)." -f $siteZip, ((Get-Item -LiteralPath $siteZip).Length / 1MB))

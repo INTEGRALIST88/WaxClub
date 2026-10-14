@@ -1,0 +1,6 @@
+Options -Indexes
+
+# Arquivos de configuração e ocultos nunca são servidos
+<FilesMatch "^\.|\.(env|ini|log|sql|md|zip)$">
+  Require all denied
+</FilesMatch>

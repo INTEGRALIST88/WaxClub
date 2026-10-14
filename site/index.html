@@ -5,29 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WaxClub — Vinyl Social Club</title>
   <meta name="description" content="WaxClub listens to your turntable and shows the lyrics, the record and its stories on your phone and TV.">
-  <link rel="icon" href="icon_512.png">
+  <meta property="og:title" content="WaxClub — Vinyl Social Club">
+  <meta property="og:description" content="Put a record on. WaxClub shows the lyrics, the record and its stories on your phone and TV.">
+  <meta property="og:image" content="https://waxclub.com.br/logo.png">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@500;700;800&display=swap">
   <style>
-    :root { color-scheme: dark; }
-    body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center;
-      background: radial-gradient(circle at 50% 30%, #2a1a10, #0d0907 70%);
-      color: #f3e7d8; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      text-align: center; padding: 24px; box-sizing: border-box;
+    :root {
+      --cream: #f7e3c0;
+      --paper: #fbf6ee;
+      --line: #e9dfd0;
+      --brown: #4a2814;
+      --brown-soft: #7a4a2c;
+      --rust: #c8642f;
+      --text: #3b2416;
+      --muted: #7d6553;
     }
-    img { width: 140px; height: 140px; border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
-    h1 { margin: 24px 0 4px; font-size: 2.4rem; letter-spacing: .02em; }
-    .tag { margin: 0; color: #d9a35b; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; font-size: .85rem; }
-    p.lead { max-width: 30rem; margin: 20px auto 0; line-height: 1.6; color: #cdbfae; }
-    footer { margin-top: 40px; font-size: .8rem; color: #8a7b6b; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Montserrat, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--paper);
+      /* papel pautado, como a folha de amostra das letras */
+      background-image: repeating-linear-gradient(to bottom, transparent 0 63px, var(--line) 63px 64px);
+      line-height: 1.6;
+    }
+
+    /* Letra retrô 3D: miolo creme, contorno marrom e relevo para baixo/direita */
+    .retro {
+      font-family: Pacifico, cursive;
+      font-weight: 400;
+      color: var(--cream);
+      -webkit-text-stroke: 0.06em var(--brown);
+      paint-order: stroke fill;
+      text-shadow:
+        0.02em 0.02em 0 var(--brown), 0.04em 0.04em 0 var(--brown),
+        0.06em 0.06em 0 var(--brown), 0.08em 0.08em 0 var(--brown),
+        0.10em 0.10em 0 var(--brown),
+        0.14em 0.16em 0.18em rgba(74, 40, 20, 0.28);
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+    }
+    .caps {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brown);
+    }
+
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+    header.hero {
+      min-height: 92vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 48px 0 32px;
+    }
+    .hero img {
+      width: min(300px, 70vw);
+      height: auto;
+      filter: drop-shadow(0 18px 30px rgba(74, 40, 20, 0.25));
+    }
+    .hero h1 { font-size: clamp(3.6rem, 13vw, 7rem); margin: 8px 0 0; }
+    .hero .tag { font-size: clamp(0.85rem, 2.6vw, 1.05rem); margin: 4px 0 0; }
+    .hero .lead { max-width: 34rem; margin: 22px auto 0; font-size: 1.08rem; color: var(--muted); font-weight: 500; }
+    .badge {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 12px 26px;
+      border-radius: 999px;
+      background: var(--rust);
+      color: #fff7ec;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 0 var(--brown);
+    }
+
+    section { padding: 56px 0; }
+    section h2 { text-align: center; font-size: clamp(2.4rem, 8vw, 3.6rem); margin: 0 0 8px; }
+    section .sub { text-align: center; margin: 0 0 36px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fffaf2;
+      border: 2px solid var(--brown);
+      border-radius: 20px;
+      padding: 24px 22px;
+      box-shadow: 6px 6px 0 var(--brown);
+    }
+    .card h3 { font-size: 1.9rem; margin: 0 0 6px; }
+    .card p { margin: 0; color: var(--muted); font-weight: 500; }
+
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0 auto; max-width: 640px; }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 18px;
+      align-items: baseline;
+      padding: 14px 0;
+      font-weight: 500;
+    }
+    .steps li::before {
+      content: counter(step);
+      font-family: Pacifico, cursive;
+      font-size: 2rem;
+      color: var(--rust);
+      min-width: 1.4em;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px 56px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer .retro { font-size: 2rem; display: block; margin-bottom: 6px; }
+
+    @media (max-width: 480px) {
+      body { background-image: none; }
+      header.hero { min-height: auto; padding-top: 32px; }
+      .card { box-shadow: 4px 4px 0 var(--brown); }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <img src="icon_512.png" alt="WaxClub">
-    <h1>WaxClub</h1>
-    <p class="tag">Vinyl Social Club</p>
-    <p class="lead">Put a record on. WaxClub listens to your turntable and shows the lyrics, the record and its stories on your phone and on your TV.</p>
-    <footer>Coming soon · waxclub.com.br</footer>
-  </main>
+  <header class="hero">
+    <div class="wrap">
+      <img src="logo.png" alt="WaxClub turntable logo" width="512" height="512">
+      <h1 class="retro">WaxClub</h1>
+      <p class="tag caps">Vinyl Social Club</p>
+      <p class="lead">Put a record on. WaxClub listens to your turntable and shows the lyrics, the record and its stories on your phone and on your TV.</p>
+      <span class="badge">Coming soon to Android</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap">
+      <h2 class="retro">Drop the needle</h2>
+      <p class="sub caps">Everything your record deserves</p>
+      <div class="grid">
+        <div class="card">
+          <h3 class="retro">Lyrics</h3>
+          <p>Synced lyrics that follow your turntable, side by side, track by track.</p>
+        </div>
+        <div class="card">
+          <h3 class="retro">On your TV</h3>
+          <p>Mirror the lyrics and the cover to the big screen with Chromecast or Smart View.</p>
+        </div>
+        <div class="card">
+          <h3 class="retro">Stories</h3>
+          <p>Curiosities about the album, the songs and the latest news from the artist.</p>
+        </div>
+        <div class="card">
+          <h3 class="retro">Collection</h3>
+          <p>Scan the barcode, grade your copy and keep your shelf in sync with Discogs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2 class="retro">How it works</h2>
+      <p class="sub caps">Three steps, no fuss</p>
+      <ol class="steps">
+        <li>Open WaxClub next to your turntable and drop the needle.</li>
+        <li>The app recognizes the record and lines up the whole side.</li>
+        <li>Sit back: lyrics, cover and stories play along on your phone or TV.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <span class="retro">WaxClub</span>
+    Vinyl Social Club · waxclub.com.br
+  </footer>
 </body>
 </html>
