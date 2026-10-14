@@ -1,0 +1,25 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.netease",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 2,
+  "code": "S2",
+  "name": "NetEase Cloud Music",
+  "version": "1.0.0",
+  "author": "music.163.com",
+  "publisher": "WaxClub",
+  "homepage": "https://music.163.com",
+  "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
+  "description": "Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.",
+  "builtIn": false,
+  "minAppVersion": "1.4.9",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "netease",
+    "synced": true,
+    "order": 2
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.netease"
+}

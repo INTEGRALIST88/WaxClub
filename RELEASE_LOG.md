@@ -2,6 +2,22 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.9] — 14/10/2026 (Fontes de Letras como Plugins e Instalação pelo Site)
+
+* **Nova categoria de plugins: Lyrics sources (S, disco amarelo).** Cada site de letras que o app consulta virou um plugin separado:
+  * **S1 LRCLIB** — vem com o app (a primeira fonte da busca);
+  * **S2 NetEase Cloud Music**, **S3 Megalobiz**, **S4 Lyrics.ovh** — instalados pelo site (ou pelo botão Install na própria jukebox).
+  * A busca de letras consulta só as fontes **instaladas e ligadas**, na ordem S1 → S4.
+  * Quem já tinha o app (até a 1.4.8) continua com as quatro fontes instaladas e ligadas; num app novo, só a LRCLIB.
+* **Plugins sem código (regra da Apple, App Store 2.5.2):** o plugin é um manifesto JSON publicado em `waxclub.com.br/plugins/<id>.json` que só descreve o plugin e diz qual integração **já embutida no app** ele liga. Instalar = baixar e validar o manifesto (formato, versão do formato, id, categoria, número e integração precisam bater com o que o app conhece); nada é executado. Plugin que o app não conhece pede para atualizar o WaxClub.
+* **Instalar pelo navegador do celular:** no site, o botão **Install** de cada plugin abre o WaxClub (link de app do Android) e o app instala sozinho — mensagem "Plugin installed" com atalho para a jukebox. Sem o app no celular, o link cai na página `/install/` que explica como baixar.
+  * **Sem conta:** o pedido fica guardado; a tela de login/cadastro avisa "Sign in or create your WaxClub account to install the plugin …" e o plugin é instalado logo depois do login.
+  * Link para compartilhar: `https://waxclub.com.br/install/?plugin=<id>` (abre direto no app quando o site confirma o app em `/.well-known/assetlinks.json`).
+* **Jukebox:** botões **Install** (para os do caixote) e **Uninstall** (para os instalados pelo site), e um cartão "More plugins on waxclub.com.br" que abre a página de plugins do site.
+* **Site:** filtro e cartões "Lyrics sources (S)" com o botão Install, página `/install/`, manifestos em `/plugins/` (+ `index.json`) e `/.well-known/assetlinks.json`.
+* Testes: `plugin_install_test.dart` (links, manifestos do site batendo com o app, instalar/desinstalar, erros, migração da 1.4.8, busca só nas fontes ligadas) e `auth_gate_plugin_test.dart` (aviso na tela de login) — 278 no total.
+
+---
 ## [v1.4.8] — 14/10/2026 (Desconectar o Discogs e Remover Disco com Confirmação)
 
 * **Nuvem de My Collection → cartão Discogs:** botão **"Disconnect Discogs account"** com confirmação. Apaga as credenciais do Discogs neste aparelho; os discos continuam em My Collection e nada é apagado no Discogs. Para voltar, **"Connect Discogs"** refaz o login (o botão aparece mesmo com o plugin desligado pelo "sair").

@@ -18,8 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get micListenToRoom => 'Listen to the room';
 
   @override
-  String get lyricsEmptyHint =>
-      'Tap the microphone to listen to your vinyl and sync the lyrics, with turntable speed compensation.';
+  String get lyricsEmptyHint => 'Tap the microphone to listen to your vinyl and sync the lyrics, with turntable speed compensation.';
 
   @override
   String get resume => 'Resume';
@@ -72,8 +71,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get greetingWelcomeSubtitle =>
-      'Drop the needle and tap the microphone to start.';
+  String get greetingWelcomeSubtitle => 'Drop the needle and tap the microphone to start.';
 
   @override
   String get goodMorning => 'Good morning';
@@ -170,8 +168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get collectionEmpty => 'Your collection is empty';
 
   @override
-  String get collectionEmptyHint =>
-      'While a record is playing, tap its cover at the top of the screen and choose \"Add to collection\".';
+  String get collectionEmptyHint => 'While a record is playing, tap its cover at the top of the screen and choose \"Add to collection\".';
 
   @override
   String get notPlayedYet => 'Not played yet';
@@ -217,8 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAgain => 'Try again';
 
   @override
-  String get discogsTokenHint =>
-      'Sign in to your account above, tap \"Generate new token\" and paste the token here:';
+  String get discogsTokenHint => 'Sign in to your account above, tap \"Generate new token\" and paste the token here:';
 
   @override
   String get discogsTokenField => 'Discogs personal token';
@@ -230,89 +226,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpGettingStarted => 'Getting started';
 
   @override
-  String get helpGettingStarted1 =>
-      'Put a record on your turntable, drop the needle and tap the microphone button. WaxClub listens for a few seconds, identifies the song and shows the lyrics in sync with the music.';
+  String get helpGettingStarted1 => 'Put a record on your turntable, drop the needle and tap the microphone button. WaxClub listens for a few seconds, identifies the song and shows the lyrics in sync with the music.';
 
   @override
-  String get helpGettingStarted2 =>
-      'Keep the phone close to the speakers and avoid talking near it while it listens.';
+  String get helpGettingStarted2 => 'Keep the phone close to the speakers and avoid talking near it while it listens.';
 
   @override
   String get helpListening => 'Listening and syncing';
 
   @override
-  String get helpListening1 =>
-      'The first listen is quick (4 seconds); harder songs get up to 12 seconds automatically.';
+  String get helpListening1 => 'The first listen is quick (4 seconds); harder songs get up to 12 seconds automatically.';
 
   @override
-  String get helpListening2 =>
-      'While a song plays, WaxClub checks the sync now and then through the microphone and corrects the timing.';
+  String get helpListening2 => 'While a song plays, WaxClub checks the sync now and then through the microphone and corrects the timing.';
 
   @override
-  String get helpListening3 =>
-      'At the end of each track it predicts the next one from the record\'s tracklist and confirms it by listening.';
+  String get helpListening3 => 'At the end of each track it predicts the next one from the record\'s tracklist and confirms it by listening.';
 
   @override
   String get helpFlipping => 'Flipping the record';
 
   @override
-  String get helpFlipping1 =>
-      'When a side ends, the button turns into \"Flip the record\". Tap it before or after you flip: the lyrics of the first track of the new side appear right away and start as soon as the needle hits the music.';
+  String get helpFlipping1 => 'When a side ends, the button turns into \"Flip the record\". Tap it before or after you flip: the lyrics of the first track of the new side appear right away and start as soon as the needle hits the music.';
 
   @override
   String get helpSpeed => 'Turntable speed';
 
   @override
-  String get helpSpeed1 =>
-      'Turntables rarely spin at exactly 33⅓ RPM. WaxClub measures your turntable\'s real speed while songs play and keeps the lyrics on time.';
+  String get helpSpeed1 => 'Turntables rarely spin at exactly 33⅓ RPM. WaxClub measures your turntable\'s real speed while songs play and keeps the lyrics on time.';
 
   @override
-  String get helpSpeed2 =>
-      'In the controls you can fine-tune the speed, reset it or lock it.';
+  String get helpSpeed2 => 'In the controls you can fine-tune the speed, reset it or lock it.';
 
   @override
   String get helpTiming => 'Lyrics running early or late';
 
   @override
-  String get helpTiming1 =>
-      'Lyrics a few seconds off? Tap the line that is being sung: the lyrics jump to it on the phone and on the TV. While casting, the phone panel shows the previous, current and next lines to tap. For small corrections use −0.5 s / +0.5 s; the offset is remembered for that song (in Manual mode it moves the whole side).';
+  String get helpTiming1 => 'Lyrics a few seconds off? Tap the line that is being sung: the lyrics jump to it on the phone and on the TV. While casting, the phone panel shows the previous, current and next lines to tap. For small corrections use −0.5 s / +0.5 s; the offset is remembered for that song (in Manual mode it moves the whole side).';
 
   @override
   String get helpChangeRecord => 'Change record and Discogs';
 
   @override
-  String get helpChangeRecord1 =>
-      'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top left of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.';
+  String get helpChangeRecord1 => 'Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top left of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.';
 
   @override
-  String get helpChangeRecord2 =>
-      'Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.';
+  String get helpChangeRecord2 => 'Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.';
 
   @override
   String get helpCollection => 'Your collection';
 
   @override
-  String get helpCollection1 =>
-      'Tap My Collection (the bookshelf button) to open your records. Add a record with the + button (it opens Identify), or tap the cover of the record that is playing and choose \"Add to collection\". The cloud button shows the sync with your WaxClub account and your Discogs connection.';
+  String get helpCollection1 => 'Tap My Collection (the bookshelf button) to open your records. Add a record with the + button (it opens Identify), or tap the cover of the record that is playing and choose \"Add to collection\". The cloud button shows the sync with your WaxClub account and your Discogs connection.';
 
   @override
-  String get helpCollection2 =>
-      'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones. Open a record and tap Play to get it ready to play.';
+  String get helpCollection2 => 'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones. Open a record and tap Play to get it ready to play.';
 
   @override
   String get helpTv => 'Showing the lyrics on the TV';
 
   @override
-  String get helpTv1 =>
-      'Tap the cast icon. Chromecast and Google TV devices appear automatically.';
+  String get helpTv1 => 'Tap the cast icon. Chromecast and Google TV devices appear automatically.';
 
   @override
-  String get helpTv2 =>
-      'Fire TV: open the WaxClub app on the TV first; it appears in the list. If it does not, use \"Add by IP\" with the address shown on the TV.';
+  String get helpTv2 => 'Fire TV: open the WaxClub app on the TV first; it appears in the list. If it does not, use \"Add by IP\" with the address shown on the TV.';
 
   @override
-  String get helpTv3 =>
-      'Samsung, LG and other TVs without Chromecast: mirror your phone with Smart View, Cast or Wireless display (Miracast). WaxClub turns the TV into a second screen with only the lyrics, and the phone becomes the control panel.';
+  String get helpTv3 => 'Samsung, LG and other TVs without Chromecast: mirror your phone with Smart View, Cast or Wireless display (Miracast). WaxClub turns the TV into a second screen with only the lyrics, and the phone becomes the control panel.';
 
   @override
   String get helpTv4 => 'The phone and the TV must be on the same Wi-Fi.';
@@ -321,23 +301,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTroubleshooting => 'Troubleshooting';
 
   @override
-  String get helpTroubleshooting1 =>
-      'Song not recognized: move the phone closer to the speakers and try again. Some rare records are not in the recognition catalog.';
+  String get helpTroubleshooting1 => 'Song not recognized: move the phone closer to the speakers and try again. Some rare records are not in the recognition catalog.';
 
   @override
-  String get helpTroubleshooting2 =>
-      'Nothing is ever recognized: another app may be using the microphone (voice assistants, accessibility or call apps). WaxClub warns you when this happens. Close that app and try again.';
+  String get helpTroubleshooting2 => 'Nothing is ever recognized: another app may be using the microphone (voice assistants, accessibility or call apps). WaxClub warns you when this happens. Close that app and try again.';
 
   @override
-  String get helpTroubleshooting3 =>
-      'TV not found: check that it is on and on the same Wi-Fi, and tap \"Search again\". After a TV update it may take a few minutes to show up again.';
+  String get helpTroubleshooting3 => 'TV not found: check that it is on and on the same Wi-Fi, and tap \"Search again\". After a TV update it may take a few minutes to show up again.';
 
   @override
   String get help => 'Help';
 
   @override
-  String get helpCopyLogsHint =>
-      'Long-press the version to copy the session logs.';
+  String get helpCopyLogsHint => 'Long-press the version to copy the session logs.';
 
   @override
   String get castingToTv => 'Casting to TV';
@@ -402,8 +378,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTracklistYet => 'No tracklist for this album yet.';
 
   @override
-  String get tracklistFetchedHint =>
-      'The tracklist is fetched automatically from the official catalog (MusicBrainz) while the song plays.';
+  String get tracklistFetchedHint => 'The tracklist is fetched automatically from the official catalog (MusicBrainz) while the song plays.';
 
   @override
   String get playing => 'PLAYING';
@@ -425,12 +400,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get discogsExplanation =>
-      'Discogs is the world\'s largest vinyl database, maintained by collectors: every pressing, local and imported edition, compilation, A/B side, cover and tracklist.\n\nWith your account connected, WaxClub searches it to find the exact record that is on your turntable — with the right track order, sides and cover.\n\nYour sign-in is stored securely on this phone only, for next time. The app only reads the catalog (it never changes your collection) and you can disconnect at any time.';
+  String get discogsExplanation => 'Discogs is the world\'s largest vinyl database, maintained by collectors: every pressing, local and imported edition, compilation, A/B side, cover and tracklist.\n\nWith your account connected, WaxClub searches it to find the exact record that is on your turntable — with the right track order, sides and cover.\n\nYour sign-in is stored securely on this phone only, for next time. The app only reads the catalog (it never changes your collection) and you can disconnect at any time.';
 
   @override
-  String get searchFailed =>
-      'Could not search for records right now. Check your internet connection.';
+  String get searchFailed => 'Could not search for records right now. Check your internet connection.';
 
   @override
   String get connectDiscogs => 'Connect your Discogs account';
@@ -447,8 +420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get you => 'you';
 
   @override
-  String get loadTracksFailed =>
-      'Could not load this record\'s tracks. Try another record or source.';
+  String get loadTracksFailed => 'Could not load this record\'s tracks. Try another record or source.';
 
   @override
   String get songNotOnRecord => 'Song not found on this record';
@@ -491,19 +463,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourAccount => 'your account';
 
   @override
-  String get discogsSearchSubtitle =>
-      'The most complete vinyl and compilation database (requires your account)';
+  String get discogsSearchSubtitle => 'The most complete vinyl and compilation database (requires your account)';
 
   @override
   String get signOut => 'Sign out';
 
   @override
-  String get searchAnotherRecord =>
-      'Search for another record (artist, title...)';
+  String get searchAnotherRecord => 'Search for another record (artist, title...)';
 
   @override
-  String get noRecordsFound =>
-      'No records found. Try searching by the record name.';
+  String get noRecordsFound => 'No records found. Try searching by the record name.';
 
   @override
   String recordsFromSource(int count, String source) {
@@ -592,8 +561,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noScreenFound => 'No screen found';
 
   @override
-  String get sameWifiHint =>
-      'Make sure the TV and the phone are on the same Wi-Fi.';
+  String get sameWifiHint => 'Make sure the TV and the phone are on the same Wi-Fi.';
 
   @override
   String get searchNetwork => 'Search network';
@@ -776,8 +744,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusSongNotIdentified =>
-      'Song not identified. Move the phone closer to the speakers and tap the microphone again.';
+  String get statusSongNotIdentified => 'Song not identified. Move the phone closer to the speakers and tap the microphone again.';
 
   @override
   String statusFetchingLyricsAndTracklist(String title) {
@@ -854,8 +821,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusPlaybackEndedOrStopped =>
-      'Playback ended or record stopped. Microphone off.';
+  String get statusPlaybackEndedOrStopped => 'Playback ended or record stopped. Microphone off.';
 
   @override
   String statusFetchingLyrics(String title) {
@@ -878,8 +844,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusFlipTimeout =>
-      'Timed out waiting for the record to be flipped. Tap to listen.';
+  String get statusFlipTimeout => 'Timed out waiting for the record to be flipped. Tap to listen.';
 
   @override
   String get statusListeningNewSide => 'Listening to the new side...';
@@ -890,8 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusNotIdentifiedFlip =>
-      'Not identified yet (the record ended). Flip the record or try again.';
+  String get statusNotIdentifiedFlip => 'Not identified yet (the record ended). Flip the record or try again.';
 
   @override
   String statusSyncPaused(String position) {
@@ -907,19 +871,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusMicOffStopped => 'Microphone off. Listening stopped.';
 
   @override
-  String get noticeDiscogsNoVinyl =>
-      'Discogs found no vinyl records; showing MusicBrainz results.';
+  String get noticeDiscogsNoVinyl => 'Discogs found no vinyl records; showing MusicBrainz results.';
 
   @override
-  String get noticeDiscogsUnavailable =>
-      'Discogs is unavailable right now; showing MusicBrainz results.';
+  String get noticeDiscogsUnavailable => 'Discogs is unavailable right now; showing MusicBrainz results.';
 
   @override
   String get builtInMicrophone => 'Built-in microphone';
 
   @override
-  String get micPermissionDeniedHint =>
-      '🎤 Microphone permission denied.\n\nTo enable it manually:\n  Settings → Apps → WaxClub → Permissions → Microphone → Allow\n\nThen try again.';
+  String get micPermissionDeniedHint => '🎤 Microphone permission denied.\n\nTo enable it manually:\n  Settings → Apps → WaxClub → Permissions → Microphone → Allow\n\nThen try again.';
 
   @override
   String get micPermissionNotGranted => 'Microphone permission not granted.';
@@ -938,8 +899,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get discogsPasteToken =>
-      'Paste the token generated in your Discogs account.';
+  String get discogsPasteToken => 'Paste the token generated in your Discogs account.';
 
   @override
   String get discogsInvalidCredentials => 'Invalid Discogs credentials.';
@@ -950,8 +910,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get discogsTooManyRequests =>
-      'Discogs: too many requests, try again in a few seconds.';
+  String get discogsTooManyRequests => 'Discogs: too many requests, try again in a few seconds.';
 
   @override
   String get castDisconnected => 'Disconnected';
@@ -967,8 +926,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get castTlsEstablished =>
-      'TLS connection established. Negotiating channels...';
+  String get castTlsEstablished => 'TLS connection established. Negotiating channels...';
 
   @override
   String castChannelError(String error) {
@@ -1018,8 +976,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusMicBusy =>
-      'Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can\'t hear the record. Close that app and tap the microphone again.';
+  String get statusMicBusy => 'Another app is using the microphone (voice assistant, accessibility or call app), so WaxClub can\'t hear the record. Close that app and tap the microphone again.';
 
   @override
   String get cameraTooltip => 'Identify a record';
@@ -1040,23 +997,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanModeTyped => 'Type it';
 
   @override
-  String get scanBarcodeHint =>
-      'Point at the barcode on the back cover (usually in a bottom corner)';
+  String get scanBarcodeHint => 'Point at the barcode on the back cover (usually in a bottom corner)';
 
   @override
-  String get scanBarcodeTryCatalog =>
-      'No barcode? Older records usually have none. Try the catalog number.';
+  String get scanBarcodeTryCatalog => 'No barcode? Older records usually have none. Try the catalog number.';
 
   @override
   String get scanTorch => 'Flashlight';
 
   @override
-  String get scanCameraUnavailable =>
-      'Camera unavailable. Allow camera access in Settings → Apps → WaxClub → Permissions, or type the record.';
+  String get scanCameraUnavailable => 'Camera unavailable. Allow camera access in Settings → Apps → WaxClub → Permissions, or type the record.';
 
   @override
-  String get scanCatalogHint =>
-      'Photograph the spine, the record label or the top corner of the back cover, where the catalog number is printed (e.g. 6349 123, SHVL 804).';
+  String get scanCatalogHint => 'Photograph the spine, the record label or the top corner of the back cover, where the catalog number is printed (e.g. 6349 123, SHVL 804).';
 
   @override
   String get scanTakePhoto => 'Take a photo';
@@ -1068,8 +1021,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanCatalogFound => 'Catalog numbers found — tap the right one:';
 
   @override
-  String get scanCatalogNoneFound =>
-      'No catalog number found in the photo. Type it below or take another photo closer to the text.';
+  String get scanCatalogNoneFound => 'No catalog number found in the photo. Type it below or take another photo closer to the text.';
 
   @override
   String get scanCatalogField => 'Catalog number';
@@ -1086,8 +1038,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get scanPickPressing =>
-      'Pick your pressing: year, country, label and catalog number help you find it.';
+  String get scanPickPressing => 'Pick your pressing: year, country, label and catalog number help you find it.';
 
   @override
   String scanNoResults(String query) {
@@ -1134,8 +1085,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get entryDiscogsAdded => 'Also added to your Discogs collection.';
 
   @override
-  String get entryDiscogsFailed =>
-      'Could not add it to your Discogs collection right now.';
+  String get entryDiscogsFailed => 'Could not add it to your Discogs collection right now.';
 
   @override
   String get letsListenTitle => 'Let\'s listen?';
@@ -1149,29 +1099,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideBarcodeTitle => 'Barcode';
 
   @override
-  String get guideBarcodeBody =>
-      'Most records from the 80s on have a barcode on the back cover, usually in a bottom corner or on a sticker on the shrink wrap. Hold the phone 10–20 cm away: it reads by itself.';
+  String get guideBarcodeBody => 'Most records from the 80s on have a barcode on the back cover, usually in a bottom corner or on a sticker on the shrink wrap. Hold the phone 10–20 cm away: it reads by itself.';
 
   @override
   String get guideCatalogTitle => 'Catalog number';
 
   @override
-  String get guideCatalogBody =>
-      'Older records: look for the code on the spine, on the record label (near the center hole) or in the top corner of the back cover, e.g. \"6349 123\". Take a photo and tap the right number.';
+  String get guideCatalogBody => 'Older records: look for the code on the spine, on the record label (near the center hole) or in the top corner of the back cover, e.g. \"6349 123\". Take a photo and tap the right number.';
 
   @override
   String get guideLightTitle => 'Light and focus';
 
   @override
-  String get guideLightBody =>
-      'Use good light and avoid glare on glossy covers. Turn on the flashlight if it is dark. Hold still until the text is sharp.';
+  String get guideLightBody => 'Use good light and avoid glare on glossy covers. Turn on the flashlight if it is dark. Hold still until the text is sharp.';
 
   @override
   String get guidePressingTitle => 'Pick your pressing';
 
   @override
-  String get guidePressingBody =>
-      'The same album has many pressings. Check year, country, label and catalog number, then add it to your collection and start listening.';
+  String get guidePressingBody => 'The same album has many pressings. Check year, country, label and catalog number, then add it to your collection and start listening.';
 
   @override
   String get guideNext => 'Next';
@@ -1183,19 +1129,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpCamera => 'Identify a record';
 
   @override
-  String get helpCamera1 =>
-      'Tap Identify (the camera button). Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album. The first time, a short guide shows where to point the camera.';
+  String get helpCamera1 => 'Tap Identify (the camera button). Point at the barcode on the back cover, or take a photo of the catalog number on the spine or label. You can also type the artist and album. The first time, a short guide shows where to point the camera.';
 
   @override
-  String get helpCamera2 =>
-      'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub prepares the record and shows the steps. Drop the needle and tap the microphone; the next tracks are right from the first song.';
+  String get helpCamera2 => 'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub prepares the record and shows the steps. Drop the needle and tap the microphone; the next tracks are right from the first song.';
 
   @override
   String get jukeboxTitle => 'Plugin Jukebox';
 
   @override
-  String get jukeboxLede =>
-      'Every plugin is a 7\" single. The vinyl color tells the kind; the code on the strip selects it. Type a code on the keypad or tap a record.';
+  String get jukeboxLede => 'Every plugin is a 7\" single. The vinyl color tells the kind; the code on the strip selects it. Type a code on the keypad or tap a record.';
 
   @override
   String get jukeboxChooseSelection => 'Choose a selection: letter + number.';
@@ -1241,8 +1184,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jukeboxCrate => 'Record crate';
 
   @override
-  String get jukeboxCrateHint =>
-      'Plugins not installed yet. Each one shows its source and license before going into the jukebox.';
+  String get jukeboxCrateHint => 'Plugins not installed yet. Each one shows its source and license before going into the jukebox.';
 
   @override
   String get jukeboxComingSoon => 'Coming soon';
@@ -1251,8 +1193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jukeboxOnPlatter => 'On the platter';
 
   @override
-  String get jukeboxComingSoonHint =>
-      'Coming soon: this plugin is not available yet.';
+  String get jukeboxComingSoonHint => 'Coming soon: this plugin is not available yet.';
 
   @override
   String get jukeboxLockedHint => 'Built in and always on for now.';
@@ -1278,8 +1219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jukeboxLicense => 'License';
 
   @override
-  String get jukeboxAiNotice =>
-      'AI content is always marked as AI-generated. Audio never leaves your phone without your consent.';
+  String get jukeboxAiNotice => 'AI content is always marked as AI-generated. Audio never leaves your phone without your consent.';
 
   @override
   String get pluginCatLanguage => 'Language';
@@ -1312,8 +1252,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginLicenseLyrics => 'Lyrics from the sources you enable';
 
   @override
-  String get pluginLicenseCuriosities =>
-      'Sources cited: Wikipedia (CC BY-SA), Discogs, news outlets';
+  String get pluginLicenseCuriosities => 'Sources cited: Wikipedia (CC BY-SA), Discogs, news outlets';
 
   @override
   String get pluginLicenseAi => 'AI-generated text, always marked';
@@ -1322,47 +1261,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pluginEnglishName => 'English';
 
   @override
-  String get pluginEnglishDesc =>
-      'Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.';
+  String get pluginEnglishDesc => 'Preinstalled. Provides all the menus and texts of the app in English. Other languages will be available as plugins on the official WaxClub website.';
 
   @override
   String get pluginLyricsName => 'Synced lyrics';
 
   @override
-  String get pluginLyricsDesc =>
-      'Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.';
+  String get pluginLyricsDesc => 'Shows the lyrics in sync with the record, on the phone and on the TV, in the same style on both.';
 
   @override
   String get pluginCuriositiesName => 'Record curiosities';
 
   @override
-  String get pluginCuriositiesDesc =>
-      'Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.';
+  String get pluginCuriositiesDesc => 'Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.';
 
   @override
   String get pluginAiCuriositiesName => 'AI curiosities';
 
   @override
-  String get pluginAiCuriositiesDesc =>
-      'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.';
+  String get pluginAiCuriositiesDesc => 'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.';
 
   @override
   String get pluginAiTranslateName => 'AI translation';
 
   @override
-  String get pluginAiTranslateDesc =>
-      'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.';
+  String get pluginAiTranslateDesc => 'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.';
 
   @override
   String get helpPlugins => 'Plugins (jukebox)';
 
   @override
-  String get helpPlugins1 =>
-      'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display, lilac for AI and orange for connections to other services (C1 Discogs comes preinstalled). English comes preinstalled; other languages will be available on the official WaxClub website.';
+  String get helpPlugins1 => 'Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display, lilac for AI and orange for connections to other services (C1 Discogs comes preinstalled). English comes preinstalled; other languages will be available on the official WaxClub website.';
 
   @override
-  String get helpPlugins2 =>
-      'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.';
+  String get helpPlugins2 => 'Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.';
 
   @override
   String get plugins => 'Plugins';
@@ -1374,34 +1306,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTopBar => 'The top bar';
 
   @override
-  String get helpTopBar1 =>
-      'At the top left is the WaxClub logo, or the cover of the record that is playing. With nothing playing, tap the logo to pick a record to play: type an artist and/or album, your collection comes first, then Discogs. While a record plays, tap the cover to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.';
+  String get helpTopBar1 => 'At the top left is the WaxClub logo, or the cover of the record that is playing. With nothing playing, tap the logo to pick a record to play: type an artist and/or album, your collection comes first, then Discogs. While a record plays, tap the cover to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.';
 
   @override
-  String get helpTopBar2 =>
-      'Below the top bar, on the right, the wooden buttons from left to right: Profile (user), Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The button at the top right shows the lyrics on your TV.';
+  String get helpTopBar2 => 'Below the top bar, on the right, the wooden buttons from left to right: Profile (user), Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The button at the top right shows the lyrics on your TV.';
 
   @override
   String get manual => 'Manual';
 
   @override
-  String get manualOnHint =>
-      'Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.';
+  String get manualOnHint => 'Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.';
 
   @override
-  String get manualOffHint =>
-      'Manual mode off: WaxClub recognizes the songs automatically.';
+  String get manualOffHint => 'Manual mode off: WaxClub recognizes the songs automatically.';
 
   @override
   String get helpManual => 'Manual mode';
 
   @override
-  String get helpManual1 =>
-      'For records the recognition system does not know. With the Manual switch on, the microphone button becomes a chrome ▶: tap it, pick the track where the needle starts and drop the needle. The microphone only measures the volume to find the start; then the lyrics and track changes follow the record\'s track timing.';
+  String get helpManual1 => 'For records the recognition system does not know. With the Manual switch on, the microphone button becomes a chrome ▶: tap it, pick the track where the needle starts and drop the needle. The microphone only measures the volume to find the start; then the lyrics and track changes follow the record\'s track timing.';
 
   @override
-  String get helpManual2 =>
-      'At the end of a side, flip the record and tap ▶. In the tracklist you can tap a track to jump to it. After Identify, WaxClub checks the recognition system and turns Manual mode on by itself when the record is not there. The switch starts off and turns off when the record ends (last song of the last side).';
+  String get helpManual2 => 'At the end of a side, flip the record and tap ▶. In the tracklist you can tap a track to jump to it. After Identify, WaxClub checks the recognition system and turns Manual mode on by itself when the record is not there. The switch starts off and turns off when the record ends (last song of the last side).';
 
   @override
   String get manualModeOffStatus => 'Manual mode off.';
@@ -1412,8 +1338,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get manualNeedleTimeout =>
-      'The music did not start. Tap ▶ when the needle is on the record.';
+  String get manualNeedleTimeout => 'The music did not start. Tap ▶ when the needle is on the record.';
 
   @override
   String manualPlaying(String number, String title) {
@@ -1421,8 +1346,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get manualNoDuration =>
-      'Manual • track length unknown: tap the next track in the tracklist when it starts.';
+  String get manualNoDuration => 'Manual • track length unknown: tap the next track in the tracklist when it starts.';
 
   @override
   String get manualRecordEnded => 'End of the record. Manual mode off.';
@@ -1439,28 +1363,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manualUseMic => 'Detect the start with the microphone';
 
   @override
-  String get manualUseMicHint =>
-      'The microphone finds the start of the music, then listens to the end of each track to change to the next one right on time.';
+  String get manualUseMicHint => 'The microphone finds the start of the music, then listens to the end of each track to change to the next one right on time.';
 
   @override
-  String get manualNoMicHint =>
-      'The lyrics start as soon as you pick the track.';
+  String get manualNoMicHint => 'The lyrics start as soon as you pick the track.';
 
   @override
   String manualMissingDurations(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count tracks have no length: tap them in the tracklist when they start.',
+      other: '$count tracks have no length: tap them in the tracklist when they start.',
       one: '1 track has no length: tap it in the tracklist when it starts.',
     );
     return '$_temp0';
   }
 
   @override
-  String get manualNoRecord =>
-      'Identify the record first: Manual mode follows its tracklist.';
+  String get manualNoRecord => 'Identify the record first: Manual mode follows its tracklist.';
 
   @override
   String get manualPlayTooltip => 'Start (Manual mode)';
@@ -1478,8 +1398,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogNotFoundTitle => 'Not in the recognition system';
 
   @override
-  String get catalogNotFoundBody =>
-      'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.';
+  String get catalogNotFoundBody => 'This record was not found in the recognition system. Switching to Manual mode: the lyrics will follow the track timing of the record.';
 
   @override
   String get curiosityAboutRecord => 'About the record';
@@ -1496,12 +1415,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpCuriosities => 'Curiosities';
 
   @override
-  String get helpCuriosities1 =>
-      'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays, on the phone and on the TV. Everything is in English and shows its source (Wikipedia, the Discogs pressing notes, or the news outlet and date).';
+  String get helpCuriosities1 => 'When a song has no lyrics, WaxClub shows short facts about the record and recent news about the artist (at the start of a side), and facts about the track, rising and fading as the music plays, on the phone and on the TV. Everything is in English and shows its source (Wikipedia, the Discogs pressing notes, or the news outlet and date).';
 
   @override
-  String get helpCuriosities2 =>
-      'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).';
+  String get helpCuriosities2 => 'Facts are saved on the phone, so they also work offline next time. Turn them off in Plugins (D2 Record curiosities).';
 
   @override
   String get curiosityLatestNews => 'Latest news';
@@ -1512,12 +1429,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get jukeboxMoreLanguages =>
-      'More languages will be available as plugins on the official WaxClub website.';
+  String get jukeboxMoreLanguages => 'More languages will be available as plugins on the official WaxClub website.';
 
   @override
-  String get secondScreenMirror =>
-      'No Chromecast? Mirror with Smart View / Miracast';
+  String get secondScreenMirror => 'No Chromecast? Mirror with Smart View / Miracast';
 
   @override
   String secondScreenShowOn(String name) {
@@ -1528,12 +1443,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get secondScreenDefaultName => 'Smart View';
 
   @override
-  String get secondScreenHint =>
-      'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.';
+  String get secondScreenHint => 'Pick your TV in the system screen (Smart View, Cast or Wireless display). WaxClub shows only the lyrics on the TV and keeps the controls on your phone.';
 
   @override
-  String get manualSuggestion =>
-      'Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?';
+  String get manualSuggestion => 'Not recognized for a while. This record may not be in the recognition system: switch to Manual mode?';
 
   @override
   String get manualSuggestionAction => 'Manual mode';
@@ -1577,12 +1490,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountSyncNow => 'Sync now';
 
   @override
-  String get accountSyncFailed =>
-      'The last sync failed. Tap Sync now to try again.';
+  String get accountSyncFailed => 'The last sync failed. Tap Sync now to try again.';
 
   @override
-  String get accountSyncInfo =>
-      'Your collection syncs automatically when it changes. Listening history is backed up to your account.';
+  String get accountSyncInfo => 'Your collection syncs automatically when it changes. Listening history is backed up to your account.';
 
   @override
   String get accountSignOut => 'Sign out';
@@ -1594,8 +1505,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountDeleteConfirmTitle => 'Delete your WaxClub account?';
 
   @override
-  String get accountDeleteConfirmBody =>
-      'This permanently deletes your WaxClub account, your synced collection and your listening history from the WaxClub server. It cannot be undone.\n\nYour Discogs collection is NOT affected: records you added to Discogs stay in your Discogs account. The records saved on this phone also stay.';
+  String get accountDeleteConfirmBody => 'This permanently deletes your WaxClub account, your synced collection and your listening history from the WaxClub server. It cannot be undone.\n\nYour Discogs collection is NOT affected: records you added to Discogs stay in your Discogs account. The records saved on this phone also stay.';
 
   @override
   String get accountDeleteConfirm => 'Delete';
@@ -1607,16 +1517,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountErrorCode => 'Wrong code. Check the email and try again.';
 
   @override
-  String get accountErrorExpired =>
-      'This code has expired or was used too many times. Ask for a new one.';
+  String get accountErrorExpired => 'This code has expired or was used too many times. Ask for a new one.';
 
   @override
-  String get accountErrorTooMany =>
-      'Too many codes requested. Try again in an hour.';
+  String get accountErrorTooMany => 'Too many codes requested. Try again in an hour.';
 
   @override
-  String get accountErrorNetwork =>
-      'No connection to the WaxClub server. Check your internet.';
+  String get accountErrorNetwork => 'No connection to the WaxClub server. Check your internet.';
 
   @override
   String get accountErrorGeneric => 'Something went wrong. Please try again.';
@@ -1625,8 +1532,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authWelcome => 'Welcome to WaxClub';
 
   @override
-  String get authSubtitle =>
-      'Sign in to join the club: your records, your city and your listening history, always in sync.';
+  String get authSubtitle => 'Sign in to join the club: your records, your city and your listening history, always in sync.';
 
   @override
   String get authPassword => 'Password';
@@ -1656,8 +1562,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUpUsername => 'Username';
 
   @override
-  String get signUpUsernameHint =>
-      '3 to 20 characters: letters, numbers, dot or underscore.';
+  String get signUpUsernameHint => '3 to 20 characters: letters, numbers, dot or underscore.';
 
   @override
   String get signUpUsernameTaken => 'This username is taken.';
@@ -1693,8 +1598,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUpNoResults => 'Nothing found';
 
   @override
-  String get signUpLocationWhy =>
-      'Your city is used to show concerts near you.';
+  String get signUpLocationWhy => 'Your city is used to show concerts near you.';
 
   @override
   String get verifyTitle => 'Confirm your email';
@@ -1714,8 +1618,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotTitle => 'Reset password';
 
   @override
-  String get forgotBody =>
-      'Enter the email of your account. We will send you a code to choose a new password.';
+  String get forgotBody => 'Enter the email of your account. We will send you a code to choose a new password.';
 
   @override
   String forgotCodeSent(String email) {
@@ -1732,8 +1635,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileCompleteTitle => 'Complete your profile';
 
   @override
-  String get profileCompleteBody =>
-      'Choose a username and tell us where you are.';
+  String get profileCompleteBody => 'Choose a username and tell us where you are.';
 
   @override
   String get profileSave => 'Save';
@@ -1745,16 +1647,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorCredentials => 'Wrong email or password.';
 
   @override
-  String get authErrorNoPassword =>
-      'This account has no password yet. Tap \"Forgot password?\" to create one.';
+  String get authErrorNoPassword => 'This account has no password yet. Tap \"Forgot password?\" to create one.';
 
   @override
-  String get authErrorEmailTaken =>
-      'This email already has an account. Sign in or reset the password.';
+  String get authErrorEmailTaken => 'This email already has an account. Sign in or reset the password.';
 
   @override
-  String get authErrorWeakPassword =>
-      'The password needs at least 8 characters.';
+  String get authErrorWeakPassword => 'The password needs at least 8 characters.';
 
   @override
   String get authErrorUsername => 'Choose a valid username.';
@@ -1763,33 +1662,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorLocation => 'Choose your country, state and city.';
 
   @override
-  String get authErrorTooManyAttempts =>
-      'Too many attempts. Wait 15 minutes and try again.';
+  String get authErrorTooManyAttempts => 'Too many attempts. Wait 15 minutes and try again.';
 
   @override
   String get authErrorRequired => 'Fill in all the fields.';
 
   @override
-  String get geoAttribution =>
-      'Location data © GeoNames (geonames.org), CC BY 4.0.';
+  String get geoAttribution => 'Location data © GeoNames (geonames.org), CC BY 4.0.';
 
   @override
   String get pluginCatConnections => 'Connections';
 
   @override
-  String get pluginRuleConnections =>
-      'Link WaxClub to other music services. Each connection signs in to that service; you can turn it off or disconnect at any time.';
+  String get pluginRuleConnections => 'Link WaxClub to other music services. Each connection signs in to that service; you can turn it off or disconnect at any time.';
 
   @override
   String get pluginDiscogsName => 'Discogs';
 
   @override
-  String get pluginDiscogsDesc =>
-      'Connect your Discogs account to search the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes in the curiosities.';
+  String get pluginDiscogsDesc => 'Connect your Discogs account to search the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes in the curiosities.';
 
   @override
-  String get pluginLicenseDiscogs =>
-      'Discogs API (data © Discogs). Your Discogs sign-in stays on this phone.';
+  String get pluginLicenseDiscogs => 'Discogs API (data © Discogs). Your Discogs sign-in stays on this phone.';
 
   @override
   String get jukeboxNotConnected => 'No account connected yet.';
@@ -1806,12 +1700,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpAccount => 'Your WaxClub account';
 
   @override
-  String get helpAccount1 =>
-      'WaxClub opens with the sign-in screen: Continue with Google, or create an account with your email and a password (a 6-digit code sent to your email confirms it). Then choose a @username and your country, state or province and city. Your city will be used for concerts near you.';
+  String get helpAccount1 => 'WaxClub opens with the sign-in screen: Continue with Google, or create an account with your email and a password (a 6-digit code sent to your email confirms it). Then choose a @username and your country, state or province and city. Your city will be used for concerts near you.';
 
   @override
-  String get helpAccount2 =>
-      'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. The Profile button (the first wooden button) shows your details and lets you edit your profile, sign out or delete the account.';
+  String get helpAccount2 => 'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. The Profile button (the first wooden button) shows your details and lets you edit your profile, sign out or delete the account.';
 
   @override
   String get profile => 'Profile';
@@ -1850,15 +1742,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncDiscogsTitle => 'Discogs';
 
   @override
-  String get syncDiscogsNotConnected =>
-      'Not connected. Connect your Discogs account to add the records you identify to your Discogs collection.';
+  String get syncDiscogsNotConnected => 'Not connected. Connect your Discogs account to add the records you identify to your Discogs collection.';
 
   @override
   String get syncDiscogsConnect => 'Connect Discogs';
 
   @override
-  String get syncDiscogsPluginOff =>
-      'The Discogs plugin (C1) is off. Turn it on in Plugins to use Discogs.';
+  String get syncDiscogsPluginOff => 'The Discogs plugin (C1) is off. Turn it on in Plugins to use Discogs.';
 
   @override
   String get collectionAddRecord => 'Add a record';
@@ -1867,31 +1757,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readyTitle => 'Ready to play';
 
   @override
-  String get readyStepsAuto =>
-      '1. Put side A on the turntable.\n2. Drop the needle.\n3. Tap the microphone button: WaxClub listens and the lyrics start in sync.';
+  String get readyStepsAuto => '1. Put side A on the turntable.\n2. Drop the needle.\n3. Tap the microphone button: WaxClub listens and the lyrics start in sync.';
 
   @override
-  String get readyStepsManual =>
-      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nTo calibrate, tap the line being sung: the lyrics jump to it (on the TV too). Do it whenever the lyrics run early or late, or the needle skips.';
+  String get readyStepsManual => '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nTo calibrate, tap the line being sung: the lyrics jump to it (on the TV too). Do it whenever the lyrics run early or late, or the needle skips.';
 
   @override
   String get readyGotIt => 'Got it';
 
   @override
-  String get lyricSyncTooltip =>
-      'Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.';
+  String get lyricSyncTooltip => 'Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.';
 
   @override
-  String get manualNeedleSkipWarning =>
-      'If the needle skips or you lift it, the lyrics can go out of sync. Tap the line being sung to calibrate, or tap the right track in the list.';
+  String get manualNeedleSkipWarning => 'If the needle skips or you lift it, the lyrics can go out of sync. Tap the line being sung to calibrate, or tap the right track in the list.';
 
   @override
-  String get helpManual3 =>
-      'With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable\'s speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.';
+  String get helpManual3 => 'With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable\'s speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.';
 
   @override
-  String get helpManual4 =>
-      'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.';
+  String get helpManual4 => 'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.';
 
   @override
   String get playRecordTitle => 'Play a record';
@@ -1911,12 +1795,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get playRecordNoCollectionMatch =>
-      'No records in your collection match.';
+  String get playRecordNoCollectionMatch => 'No records in your collection match.';
 
   @override
-  String get playRecordEmptyCollection =>
-      'Your collection is empty. Search for a record above.';
+  String get playRecordEmptyCollection => 'Your collection is empty. Search for a record above.';
 
   @override
   String get playRecordSearchMore => 'Search Discogs';
@@ -1934,8 +1816,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playRecordInCollection => 'In your collection';
 
   @override
-  String get playRecordNoTracks =>
-      'The track list of this record was not found. Try another pressing.';
+  String get playRecordNoTracks => 'The track list of this record was not found. Try another pressing.';
 
   @override
   String get curiositiesTooltip => 'Curiosities about this record';
@@ -1975,8 +1856,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeRecordConfirmTitle => 'Remove this record?';
 
   @override
-  String get removeRecordConfirm =>
-      'Are you sure you want to remove this record from your collection?';
+  String get removeRecordConfirm => 'Are you sure you want to remove this record from your collection?';
 
   @override
   String get remove => 'Remove';
@@ -1988,24 +1868,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncDiscogsDisconnectTitle => 'Disconnect Discogs?';
 
   @override
-  String get syncDiscogsDisconnectConfirm =>
-      'WaxClub will stop using your Discogs account on this phone. Your records stay in My Collection and nothing is deleted on Discogs. To connect again later, tap \"Connect Discogs\" and sign in.';
+  String get syncDiscogsDisconnectConfirm => 'WaxClub will stop using your Discogs account on this phone. Your records stay in My Collection and nothing is deleted on Discogs. To connect again later, tap \"Connect Discogs\" and sign in.';
 
   @override
-  String get syncDiscogsDisconnected =>
-      'Discogs disconnected. You can connect again at any time.';
+  String get syncDiscogsDisconnected => 'Discogs disconnected. You can connect again at any time.';
 
   @override
-  String get manualKeptNotRecognized =>
-      'Not recognized: Manual mode keeps going.';
+  String get manualKeptNotRecognized => 'Not recognized: Manual mode keeps going.';
 
   @override
-  String get manualContinueHint =>
-      'Manual mode on: the song keeps going by the record\'s timing. Tap the line being sung to calibrate.';
+  String get manualContinueHint => 'Manual mode on: the song keeps going by the record\'s timing. Tap the line being sung to calibrate.';
 
   @override
-  String get manualAlreadyPlaying =>
-      'The music was already playing: tap the line being sung to calibrate.';
+  String get manualAlreadyPlaying => 'The music was already playing: tap the line being sung to calibrate.';
 
   @override
   String get manualPlayButton => 'PLAY';
@@ -2017,4 +1892,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String manualPlaySide(String side) {
     return 'FLIPPED? PLAY SIDE $side';
   }
+
+  @override
+  String get pluginCatSources => 'Lyrics sources';
+
+  @override
+  String get pluginRuleSources => 'Several at once: WaxClub tries them in order (S1 first) until it finds the lyrics';
+
+  @override
+  String get pluginLrclibName => 'LRCLIB';
+
+  @override
+  String get pluginLrclibAuthor => 'lrclib.net';
+
+  @override
+  String get pluginLrclibLicense => 'Open lyrics database (lrclib.net)';
+
+  @override
+  String get pluginLrclibDesc => 'Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.';
+
+  @override
+  String get pluginNeteaseName => 'NetEase Cloud Music';
+
+  @override
+  String get pluginNeteaseAuthor => 'music.163.com';
+
+  @override
+  String get pluginNeteaseDesc => 'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.';
+
+  @override
+  String get pluginMegalobizName => 'Megalobiz';
+
+  @override
+  String get pluginMegalobizAuthor => 'megalobiz.com';
+
+  @override
+  String get pluginMegalobizDesc => 'Community archive of synced lyrics (LRC files). Tried after NetEase.';
+
+  @override
+  String get pluginLyricsOvhName => 'Lyrics.ovh';
+
+  @override
+  String get pluginLyricsOvhAuthor => 'lyrics.ovh';
+
+  @override
+  String get pluginLyricsOvhDesc => 'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.';
+
+  @override
+  String get pluginSourceLicense => 'Lyrics © their authors and publishers; fetched from the site for personal listening';
+
+  @override
+  String pluginInstallAfterSignIn(String plugin) {
+    return 'Sign in or create your WaxClub account to install the plugin $plugin.';
+  }
+
+  @override
+  String pluginInstalling(String plugin) {
+    return 'Installing $plugin…';
+  }
+
+  @override
+  String get pluginInstalledTitle => 'Plugin installed';
+
+  @override
+  String pluginInstalledMsg(String plugin) {
+    return '$plugin is installed and on the platter.';
+  }
+
+  @override
+  String pluginAlreadyInstalled(String plugin) {
+    return '$plugin is already installed.';
+  }
+
+  @override
+  String pluginBuiltInMsg(String plugin) {
+    return '$plugin comes with WaxClub: it is already installed.';
+  }
+
+  @override
+  String get pluginNeedsUpdate => 'This plugin needs a newer version of WaxClub. Update the app and tap Install again.';
+
+  @override
+  String get pluginNotFound => 'Plugin not found on waxclub.com.br.';
+
+  @override
+  String get pluginInvalid => 'This plugin file is not valid.';
+
+  @override
+  String get pluginNetworkError => 'Couldn\'t reach waxclub.com.br. Check your internet and try again.';
+
+  @override
+  String get pluginOpenJukebox => 'Open plugins';
+
+  @override
+  String get jukeboxMoreOnSiteTitle => 'More plugins on waxclub.com.br';
+
+  @override
+  String get jukeboxMoreOnSite => 'Open the site on your phone and tap Install on a plugin: WaxClub opens and installs it by itself. Plugins carry no code: they only switch on features that come with the app.';
+
+  @override
+  String get jukeboxOpenSite => 'Open the plugin page';
+
+  @override
+  String get jukeboxInstall => 'Install';
+
+  @override
+  String get jukeboxUninstall => 'Uninstall';
+
+  @override
+  String get jukeboxNotInstalledHint => 'Not installed yet. Install it here or from waxclub.com.br.';
 }

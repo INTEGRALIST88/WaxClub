@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../services/plugins/plugin_catalog.dart';
+import '../../services/plugins/plugin_links.dart';
+import '../../services/plugins/plugin_manifest.dart';
 import '../theme/app_theme.dart';
 import '../widgets/seven_inch_record.dart';
 
@@ -9,7 +11,10 @@ import '../widgets/seven_inch_record.dart';
 /// (Language, Display, AI...). Seleciona-se pelo código da cartela (teclado da jukebox) ou tocando no disco.
 class PluginJukeboxScreen extends StatefulWidget {
   final PluginStore store;
-  const PluginJukeboxScreen({super.key, required this.store});
+
+  /// Instala pelo site (baixa o manifesto); sem ele, o caixote só mostra os plugins.
+  final PluginInstaller? installer;
+  const PluginJukeboxScreen({super.key, required this.store, this.installer});
 
   @override
   State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
@@ -82,7 +87,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       backgroundColor: _panel,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _PluginSheet(store: _store, plugin: p),
+      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer),
     );
     if (mounted) setState(() {});
   }
@@ -119,15 +124,8 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
               const SizedBox(height: 10),
               _crate(),
             ],
-            const SizedBox(height: 16),
-            // Só o English vem com o app; os outros idiomas virão pelo site oficial
-            Row(
-              children: [
-                SevenInchRecord(color: PluginCategory.language.color, code: '', size: 26),
-                const SizedBox(width: 10),
-                Expanded(child: Text(l10n.jukeboxMoreLanguages, style: const TextStyle(color: _muted, fontSize: 13))),
-              ],
-            ),
+            const SizedBox(height: 22),
+            _moreOnSite(),
             const SizedBox(height: 22),
             _legend(),
           ],
@@ -507,6 +505,43 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
     });
   }
 
+  /// Mais plugins no site: no celular, o "Install" de cada um abre o app e instala sozinho.
+  Widget _moreOnSite() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _panel,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _amber.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            for (final c in PluginCategory.values) ...[
+              SevenInchRecord(color: c.color, code: '', size: 24),
+              const SizedBox(width: 4),
+            ],
+          ]),
+          const SizedBox(height: 10),
+          Text(l10n.jukeboxMoreOnSiteTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+          const SizedBox(height: 4),
+          Text(l10n.jukeboxMoreOnSite, style: const TextStyle(color: _muted, fontSize: 13, height: 1.4)),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => PluginLinks.instance.openUrl(PluginCatalog.siteUrl),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: Text(l10n.jukeboxOpenSite),
+              style: OutlinedButton.styleFrom(foregroundColor: _amber, side: const BorderSide(color: _amber)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _legend() {
     return Wrap(
       spacing: 18,
@@ -527,7 +562,8 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
 class _PluginSheet extends StatefulWidget {
   final PluginStore store;
   final PluginInfo plugin;
-  const _PluginSheet({required this.store, required this.plugin});
+  final PluginInstaller? installer;
+  const _PluginSheet({required this.store, required this.plugin, this.installer});
 
   @override
   State<_PluginSheet> createState() => _PluginSheetState();
@@ -535,6 +571,29 @@ class _PluginSheet extends StatefulWidget {
 
 class _PluginSheetState extends State<_PluginSheet> {
   bool _busy = false;
+  String? _installError;
+
+  /// Instala pelo site (o mesmo manifesto do botão "Install" do navegador).
+  Future<void> _install() async {
+    final installer = widget.installer;
+    if (installer == null) return;
+    setState(() {
+      _busy = true;
+      _installError = null;
+    });
+    final r = await installer.install(widget.plugin.id);
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _installError = switch (r) {
+        PluginInstallResult.installed || PluginInstallResult.alreadyInstalled || PluginInstallResult.builtIn => null,
+        PluginInstallResult.needsUpdate => l10n.pluginNeedsUpdate,
+        PluginInstallResult.notFound => l10n.pluginNotFound,
+        PluginInstallResult.invalid => l10n.pluginInvalid,
+        PluginInstallResult.network => l10n.pluginNetworkError,
+      };
+    });
+  }
 
   /// Plugin de conexão (Connections): conta do serviço, entrar e sair.
   List<Widget> _connection(PluginInfo p, PluginConnection c) {
@@ -591,8 +650,11 @@ class _PluginSheetState extends State<_PluginSheet> {
     final store = widget.store;
     final on = store.isActive(p);
     final String status;
+    final installed = store.isInstalled(p);
     if (p.isComingSoon) {
       status = l10n.jukeboxComingSoonHint;
+    } else if (!installed) {
+      status = l10n.jukeboxNotInstalledHint;
     } else if (p.locked) {
       status = l10n.jukeboxLockedHint;
     } else if (p.category.exclusive && on) {
@@ -638,6 +700,24 @@ class _PluginSheetState extends State<_PluginSheet> {
             Text(status, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
             if (store.connectionFor(p) case final c?) ..._connection(p, c),
             const SizedBox(height: 12),
+            if (p.isInstallable && !installed && widget.installer != null) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _busy ? null : _install,
+                  icon: _busy
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.download),
+                  label: Text(l10n.jukeboxInstall),
+                  style: FilledButton.styleFrom(backgroundColor: p.category.color, foregroundColor: Colors.black),
+                ),
+              ),
+              if (_installError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(_installError!, style: const TextStyle(color: Color(0xFFFF8A80))),
+                ),
+            ],
             if (store.canToggle(p))
               SizedBox(
                 width: double.infinity,
@@ -647,6 +727,19 @@ class _PluginSheetState extends State<_PluginSheet> {
                     if (mounted) setState(() {});
                   },
                   child: Text(on ? l10n.jukeboxTurnOff : l10n.jukeboxTurnOn),
+                ),
+              ),
+            if (p.isInstallable && installed)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    await store.uninstall(p);
+                    if (mounted) setState(() {});
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: Text(l10n.jukeboxUninstall),
+                  style: TextButton.styleFrom(foregroundColor: Colors.white54),
                 ),
               ),
           ],

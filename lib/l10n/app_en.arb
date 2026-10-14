@@ -1267,5 +1267,73 @@
         "type": "String"
       }
     }
-  }
+  },
+  "pluginCatSources": "Lyrics sources",
+  "pluginRuleSources": "Several at once: WaxClub tries them in order (S1 first) until it finds the lyrics",
+  "pluginLrclibName": "LRCLIB",
+  "pluginLrclibAuthor": "lrclib.net",
+  "pluginLrclibLicense": "Open lyrics database (lrclib.net)",
+  "pluginLrclibDesc": "Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.",
+  "pluginNeteaseName": "NetEase Cloud Music",
+  "pluginNeteaseAuthor": "music.163.com",
+  "pluginNeteaseDesc": "Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.",
+  "pluginMegalobizName": "Megalobiz",
+  "pluginMegalobizAuthor": "megalobiz.com",
+  "pluginMegalobizDesc": "Community archive of synced lyrics (LRC files). Tried after NetEase.",
+  "pluginLyricsOvhName": "Lyrics.ovh",
+  "pluginLyricsOvhAuthor": "lyrics.ovh",
+  "pluginLyricsOvhDesc": "Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.",
+  "pluginSourceLicense": "Lyrics © their authors and publishers; fetched from the site for personal listening",
+  "pluginInstallAfterSignIn": "Sign in or create your WaxClub account to install the plugin {plugin}.",
+  "@pluginInstallAfterSignIn": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginInstalling": "Installing {plugin}…",
+  "@pluginInstalling": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginInstalledTitle": "Plugin installed",
+  "pluginInstalledMsg": "{plugin} is installed and on the platter.",
+  "@pluginInstalledMsg": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginAlreadyInstalled": "{plugin} is already installed.",
+  "@pluginAlreadyInstalled": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginBuiltInMsg": "{plugin} comes with WaxClub: it is already installed.",
+  "@pluginBuiltInMsg": {
+    "placeholders": {
+      "plugin": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginNeedsUpdate": "This plugin needs a newer version of WaxClub. Update the app and tap Install again.",
+  "pluginNotFound": "Plugin not found on waxclub.com.br.",
+  "pluginInvalid": "This plugin file is not valid.",
+  "pluginNetworkError": "Couldn't reach waxclub.com.br. Check your internet and try again.",
+  "pluginOpenJukebox": "Open plugins",
+  "jukeboxMoreOnSiteTitle": "More plugins on waxclub.com.br",
+  "jukeboxMoreOnSite": "Open the site on your phone and tap Install on a plugin: WaxClub opens and installs it by itself. Plugins carry no code: they only switch on features that come with the app.",
+  "jukeboxOpenSite": "Open the plugin page",
+  "jukeboxInstall": "Install",
+  "jukeboxUninstall": "Uninstall",
+  "jukeboxNotInstalledHint": "Not installed yet. Install it here or from waxclub.com.br."
 }

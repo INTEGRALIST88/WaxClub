@@ -61,8 +61,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,8 +69,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -83,8 +81,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -92,7 +89,9 @@ abstract class AppLocalizations {
   ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en')
+  ];
 
   /// No description provided for @flipTheRecord.
   ///
@@ -3423,10 +3422,207 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FLIPPED? PLAY SIDE {side}'**
   String manualPlaySide(String side);
+
+  /// No description provided for @pluginCatSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics sources'**
+  String get pluginCatSources;
+
+  /// No description provided for @pluginRuleSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Several at once: WaxClub tries them in order (S1 first) until it finds the lyrics'**
+  String get pluginRuleSources;
+
+  /// No description provided for @pluginLrclibName.
+  ///
+  /// In en, this message translates to:
+  /// **'LRCLIB'**
+  String get pluginLrclibName;
+
+  /// No description provided for @pluginLrclibAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'lrclib.net'**
+  String get pluginLrclibAuthor;
+
+  /// No description provided for @pluginLrclibLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Open lyrics database (lrclib.net)'**
+  String get pluginLrclibLicense;
+
+  /// No description provided for @pluginLrclibDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.'**
+  String get pluginLrclibDesc;
+
+  /// No description provided for @pluginNeteaseName.
+  ///
+  /// In en, this message translates to:
+  /// **'NetEase Cloud Music'**
+  String get pluginNeteaseName;
+
+  /// No description provided for @pluginNeteaseAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'music.163.com'**
+  String get pluginNeteaseAuthor;
+
+  /// No description provided for @pluginNeteaseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.'**
+  String get pluginNeteaseDesc;
+
+  /// No description provided for @pluginMegalobizName.
+  ///
+  /// In en, this message translates to:
+  /// **'Megalobiz'**
+  String get pluginMegalobizName;
+
+  /// No description provided for @pluginMegalobizAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'megalobiz.com'**
+  String get pluginMegalobizAuthor;
+
+  /// No description provided for @pluginMegalobizDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Community archive of synced lyrics (LRC files). Tried after NetEase.'**
+  String get pluginMegalobizDesc;
+
+  /// No description provided for @pluginLyricsOvhName.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics.ovh'**
+  String get pluginLyricsOvhName;
+
+  /// No description provided for @pluginLyricsOvhAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'lyrics.ovh'**
+  String get pluginLyricsOvhAuthor;
+
+  /// No description provided for @pluginLyricsOvhDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.'**
+  String get pluginLyricsOvhDesc;
+
+  /// No description provided for @pluginSourceLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics © their authors and publishers; fetched from the site for personal listening'**
+  String get pluginSourceLicense;
+
+  /// No description provided for @pluginInstallAfterSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in or create your WaxClub account to install the plugin {plugin}.'**
+  String pluginInstallAfterSignIn(String plugin);
+
+  /// No description provided for @pluginInstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing {plugin}…'**
+  String pluginInstalling(String plugin);
+
+  /// No description provided for @pluginInstalledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin installed'**
+  String get pluginInstalledTitle;
+
+  /// No description provided for @pluginInstalledMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'{plugin} is installed and on the platter.'**
+  String pluginInstalledMsg(String plugin);
+
+  /// No description provided for @pluginAlreadyInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'{plugin} is already installed.'**
+  String pluginAlreadyInstalled(String plugin);
+
+  /// No description provided for @pluginBuiltInMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'{plugin} comes with WaxClub: it is already installed.'**
+  String pluginBuiltInMsg(String plugin);
+
+  /// No description provided for @pluginNeedsUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'This plugin needs a newer version of WaxClub. Update the app and tap Install again.'**
+  String get pluginNeedsUpdate;
+
+  /// No description provided for @pluginNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin not found on waxclub.com.br.'**
+  String get pluginNotFound;
+
+  /// No description provided for @pluginInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This plugin file is not valid.'**
+  String get pluginInvalid;
+
+  /// No description provided for @pluginNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach waxclub.com.br. Check your internet and try again.'**
+  String get pluginNetworkError;
+
+  /// No description provided for @pluginOpenJukebox.
+  ///
+  /// In en, this message translates to:
+  /// **'Open plugins'**
+  String get pluginOpenJukebox;
+
+  /// No description provided for @jukeboxMoreOnSiteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More plugins on waxclub.com.br'**
+  String get jukeboxMoreOnSiteTitle;
+
+  /// No description provided for @jukeboxMoreOnSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the site on your phone and tap Install on a plugin: WaxClub opens and installs it by itself. Plugins carry no code: they only switch on features that come with the app.'**
+  String get jukeboxMoreOnSite;
+
+  /// No description provided for @jukeboxOpenSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the plugin page'**
+  String get jukeboxOpenSite;
+
+  /// No description provided for @jukeboxInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get jukeboxInstall;
+
+  /// No description provided for @jukeboxUninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall'**
+  String get jukeboxUninstall;
+
+  /// No description provided for @jukeboxNotInstalledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not installed yet. Install it here or from waxclub.com.br.'**
+  String get jukeboxNotInstalledHint;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3435,23 +3631,24 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

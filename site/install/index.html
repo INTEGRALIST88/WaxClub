@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Install a plugin · WaxClub</title>
+  <meta name="description" content="Install a WaxClub plugin: tap Install on your phone and WaxClub opens and installs it.">
+  <link rel="icon" href="/logo.png">
+  <style>
+    @font-face {
+      font-family: 'Berdano';
+      src: url('/assets/fonts/Berdano.otf') format('opentype');
+      font-display: swap;
+    }
+    :root {
+      --bg: #140a04;
+      --wood: #241107;
+      --line: #44210d;
+      --cream: #f3e6c8;
+      --cream-muted: #c9b693;
+      --terracotta: #d8622c;
+      --gold: #ffd34d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 0%, rgba(216, 98, 44, 0.18) 0%, transparent 60%), var(--bg);
+      color: var(--cream);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 40px;
+    }
+    a.brand { display: flex; align-items: center; gap: 10px; color: var(--cream); text-decoration: none; margin-bottom: 26px; }
+    a.brand img { width: 44px; height: 44px; border-radius: 50%; }
+    a.brand span { font-family: 'Berdano', Georgia, serif; font-size: 1.9rem; }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--wood);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+    }
+    .head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .disc {
+      width: 76px; height: 76px; border-radius: 50%; flex: none;
+      background: repeating-radial-gradient(circle, #111 0 2px, #1c1c1c 2px 4px);
+      border: 2px solid #555;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.8);
+    }
+    .label {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gold); color: #1b1206;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.85rem;
+    }
+    h1 { font-family: 'Berdano', Georgia, serif; font-weight: normal; font-size: 2rem; margin: 0; line-height: 1.1; }
+    .meta { color: var(--gold); font-weight: 700; font-size: 0.9rem; margin-top: 4px; }
+    p { color: var(--cream-muted); line-height: 1.6; margin: 10px 0; }
+    .small { font-size: 0.82rem; }
+    .btn {
+      display: block; width: 100%; text-align: center; text-decoration: none;
+      padding: 15px 18px; border-radius: 14px; border: none; cursor: pointer;
+      font-weight: 800; font-size: 1.05rem; letter-spacing: 0.04em;
+      background: var(--terracotta); color: #fff; margin-top: 16px;
+      box-shadow: 0 0 18px rgba(216, 98, 44, 0.55);
+    }
+    .btn.secondary { background: transparent; border: 1px solid var(--line); color: var(--cream); box-shadow: none; }
+    .note {
+      margin-top: 16px; padding: 12px 14px; border-radius: 12px;
+      background: rgba(255, 211, 77, 0.08); border: 1px solid rgba(255, 211, 77, 0.35);
+      color: var(--cream); font-size: 0.9rem; line-height: 1.5;
+    }
+    .hidden { display: none; }
+    code { color: var(--gold); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <a class="brand" href="/"><img src="/logo.png" alt=""><span>WaxClub</span></a>
+
+  <main class="card" id="card">
+    <div class="head">
+      <div class="disc"><div class="label" id="code">S</div></div>
+      <div>
+        <h1 id="name">Plugin</h1>
+        <div class="meta" id="meta"></div>
+      </div>
+    </div>
+    <p id="description">Loading…</p>
+    <p class="small" id="license"></p>
+
+    <a class="btn" id="install" href="#">Install in WaxClub</a>
+
+    <div class="note hidden" id="noApp">
+      WaxClub doesn't seem to be installed on this phone. Get the app first, then come back and tap Install again.
+      <a class="btn secondary" href="/#download">Get WaxClub</a>
+    </div>
+    <div class="note hidden" id="desktop">
+      Open this page on your phone and tap <b>Install</b>: WaxClub opens and installs the plugin by itself.<br>
+      <code id="link"></code>
+    </div>
+    <div class="note hidden" id="ios">
+      WaxClub for iPhone is on its way. For now, plugins install on the Android app.
+    </div>
+    <div class="note hidden" id="builtin">
+      This plugin comes with WaxClub: it is already installed in the app.
+    </div>
+
+    <p class="small">
+      You need a WaxClub account: if you're not signed in yet, the app asks you to sign in or create your account
+      first, then installs the plugin. Plugins carry no code — they only switch on features that come with the app.
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var id = params.get('plugin') || params.get('id') || '';
+      var ua = navigator.userAgent || '';
+      var isAndroid = /Android/i.test(ua);
+      var isIOS = /iPhone|iPad|iPod/i.test(ua);
+      var $ = function (x) { return document.getElementById(x); };
+
+      if (!/^[a-z0-9]+(\.[a-z0-9]+)+$/.test(id)) {
+        $('name').textContent = 'Plugin not found';
+        $('description').textContent = 'This install link is incomplete. Pick a plugin on the WaxClub site.';
+        $('install').textContent = 'See all plugins';
+        $('install').href = '/#plugins';
+        return;
+      }
+
+      var here = location.origin + '/install/?plugin=' + encodeURIComponent(id);
+      // Android: o link de app abre o WaxClub; sem o app, volta para esta página avisando
+      var intentUrl = 'intent://plugin/install?id=' + encodeURIComponent(id) +
+        '#Intent;scheme=waxclub;package=com.waxclub.app;S.browser_fallback_url=' +
+        encodeURIComponent(here + '&noapp=1') + ';end';
+
+      fetch('/plugins/' + id + '.json', { cache: 'no-cache' })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (m) {
+          document.title = m.name + ' · WaxClub plugin';
+          $('code').textContent = m.code;
+          $('name').textContent = m.name;
+          $('meta').textContent = m.code + ' · ' + m.categoryName + ' · ' + m.author + ' · v' + m.version;
+          $('description').textContent = m.description;
+          $('license').textContent = 'License: ' + m.license;
+          if (m.builtIn) $('builtin').classList.remove('hidden');
+        })
+        .catch(function () {
+          $('name').textContent = 'Plugin not found';
+          $('description').textContent = 'This plugin is not available on the WaxClub site.';
+          $('install').classList.add('hidden');
+        });
+
+      $('link').textContent = here;
+      if (params.get('noapp')) $('noApp').classList.remove('hidden');
+
+      if (isAndroid) {
+        $('install').href = intentUrl;
+      } else if (isIOS) {
+        $('install').href = 'waxclub://plugin/install?id=' + encodeURIComponent(id);
+        $('ios').classList.remove('hidden');
+      } else {
+        $('install').classList.add('hidden');
+        $('desktop').classList.remove('hidden');
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../l10n/l10n.dart';
+import 'plugin_manifest.dart';
 
 /// Categoria de plugin. Para criar outra categoria, basta acrescentar aqui (letra, cor e regra) e
 /// os textos no app_en.arb: a jukebox monta teclado, filtros, prato e legenda a partir desta lista.
 enum PluginCategory {
   language('L', Color(0xFF5FE08F), exclusive: true),
   display('D', Color(0xFF2FD6F0)),
+  sources('S', Color(0xFFFFD34D)),
   ai('A', Color(0xFFB590FF)),
   connections('C', Color(0xFFFF9A3C));
 
@@ -27,6 +29,7 @@ enum PluginCategory {
   String get label => switch (this) {
         PluginCategory.language => l10n.pluginCatLanguage,
         PluginCategory.display => l10n.pluginCatDisplay,
+        PluginCategory.sources => l10n.pluginCatSources,
         PluginCategory.ai => l10n.pluginCatAi,
         PluginCategory.connections => l10n.pluginCatConnections,
       };
@@ -34,6 +37,7 @@ enum PluginCategory {
   String get rule => switch (this) {
         PluginCategory.language => l10n.pluginRuleLanguage,
         PluginCategory.display => l10n.pluginRuleDisplay,
+        PluginCategory.sources => l10n.pluginRuleSources,
         PluginCategory.ai => l10n.pluginRuleAi,
         PluginCategory.connections => l10n.pluginRuleConnections,
       };
@@ -72,6 +76,10 @@ class PluginInfo {
   /// Plugin embutido que não pode ser desligado (ex.: a única exibição de letra que existe hoje).
   final bool locked;
 
+  /// Fonte de letras (categoria Lyrics sources): qual integração do app o plugin liga ('lrclib',
+  /// 'netease'...). O plugin não traz código: o manifesto só liga uma integração que já vem no app.
+  final String? engine;
+
   const PluginInfo({
     required this.id,
     required this.category,
@@ -82,11 +90,13 @@ class PluginInfo {
     required this.description,
     this.availability = PluginAvailability.installable,
     this.locked = false,
+    this.engine,
   });
 
   String get code => '${category.letter}$number';
   bool get isBuiltIn => availability == PluginAvailability.builtIn;
   bool get isComingSoon => availability == PluginAvailability.comingSoon;
+  bool get isInstallable => availability == PluginAvailability.installable;
 }
 
 /// Catálogo de plugins conhecidos pelo app. Por enquanto: os embutidos e os anunciados; os plugins
@@ -126,6 +136,49 @@ class PluginCatalog {
           description: l10n.pluginCuriositiesDesc,
           availability: PluginAvailability.builtIn,
         ),
+        // Fontes de letras: cada site consultado é um plugin. LRCLIB vem com o app; os outros são
+        // instalados pelo site (waxclub.com.br/plugins), que só liga a integração já embutida no app.
+        PluginInfo(
+          id: 'lyrics.lrclib',
+          category: PluginCategory.sources,
+          number: 1,
+          name: l10n.pluginLrclibName,
+          author: l10n.pluginLrclibAuthor,
+          license: l10n.pluginLrclibLicense,
+          description: l10n.pluginLrclibDesc,
+          availability: PluginAvailability.builtIn,
+          engine: 'lrclib', // l10n-ignore
+        ),
+        PluginInfo(
+          id: 'lyrics.netease',
+          category: PluginCategory.sources,
+          number: 2,
+          name: l10n.pluginNeteaseName,
+          author: l10n.pluginNeteaseAuthor,
+          license: l10n.pluginSourceLicense,
+          description: l10n.pluginNeteaseDesc,
+          engine: 'netease', // l10n-ignore
+        ),
+        PluginInfo(
+          id: 'lyrics.megalobiz',
+          category: PluginCategory.sources,
+          number: 3,
+          name: l10n.pluginMegalobizName,
+          author: l10n.pluginMegalobizAuthor,
+          license: l10n.pluginSourceLicense,
+          description: l10n.pluginMegalobizDesc,
+          engine: 'megalobiz', // l10n-ignore
+        ),
+        PluginInfo(
+          id: 'lyrics.lyricsovh',
+          category: PluginCategory.sources,
+          number: 4,
+          name: l10n.pluginLyricsOvhName,
+          author: l10n.pluginLyricsOvhAuthor,
+          license: l10n.pluginSourceLicense,
+          description: l10n.pluginLyricsOvhDesc,
+          engine: 'lyrics.ovh', // l10n-ignore
+        ),
         PluginInfo(
           id: 'ai.curiosities',
           category: PluginCategory.ai,
@@ -160,6 +213,13 @@ class PluginCatalog {
 
   /// Plugin C1: conta Discogs (busca de prensagens, coleção no Discogs).
   static const String discogsId = 'connect.discogs';
+
+  /// Fontes de letras que o app usava antes de virarem plugins (até a 1.4.8): quem já tinha o app
+  /// continua com elas instaladas e ligadas.
+  static const List<String> legacyLyricsSources = ['lyrics.netease', 'lyrics.megalobiz', 'lyrics.lyricsovh'];
+
+  /// Página de plugins no site oficial.
+  static const String siteUrl = 'https://waxclub.com.br/#plugins';
 }
 
 /// Plugin de conexão com um serviço externo (categoria Connections). O estado vem do próprio serviço
@@ -306,6 +366,47 @@ class PluginStore extends ChangeNotifier {
     return true;
   }
 
+  /// Versão do manifesto instalado de cada plugin (baixado do site).
+  final Map<String, String> _versions = {};
+  String? installedVersion(PluginInfo p) => _versions[p.id];
+
+  PluginInfo? byId(String id) {
+    for (final p in catalog) {
+      if (p.id == id) return p;
+    }
+    return null;
+  }
+
+  /// Instala pelo manifesto do site e já põe no prato. O manifesto não traz código: ele precisa
+  /// corresponder a um plugin que o app conhece (mesma categoria e mesma integração).
+  Future<bool> installFromManifest(PluginManifest m) async {
+    final p = byId(m.id);
+    if (p == null || !p.isInstallable || p.category.letter != m.category || p.engine != m.engine) return false;
+    _installed.add(p.id);
+    _versions[p.id] = m.version;
+    if (p.category.exclusive) {
+      _active.removeWhere((id) => catalog.any((q) => q.id == id && q.category == p.category));
+    }
+    _active.add(p.id);
+    notifyListeners();
+    await _save();
+    return true;
+  }
+
+  /// Tira do aparelho um plugin instalado pelo site (os embutidos ficam).
+  Future<bool> uninstall(PluginInfo p) async {
+    if (!p.isInstallable || !_installed.remove(p.id)) return false;
+    _active.remove(p.id);
+    _versions.remove(p.id);
+    notifyListeners();
+    await _save();
+    return true;
+  }
+
+  /// A fonte de letras [engine] está instalada e ligada (LRCLIB, NetEase...).
+  bool isLyricsEngineOn(String engine) =>
+      catalog.any((p) => p.category == PluginCategory.sources && p.engine == engine && isInstalled(p) && isActive(p));
+
   Future<File?> _file() async {
     try {
       final dir = _directory ?? await getApplicationSupportDirectory();
@@ -325,6 +426,9 @@ class PluginStore extends ChangeNotifier {
         _installed
           ..clear()
           ..addAll((j['installed'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains));
+        _versions
+          ..clear()
+          ..addAll((j['versions'] as Map<String, dynamic>? ?? const {}).map((k, v) => MapEntry(k, '$v')));
         final active = (j['active'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains).toSet();
         // Embutidos que o usuário já conhecia respeitam o que ele escolheu; embutidos novos (de uma
         // versão nova do app) entram ligados. Travados continuam sempre ligados.
@@ -333,9 +437,16 @@ class PluginStore extends ChangeNotifier {
             ? (j['seenBuiltIns'] as List<dynamic>).whereType<String>().toSet()
             : const {'lang.en', 'display.lyrics'};
         _newBuiltIns.addAll(catalog.where((p) => p.isBuiltIn && !seen.contains(p.id)).map((p) => p.id));
+        // Até a 1.4.8 as fontes de letras não eram plugins e o app usava todas: quem já tinha o app
+        // continua com elas instaladas e ligadas
+        final legacy = !seen.contains('lyrics.lrclib') // l10n-ignore
+            ? PluginCatalog.legacyLyricsSources.where(known.contains)
+            : const <String>[];
+        _installed.addAll(legacy);
         _active
           ..clear()
           ..addAll(active)
+          ..addAll(legacy)
           ..addAll(catalog.where((p) => p.locked).map((p) => p.id))
           ..addAll(catalog.where((p) =>
               p.isBuiltIn && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
@@ -366,6 +477,7 @@ class PluginStore extends ChangeNotifier {
         'version': 2,
         'installed': _installed.toList(),
         'active': _active.toList(),
+        'versions': _versions,
         'seenBuiltIns': catalog.where((p) => p.isBuiltIn).map((p) => p.id).toList(),
       }));
     } catch (e) {

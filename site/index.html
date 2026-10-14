@@ -640,6 +640,7 @@
     .filter-btn.cat-disp.active { background: #0e7490; border-color: #22d3ee; box-shadow: 0 0 16px rgba(34, 211, 238, 0.5); }
     .filter-btn.cat-ai.active   { background: #6b21a8; border-color: #c084fc; box-shadow: 0 0 16px rgba(192, 132, 252, 0.5); }
     .filter-btn.cat-conn.active { background: #c2410c; border-color: #ff9a3c; box-shadow: 0 0 16px rgba(255, 154, 60, 0.5); }
+    .filter-btn.cat-src.active  { background: #a16207; border-color: #ffd34d; box-shadow: 0 0 16px rgba(255, 211, 77, 0.5); }
     .filter-btn.cat-hw.active   { background: #475569; border-color: #cbd5e1; box-shadow: 0 0 16px rgba(203, 213, 225, 0.45); }
 
     .plugins-grid {
@@ -698,6 +699,7 @@
     .plugin-disc-label.ai   { background: #a855f7; }
     .plugin-disc-label.conn { background: #ff9a3c; }
     .plugin-disc-label.hw   { background: #94a3b8; }
+    .plugin-disc-label.src  { background: #ffd34d; color: #1b1206; }
 
     .plugin-meta {
       display: flex;
@@ -729,6 +731,23 @@
       line-height: 1.5;
       margin: 0 0 16px;
     }
+    .status-available { background: rgba(255, 211, 77, 0.15); color: #ffd34d; border: 1px solid #d4a72c; }
+    .plugin-install {
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--terracotta);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 0 14px rgba(216, 98, 44, 0.5);
+    }
+    .plugin-install:hover { filter: brightness(1.1); }
     .plugin-footer {
       font-size: 0.72rem;
       font-weight: 700;
@@ -1193,7 +1212,7 @@
         <span class="caps-sub">Pick a Single, Drop It on the Platter</span>
         <h2 class="retro-berdano section-h2">Plugins</h2>
         <p class="lead">
-          Like choosing a 7" single on a classic jukebox: each plugin is a colored record with a code (L1, D2, C1&hellip;). Plugins add languages, display styles, AI features, connections to your music services and, in the future, tools for your hardware.
+          Like choosing a 7" single on a classic jukebox: each plugin is a colored record with a code (L1, D2, C1&hellip;). Plugins add languages, display styles, the lyrics sites WaxClub searches, AI features, connections to your music services and, in the future, tools for your hardware. On your phone, tap <b>Install</b> on a plugin: WaxClub opens and installs it by itself (sign in or create your account first). Plugins carry no code: they only switch on features that come with the app.
         </p>
       </div>
 
@@ -1204,6 +1223,7 @@
           <button class="filter-btn active" onclick="filterPlugins('all', this)">All</button>
           <button class="filter-btn cat-lang" onclick="filterPlugins('language', this)">Language (L)</button>
           <button class="filter-btn cat-disp" onclick="filterPlugins('display', this)">Display (D)</button>
+          <button class="filter-btn cat-src" onclick="filterPlugins('sources', this)">Lyrics sources (S)</button>
           <button class="filter-btn cat-ai" onclick="filterPlugins('ai', this)">AI (A)</button>
           <button class="filter-btn cat-conn" onclick="filterPlugins('connections', this)">Connections (C)</button>
           <button class="filter-btn cat-hw" onclick="filterPlugins('hardware', this)">Hardware (H)</button>
@@ -1345,6 +1365,66 @@
             <div class="plugin-footer">Coming soon</div>
           </div>
 
+
+          <div class="plugin-card" data-category="sources">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label src">S1</div>
+                </div>
+                <span class="plugin-status-badge status-builtin">Installed &middot; Built-in</span>
+              </div>
+              <h4>LRCLIB</h4>
+              <p>Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.</p>
+              
+            </div>
+            <div class="plugin-footer">On the platter</div>
+          </div>
+
+          <div class="plugin-card" data-category="sources">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label src">S2</div>
+                </div>
+                <span class="plugin-status-badge status-available">Available</span>
+              </div>
+              <h4>NetEase Cloud Music</h4>
+              <p>Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.</p>
+              <a class="plugin-install" href="/install/?plugin=lyrics.netease" data-plugin="lyrics.netease">Install</a>
+            </div>
+            <div class="plugin-footer">Tap Install on your phone</div>
+          </div>
+
+          <div class="plugin-card" data-category="sources">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label src">S3</div>
+                </div>
+                <span class="plugin-status-badge status-available">Available</span>
+              </div>
+              <h4>Megalobiz</h4>
+              <p>Community archive of synced lyrics (LRC files). Tried after NetEase.</p>
+              <a class="plugin-install" href="/install/?plugin=lyrics.megalobiz" data-plugin="lyrics.megalobiz">Install</a>
+            </div>
+            <div class="plugin-footer">Tap Install on your phone</div>
+          </div>
+
+          <div class="plugin-card" data-category="sources">
+            <div>
+              <div class="plugin-meta">
+                <div class="plugin-disc-mini">
+                  <div class="plugin-disc-label src">S4</div>
+                </div>
+                <span class="plugin-status-badge status-available">Available</span>
+              </div>
+              <h4>Lyrics.ovh</h4>
+              <p>Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.</p>
+              <a class="plugin-install" href="/install/?plugin=lyrics.lyricsovh" data-plugin="lyrics.lyricsovh">Install</a>
+            </div>
+            <div class="plugin-footer">Tap Install on your phone</div>
+          </div>
 
           <div class="plugin-card reserved" data-category="ai">
             <div>
@@ -1781,6 +1861,18 @@
     }
 
     // 3. Jukebox Category Filter
+    // Install: no celular Android, abre o WaxClub e instala o plugin (sem o app, cai na página de instalação)
+    document.querySelectorAll('.plugin-install[data-plugin]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (!/Android/i.test(navigator.userAgent)) return; // iPhone / computador: página de instalação
+        e.preventDefault();
+        var id = a.getAttribute('data-plugin');
+        var fallback = location.origin + '/install/?plugin=' + encodeURIComponent(id) + '&noapp=1';
+        location.href = 'intent://plugin/install?id=' + encodeURIComponent(id) +
+          '#Intent;scheme=waxclub;package=com.waxclub.app;S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end';
+      });
+    });
+
     function filterPlugins(category, btn) {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');

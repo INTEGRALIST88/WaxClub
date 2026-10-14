@@ -1,6 +1,8 @@
 package com.waxclub.app
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
@@ -40,6 +42,30 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        // Links de instalação de plugins (botão "Install" do site): lib/services/plugins/plugin_links.dart
+        val links = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.waxclub.app/links").also { linksChannel = it }
+        links.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "initialLink" -> {
+                    // Entregue uma vez só (não reinstala ao recriar a tela)
+                    val link = if (initialLinkTaken) null else intent?.data?.toString()
+                    initialLinkTaken = true
+                    result.success(link)
+                }
+                "openUrl" -> {
+                    val url = call.argument<String>("url")
+                    result.success(
+                        try {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            true
+                        } catch (_: Exception) {
+                            false
+                        }
+                    )
+                }
+                else -> result.notImplemented()
+            }
+        }
         // Segunda tela do Smart View/Miracast (letra na TV, controles no celular): lib/services/second_screen_service.dart
         val screenChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.waxclub.app/second_screen")
         val screen = SecondScreenController(this, screenChannel).also { secondScreen = it }
@@ -59,6 +85,16 @@ class MainActivity : FlutterActivity() {
     }
 
     private var secondScreen: SecondScreenController? = null
+    private var linksChannel: MethodChannel? = null
+    private var initialLinkTaken = false
+
+    /** Link recebido com o app já aberto (singleTop): passa para o Flutter. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val link = intent.data?.toString() ?: return
+        linksChannel?.invokeMethod("onLink", link)
+    }
 
     /** Abre a tela do sistema para espelhar a tela (Smart View / Transmitir / Miracast). */
     private fun openCastSettings(): Boolean {

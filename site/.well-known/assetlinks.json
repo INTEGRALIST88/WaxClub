@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.waxclub.app",
+      "sha256_cert_fingerprints": [
+        "71:92:40:B7:0E:64:28:A4:B2:0D:9C:AF:B4:E0:28:7D:26:00:16:44:9F:97:CD:CE:C7:EE:A5:FC:BF:CB:D8:44"
+      ]
+    }
+  }
+]

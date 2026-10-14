@@ -1,0 +1,25 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.lrclib",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 1,
+  "code": "S1",
+  "name": "LRCLIB",
+  "version": "1.0.0",
+  "author": "lrclib.net",
+  "publisher": "WaxClub",
+  "homepage": "https://lrclib.net",
+  "license": "Open lyrics database (lrclib.net)",
+  "description": "Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.",
+  "builtIn": true,
+  "minAppVersion": "1.4.9",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "lrclib",
+    "synced": true,
+    "order": 1
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.lrclib"
+}

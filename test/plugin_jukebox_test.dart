@@ -53,7 +53,7 @@ class _FakeDiscogs extends ChangeNotifier {
 
 void main() {
   test('categorias: letra, cor e regra; idioma é um por vez', () {
-    expect(PluginCategory.values.map((c) => c.letter), ['L', 'D', 'A', 'C']);
+    expect(PluginCategory.values.map((c) => c.letter), ['L', 'D', 'S', 'A', 'C']);
     expect(PluginCategory.connections.label, 'Connections');
     expect(PluginCategory.language.exclusive, isTrue);
     expect(PluginCategory.display.exclusive, isFalse);
@@ -71,7 +71,8 @@ void main() {
     expect(store.canToggle(lyrics), isFalse, reason: 'a letra é a única exibição que existe hoje');
     expect(store.canToggle(en), isFalse, reason: 'o idioma ativo só troca escolhendo outro');
     expect(store.byCode('A1')!.isComingSoon, isTrue);
-    expect(store.notInstalled().every((p) => p.isComingSoon), isTrue);
+    expect(store.notInstalled().every((p) => p.isComingSoon || p.isInstallable), isTrue,
+        reason: 'fora do app: os anunciados e os que se instalam pelo site (S2–S4)');
   });
 
   test('ligar outro idioma desliga o anterior; exibição aceita vários', () async {

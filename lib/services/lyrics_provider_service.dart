@@ -20,6 +20,12 @@ class LyricsProviderService {
 
   LrcLibService get lrcLibService => _lrcLibService;
 
+  /// Fontes de letras ligadas: cada site é um plugin da categoria Lyrics sources ('lrclib', 'netease',
+  /// 'megalobiz', 'lyrics.ovh'). O app consulta os plugins instalados e ligados; sem o app configurar,
+  /// todas valem (testes).
+  static bool Function(String source) sourceEnabled = _allSources;
+  static bool _allSources(String _) => true;
+
   /// Busca letras e metadados percorrendo a cascata de provedores.
   /// Se [preferredSource] for informado, tenta essa fonte primeiro.
   /// Retorna assim que encontrar uma letra com timestamps sincronizados.
@@ -38,7 +44,8 @@ class LyricsProviderService {
 
     final triedSource = (preferredSource != null &&
             preferredSource.isNotEmpty &&
-            preferredSource.toLowerCase() != 'lyrics.ovh')
+            preferredSource.toLowerCase() != 'lyrics.ovh' &&
+            sourceEnabled(preferredSource.toLowerCase()))
         ? preferredSource.toLowerCase()
         : null;
     if (triedSource != null) {
@@ -58,7 +65,7 @@ class LyricsProviderService {
     }
 
     // ════════ 1. LRCLIB (Primário) ════════
-    if (triedSource != 'lrclib') {
+    if (triedSource != 'lrclib' && sourceEnabled('lrclib')) {
       try {
         debugPrint('[LyricsCascade] 🔍 [1/4] Consultando LRCLIB para "$trackName" - "$artistName"...');
         final lrclibResponse = await _lrcLibService.fetchLyricsDetails(
@@ -80,7 +87,7 @@ class LyricsProviderService {
     }
 
     // ════════ 2. NetEase Cloud Music (Secundário) ════════
-    if (triedSource != 'netease') {
+    if (triedSource != 'netease' && sourceEnabled('netease')) {
       try {
         debugPrint('[LyricsCascade] 🔍 [2/4] Consultando NetEase Cloud Music...');
         final netEaseResponse = await _fetchFromNetEase(
@@ -99,7 +106,7 @@ class LyricsProviderService {
     }
 
     // ════════ 3. Megalobiz (Terciário) ════════
-    if (triedSource != 'megalobiz') {
+    if (triedSource != 'megalobiz' && sourceEnabled('megalobiz')) {
       try {
         debugPrint('[LyricsCascade] 🔍 [3/4] Consultando Megalobiz...');
         final megalobizResponse = await _fetchFromMegalobiz(
@@ -130,7 +137,7 @@ class LyricsProviderService {
     }
 
     // ════════ 4b. Fallback de Letra em Texto Plano (Lyrics.ovh) ════════
-    {
+    if (sourceEnabled('lyrics.ovh')) {
       try {
         debugPrint('[LyricsCascade] 🔍 [4/4] Consultando fallback de texto simples (Lyrics.ovh)...');
         final plainLyrics = await _fetchFromLyricsOvh(

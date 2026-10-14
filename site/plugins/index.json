@@ -1,0 +1,43 @@
+{
+  "format": "waxclub-plugin-catalog",
+  "formatVersion": 1,
+  "updated": "2026-10-14",
+  "plugins": [
+    {
+      "id": "lyrics.lrclib",
+      "code": "S1",
+      "name": "LRCLIB",
+      "category": "S",
+      "version": "1.0.0",
+      "builtIn": true,
+      "manifest": "/plugins/lyrics.lrclib.json"
+    },
+    {
+      "id": "lyrics.netease",
+      "code": "S2",
+      "name": "NetEase Cloud Music",
+      "category": "S",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/lyrics.netease.json"
+    },
+    {
+      "id": "lyrics.megalobiz",
+      "code": "S3",
+      "name": "Megalobiz",
+      "category": "S",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/lyrics.megalobiz.json"
+    },
+    {
+      "id": "lyrics.lyricsovh",
+      "code": "S4",
+      "name": "Lyrics.ovh",
+      "category": "S",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/lyrics.lyricsovh.json"
+    }
+  ]
+}

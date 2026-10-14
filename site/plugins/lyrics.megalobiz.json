@@ -1,0 +1,25 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.megalobiz",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 3,
+  "code": "S3",
+  "name": "Megalobiz",
+  "version": "1.0.0",
+  "author": "megalobiz.com",
+  "publisher": "WaxClub",
+  "homepage": "https://www.megalobiz.com",
+  "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
+  "description": "Community archive of synced lyrics (LRC files). Tried after NetEase.",
+  "builtIn": false,
+  "minAppVersion": "1.4.9",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "megalobiz",
+    "synced": true,
+    "order": 3
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.megalobiz"
+}

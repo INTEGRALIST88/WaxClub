@@ -31,6 +31,9 @@ import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
+import '../../services/plugins/plugin_links.dart';
+import '../../services/plugins/plugin_manifest.dart';
+import '../../services/lyrics_provider_service.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
 import 'account_screen.dart';
@@ -111,7 +114,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _account.load();
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
     _plugins.bindConnection(PluginCatalog.discogsId, _discogsConnection);
-    _discogsAuth.load().then((_) => _plugins.load());
+    // Fontes de letras: cada site é um plugin (Lyrics sources); a busca consulta só os ligados
+    LyricsProviderService.sourceEnabled = _plugins.isLyricsEngineOn;
+    // Plugin pedido pelo site ("Install" no navegador do celular): instala assim que os plugins carregam
+    PluginLinks.instance.pending.addListener(_onPluginLink);
+    PluginLinks.instance.start();
+    _discogsAuth.load().then((_) => _plugins.load()).then((_) => _onPluginLink());
     _engine.castService.runInitialBackgroundDiscovery();
 
     // Lembrete periódico a cada 1 minuto (60 segundos)
@@ -165,6 +173,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_recordPlayIfNew);
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
+    PluginLinks.instance.pending.removeListener(_onPluginLink);
+    LyricsProviderService.sourceEnabled = (_) => true;
     _plugins.dispose();
     _account.detachCollection(_collection);
     if (widget.account == null) _account.dispose();
@@ -714,9 +724,64 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ],
       );
 
-  /// Jukebox de plugins (idiomas, exibição, IA).
+  /// Jukebox de plugins (idiomas, exibição, fontes de letras, IA, conexões).
   void _openPlugins() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => PluginJukeboxScreen(store: _plugins)));
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PluginJukeboxScreen(store: _plugins, installer: _pluginInstaller),
+    ));
+  }
+
+  late final PluginInstaller _pluginInstaller = PluginInstaller(store: _plugins);
+
+  /// Link "Install" do site: com a conta pronta (esta tela só existe depois do login), instala na hora.
+  void _onPluginLink() {
+    if (!mounted || !_plugins.isLoaded || PluginLinks.instance.pending.value == null) return;
+    final id = PluginLinks.instance.take();
+    if (id != null) unawaited(_installPluginFromLink(id));
+  }
+
+  Future<void> _installPluginFromLink(String id) async {
+    final known = _plugins.byId(id);
+    final name = known == null ? id : '${known.code} · ${known.name}';
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text(l10n.pluginInstalling(name), style: const TextStyle(color: Colors.white)),
+      ));
+    final result = await _pluginInstaller.install(id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    final ok = result == PluginInstallResult.installed;
+    final message = switch (result) {
+      PluginInstallResult.installed => l10n.pluginInstalledMsg(name),
+      PluginInstallResult.alreadyInstalled => l10n.pluginAlreadyInstalled(name),
+      PluginInstallResult.builtIn => l10n.pluginBuiltInMsg(name),
+      PluginInstallResult.needsUpdate => l10n.pluginNeedsUpdate,
+      PluginInstallResult.notFound => l10n.pluginNotFound,
+      PluginInstallResult.invalid => l10n.pluginInvalid,
+      PluginInstallResult.network => l10n.pluginNetworkError,
+    };
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        icon: Icon(ok ? Icons.check_circle : Icons.extension, color: ok ? AppTheme.orange : AppTheme.cream, size: 36),
+        title: Text(ok ? l10n.pluginInstalledTitle : l10n.plugins, style: const TextStyle(color: AppTheme.cream)),
+        content: Text(message, style: const TextStyle(color: Colors.white70, height: 1.4)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok)),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _openPlugins();
+            },
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.orange, foregroundColor: Colors.white),
+            child: Text(l10n.pluginOpenJukebox),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Adiciona (ou retira) da coleção o disco que está tocando.
