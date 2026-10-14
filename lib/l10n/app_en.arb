@@ -183,7 +183,7 @@
   "helpChangeRecord2": "Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.",
   "helpCollection": "Your collection",
   "helpCollection1": "Tap My Collection (the bookshelf button) to open your records. Add a record with the + button (it opens Identify), or tap the cover of the record that is playing and choose \"Add to collection\". The cloud button shows the sync with your WaxClub account and your Discogs connection.",
-  "helpCollection2": "WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones.",
+  "helpCollection2": "WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones. Open a record and tap Play to get it ready to play.",
   "helpTv": "Showing the lyrics on the TV",
   "helpTv1": "Tap the cast icon. Chromecast and Google TV devices appear automatically.",
   "helpTv2": "Fire TV: open the WaxClub app on the TV first; it appears in the list. If it does not, use \"Add by IP\" with the address shown on the TV.",
@@ -967,7 +967,7 @@
   "plugins": "Plugins",
   "camera": "Identify",
   "helpTopBar": "The top bar",
-  "helpTopBar1": "At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.",
+  "helpTopBar1": "At the top left is the WaxClub logo, or the cover of the record that is playing. With nothing playing, tap the logo to pick a record to play: type an artist and/or album, your collection comes first, then Discogs. While a record plays, tap the cover to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.",
   "helpTopBar2": "Below the top bar, on the right, the wooden buttons from left to right: Profile (user), Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The button at the top right shows the lyrics on your TV.",
   "manual": "Manual",
   "manualOnHint": "Manual mode on. Tap ▶ to choose where the needle starts; the lyrics follow the track timing. The switch turns off by itself when the record ends.",
@@ -1200,5 +1200,25 @@
   "lyricSyncTooltip": "Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.",
   "manualNeedleSkipWarning": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.",
   "helpManual3": "With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable's speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.",
-  "helpManual4": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list."
+  "helpManual4": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.",
+  "playRecordTitle": "Play a record",
+  "playRecordTooltip": "Play a record",
+  "playRecordSearchHint": "Artist and/or album",
+  "playRecordMyCollection": "My Collection",
+  "playRecordFrom": "From {source}",
+  "@playRecordFrom": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "playRecordNoCollectionMatch": "No records in your collection match.",
+  "playRecordEmptyCollection": "Your collection is empty. Search for a record above.",
+  "playRecordSearchMore": "Search Discogs",
+  "playRecordPlay": "Play",
+  "playRecordPlayAndAdd": "Play and add to collection",
+  "playRecordJustPlay": "Just play",
+  "playRecordInCollection": "In your collection",
+  "playRecordNoTracks": "The track list of this record was not found. Try another pressing."
 }

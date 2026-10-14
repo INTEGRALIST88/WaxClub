@@ -571,7 +571,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpCollection2.
   ///
   /// In en, this message translates to:
-  /// **'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones.'**
+  /// **'WaxClub counts how many times each record was played and when: any track heard counts the record once per listening session. Your collection and listening history are saved to your WaxClub account and sync between your phones. Open a record and tap Play to get it ready to play.'**
   String get helpCollection2;
 
   /// No description provided for @helpTv.
@@ -2323,7 +2323,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpTopBar1.
   ///
   /// In en, this message translates to:
-  /// **'At the top left is the WaxClub logo, or the cover of the record that is playing: tap it to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.'**
+  /// **'At the top left is the WaxClub logo, or the cover of the record that is playing. With nothing playing, tap the logo to pick a record to play: type an artist and/or album, your collection comes first, then Discogs. While a record plays, tap the cover to see the tracklist. With the phone sideways, the record name, the song and what comes next appear beside it.'**
   String get helpTopBar1;
 
   /// No description provided for @helpTopBar2.
@@ -3207,6 +3207,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.'**
   String get helpManual4;
+
+  /// No description provided for @playRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a record'**
+  String get playRecordTitle;
+
+  /// No description provided for @playRecordTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a record'**
+  String get playRecordTooltip;
+
+  /// No description provided for @playRecordSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist and/or album'**
+  String get playRecordSearchHint;
+
+  /// No description provided for @playRecordMyCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'My Collection'**
+  String get playRecordMyCollection;
+
+  /// No description provided for @playRecordFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {source}'**
+  String playRecordFrom(String source);
+
+  /// No description provided for @playRecordNoCollectionMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No records in your collection match.'**
+  String get playRecordNoCollectionMatch;
+
+  /// No description provided for @playRecordEmptyCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Your collection is empty. Search for a record above.'**
+  String get playRecordEmptyCollection;
+
+  /// No description provided for @playRecordSearchMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Discogs'**
+  String get playRecordSearchMore;
+
+  /// No description provided for @playRecordPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get playRecordPlay;
+
+  /// No description provided for @playRecordPlayAndAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Play and add to collection'**
+  String get playRecordPlayAndAdd;
+
+  /// No description provided for @playRecordJustPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Just play'**
+  String get playRecordJustPlay;
+
+  /// No description provided for @playRecordInCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'In your collection'**
+  String get playRecordInCollection;
+
+  /// No description provided for @playRecordNoTracks.
+  ///
+  /// In en, this message translates to:
+  /// **'The track list of this record was not found. Try another pressing.'**
+  String get playRecordNoTracks;
 }
 
 class _AppLocalizationsDelegate

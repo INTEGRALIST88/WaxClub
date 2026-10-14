@@ -34,6 +34,9 @@ import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
 import 'account_screen.dart';
+import 'play_record_screen.dart';
+import 'record_found_flow.dart';
+import '../../services/tracklist_provider.dart';
 import 'discogs_login_screen.dart';
 import 'help_screen.dart';
 
@@ -403,8 +406,60 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         account: _account,
         discogs: _discogsConnection,
         onAddRecord: _openRecordScan,
+        onPlayItem: _playCollectionItem,
       ),
     ));
+  }
+
+  /// Logo (sem nada tocando): escolher um disco da coleção ou do Discogs para tocar.
+  Future<void> _openPlayRecord() async {
+    _albumCatalogCreated = true;
+    final choice = await Navigator.of(context).push<PlayRecordChoice>(MaterialPageRoute(
+      builder: (_) => PlayRecordScreen(
+        collection: _collection,
+        catalog: _albumCatalog,
+        tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
+      ),
+    ));
+    if (choice == null || !mounted) return;
+    if (choice.addToCollection) {
+      await addReleaseToCollection(
+        context,
+        collection: _collection,
+        discogsCollection: _discogsCollection,
+        release: choice.release,
+      );
+      if (!mounted) return;
+    }
+    await _startRecord(choice.release, choice.tracks);
+  }
+
+  /// "Play" no detalhe de um disco da coleção.
+  Future<void> _playCollectionItem(CollectionItem item) async {
+    _albumCatalogCreated = true;
+    final tracks = await tracksForCollectionItem(
+      item,
+      tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
+      catalog: _albumCatalog,
+    );
+    if (!mounted) return;
+    if (tracks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppTheme.surfaceLight,
+        content: Text(l10n.playRecordNoTracks, style: const TextStyle(color: Colors.white)),
+      ));
+      return;
+    }
+    await _startRecord(releaseFromCollectionItem(item), tracks);
+  }
+
+  /// Deixa o disco pronto (faixas travadas; Modo Manual se ele não estiver no catálogo de reconhecimento),
+  /// volta à tela principal e mostra a sequência: a escuta só começa quando o usuário quiser.
+  Future<void> _startRecord(ReleaseCandidate release, List<TrackEntry> tracks) async {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    await prepareRecordForPlay(context, engine: _engine, release: release, tracklist: tracks);
+    if (!mounted) return;
+    await _showReadyToPlay();
   }
 
   /// Botão de usuário: dados do cadastro, sair e apagar a conta.
@@ -1132,7 +1187,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   padding: const EdgeInsets.only(left: 14),
                   child: Center(
                     child: GestureDetector(
-                      onTap: _showAlbumTracklistModal,
+                      onTap: _engine.currentTrack == null ? _openPlayRecord : _showAlbumTracklistModal,
                       onLongPress: _exportSessionLogs,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 500),

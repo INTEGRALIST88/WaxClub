@@ -31,6 +31,9 @@ class CollectionScreen extends StatefulWidget {
   /// Botão "+": adicionar um disco (abre o Identify).
   final VoidCallback? onAddRecord;
 
+  /// "Play" no detalhe de um disco: prepara o disco para tocar.
+  final void Function(CollectionItem item)? onPlayItem;
+
   const CollectionScreen({
     super.key,
     required this.collection,
@@ -38,6 +41,7 @@ class CollectionScreen extends StatefulWidget {
     this.account,
     this.discogs,
     this.onAddRecord,
+    this.onPlayItem,
   });
 
   @override
@@ -262,6 +266,22 @@ class _CollectionScreenState extends State<CollectionScreen> {
                 ),
               ],
             ),
+            if (widget.onPlayItem != null) ...[
+              const SizedBox(height: 14),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  widget.onPlayItem!(item);
+                },
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: Text(l10n.playRecordPlay),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.orange,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(48),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Row(
               children: [

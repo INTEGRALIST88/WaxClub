@@ -43,55 +43,12 @@ Future<bool> runRecordFoundFlow(
   if (!context.mounted) return false;
 
   if (add == true) {
-    final canDiscogs = discogsCollection != null && discogsCollection.canWrite && release.providerId == 'discogs'; // l10n-ignore
-    final entry = await Navigator.of(context).push<CollectionEntryResult>(MaterialPageRoute(
-      builder: (_) => CollectionEntryScreen(release: release, offerDiscogs: canDiscogs),
-    ));
-    if (!context.mounted) return false;
-    if (entry != null) {
-      await collection.add(entry.item);
-      var message = l10n.addedToCollection(release.albumTitle);
-      if (entry.alsoDiscogs && canDiscogs) {
-        final ok = await discogsCollection.addRelease(release.releaseId, rating: entry.item.rating);
-        message = '$message ${ok ? l10n.entryDiscogsAdded : l10n.entryDiscogsFailed}';
-      }
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: AppTheme.surfaceLight,
-          content: Text(message, style: const TextStyle(color: Colors.white)),
-        ));
-      }
-    }
-  }
-
-  // O disco reconhecido fica pronto para o modo automático (lista de faixas + disco padrão)
-  await engine.prepareScannedRecord(
-    albumTitle: release.albumTitle,
-    artist: artist,
-    tracklist: tracklist,
-    coverUrl: release.coverUrl,
-    releaseId: release.releaseId,
-    releaseFormat: release.format,
-    source: release.providerId,
-  );
-  if (!context.mounted) return false;
-
-  // O disco está no catálogo de reconhecimento? Se não estiver, avisa e liga o Modo Manual
-  final check = await _checkRecognitionCatalog(context, catalog ?? RecognitionCatalogService(), release, tracklist);
-  if (!context.mounted) return false;
-  if (check != null && !check.found) {
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        title: RetroText(l10n.catalogNotFoundTitle, fontSize: 24, depth: 2, maxLines: 3),
-        content: Text(l10n.catalogNotFoundBody, style: const TextStyle(color: Colors.white70, height: 1.4)),
-        actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok))],
-      ),
-    );
-    engine.setManualMode(true);
+    await addReleaseToCollection(context, collection: collection, discogsCollection: discogsCollection, release: release);
     if (!context.mounted) return false;
   }
+
+  await prepareRecordForPlay(context, engine: engine, release: release, tracklist: tracklist, catalog: catalog);
+  if (!context.mounted) return false;
 
   final listen = await showDialog<bool>(
     context: context,
@@ -106,6 +63,67 @@ Future<bool> runRecordFoundFlow(
     ),
   );
   return listen == true;
+}
+
+/// Cadastro do disco na coleção (nota, estado, observações; e no Discogs, se conectado).
+/// Devolve `true` quando o disco foi adicionado.
+Future<bool> addReleaseToCollection(
+  BuildContext context, {
+  required CollectionService collection,
+  required DiscogsCollectionService? discogsCollection,
+  required ReleaseCandidate release,
+}) async {
+  final canDiscogs = discogsCollection != null && discogsCollection.canWrite && release.providerId == 'discogs'; // l10n-ignore
+  final entry = await Navigator.of(context).push<CollectionEntryResult>(MaterialPageRoute(
+    builder: (_) => CollectionEntryScreen(release: release, offerDiscogs: canDiscogs),
+  ));
+  if (!context.mounted || entry == null) return false;
+  await collection.add(entry.item);
+  var message = l10n.addedToCollection(release.albumTitle);
+  if (entry.alsoDiscogs && canDiscogs) {
+    final ok = await discogsCollection.addRelease(release.releaseId, rating: entry.item.rating);
+    message = '$message ${ok ? l10n.entryDiscogsAdded : l10n.entryDiscogsFailed}';
+  }
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: AppTheme.surfaceLight,
+      content: Text(message, style: const TextStyle(color: Colors.white)),
+    ));
+  }
+  return true;
+}
+
+/// Deixa o disco pronto para tocar: lista de faixas travada e disco padrão das músicas dele.
+/// Se o disco não estiver no catálogo de reconhecimento, avisa e liga o Modo Manual.
+Future<void> prepareRecordForPlay(
+  BuildContext context, {
+  required WaxClubEngine engine,
+  required ReleaseCandidate release,
+  required List<TrackEntry> tracklist,
+  RecognitionCatalogService? catalog,
+}) async {
+  await engine.prepareScannedRecord(
+    albumTitle: release.albumTitle,
+    artist: release.artistName ?? '',
+    tracklist: tracklist,
+    coverUrl: release.coverUrl,
+    releaseId: release.releaseId,
+    releaseFormat: release.format,
+    source: release.providerId,
+  );
+  if (!context.mounted) return;
+  final check = await _checkRecognitionCatalog(context, catalog ?? RecognitionCatalogService(), release, tracklist);
+  if (!context.mounted || check == null || check.found) return;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: AppTheme.surface,
+      title: RetroText(l10n.catalogNotFoundTitle, fontSize: 24, depth: 2, maxLines: 3),
+      content: Text(l10n.catalogNotFoundBody, style: const TextStyle(color: Colors.white70, height: 1.4)),
+      actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok))],
+    ),
+  );
+  engine.setManualMode(true);
 }
 
 /// Consulta o catálogo de reconhecimento mostrando "Checking..."; nulo se não deu para consultar.
