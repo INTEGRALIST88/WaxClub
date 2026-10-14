@@ -33,6 +33,7 @@ import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
+import 'account_screen.dart';
 import 'discogs_login_screen.dart';
 import 'help_screen.dart';
 
@@ -66,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _albumCatalogCreated = false;
 
   /// Chaves dos botões de madeira, para os nomes da apresentação na abertura.
+  final GlobalKey _userKey = GlobalKey();
   final GlobalKey _cameraKey = GlobalKey();
   final GlobalKey _manualKey = GlobalKey();
   final GlobalKey _collectionKey = GlobalKey();
@@ -104,15 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _account.attachCollection(_collection);
     _account.load();
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
-    _plugins.bindConnection(PluginCatalog.discogsId, PluginConnection(
-      listenable: _discogsAuth,
-      isEnabled: () => _discogsAuth.wantsEnabled,
-      setEnabled: _discogsAuth.setEnabled,
-      isConnected: () => _discogsAuth.isLoggedIn,
-      accountName: () => _discogsAuth.username,
-      connect: _connectDiscogs,
-      disconnect: _discogsAuth.logout,
-    ));
+    _plugins.bindConnection(PluginCatalog.discogsId, _discogsConnection);
     _discogsAuth.load().then((_) => _plugins.load());
     _engine.castService.runInitialBackgroundDiscovery();
 
@@ -381,6 +375,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => HelpScreen(onExportLogs: _exportSessionLogs)));
   }
 
+  /// Plugin C1: conta Discogs (estado no próprio serviço do Discogs).
+  late final PluginConnection _discogsConnection = PluginConnection(
+    listenable: _discogsAuth,
+    isEnabled: () => _discogsAuth.wantsEnabled,
+    setEnabled: _discogsAuth.setEnabled,
+    isConnected: () => _discogsAuth.isLoggedIn,
+    accountName: () => _discogsAuth.username,
+    connect: _connectDiscogs,
+    disconnect: _discogsAuth.logout,
+  );
+
   /// Login do Discogs pelo plugin C1; ao conectar, o plugin fica ligado.
   Future<bool> _connectDiscogs() async {
     final connected = await Navigator.of(context).push<bool>(
@@ -396,8 +401,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         collection: _collection,
         tracklistFor: (album, artist) => _engine.cacheService.getTracklist(album, artist),
         account: _account,
+        discogs: _discogsConnection,
+        onAddRecord: _openRecordScan,
       ),
     ));
+  }
+
+  /// Botão de usuário: dados do cadastro, sair e apagar a conta.
+  void _openProfile() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => AccountScreen(account: _account)));
   }
 
   /// Liga/desliga a chave MANUAL. A escuta pela minutagem (sem Shazam) chega na próxima versão;
@@ -590,6 +602,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
+  /// Botões de madeira da linha de baixo da barra, da esquerda para a direita: usuário, Identify,
+  /// Manual (chave liga/desliga), My Collection, Plugins e Help.
+  Widget _woodButtons(double size) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          WoodTileButton(asset: 'assets/images/btn_user.png', label: l10n.profile, onPressed: _openProfile, size: size, key: _userKey),
+          WoodTileButton(asset: 'assets/images/btn_camera.png', label: l10n.camera, onPressed: _openRecordScan, size: size, key: _cameraKey),
+          WoodTileButton(
+            asset: _engine.isManualMode ? 'assets/images/btn_manual_on.png' : 'assets/images/btn_manual_off.png',
+            label: l10n.manual,
+            onPressed: _toggleManualMode,
+            size: size,
+            key: _manualKey,
+          ),
+          WoodTileButton(asset: 'assets/images/btn_collection.png', label: l10n.myCollection, onPressed: _openCollection, size: size, key: _collectionKey),
+          WoodTileButton(asset: 'assets/images/btn_plugins.png', label: l10n.plugins, onPressed: _openPlugins, size: size, key: _pluginsKey),
+          WoodTileButton(asset: 'assets/images/btn_help.png', label: l10n.help, onPressed: _openHelp, size: size, key: _helpKey),
+        ],
+      );
+
   /// Jukebox de plugins (idiomas, exibição, IA).
   void _openPlugins() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => PluginJukeboxScreen(store: _plugins)));
@@ -665,14 +697,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     ));
     if (listen == true && mounted && !_engine.telemetry.isUserListening) {
-      // Disco fora do catálogo de reconhecimento: o Modo Manual já foi ligado no fluxo
-      if (_engine.isManualMode) {
-        await _onManualPressed();
-      } else {
-        _engine.startListening();
-      }
+      // O disco já está preparado (tracklist e disco padrão); a escuta só começa quando o usuário
+      // colocar a agulha e tocar no microfone (ou no ▶ do Modo Manual)
+      Navigator.of(context).popUntil((r) => r.isFirst);
+      await _showReadyToPlay();
     }
   }
+
+  /// "Ready to play": a sequência em poucas palavras, depois de "Let's listen?".
+  Future<void> _showReadyToPlay() => showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppTheme.surface,
+          title: RetroText(l10n.readyTitle, fontSize: 26, depth: 2),
+          content: Text(
+            _engine.isManualMode ? l10n.readyStepsManual : l10n.readyStepsAuto,
+            style: const TextStyle(color: Colors.white70, height: 1.6, fontSize: 15),
+          ),
+          actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.readyGotIt))],
+        ),
+      );
 
   /// Janela "Mudar disco": todos os discos em que a música atual aparece (Discogs/MusicBrainz).
   void _openAlbumPicker() {
@@ -1050,7 +1094,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final logoSize = compactBar ? 46.0 : 50.0;
         _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
         if (_engine.manualSuggested) _offerManualMode();
-        final tileSize = compactBar ? 34.0 : 40.0;
+        final tileSize = compactBar ? 40.0 : 42.0;
+        final showTrackStrip = compactBar && _engine.currentTrack != null;
 
         return Stack(
           children: [
@@ -1060,9 +1105,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 toolbarHeight: 74,
                 flexibleSpace: const _WoodTopPanel(),
                 // Em pé, com música tocando: música, banda · disco e "a seguir" numa faixa abaixo do disco
-                bottom: (compactBar && _engine.currentTrack != null)
-                    ? PreferredSize(preferredSize: const Size.fromHeight(86), child: _portraitTrackInfo())
-                    : null,
+                // Linha de baixo: botões de madeira encostados à direita; em pé, com música tocando, a faixa
+                // com música, banda · disco e "a seguir" vem embaixo deles
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(tileSize + 12 + (showTrackStrip ? 86 : 0)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: tileSize + 12,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: _woodButtons(tileSize),
+                          ),
+                        ),
+                      ),
+                      if (showTrackStrip) SizedBox(height: 86, child: _portraitTrackInfo()),
+                    ],
+                  ),
+                ),
                 // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
                 leadingWidth: logoSize + 22,
                 leading: Padding(
@@ -1231,43 +1294,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ],
                       ),
                 actions: [
-                  // Botões de madeira; na abertura do app, o nome de cada um aparece embaixo e some (IntroLabelsLayer)
-                  WoodTileButton(
-                    asset: 'assets/images/btn_camera.png',
-                    label: l10n.camera,
-                    onPressed: _openRecordScan,
-                    size: tileSize,
-                    key: _cameraKey,
-                  ),
-                  // Chave MANUAL (mesmo botão, imagem do estado ligado/desligado)
-                  WoodTileButton(
-                    asset: _engine.isManualMode ? 'assets/images/btn_manual_on.png' : 'assets/images/btn_manual_off.png',
-                    label: l10n.manual,
-                    onPressed: _toggleManualMode,
-                    size: tileSize,
-                    key: _manualKey,
-                  ),
-                  WoodTileButton(
-                    asset: 'assets/images/btn_collection.png',
-                    label: l10n.myCollection,
-                    onPressed: _openCollection,
-                    size: tileSize,
-                    key: _collectionKey,
-                  ),
-                  WoodTileButton(
-                    asset: 'assets/images/btn_plugins.png',
-                    label: l10n.plugins,
-                    onPressed: _openPlugins,
-                    size: tileSize,
-                    key: _pluginsKey,
-                  ),
-                  WoodTileButton(
-                    asset: 'assets/images/btn_help.png',
-                    label: l10n.help,
-                    onPressed: _openHelp,
-                    size: tileSize,
-                    key: _helpKey,
-                  ),
                   _buildCastButton(),
                   const SizedBox(width: 4),
                 ],
@@ -1349,12 +1375,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Positioned.fill(
               child: IntroLabelsLayer(specs: [
                 // Um botão por vez, da esquerda para a direita, alternando acima/abaixo
-                IntroLabelSpec(anchor: _cameraKey, text: l10n.camera, delay: Duration.zero, above: true),
-                IntroLabelSpec(anchor: _manualKey, text: l10n.manual, delay: const Duration(milliseconds: 1200)),
+                IntroLabelSpec(anchor: _userKey, text: l10n.profile, delay: Duration.zero),
+                IntroLabelSpec(anchor: _cameraKey, text: l10n.camera, delay: const Duration(milliseconds: 1200), above: true),
+                IntroLabelSpec(anchor: _manualKey, text: l10n.manual, delay: const Duration(milliseconds: 2400)),
                 IntroLabelSpec(
-                    anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 2400), above: true),
-                IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 3600)),
-                IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 4800), above: true),
+                    anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 3600), above: true),
+                IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 4800)),
+                IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 6000), above: true),
               ]),
             ),
           ],

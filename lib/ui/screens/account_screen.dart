@@ -6,7 +6,6 @@ import '../theme/app_theme.dart';
 import '../theme/wood.dart';
 import 'auth/auth_widgets.dart';
 import 'auth/profile_form_screen.dart';
-import 'collection_screen.dart';
 
 /// Conta WaxClub: perfil, sincronização da coleção, editar perfil, sair ou apagar a conta.
 class AccountScreen extends StatefulWidget {
@@ -72,7 +71,7 @@ class _AccountScreenState extends State<AccountScreen> {
           appBar: AppBar(
             backgroundColor: AppTheme.surface,
             foregroundColor: AppTheme.cream,
-            title: RetroText(l10n.accountTitle, fontSize: 28, depth: 3),
+            title: RetroText(l10n.profileTitle, fontSize: 28, depth: 3),
           ),
           body: Stack(
             children: [
@@ -98,31 +97,51 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  Widget _infoRow(IconData icon, String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20, color: AppTheme.wood),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 92,
+              child: Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13.5)),
+            ),
+            Expanded(
+              child: Text(value, style: const TextStyle(color: AppTheme.cream, fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
+
+  /// Dados do cadastro; embaixo, sair e apagar a conta (com confirmação).
   List<Widget> _profile(WaxClubAccount a) {
-    final last = _account.lastSyncAt;
-    final syncLine = _account.isSyncing
-        ? l10n.accountSyncing
-        : last == null
-            ? l10n.accountNeverSynced
-            : l10n.accountLastSync(CollectionScreenFormat.when(last));
+    final signIn = a.google && a.hasPassword
+        ? l10n.profileSignInBoth
+        : a.google
+            ? l10n.profileSignInGoogle
+            : l10n.profileSignInEmail;
     return [
-      const Icon(Icons.account_circle_outlined, size: 64, color: AppTheme.cream),
+      Center(
+        child: Image.asset('assets/images/btn_user.png', width: 84, height: 84),
+      ),
       const SizedBox(height: 8),
       if (a.username != null)
         Center(child: RetroText('@${a.username}', fontSize: 30, depth: 3)), // l10n-ignore
-      const SizedBox(height: 4),
-      Text(a.email, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
-      if (a.locationLabel.isNotEmpty) ...[
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      const SizedBox(height: 16),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(14)),
+        child: Column(
           children: [
-            const Icon(Icons.place_outlined, size: 16, color: Colors.white54),
-            const SizedBox(width: 4),
-            Flexible(child: Text(a.locationLabel, style: const TextStyle(color: Colors.white54))),
+            if (a.username != null) _infoRow(Icons.alternate_email, l10n.profileUsername, a.username!),
+            _infoRow(Icons.mail_outline, l10n.accountEmailLabel, a.email),
+            if (a.locationLabel.isNotEmpty) _infoRow(Icons.place_outlined, l10n.profileLocation, a.locationLabel),
+            _infoRow(Icons.login, l10n.profileSignIn, signIn),
           ],
         ),
-      ],
+      ),
       const SizedBox(height: 8),
       Center(
         child: TextButton.icon(
@@ -135,32 +154,7 @@ class _AccountScreenState extends State<AccountScreen> {
           label: Text(l10n.accountEditProfile),
         ),
       ),
-      const SizedBox(height: 16),
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(14)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(_account.isSyncing ? Icons.sync : Icons.cloud_done_outlined, color: AppTheme.cream, size: 20),
-                const SizedBox(width: 8),
-                Expanded(child: Text(syncLine, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600))),
-              ],
-            ),
-            if (_account.lastSyncError != null && !_account.isSyncing) ...[
-              const SizedBox(height: 8),
-              Text(l10n.accountSyncFailed, style: const TextStyle(color: AppTheme.orange)),
-            ],
-            const SizedBox(height: 8),
-            Text(l10n.accountSyncInfo, style: const TextStyle(color: Colors.white60, height: 1.4, fontSize: 13)),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-      AuthPrimaryButton(label: l10n.accountSyncNow, onPressed: _account.isSyncing ? null : () => _account.sync()),
-      const SizedBox(height: 8),
+      const SizedBox(height: 28),
       OutlinedButton(
         onPressed: _busy ? null : () => _leave(_account.signOut),
         style: OutlinedButton.styleFrom(
@@ -171,10 +165,15 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         child: Text(l10n.accountSignOut),
       ),
-      const SizedBox(height: 24),
-      TextButton(
+      const SizedBox(height: 12),
+      OutlinedButton(
         onPressed: _busy ? null : _confirmDelete,
-        style: TextButton.styleFrom(foregroundColor: Colors.white54),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.orange,
+          minimumSize: const Size.fromHeight(48),
+          side: const BorderSide(color: AppTheme.rust),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
         child: Text(l10n.accountDelete),
       ),
     ];

@@ -234,6 +234,7 @@ class WaxClubEngine extends ChangeNotifier {
       nextTitle: _telemetry.sideEndLabel == null ? _telemetry.predictedNextTrackTitle : null,
       awaitingNeedle: _awaitingNeedle,
       speedStdErr: _currentSpeedEstimate?.standardError ?? _turntable.stdDev,
+      lyricBias: _lyricBiasSeconds,
     );
   }
 

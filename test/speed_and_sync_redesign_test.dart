@@ -106,6 +106,7 @@ class _RecordingCastService extends CastSyncService {
     String? nextTitle,
     double? speedStdErr,
     bool awaitingNeedle = false,
+    double lyricBias = 0,
   }) {
     syncs.add((position: position, isPaused: isPaused, awaitingNeedle: awaitingNeedle));
   }

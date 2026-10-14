@@ -401,6 +401,9 @@ class TvWebReceiverHtml {
     }
 
     /* mantém a tela da TV acordada (sem proteção de tela) — ver keepScreenAwake() */
+    /* Confirmação do ajuste manual da letra (±0.5 s no celular) */
+    .bias-toast { position: fixed; top: 6vh; left: 50%; transform: translateX(-50%) translateY(-1vh); background: rgba(20, 12, 6, 0.85); border: 1px solid rgba(255, 190, 107, 0.6); color: #ffd9a8; font-weight: 800; font-size: 2.6vh; padding: 1.1vh 2.4vh; border-radius: 999px; opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; z-index: 30; }
+    .bias-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .keep-awake { position: fixed; left: 0; bottom: 0; width: 96px; height: 54px; opacity: 0.01; pointer-events: none; }
 
     /* ─── AVISOS (virar disco, pausado) ─── */
@@ -484,6 +487,7 @@ class TvWebReceiverHtml {
     <div id="speedDetail" class="detail"></div>
   </div>
 
+  <div id="biasToast" class="bias-toast" aria-live="polite"></div>
   <video id="keepAwake" class="keep-awake" muted playsinline loop aria-hidden="true"></video>
 
   <script>
@@ -514,6 +518,8 @@ class TvWebReceiverHtml {
     let anchorAt = performance.now();
     let speed = 1;
     let paused = true;
+    let lyricBias = null;   // ajuste manual atual (s); null até o 1º pacote
+    let biasToastTimer = 0;
     let hasTrack = false;
     let lastPlayedUpdate = 0;
 
@@ -907,6 +913,19 @@ class TvWebReceiverHtml {
         ? predicted + (target - predicted) * 0.25
         : target;
       anchorAt = now;
+
+      // Ajuste manual da letra mudou no celular: mostra a confirmação por 2 s
+      if (typeof data.lyricBias === 'number') {
+        const b = Math.round(data.lyricBias * 10) / 10;
+        if (lyricBias !== null && b !== lyricBias) {
+          const t = el('biasToast');
+          t.textContent = 'Lyrics ' + (b > 0 ? '+' : b < 0 ? '−' : '±') + Math.abs(b).toFixed(1) + ' s';
+          t.classList.add('show');
+          clearTimeout(biasToastTimer);
+          biasToastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+        }
+        lyricBias = b;
+      }
       document.body.classList.toggle('paused', paused);
       document.body.classList.toggle('playing', !paused && hasTrack);
 

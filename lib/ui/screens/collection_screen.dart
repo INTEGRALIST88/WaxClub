@@ -6,7 +6,9 @@ import '../../services/account/account_service.dart';
 import '../../services/collection_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/wood.dart';
-import 'account_screen.dart';
+import '../../services/plugins/plugin_catalog.dart';
+import '../widgets/wood_tile_button.dart';
+import 'sync_screen.dart';
 
 /// Datas relativas da coleção e da conta ("Today 14:05", "Yesterday 09:10"...).
 class CollectionScreenFormat {
@@ -20,10 +22,23 @@ class CollectionScreen extends StatefulWidget {
   /// Lista de faixas conhecida de um disco (cache do app / trilhas), para o detalhe.
   final List<TrackEntry> Function(String album, String artist) tracklistFor;
 
-  /// Conta WaxClub (botão da nuvem no topo); sem ela o botão não aparece.
+  /// Conta WaxClub (botão da nuvem no topo: sincronização); sem ela o botão não aparece.
   final AccountService? account;
 
-  const CollectionScreen({super.key, required this.collection, required this.tracklistFor, this.account});
+  /// Plugin C1 (Discogs), mostrado na tela de sincronização.
+  final PluginConnection? discogs;
+
+  /// Botão "+": adicionar um disco (abre o Identify).
+  final VoidCallback? onAddRecord;
+
+  const CollectionScreen({
+    super.key,
+    required this.collection,
+    required this.tracklistFor,
+    this.account,
+    this.discogs,
+    this.onAddRecord,
+  });
 
   @override
   State<CollectionScreen> createState() => _CollectionScreenState();
@@ -78,16 +93,21 @@ class _CollectionScreenState extends State<CollectionScreen> {
               ],
             ),
             actions: [
+              if (widget.onAddRecord != null)
+                WoodTileButton(
+                  asset: 'assets/images/btn_add.png',
+                  label: l10n.collectionAddRecord,
+                  onPressed: widget.onAddRecord!,
+                  size: 36,
+                ),
               if (widget.account != null)
-                AnimatedBuilder(
-                  animation: widget.account!,
-                  builder: (context, _) => IconButton(
-                    tooltip: l10n.accountTooltip,
-                    icon: Icon(widget.account!.isSignedIn ? Icons.cloud_done_outlined : Icons.cloud_outlined),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => AccountScreen(account: widget.account!)),
-                    ),
+                WoodTileButton(
+                  asset: 'assets/images/btn_cloud.png',
+                  label: l10n.syncTooltip,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => SyncScreen(account: widget.account!, discogs: widget.discogs)),
                   ),
+                  size: 36,
                 ),
               PopupMenuButton<CollectionSort>(
                 tooltip: l10n.sort,

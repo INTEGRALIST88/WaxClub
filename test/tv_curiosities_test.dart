@@ -14,4 +14,10 @@ void main() {
     expect(html, contains("get('name') || 'TV'"));
     expect(html, isNot(contains('Navegador da TV')));
   });
+
+  test('a TV confirma o ajuste manual da letra (±0.5 s) vindo do celular', () {
+    final html = TvWebReceiverHtml.build();
+    expect(html, contains('id="biasToast"'));
+    expect(html, contains("typeof data.lyricBias === 'number'"));
+  });
 }

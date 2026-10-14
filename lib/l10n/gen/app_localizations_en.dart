@@ -293,7 +293,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCollection1 =>
-      'Tap My Collection (the bookshelf button) to open your records. Add the record that is playing by tapping its cover and choosing \"Add to collection\", or add any record with Identify.';
+      'Tap My Collection (the bookshelf button) to open your records. Add a record with the + button (it opens Identify), or tap the cover of the record that is playing and choose \"Add to collection\". The cloud button shows the sync with your WaxClub account and your Discogs connection.';
 
   @override
   String get helpCollection2 =>
@@ -1188,7 +1188,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCamera2 =>
-      'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub already knows the record, so the next tracks are right from the first song.';
+      'Pick your exact pressing (only vinyl is listed), add it to your collection with rating, condition and notes if you like, then tap \"Yes\" to listen: WaxClub prepares the record and shows the steps. Drop the needle and tap the microphone; the next tracks are right from the first song.';
 
   @override
   String get jukeboxTitle => 'Plugin Jukebox';
@@ -1379,7 +1379,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpTopBar2 =>
-      'The wooden buttons, from left to right: Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The last button shows the lyrics on your TV.';
+      'Below the top bar, on the right, the wooden buttons from left to right: Profile (user), Identify (camera), Manual (on/off switch), My Collection (bookshelf), Plugins (jack plug) and Help (question mark). Their names show up one by one when the app opens. The button at the top right shows the lyrics on your TV.';
 
   @override
   String get manual => 'Manual';
@@ -1595,7 +1595,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteConfirmBody =>
-      'This removes your account, your synced collection and your listening history from the WaxClub server. The records on this phone stay.';
+      'This permanently deletes your WaxClub account, your synced collection and your listening history from the WaxClub server. It cannot be undone.\n\nYour Discogs collection is NOT affected: records you added to Discogs stay in your Discogs account. The records saved on this phone also stay.';
 
   @override
   String get accountDeleteConfirm => 'Delete';
@@ -1811,5 +1811,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpAccount2 =>
-      'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. In My Collection, the cloud button opens your account: edit your profile, sync now, sign out or delete the account.';
+      'You stay signed in on this phone. Forgot your password? Tap \"Forgot password?\" on the sign-in screen and use the code sent to your email. The Profile button (the first wooden button) shows your details and lets you edit your profile, sign out or delete the account.';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get profileTitle => 'Your profile';
+
+  @override
+  String get profileUsername => 'Username';
+
+  @override
+  String get profileLocation => 'City';
+
+  @override
+  String get profileSignIn => 'Sign-in';
+
+  @override
+  String get profileSignInGoogle => 'Google';
+
+  @override
+  String get profileSignInEmail => 'Email and password';
+
+  @override
+  String get profileSignInBoth => 'Google and email';
+
+  @override
+  String get syncTitle => 'Sync';
+
+  @override
+  String get syncTooltip => 'Sync your collection';
+
+  @override
+  String get syncAccountTitle => 'WaxClub account';
+
+  @override
+  String get syncDiscogsTitle => 'Discogs';
+
+  @override
+  String get syncDiscogsNotConnected =>
+      'Not connected. Connect your Discogs account to add the records you identify to your Discogs collection.';
+
+  @override
+  String get syncDiscogsConnect => 'Connect Discogs';
+
+  @override
+  String get syncDiscogsPluginOff =>
+      'The Discogs plugin (C1) is off. Turn it on in Plugins to use Discogs.';
+
+  @override
+  String get collectionAddRecord => 'Add a record';
+
+  @override
+  String get readyTitle => 'Ready to play';
+
+  @override
+  String get readyStepsAuto =>
+      '1. Put side A on the turntable.\n2. Drop the needle.\n3. Tap the microphone button: WaxClub listens and the lyrics start in sync.';
+
+  @override
+  String get readyStepsManual =>
+      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.';
+
+  @override
+  String get readyGotIt => 'Got it';
 }

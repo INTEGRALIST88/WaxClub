@@ -71,6 +71,7 @@ class _RecordingCast extends CastSyncService {
     String? nextTitle,
     double? speedStdErr,
     bool awaitingNeedle = false,
+    double lyricBias = 0,
   }) {}
   @override
   void sendStop() {}

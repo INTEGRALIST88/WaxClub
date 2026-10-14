@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.25] — 14/10/2026 (Perfil, Botões na Segunda Linha, Adicionar Disco e Ajustes dos Testes)
+
+* **Botões de madeira numa linha abaixo da barra**, encostados à direita (em cima ficam o logo/capa e o botão da TV). Novo **botão de usuário** como o primeiro da esquerda para a direita (arte do usuário).
+* **Tela de Perfil** (botão de usuário): @usuário, e-mail, cidade e forma de entrada (Google / e-mail e senha), "Edit profile" e, embaixo, **Sign out** e **Delete account** — a confirmação explica que a **coleção do Discogs não é apagada** (nem os discos guardados no celular).
+* **My Collection:** botões de madeira **"+" (adicionar disco, abre o Identify)** e **nuvem (sincronização)**. A nuvem agora só mostra a sincronização com a conta WaxClub e a conexão com o Discogs (C1); sair/apagar conta saíram dali.
+* **"Let's listen?" não começa mais sozinho:** depois do "Yes" o disco fica preparado, o app volta à tela principal e mostra **"Ready to play"** com a sequência (lado A → agulha → microfone; no Modo Manual, ▶ e a faixa).
+* **Ajuste da letra (±0.5 s) com a TV:** o ajuste já era enviado à TV junto com a posição, mas a TV não mostrava nada; agora o celular envia o valor e a TV mostra **"Lyrics +0.5 s"** por 2 s a cada mudança (página da TV, segunda tela e Chromecast após publicar /tv/).
+* Ajuda atualizada (barra, coleção, perfil, Identify). Testes: 240.
+
+---
 ## [v1.3.24] — 14/10/2026 (Fonte Berdano, Maior e em Todos os Títulos Creme)
 
 * **Fonte da letra retrô trocada para Berdano** (escolha do usuário; RantautypeStudio), mais legível que a Masterday, com todos os acentos.

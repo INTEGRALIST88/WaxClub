@@ -961,6 +961,7 @@ class CastSyncService extends ChangeNotifier {
     String? nextTitle,
     double? speedStdErr,
     bool awaitingNeedle = false,
+    double lyricBias = 0,
   }) {
     if (!isConnected) return;
 
@@ -976,6 +977,8 @@ class CastSyncService extends ChangeNotifier {
       if (nextTitle != null) 'nextTitle': nextTitle,
       if (speedStdErr != null) 'speedStdErr': speedStdErr,
       if (awaitingNeedle) 'awaitingNeedle': true,
+      // ajuste manual da letra (±0.5 s) para a TV mostrar a confirmação
+      'lyricBias': lyricBias,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     };
 
