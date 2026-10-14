@@ -1,2 +1,26 @@
+# Fim de linha: o projeto usa LF em tudo (Dart, JSON, ARB, Markdown, HTML, Kotlin, Gradle...).
+# Vale mais que o core.autocrlf=true do GitHub Desktop, então o Git não avisa nem converte para CRLF.
+* text=auto eol=lf
+
 # Páginas da TV sempre com LF (o app embute o mesmo HTML e compara)
 *.html text eol=lf
+
+# Scripts do Windows continuam com CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.otf binary
+*.ttf binary
+*.jar binary
+*.keystore binary
+*.jks binary
+*.zip binary
+*.apk binary
