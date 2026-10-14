@@ -2270,7 +2270,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photosEmpty =>
-      'No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.';
+      'No photos yet. Take up to 7: covers, labels, inserts, the vinyl itself.';
 
   @override
   String get photosTake => 'Take photo';
@@ -2287,8 +2287,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t save the photo. Check your internet and try again.';
 
   @override
-  String get photosTooMany =>
-      'This record already has the maximum number of photos (40).';
+  String photosTooMany(int max) {
+    return 'Up to $max photos per record. Delete one to add another.';
+  }
 
   @override
   String get photosCameraFailed => 'Couldn\'t open the camera or the gallery.';
@@ -2301,4 +2302,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photosDeleteFailed => 'Couldn\'t delete the photo. Try again.';
+
+  @override
+  String photosCount(int count, int max) {
+    return '$count of $max photos';
+  }
+
+  @override
+  String get photosDeleteInfo =>
+      'The photo is deleted from your WaxClub account. This cannot be undone.';
 }

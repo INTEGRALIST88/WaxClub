@@ -9,10 +9,10 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
   * Fontes de letras (S): ligar, desligar, reordenar ou ejetar **busca de novo a letra da música que está tocando** na nova ordem, sem o cache, e já mostra no celular e na TV. Sem fonte ligada com a letra, ela some (e entram as curiosidades, com o D1 ligado). A letra guardada de uma fonte desligada não é mais usada.
   * A caixinha da fonte que está fornecendo a letra na tela fica **marcada** (contorno creme e ♪).
 * **D1 agora é Record Curiosities:** o antigo D1 "Synced lyrics" (travado) saiu — as letras são os plugins S e a exibição delas é do próprio app. No site, D2 passa a ser o VU analógico (em breve).
-* **Fotos dos seus discos** (detalhe do disco em My Collection → "Photos of your record"): **Take photo** (câmera) ou **From gallery** (várias de uma vez), quantas quiser (até 40 por disco). Reduzidas no aparelho (lado maior 1600 px, qualidade 80%) e guardadas **no banco do WaxClub**, ligadas ao disco e à sua conta — só você vê. Tocar abre em tela cheia com zoom e a lixeira (com confirmação).
+* **Fotos dos seus discos** (detalhe do disco em My Collection → "Photos of your record"): **Take photo** (câmera) ou **From gallery** (várias de uma vez), **até 7 por disco, por usuário** (contador "3 of 7 photos"; no limite os botões desativam; a galeria só deixa escolher o que falta). Cada foto fica ligada no banco ao disco e ao usuário que a enviou; **o × em cada miniatura** (ou a lixeira na tela cheia) apaga, com confirmação. Reduzidas no aparelho (lado maior 1600 px, qualidade 80%) e guardadas **no banco do WaxClub**, ligadas ao disco e à sua conta — só você vê. Tocar abre em tela cheia com zoom e a lixeira (com confirmação).
   * API: `GET/POST /v1/photos?item=`, `GET/DELETE /v1/photos/{id}`; tabela `record_photos` (esquema 5; JPEG, PNG ou WebP, até 1,5 MB e 2048 px).
 * **Xiaomi sem capas e sem reconhecer:** não era o app — o Xiaomi estava sem internet (Wi-Fi desconectado da rede "Sala" e dados móveis desligados).
-* Testes: arrastar/ejetar com o novo arraste, recarga da letra ao desligar a fonte em uso (e sem fonte nenhuma), chamadas de fotos — 295 no total.
+* Testes: arrastar/ejetar com o novo arraste, recarga da letra ao desligar a fonte em uso (e sem fonte nenhuma), chamadas de fotos, limite de 7 e apagar pela miniatura — 296 no total.
 
 ---
 ## [v1.4.15] — 14/10/2026 (Ejetar Plugin do Painel, ⓘ Cromado e Brilho que Vai Até o Fim)

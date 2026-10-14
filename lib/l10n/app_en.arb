@@ -1477,14 +1477,33 @@
     }
   },
   "photosTitle": "Photos of your record",
-  "photosEmpty": "No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.",
+  "photosEmpty": "No photos yet. Take up to 7: covers, labels, inserts, the vinyl itself.",
   "photosTake": "Take photo",
   "photosFromGallery": "From gallery",
   "photosLoadFailed": "Couldn't load the photos. Check your internet.",
   "photosUploadFailed": "Couldn't save the photo. Check your internet and try again.",
-  "photosTooMany": "This record already has the maximum number of photos (40).",
+  "photosTooMany": "Up to {max} photos per record. Delete one to add another.",
   "photosCameraFailed": "Couldn't open the camera or the gallery.",
   "photosDelete": "Delete photo",
   "photosDeleteTitle": "Delete this photo?",
-  "photosDeleteFailed": "Couldn't delete the photo. Try again."
+  "photosDeleteFailed": "Couldn't delete the photo. Try again.",
+  "@photosTooMany": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{count} of {max} photos",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "photosDeleteInfo": "The photo is deleted from your WaxClub account. This cannot be undone."
 }

@@ -3799,7 +3799,7 @@ abstract class AppLocalizations {
   /// No description provided for @photosEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No photos yet. Take as many as you like: covers, labels, inserts, the vinyl itself.'**
+  /// **'No photos yet. Take up to 7: covers, labels, inserts, the vinyl itself.'**
   String get photosEmpty;
 
   /// No description provided for @photosTake.
@@ -3829,8 +3829,8 @@ abstract class AppLocalizations {
   /// No description provided for @photosTooMany.
   ///
   /// In en, this message translates to:
-  /// **'This record already has the maximum number of photos (40).'**
-  String get photosTooMany;
+  /// **'Up to {max} photos per record. Delete one to add another.'**
+  String photosTooMany(int max);
 
   /// No description provided for @photosCameraFailed.
   ///
@@ -3855,6 +3855,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t delete the photo. Try again.'**
   String get photosDeleteFailed;
+
+  /// No description provided for @photosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} photos'**
+  String photosCount(int count, int max);
+
+  /// No description provided for @photosDeleteInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is deleted from your WaxClub account. This cannot be undone.'**
+  String get photosDeleteInfo;
 }
 
 class _AppLocalizationsDelegate

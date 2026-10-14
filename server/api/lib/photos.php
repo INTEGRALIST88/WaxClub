@@ -1,11 +1,11 @@
 <?php
 // Fotos dos discos da coleção (tiradas pelo usuário no app): guardadas no banco, ligadas ao disco
-// (item_key da coleção) e ao usuário. Só o dono vê, envia e apaga as dele.
+// (item_key da coleção) e ao usuário que enviou. Só o dono vê, envia e apaga as dele; até 7 por disco.
 declare(strict_types=1);
 
 const PHOTO_MAX_BYTES = 1572864;   // 1,5 MB (o app envia ~1600 px, JPEG ~80%)
 const PHOTO_MAX_SIDE = 2048;       // lado maior aceito
-const PHOTOS_PER_RECORD = 40;
+const PHOTOS_PER_RECORD = 7;      // por disco, por usuário
 const PHOTOS_PER_USER = 2000;
 
 function photo_json(array $r): array
