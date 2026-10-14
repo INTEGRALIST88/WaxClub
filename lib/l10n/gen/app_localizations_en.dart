@@ -1950,4 +1950,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lyricsTapLine => 'Or tap the line being sung';
+
+  @override
+  String get groupByArtist => 'Artist / Band';
+
+  @override
+  String get groupByAlbum => 'Album';
 }

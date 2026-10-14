@@ -1,14 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// Ícone ⓘ das curiosidades de um disco (My Collection). Ao abrir a tela, brilha prateado um disco
-/// após o outro: o brilho do disco [index] começa [stepMs] depois do anterior, pela animação [shine].
+/// Ícone ⓘ de madeira das curiosidades de um disco (My Collection). Ao abrir a tela, brilha prateado
+/// um disco após o outro: o brilho do disco [index] começa [stepMs] depois do anterior, pela animação
+/// [shine] (um reflexo prateado passa por cima da madeira e o contorno acende).
 class CuriosityBadge extends StatelessWidget {
   final Animation<double> shine;
   final Duration shineTotal;
   final int index;
   final VoidCallback onTap;
   final String tooltip;
+  final double size;
 
   static const int stepMs = 220;
   static const int glowMs = 700;
@@ -20,6 +22,7 @@ class CuriosityBadge extends StatelessWidget {
     required this.index,
     required this.onTap,
     required this.tooltip,
+    this.size = 38,
   });
 
   @override
@@ -28,47 +31,50 @@ class CuriosityBadge extends StatelessWidget {
       message: tooltip,
       child: InkResponse(
         onTap: onTap,
-        radius: 26,
+        radius: size * 0.75,
         child: AnimatedBuilder(
           animation: shine,
-          builder: (context, _) {
+          builder: (context, child) {
             final elapsed = shine.value * shineTotal.inMilliseconds;
             final t = ((elapsed - index * stepMs) / glowMs).clamp(0.0, 1.0);
             final glow = math.sin(math.pi * t); // 0 → 1 → 0
-            const silverDark = Color(0xFF8E959E);
-            const silverLight = Color(0xFFF4F6F8);
             return Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
+              width: size,
+              height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.lerp(const Color(0xFF3A3F45), silverLight, glow)!,
-                    Color.lerp(const Color(0xFF24282C), silverDark, glow)!,
-                  ],
-                ),
-                border: Border.all(color: Color.lerp(silverDark, Colors.white, glow)!, width: 1.6),
                 boxShadow: [
-                  BoxShadow(color: Colors.white.withValues(alpha: 0.65 * glow), blurRadius: 14 * glow, spreadRadius: 1.5 * glow),
+                  BoxShadow(color: const Color(0xFFE8ECF0).withValues(alpha: 0.75 * glow), blurRadius: 16 * glow, spreadRadius: 2 * glow),
                 ],
               ),
-              child: Text(
-                'i', // l10n-ignore
-                style: TextStyle(
-                  fontFamily: 'serif', // l10n-ignore
-                  fontSize: 19,
-                  fontWeight: FontWeight.w900,
-                  fontStyle: FontStyle.italic,
-                  height: 1.0,
-                  color: Color.lerp(const Color(0xFFD5DAE0), const Color(0xFF2B2F34), glow),
-                ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  child!,
+                  // reflexo prateado que atravessa o ícone em diagonal
+                  if (glow > 0)
+                    IgnorePointer(
+                      child: ClipOval(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment(-1.6 + 3.2 * t, -1),
+                              end: Alignment(-0.6 + 3.2 * t, 1),
+                              colors: [
+                                Colors.white.withValues(alpha: 0),
+                                const Color(0xFFF4F6F8).withValues(alpha: 0.75 * glow),
+                                Colors.white.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           },
+          child: Image.asset('assets/images/btn_info.png', width: size, height: size, filterQuality: FilterQuality.medium),
         ),
       ),
     );

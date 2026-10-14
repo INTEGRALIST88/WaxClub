@@ -1231,5 +1231,7 @@
       }
     }
   },
-  "lyricsTapLine": "Or tap the line being sung"
+  "lyricsTapLine": "Or tap the line being sung",
+  "groupByArtist": "Artist / Band",
+  "groupByAlbum": "Album"
 }

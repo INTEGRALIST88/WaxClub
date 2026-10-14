@@ -3309,6 +3309,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Or tap the line being sung'**
   String get lyricsTapLine;
+
+  /// No description provided for @groupByArtist.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist / Band'**
+  String get groupByArtist;
+
+  /// No description provided for @groupByAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Album'**
+  String get groupByAlbum;
 }
 
 class _AppLocalizationsDelegate

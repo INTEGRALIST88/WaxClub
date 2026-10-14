@@ -2,6 +2,18 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.4] — 14/10/2026 (My Collection por Artista ou por Disco, Abecedário e ⓘ de Madeira)
+
+* **Dois botões de classificação** logo abaixo do título de My Collection: **Artist / Band** (padrão) e **Album**.
+  * **Por artista/banda:** um divisor com o nome do artista (letra retrô + linha), em ordem alfabética, e os discos dele abaixo, do mais antigo ao mais novo.
+  * **Por disco:** lista corrida pelo nome do disco, separada por divisores com a letra inicial.
+  * Ordem de loja de discos: artigo inicial ignorado (The Beatles em B, Os Mutantes em M), acentos ignorados (Água em A), nomes que começam com número ou símbolo em **#**, no fim.
+  * As ordens do menu (tocados recentemente, adicionados, A→Z…) continuam lá; escolher uma delas volta para a lista simples.
+* **Abecedário vertical pequeno à esquerda** (nos dois modos): tocar ou arrastar o dedo leva direto à letra; letras com discos em creme, as sem discos apagadas (levam à seguinte), a letra tocada acende em laranja.
+* **ⓘ das curiosidades** agora é o botão redondo de madeira (arte do usuário), mantendo o brilho prateado em sequência.
+* Testes: `collection_grouping_test.dart` (letras, artigos, acentos, #; ordem por artista; divisores por letra) — 257 no total.
+
+---
 ## [v1.4.3] — 14/10/2026 (Toque na Linha Acerta a TV, Sulco pelo Microfone Refeito e Catálogo do Arctic Monkeys)
 
 * **Toque na linha da letra corrigido:** (1) não avisava a TV — a letra mudava só no celular; (2) no Modo Manual mexia só na música e ainda agendava a escuta do automático; (3) com ajuste ±0.5 s em vigor, caía deslocado. Agora a linha tocada vira a linha ativa no celular **e na TV**, e no Modo Manual move o relógio do disco (letra e trocas de faixa). Comandos separados: `seekTo` (posição na música: barra de progresso) e o novo `syncToLine` (horário da linha tocada).

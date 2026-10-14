@@ -11,6 +11,7 @@ import '../widgets/wood_tile_button.dart';
 import 'sync_screen.dart';
 import '../../services/curiosities_service.dart';
 import '../widgets/curiosity_badge.dart';
+import '../../services/collection_grouping.dart';
 
 /// Datas relativas da coleção e da conta ("Today 14:05", "Yesterday 09:10"...).
 class CollectionScreenFormat {
@@ -68,9 +69,36 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
   @override
   void dispose() {
     _shine.dispose();
+    _scroll.dispose();
     super.dispose();
   }
   CollectionSort _sort = CollectionSort.recentlyPlayed;
+
+  /// Por artista/banda (padrão, como numa loja de discos), por nome do disco, ou a lista do menu.
+  CollectionGrouping _grouping = CollectionGrouping.artist;
+  final ScrollController _scroll = ScrollController();
+  String? _touchedLetter;
+
+  // Alturas fixas das linhas: o abecedário calcula onde cada letra começa sem medir a tela
+  static const double _tileHeight = 94;
+  static const double _gap = 8;
+  static const double _headerHeight = 42;
+  static const double _topPadding = 8;
+
+  double _rowHeight(CollectionRow r) => r.isHeader ? _headerHeight : _tileHeight + _gap;
+
+  /// Vai para a primeira linha da letra [letter] (ou da seguinte que tiver discos).
+  void _jumpTo(String letter, List<CollectionRow> rows) {
+    final order = CollectionGrouper.alphabet;
+    final want = order.indexOf(letter);
+    var offset = _topPadding;
+    for (final r in rows) {
+      if (order.indexOf(r.letter) >= want) break;
+      offset += _rowHeight(r);
+    }
+    if (!_scroll.hasClients) return;
+    _scroll.jumpTo(offset.clamp(0.0, _scroll.position.maxScrollExtent));
+  }
 
   static Map<CollectionSort, String> get _sortLabels => {
         CollectionSort.recentlyPlayed: l10n.sortRecentlyPlayed,
@@ -105,6 +133,9 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
       animation: widget.collection,
       builder: (context, _) {
         final items = widget.collection.items(sort: _sort);
+        final grouped = _grouping != CollectionGrouping.none;
+        final rows = CollectionGrouper.build(items, _grouping);
+        final letters = {for (final r in rows) r.letter};
         return Scaffold(
           backgroundColor: AppTheme.background,
           appBar: AppBar(
@@ -140,31 +171,168 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
                 icon: const Icon(Icons.sort_rounded),
                 initialValue: _sort,
                 color: AppTheme.surfaceLight,
-                onSelected: (s) => setState(() => _sort = s),
+                onSelected: (s) => setState(() {
+                  _sort = s;
+                  _grouping = CollectionGrouping.none; // ordem do menu: lista simples
+                }),
                 itemBuilder: (_) => [
                   for (final s in CollectionSort.values)
                     PopupMenuItem(value: s, child: Text(_sortLabels[s]!, style: const TextStyle(color: AppTheme.cream))),
                 ],
               ),
             ],
+            bottom: items.isEmpty
+                ? null
+                : PreferredSize(
+                    preferredSize: const Size.fromHeight(46),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      child: Row(
+                        children: [
+                          _groupChip(l10n.groupByArtist, Icons.person_outline, CollectionGrouping.artist),
+                          const SizedBox(width: 8),
+                          _groupChip(l10n.groupByAlbum, Icons.album_outlined, CollectionGrouping.album),
+                        ],
+                      ),
+                    ),
+                  ),
           ),
           body: Stack(
             children: [
               const Positioned.fill(child: WoodBackground()),
               if (items.isEmpty)
                 _emptyState()
-              else
-                ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (_, i) => _tile(items[i], i),
+              else ...[
+                ListView.builder(
+                  controller: _scroll,
+                  padding: EdgeInsets.fromLTRB(grouped ? 30 : 12, _topPadding, 12, 24),
+                  itemCount: rows.length,
+                  itemBuilder: (_, r) {
+                    final row = rows[r];
+                    if (row.isHeader) {
+                      return SizedBox(height: _headerHeight, child: _groupHeader(row.header!));
+                    }
+                    return SizedBox(
+                      height: _tileHeight + _gap,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: _gap),
+                        child: _tile(row.item!, row.itemIndex),
+                      ),
+                    );
+                  },
                 ),
+                if (grouped)
+                  Positioned(
+                    left: 2,
+                    top: 6,
+                    bottom: 6,
+                    width: 24,
+                    child: _alphabetBar(letters, rows),
+                  ),
+              ],
             ],
           ),
         );
       },
     );
+  }
+
+  Widget _groupChip(String label, IconData icon, CollectionGrouping g) {
+    final on = _grouping == g;
+    return Expanded(
+      child: Material(
+        color: on ? AppTheme.orange : AppTheme.surfaceLight,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () => setState(() {
+            _grouping = g;
+            if (_scroll.hasClients) _scroll.jumpTo(0);
+          }),
+          child: SizedBox(
+            height: 36,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 18, color: on ? Colors.white : AppTheme.cream),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(label,
+                        maxLines: 1,
+                        style: TextStyle(color: on ? Colors.white : AppTheme.cream, fontWeight: FontWeight.w700, fontSize: 13.5)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Divisor: nome do artista (por artista) ou a letra (por disco), com uma linha até a borda.
+  Widget _groupHeader(String text) => Padding(
+        padding: const EdgeInsets.only(top: 6, bottom: 4),
+        child: Row(
+          children: [
+            Flexible(child: RetroText(text, fontSize: text.length == 1 ? 24 : 20, depth: 2)),
+            const SizedBox(width: 10),
+            Expanded(child: Container(height: 1.2, color: AppTheme.wood.withValues(alpha: 0.7))),
+          ],
+        ),
+      );
+
+  /// Abecedário vertical à esquerda: tocar ou arrastar leva direto à letra (letras sem discos apagadas).
+  Widget _alphabetBar(Set<String> available, List<CollectionRow> rows) {
+    const letters = CollectionGrouper.alphabet;
+    return LayoutBuilder(builder: (context, c) {
+      final cell = c.maxHeight / letters.length;
+      void pick(double dy) {
+        final i = (dy / cell).floor().clamp(0, letters.length - 1);
+        final l = letters[i];
+        if (_touchedLetter != l) {
+          setState(() => _touchedLetter = l);
+          _jumpTo(l, rows);
+        }
+      }
+
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (d) => pick(d.localPosition.dy),
+        onVerticalDragStart: (d) => pick(d.localPosition.dy),
+        onVerticalDragUpdate: (d) => pick(d.localPosition.dy),
+        onTapUp: (_) => setState(() => _touchedLetter = null),
+        onVerticalDragEnd: (_) => setState(() => _touchedLetter = null),
+        child: Container(
+          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.22), borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            children: [
+              for (final l in letters)
+                SizedBox(
+                  height: cell,
+                  child: Center(
+                    child: Text(
+                      l,
+                      style: TextStyle(
+                        fontSize: (cell * 0.72).clamp(7.0, 11.0),
+                        height: 1.0,
+                        fontWeight: FontWeight.w800,
+                        color: l == _touchedLetter
+                            ? AppTheme.orange
+                            : available.contains(l)
+                                ? AppTheme.cream
+                                : Colors.white24,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _emptyState() => Center(
