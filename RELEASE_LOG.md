@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.12] — 14/10/2026 (Letras do Usuário também no OneDrive e no Google Drive)
+
+* **Plugin S5 "My lyrics files" com três nuvens automáticas** (cartões no S5; cada um com Connect / Sync now / Disconnect; todas atualizam ao abrir o app):
+  * **Dropbox** — `Dropbox/Apps/WaxClub` (só essa pasta).
+  * **OneDrive** — `OneDrive/Apps/WaxClub` (só essa pasta): login da Microsoft dentro do app (OAuth 2 + PKCE, contas pessoais e corporativas), Microsoft Graph `special/approot` com subpastas, download pelo endereço já autorizado.
+  * **Google Drive** — pasta **"WaxClub Lyrics"** em qualquer lugar do Drive (com subpastas): login do Google do Android (google_sign_in, o mesmo projeto do login com Google), permissão `drive.readonly` (escopo restrito: funciona em teste com até 100 usuários de teste; para publicar, o Google exige auditoria de segurança anual — senão, fica só o seletor).
+* Código reorganizado em `lib/services/cloud/` (`CloudLyricsFolder` comum, PKCE e credenciais compartilhados); a biblioteca de letras guarda de qual nuvem veio cada arquivo (`cloud`/`cloudPath`/`cloudRev`; lê o formato da 1.4.11). Uma nuvem nunca apaga letras de outra.
+* Tela de login genérica `CloudLoginScreen` (Dropbox e OneDrive).
+* **Site:** `/auth/onedrive/` (retorno do login) e, em /plugins/ → "Your lyrics files", os passos das três nuvens.
+* **Pendente do lado do usuário:** App key do Dropbox; Application (client) ID do OneDrive (Azure); ativar a Google Drive API e o escopo `drive.readonly` no projeto Google Cloud (e o usuário de teste).
+* Testes: `cloud_lyrics_test.dart` (Dropbox, OneDrive e Google Drive com servidores simulados; nuvens não se misturam; formato antigo) — 287 no total.
+
+---
 ## [v1.4.11] — 14/10/2026 (Letras do Usuário pela Pasta do Dropbox)
 
 * **Plugin S5 "My lyrics files" + Dropbox:** **Connect Dropbox** (login do Dropbox dentro do app, OAuth 2 com PKCE — sem segredo no app; acesso renovável guardado cifrado no aparelho). O WaxClub enxerga **só a pasta do app** (`Dropbox/Apps/WaxClub`), nada mais da conta.

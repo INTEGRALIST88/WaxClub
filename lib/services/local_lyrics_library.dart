@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dropbox/dropbox_service.dart';
+import 'cloud/cloud_folder.dart';
 import 'tracklist_matcher.dart';
 
 /// Uma letra importada pelo usuário (arquivo .lrc ou .txt que ele tem o direito de usar).
@@ -14,9 +14,11 @@ class LocalLyricsEntry {
   final double? durationSeconds;
   final String fileName;
 
-  /// Veio da pasta do app no Dropbox (caminho e revisão do arquivo lá); nulo = escolhido no seletor.
-  final String? dropboxPath;
-  final String? dropboxRev;
+  /// Veio de uma pasta na nuvem ('dropbox', 'onedrive', 'gdrive'), com o caminho e a revisão do
+  /// arquivo lá; nulo = escolhido no seletor de arquivos.
+  final String? cloud;
+  final String? cloudPath;
+  final String? cloudRev;
 
   const LocalLyricsEntry({
     required this.title,
@@ -25,19 +27,21 @@ class LocalLyricsEntry {
     required this.lyrics,
     this.durationSeconds,
     required this.fileName,
-    this.dropboxPath,
-    this.dropboxRev,
+    this.cloud,
+    this.cloudPath,
+    this.cloudRev,
   });
 
-  LocalLyricsEntry fromDropbox(String path, String rev) => LocalLyricsEntry(
+  LocalLyricsEntry fromCloud(String cloud, String path, String rev) => LocalLyricsEntry(
         title: title,
         artist: artist,
         album: album,
         lyrics: lyrics,
         durationSeconds: durationSeconds,
         fileName: fileName,
-        dropboxPath: path,
-        dropboxRev: rev,
+        cloud: cloud,
+        cloudPath: path,
+        cloudRev: rev,
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,8 +51,9 @@ class LocalLyricsEntry {
         'lyrics': lyrics,
         if (durationSeconds != null) 'duration': durationSeconds,
         'file': fileName,
-        if (dropboxPath != null) 'dropboxPath': dropboxPath,
-        if (dropboxRev != null) 'dropboxRev': dropboxRev,
+        if (cloud != null) 'cloud': cloud,
+        if (cloudPath != null) 'cloudPath': cloudPath,
+        if (cloudRev != null) 'cloudRev': cloudRev,
       };
 
   factory LocalLyricsEntry.fromJson(Map<String, dynamic> j) => LocalLyricsEntry(
@@ -58,15 +63,19 @@ class LocalLyricsEntry {
         lyrics: j['lyrics'] as String,
         durationSeconds: (j['duration'] as num?)?.toDouble(),
         fileName: j['file'] as String? ?? '',
-        dropboxPath: j['dropboxPath'] as String?,
-        dropboxRev: j['dropboxRev'] as String?,
+        // (1.4.11 gravava só o Dropbox, como dropboxPath/dropboxRev)
+        cloud: j['cloud'] as String? ?? (j['dropboxPath'] != null ? 'dropbox' : null),
+        cloudPath: j['cloudPath'] as String? ?? j['dropboxPath'] as String?,
+        cloudRev: j['cloudRev'] as String? ?? j['dropboxRev'] as String?,
       );
 }
 
-/// Pasta de letras na nuvem (a pasta do app no Dropbox): listar e baixar.
+/// Pasta de letras na nuvem (Dropbox, OneDrive, Google Drive): listar e baixar.
 abstract class LyricsFolderSource {
-  Future<List<DropboxFile>> listAppFolder();
-  Future<String> download(String path);
+  /// 'dropbox', 'onedrive', 'gdrive'.
+  String get cloudId;
+  Future<List<CloudFile>> listAppFolder();
+  Future<String> download(CloudFile file);
 }
 
 /// Resultado de uma sincronização com a pasta da nuvem.
@@ -160,42 +169,46 @@ class LocalLyricsLibrary extends ChangeNotifier {
     return LocalLyricsImport(added, skipped);
   }
 
-  int get dropboxCount => _entries.where((e) => e.dropboxPath != null).length;
+  /// Quantas letras vieram da pasta na nuvem [cloud].
+  int countFrom(String cloud) => _entries.where((e) => e.cloud == cloud).length;
 
-  /// Atualiza a partir da pasta do app no Dropbox: baixa só os arquivos novos ou alterados (pela
-  /// revisão), tira os que foram apagados de lá. Os escolhidos à mão no seletor ficam.
+  /// Atualiza a partir da pasta na nuvem: baixa só os arquivos novos ou alterados (pela revisão), tira
+  /// os que foram apagados de lá. Os escolhidos à mão no seletor e os de outras nuvens ficam.
   Future<LyricsFolderSync> syncFrom(LyricsFolderSource folder) async {
     await load();
     final files = (await folder.listAppFolder()).where((f) {
       final n = f.name.toLowerCase();
       return (n.endsWith('.lrc') || n.endsWith('.txt')) && f.size <= maxFileBytes;
     }).toList();
-    final byPath = {for (final e in _entries) if (e.dropboxPath != null) e.dropboxPath!.toLowerCase(): e};
+    final cloud = folder.cloudId;
+    bool mine(LocalLyricsEntry e) => e.cloud == cloud && e.cloudPath != null;
+    final byPath = {for (final e in _entries) if (mine(e)) e.cloudPath!.toLowerCase(): e};
     var added = 0, updated = 0;
     final skipped = <String>[];
     for (final f in files) {
       final known = byPath[f.path.toLowerCase()];
-      if (known != null && known.dropboxRev == f.rev) continue;
+      if (known != null && known.cloudRev == f.rev) continue;
       final String content;
       try {
-        content = await folder.download(f.path);
+        content = await folder.download(f);
       } catch (_) {
         skipped.add(f.name);
         continue;
       }
-      final e = parse(f.name, content)?.fromDropbox(f.path, f.rev);
+      final e = parse(f.name, content)?.fromCloud(cloud, f.path, f.rev);
       if (e == null) {
         skipped.add(f.name);
         continue;
       }
       _entries.removeWhere((x) =>
-          (x.dropboxPath?.toLowerCase() == f.path.toLowerCase()) || TracklistMatcher.isSameTrack(x.title, x.artist, e.title, e.artist));
+          (mine(x) && x.cloudPath!.toLowerCase() == f.path.toLowerCase()) ||
+          TracklistMatcher.isSameTrack(x.title, x.artist, e.title, e.artist));
       _entries.add(e);
       known == null ? added++ : updated++;
     }
     final present = files.map((f) => f.path.toLowerCase()).toSet();
     final before = _entries.length;
-    _entries.removeWhere((e) => e.dropboxPath != null && !present.contains(e.dropboxPath!.toLowerCase()));
+    _entries.removeWhere((e) => mine(e) && !present.contains(e.cloudPath!.toLowerCase()));
     final removed = before - _entries.length;
     if (added + updated + removed > 0) {
       notifyListeners();

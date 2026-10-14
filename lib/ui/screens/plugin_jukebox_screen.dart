@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
-import '../../services/dropbox/dropbox_service.dart';
+import '../../services/cloud/cloud_folder.dart';
+import '../../services/cloud/google_drive_folder.dart';
 import '../../services/local_lyrics_library.dart';
-import 'dropbox_login_screen.dart';
+import 'cloud_login_screen.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
 import '../../services/plugins/plugin_manifest.dart';
@@ -18,10 +19,10 @@ class PluginJukeboxScreen extends StatefulWidget {
   /// Instala pelo site (baixa o manifesto); sem ele, o caixote só mostra os plugins.
   final PluginInstaller? installer;
 
-  /// Letras do próprio usuário (plugin S5) e a pasta delas no Dropbox.
+  /// Letras do próprio usuário (plugin S5) e as pastas delas na nuvem (Dropbox, OneDrive, Google Drive).
   final LocalLyricsLibrary? myLyrics;
-  final DropboxService? dropbox;
-  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics, this.dropbox});
+  final List<CloudLyricsFolder> clouds;
+  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics, this.clouds = const []});
 
   @override
   State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
@@ -94,7 +95,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       backgroundColor: _panel,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics, dropbox: widget.dropbox),
+      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics, clouds: widget.clouds),
     );
     if (mounted) setState(() {});
   }
@@ -571,8 +572,8 @@ class _PluginSheet extends StatefulWidget {
   final PluginInfo plugin;
   final PluginInstaller? installer;
   final LocalLyricsLibrary? myLyrics;
-  final DropboxService? dropbox;
-  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics, this.dropbox});
+  final List<CloudLyricsFolder> clouds;
+  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics, this.clouds = const []});
 
   @override
   State<_PluginSheet> createState() => _PluginSheetState();
@@ -601,98 +602,118 @@ class _PluginSheetState extends State<_PluginSheet> {
     });
   }
 
-  String? _syncReport;
+  /// Resultado da última sincronização de cada nuvem.
+  final Map<String, String> _syncReports = {};
 
-  Future<void> _syncDropbox(DropboxService d, LocalLyricsLibrary lib) async {
+  Future<void> _syncCloud(CloudLyricsFolder c, LocalLyricsLibrary lib) async {
     setState(() {
       _busy = true;
-      _syncReport = null;
+      _syncReports.remove(c.cloudId);
     });
     String report;
     try {
-      final r = await d.syncInto(lib);
+      final r = await c.syncInto(lib);
       report = [
-        l10n.dropboxSynced(r.added, r.updated, r.removed),
+        l10n.cloudSynced(c.serviceName, r.added, r.updated, r.removed),
         if (r.skipped.isNotEmpty) l10n.myLyricsSkipped(r.skipped.take(5).join(', ')),
       ].join('\n');
     } catch (_) {
-      report = l10n.dropboxSyncFailed;
+      report = l10n.cloudSyncFailed(c.serviceName);
     }
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _syncReport = report;
+      _syncReports[c.cloudId] = report;
     });
   }
 
-  /// Pasta do app no Dropbox: conectar, sincronizar e desconectar.
-  Widget _dropboxCard(DropboxService d, LocalLyricsLibrary lib) {
-    const blue = Color(0xFF3D9AE8);
+  Future<void> _connectCloud(CloudLyricsFolder c, LocalLyricsLibrary lib) async {
+    bool ok = false;
+    if (c is WebLoginCloudFolder) {
+      ok = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => CloudLoginScreen(folder: c))) == true;
+    } else if (c is GoogleDriveFolder) {
+      setState(() => _busy = true);
+      ok = await c.connect();
+      if (mounted) setState(() => _busy = false);
+      if (!ok && mounted) setState(() => _syncReports[c.cloudId] = l10n.cloudLoginFailed(c.serviceName));
+    }
+    if (ok && mounted) await _syncCloud(c, lib);
+  }
+
+  static const Map<String, Color> _cloudColors = {
+    'dropbox': Color(0xFF3D9AE8), // l10n-ignore
+    'onedrive': Color(0xFF2B88D8), // l10n-ignore
+    'gdrive': Color(0xFF34A853), // l10n-ignore
+  };
+
+  /// Pasta de letras numa nuvem: conectar, sincronizar e desconectar.
+  Widget _cloudCard(CloudLyricsFolder c, LocalLyricsLibrary lib) {
+    final color = _cloudColors[c.cloudId] ?? const Color(0xFF3D9AE8);
+    final hint = switch (c.cloudId) {
+      'gdrive' => l10n.gdriveHint(c.folderLabel), // l10n-ignore
+      _ => l10n.cloudAppFolderHint(c.folderLabel, c.serviceName),
+    };
+    final report = _syncReports[c.cloudId];
     return AnimatedBuilder(
-      animation: Listenable.merge([d, lib]),
+      animation: Listenable.merge([c, lib]),
       builder: (context, _) => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: blue.withValues(alpha: 0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: blue.withValues(alpha: 0.5)),
+          border: Border.all(color: color.withValues(alpha: 0.5)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.cloud_sync, color: blue),
+              Icon(Icons.cloud_sync, color: color),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(d.isConnected ? l10n.dropboxConnectedAs(d.accountName ?? l10n.yourAccount) : l10n.dropboxTitle,
+                child: Text(
+                    c.isConnected ? l10n.cloudConnectedAs(c.serviceName, c.accountName ?? l10n.yourAccount) : c.serviceName,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
               ),
             ]),
             const SizedBox(height: 6),
             Text(
-              d.isConnected
-                  ? l10n.dropboxFolderStatus(DropboxConfig.appFolder, lib.dropboxCount,
-                      d.lastSync == null ? l10n.dropboxNeverSynced : MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(d.lastSync!)))
-                  : l10n.dropboxHint(DropboxConfig.appFolder),
+              c.isConnected
+                  ? l10n.cloudFolderStatus(c.folderLabel, lib.countFrom(c.cloudId),
+                      c.lastSync == null ? l10n.cloudNeverSynced : MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(c.lastSync!)))
+                  : hint,
               style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 10),
-            if (!d.isConnected)
+            if (!c.isConnected)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () async {
-                          final ok = await Navigator.of(context)
-                              .push<bool>(MaterialPageRoute(builder: (_) => DropboxLoginScreen(dropbox: d)));
-                          if (ok == true && mounted) await _syncDropbox(d, lib);
-                        },
+                  onPressed: _busy ? null : () => _connectCloud(c, lib),
                   icon: const Icon(Icons.login),
-                  label: Text(l10n.dropboxConnect),
-                  style: FilledButton.styleFrom(backgroundColor: blue, foregroundColor: Colors.white),
+                  label: Text(l10n.cloudConnect(c.serviceName)),
+                  style: FilledButton.styleFrom(backgroundColor: color, foregroundColor: Colors.white),
                 ),
               )
             else
               Row(children: [
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: _busy ? null : () => _syncDropbox(d, lib),
+                    onPressed: _busy ? null : () => _syncCloud(c, lib),
                     icon: const Icon(Icons.sync),
-                    label: Text(l10n.dropboxSyncNow),
-                    style: FilledButton.styleFrom(backgroundColor: blue, foregroundColor: Colors.white),
+                    label: Text(l10n.cloudSyncNow),
+                    style: FilledButton.styleFrom(backgroundColor: color, foregroundColor: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 8),
                 TextButton(
-                  onPressed: _busy ? null : () => d.disconnect(),
+                  onPressed: _busy ? null : () => c.disconnect(),
                   child: Text(l10n.disconnect, style: const TextStyle(color: Colors.white54)),
                 ),
               ]),
-            if (_syncReport != null)
+            if (report != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(_syncReport!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                child: Text(report, style: const TextStyle(color: Colors.white70, fontSize: 13)),
               ),
           ],
         ),
@@ -731,9 +752,9 @@ class _PluginSheetState extends State<_PluginSheet> {
           padding: const EdgeInsets.only(top: 8),
           child: Text(_importReport!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
         ),
-      if (widget.dropbox case final d? when d.configured) ...[
-        const SizedBox(height: 14),
-        _dropboxCard(d, lib),
+      for (final c in widget.clouds.where((c) => c.configured)) ...[
+        const SizedBox(height: 12),
+        _cloudCard(c, lib),
       ],
       if (lib.count > 0)
         Align(

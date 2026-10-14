@@ -3643,7 +3643,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginMyLyricsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.'**
+  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.'**
   String get pluginMyLyricsDesc;
 
   /// No description provided for @myLyricsCount.
@@ -3688,65 +3688,65 @@ abstract class AppLocalizations {
   /// **'Remove all'**
   String get myLyricsClear;
 
-  /// No description provided for @dropboxTitle.
+  /// No description provided for @cloudAppFolderHint.
   ///
   /// In en, this message translates to:
-  /// **'Dropbox folder'**
-  String get dropboxTitle;
+  /// **'Keep your lyrics files in {folder} (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder of your {service}.'**
+  String cloudAppFolderHint(String folder, String service);
 
-  /// No description provided for @dropboxHint.
+  /// No description provided for @gdriveHint.
   ///
   /// In en, this message translates to:
-  /// **'Keep your lyrics files in Dropbox/{folder} (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder.'**
-  String dropboxHint(String folder);
+  /// **'Keep your lyrics files in a Google Drive folder named \"{folder}\" (on your computer too) and WaxClub keeps them up to date by itself. Google asks to let WaxClub read your Drive; WaxClub only opens that folder.'**
+  String gdriveHint(String folder);
 
-  /// No description provided for @dropboxConnect.
+  /// No description provided for @cloudConnect.
   ///
   /// In en, this message translates to:
-  /// **'Connect Dropbox'**
-  String get dropboxConnect;
+  /// **'Connect {service}'**
+  String cloudConnect(String service);
 
-  /// No description provided for @dropboxConnectedAs.
+  /// No description provided for @cloudConnectedAs.
   ///
   /// In en, this message translates to:
-  /// **'Dropbox: {name}'**
-  String dropboxConnectedAs(String name);
+  /// **'{service}: {name}'**
+  String cloudConnectedAs(String service, String name);
 
-  /// No description provided for @dropboxFolderStatus.
+  /// No description provided for @cloudFolderStatus.
   ///
   /// In en, this message translates to:
-  /// **'Folder Dropbox/{folder} · {count} files · last sync {when}'**
-  String dropboxFolderStatus(String folder, int count, String when);
+  /// **'Folder {folder} · {count} files · last sync {when}'**
+  String cloudFolderStatus(String folder, int count, String when);
 
-  /// No description provided for @dropboxNeverSynced.
+  /// No description provided for @cloudNeverSynced.
   ///
   /// In en, this message translates to:
   /// **'never'**
-  String get dropboxNeverSynced;
+  String get cloudNeverSynced;
 
-  /// No description provided for @dropboxSyncNow.
+  /// No description provided for @cloudSyncNow.
   ///
   /// In en, this message translates to:
   /// **'Sync now'**
-  String get dropboxSyncNow;
+  String get cloudSyncNow;
 
-  /// No description provided for @dropboxSynced.
+  /// No description provided for @cloudSynced.
   ///
   /// In en, this message translates to:
-  /// **'Dropbox: {added} new, {updated} updated, {removed} removed.'**
-  String dropboxSynced(int added, int updated, int removed);
+  /// **'{service}: {added} new, {updated} updated, {removed} removed.'**
+  String cloudSynced(String service, int added, int updated, int removed);
 
-  /// No description provided for @dropboxSyncFailed.
+  /// No description provided for @cloudSyncFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t read your Dropbox folder. Check your internet and try again.'**
-  String get dropboxSyncFailed;
+  /// **'Couldn\'t read your {service} folder. Check your internet and try again (or connect again).'**
+  String cloudSyncFailed(String service);
 
-  /// No description provided for @dropboxLoginFailed.
+  /// No description provided for @cloudLoginFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t connect to Dropbox. Try again.'**
-  String get dropboxLoginFailed;
+  /// **'Couldn\'t connect to {service}. Try again.'**
+  String cloudLoginFailed(String service);
 }
 
 class _AppLocalizationsDelegate

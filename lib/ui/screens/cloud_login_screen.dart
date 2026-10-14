@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../l10n/l10n.dart';
-import '../../services/dropbox/dropbox_service.dart';
+import '../../services/cloud/cloud_folder.dart';
 import '../theme/app_theme.dart';
 import '../widgets/retro_text.dart';
 
-/// Login do Dropbox dentro do app (plugin S5). Retorna `true` quando a conta foi conectada: o WaxClub
-/// passa a ler só a pasta do app (`Dropbox/Apps/WaxClub`).
-class DropboxLoginScreen extends StatefulWidget {
-  final DropboxService dropbox;
-  const DropboxLoginScreen({super.key, required this.dropbox});
+/// Login de um serviço de nuvem dentro do app (Dropbox, OneDrive — plugin S5). Retorna `true` quando a
+/// conta foi conectada: o WaxClub passa a ler só a pasta do app nesse serviço.
+class CloudLoginScreen extends StatefulWidget {
+  final WebLoginCloudFolder folder;
+  const CloudLoginScreen({super.key, required this.folder});
 
   @override
-  State<DropboxLoginScreen> createState() => _DropboxLoginScreenState();
+  State<CloudLoginScreen> createState() => _CloudLoginScreenState();
 }
 
-class _DropboxLoginScreenState extends State<DropboxLoginScreen> {
+class _CloudLoginScreenState extends State<CloudLoginScreen> {
   late final WebViewController _web;
   bool _loading = true;
   bool _finishing = false;
@@ -31,14 +31,14 @@ class _DropboxLoginScreenState extends State<DropboxLoginScreen> {
         onPageStarted: (_) => mounted ? setState(() => _loading = true) : null,
         onPageFinished: (_) => mounted ? setState(() => _loading = false) : null,
         onNavigationRequest: (request) {
-          if (DropboxService.isCallback(request.url)) {
+          if (widget.folder.isCallback(request.url)) {
             _finish(Uri.parse(request.url));
             return NavigationDecision.prevent;
           }
           return NavigationDecision.navigate;
         },
       ))
-      ..loadRequest(widget.dropbox.authorizeUrl());
+      ..loadRequest(widget.folder.authorizeUrl());
   }
 
   Future<void> _finish(Uri callback) async {
@@ -48,14 +48,14 @@ class _DropboxLoginScreenState extends State<DropboxLoginScreen> {
       return;
     }
     setState(() => _finishing = true);
-    final ok = await widget.dropbox.finishLogin(callback);
+    final ok = await widget.folder.finishLogin(callback);
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop(true);
     } else {
       setState(() {
         _finishing = false;
-        _error = l10n.dropboxLoginFailed;
+        _error = l10n.cloudLoginFailed(widget.folder.serviceName);
       });
     }
   }
@@ -67,7 +67,7 @@ class _DropboxLoginScreenState extends State<DropboxLoginScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: RetroText(l10n.dropboxConnect, fontSize: 24, depth: 2),
+        title: RetroText(l10n.cloudConnect(widget.folder.serviceName), fontSize: 24, depth: 2),
       ),
       body: Column(
         children: [

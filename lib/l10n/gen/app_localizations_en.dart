@@ -2149,7 +2149,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginMyLyricsDesc =>
-      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.';
+      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.';
 
   @override
   String myLyricsCount(int count) {
@@ -2195,41 +2195,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myLyricsClear => 'Remove all';
 
   @override
-  String get dropboxTitle => 'Dropbox folder';
-
-  @override
-  String dropboxHint(String folder) {
-    return 'Keep your lyrics files in Dropbox/$folder (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder.';
+  String cloudAppFolderHint(String folder, String service) {
+    return 'Keep your lyrics files in $folder (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder of your $service.';
   }
 
   @override
-  String get dropboxConnect => 'Connect Dropbox';
-
-  @override
-  String dropboxConnectedAs(String name) {
-    return 'Dropbox: $name';
+  String gdriveHint(String folder) {
+    return 'Keep your lyrics files in a Google Drive folder named \"$folder\" (on your computer too) and WaxClub keeps them up to date by itself. Google asks to let WaxClub read your Drive; WaxClub only opens that folder.';
   }
 
   @override
-  String dropboxFolderStatus(String folder, int count, String when) {
-    return 'Folder Dropbox/$folder · $count files · last sync $when';
+  String cloudConnect(String service) {
+    return 'Connect $service';
   }
 
   @override
-  String get dropboxNeverSynced => 'never';
-
-  @override
-  String get dropboxSyncNow => 'Sync now';
-
-  @override
-  String dropboxSynced(int added, int updated, int removed) {
-    return 'Dropbox: $added new, $updated updated, $removed removed.';
+  String cloudConnectedAs(String service, String name) {
+    return '$service: $name';
   }
 
   @override
-  String get dropboxSyncFailed =>
-      'Couldn\'t read your Dropbox folder. Check your internet and try again.';
+  String cloudFolderStatus(String folder, int count, String when) {
+    return 'Folder $folder · $count files · last sync $when';
+  }
 
   @override
-  String get dropboxLoginFailed => 'Couldn\'t connect to Dropbox. Try again.';
+  String get cloudNeverSynced => 'never';
+
+  @override
+  String get cloudSyncNow => 'Sync now';
+
+  @override
+  String cloudSynced(String service, int added, int updated, int removed) {
+    return '$service: $added new, $updated updated, $removed removed.';
+  }
+
+  @override
+  String cloudSyncFailed(String service) {
+    return 'Couldn\'t read your $service folder. Check your internet and try again (or connect again).';
+  }
+
+  @override
+  String cloudLoginFailed(String service) {
+    return 'Couldn\'t connect to $service. Try again.';
+  }
 }

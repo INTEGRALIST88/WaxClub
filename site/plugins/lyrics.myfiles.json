@@ -12,7 +12,7 @@
   "publisher": "WaxClub",
   "homepage": "https://waxclub.com.br/plugins/#my-lyrics",
   "license": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
-  "description": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.",
+  "description": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.",
   "builtIn": false,
   "minAppVersion": "1.4.10",
   "provides": {
