@@ -1972,6 +1972,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manualSwitchingToAuto => 'Listening to switch to automatic…';
 
   @override
+  String get removeRecordConfirmTitle => 'Remove this record?';
+
+  @override
+  String get removeRecordConfirm =>
+      'Are you sure you want to remove this record from your collection?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get syncDiscogsDisconnect => 'Disconnect Discogs account';
+
+  @override
+  String get syncDiscogsDisconnectTitle => 'Disconnect Discogs?';
+
+  @override
+  String get syncDiscogsDisconnectConfirm =>
+      'WaxClub will stop using your Discogs account on this phone. Your records stay in My Collection and nothing is deleted on Discogs. To connect again later, tap \"Connect Discogs\" and sign in.';
+
+  @override
+  String get syncDiscogsDisconnected =>
+      'Discogs disconnected. You can connect again at any time.';
+
+  @override
   String get manualKeptNotRecognized =>
       'Not recognized: Manual mode keeps going.';
 

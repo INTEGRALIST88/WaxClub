@@ -1248,6 +1248,13 @@
     }
   },
   "manualSwitchingToAuto": "Listening to switch to automatic…",
+  "removeRecordConfirmTitle": "Remove this record?",
+  "removeRecordConfirm": "Are you sure you want to remove this record from your collection?",
+  "remove": "Remove",
+  "syncDiscogsDisconnect": "Disconnect Discogs account",
+  "syncDiscogsDisconnectTitle": "Disconnect Discogs?",
+  "syncDiscogsDisconnectConfirm": "WaxClub will stop using your Discogs account on this phone. Your records stay in My Collection and nothing is deleted on Discogs. To connect again later, tap \"Connect Discogs\" and sign in.",
+  "syncDiscogsDisconnected": "Discogs disconnected. You can connect again at any time.",
   "manualKeptNotRecognized": "Not recognized: Manual mode keeps going.",
   "manualContinueHint": "Manual mode on: the song keeps going by the record's timing. Tap the line being sung to calibrate.",
   "manualAlreadyPlaying": "The music was already playing: tap the line being sung to calibrate.",

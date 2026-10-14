@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.8] — 14/10/2026 (Desconectar o Discogs e Remover Disco com Confirmação)
+
+* **Nuvem de My Collection → cartão Discogs:** botão **"Disconnect Discogs account"** com confirmação. Apaga as credenciais do Discogs neste aparelho; os discos continuam em My Collection e nada é apagado no Discogs. Para voltar, **"Connect Discogs"** refaz o login (o botão aparece mesmo com o plugin desligado pelo "sair").
+* **Detalhe do disco em My Collection:** o botão **"Remove from collection"** no fim agora pede confirmação — *"Are you sure you want to remove this record from your collection?"* (com o nome do disco), Cancel / Remove — e avisa que o disco foi removido. O botão ficou maior e em vermelho.
+* Testes: `sync_screen_test.dart` (desconectar com confirmação, cancelar, conectar de novo) e a remoção com confirmação em `home_collection_help_test.dart`.
+
+---
 ## [v1.4.7] — 14/10/2026 (Minutagem sem Ultrapassar, Troca de Modo sem Parar e Acerto da Letra no Automático)
 
 * **Modo Manual não passa da minutagem:** antes, no fim da faixa, o app dava até ~8 s extras à faixa que acabou (e mais 2 s de tempo morto) esperando o sulco — em discos com faixas emendadas (Sgt. Pepper's: a 1ª entra na 2ª sem silêncio) a letra ficava passando. Agora, no fim da minutagem, a **próxima faixa já aparece em 0:00, à espera** ("Next: A2 … — starts with the music"), também na TV. Ela começa:

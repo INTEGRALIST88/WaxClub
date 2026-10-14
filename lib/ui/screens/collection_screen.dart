@@ -576,24 +576,67 @@ class _CollectionScreenState extends State<CollectionScreen> with SingleTickerPr
                     ],
                   ),
                 ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+            // Remover o disco da coleção (com confirmação)
             OutlinedButton.icon(
-              icon: const Icon(Icons.delete_outline, size: 18),
-              label: Text(l10n.removeFromCollection),
+              icon: const Icon(Icons.delete_outline, size: 20),
+              label: Text(l10n.removeFromCollection, style: const TextStyle(fontWeight: FontWeight.w700)),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.orange,
-                side: const BorderSide(color: AppTheme.rust),
+                foregroundColor: _danger,
+                side: const BorderSide(color: _danger),
+                minimumSize: const Size.fromHeight(48),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () async {
+                if (!await _confirmRemove(ctx, item)) return;
                 await widget.collection.remove(item.album, item.artist);
                 if (ctx.mounted) Navigator.pop(ctx);
+                if (mounted) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      backgroundColor: AppTheme.surfaceLight,
+                      content: Text(l10n.removedFromCollection(item.album), style: const TextStyle(color: Colors.white)),
+                    ));
+                }
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  static const Color _danger = Color(0xFFFF8A80);
+
+  /// "Tem certeza que quer excluir este disco da sua coleção?"
+  Future<bool> _confirmRemove(BuildContext ctx, CollectionItem item) async {
+    final ok = await showDialog<bool>(
+      context: ctx,
+      builder: (dctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: Text(l10n.removeRecordConfirmTitle, style: const TextStyle(color: AppTheme.cream)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.removeRecordConfirm, style: const TextStyle(color: Colors.white70, height: 1.4)),
+            const SizedBox(height: 12),
+            Text(item.album, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            Text(item.artist, style: const TextStyle(color: Colors.white54)),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dctx, false), child: Text(l10n.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(dctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.rust, foregroundColor: Colors.white),
+            child: Text(l10n.remove),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
   }
 
   Widget _stat(String label, String value) => Expanded(

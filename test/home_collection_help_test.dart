@@ -108,6 +108,24 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('LISTENING HISTORY'), findsOneWidget);
       expect(find.text('Remove from collection'), findsOneWidget);
+
+      // Remover pede confirmação: "Cancel" mantém o disco; "Remove" tira da coleção
+      await tester.ensureVisible(find.text('Remove from collection'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove from collection'));
+      await tester.pumpAndSettle();
+      expect(find.text('Are you sure you want to remove this record from your collection?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(c.items().length, 1, reason: 'cancelar não remove');
+
+      await tester.tap(find.text('Remove from collection'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+      await tester.pumpAndSettle();
+      expect(c.items(), isEmpty);
+      expect(find.text('Your collection is empty'), findsOneWidget);
     });
 
     testWidgets('coleção vazia explica como adicionar discos', (tester) async {

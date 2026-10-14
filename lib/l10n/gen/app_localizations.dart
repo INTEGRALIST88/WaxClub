@@ -3346,6 +3346,48 @@ abstract class AppLocalizations {
   /// **'Listening to switch to automatic…'**
   String get manualSwitchingToAuto;
 
+  /// No description provided for @removeRecordConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this record?'**
+  String get removeRecordConfirmTitle;
+
+  /// No description provided for @removeRecordConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this record from your collection?'**
+  String get removeRecordConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @syncDiscogsDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect Discogs account'**
+  String get syncDiscogsDisconnect;
+
+  /// No description provided for @syncDiscogsDisconnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect Discogs?'**
+  String get syncDiscogsDisconnectTitle;
+
+  /// No description provided for @syncDiscogsDisconnectConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxClub will stop using your Discogs account on this phone. Your records stay in My Collection and nothing is deleted on Discogs. To connect again later, tap \"Connect Discogs\" and sign in.'**
+  String get syncDiscogsDisconnectConfirm;
+
+  /// No description provided for @syncDiscogsDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Discogs disconnected. You can connect again at any time.'**
+  String get syncDiscogsDisconnected;
+
   /// No description provided for @manualKeptNotRecognized.
   ///
   /// In en, this message translates to:

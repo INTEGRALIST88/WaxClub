@@ -18,6 +18,36 @@ class SyncScreen extends StatelessWidget {
 
   const SyncScreen({super.key, required this.account, this.discogs});
 
+  static const Color _danger = Color(0xFFFF8A80);
+
+  /// Sai da conta Discogs neste aparelho (credenciais apagadas); a coleção fica. Para voltar, "Connect
+  /// Discogs" refaz o login.
+  Future<void> _disconnectDiscogs(BuildContext context, PluginConnection d) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: Text(l10n.syncDiscogsDisconnectTitle, style: const TextStyle(color: AppTheme.cream)),
+        content: Text(l10n.syncDiscogsDisconnectConfirm, style: const TextStyle(color: Colors.white70, height: 1.4)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dctx, false), child: Text(l10n.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(dctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.rust, foregroundColor: Colors.white),
+            child: Text(l10n.disconnect),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await d.disconnect();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: AppTheme.surfaceLight,
+      content: Text(l10n.syncDiscogsDisconnected, style: const TextStyle(color: Colors.white)),
+    ));
+  }
+
   Widget _card({required Widget icon, required String title, required List<Widget> children}) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(14)),
@@ -97,13 +127,26 @@ class SyncScreen extends StatelessWidget {
                                 color: PluginCategory.connections.color, size: 30),
                             title: l10n.syncDiscogsTitle,
                             children: [
-                              if (!d.isEnabled())
-                                Text(l10n.syncDiscogsPluginOff,
-                                    style: const TextStyle(color: Colors.white70, height: 1.4))
-                              else if (d.isConnected())
+                              if (d.isConnected()) ...[
                                 Text(l10n.connectedAs(d.accountName() ?? l10n.yourAccount),
-                                    style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600))
-                              else ...[
+                                    style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
+                                if (!d.isEnabled()) ...[
+                                  const SizedBox(height: 6),
+                                  Text(l10n.syncDiscogsPluginOff,
+                                      style: const TextStyle(color: Colors.white70, height: 1.4)),
+                                ],
+                                const SizedBox(height: 12),
+                                OutlinedButton.icon(
+                                  onPressed: () => _disconnectDiscogs(context, d),
+                                  icon: const Icon(Icons.link_off),
+                                  label: Text(l10n.syncDiscogsDisconnect),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: _danger,
+                                    minimumSize: const Size.fromHeight(46),
+                                    side: const BorderSide(color: _danger),
+                                  ),
+                                ),
+                              ] else ...[
                                 Text(l10n.syncDiscogsNotConnected,
                                     style: const TextStyle(color: Colors.white70, height: 1.4)),
                                 const SizedBox(height: 12),
