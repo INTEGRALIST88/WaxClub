@@ -425,4 +425,4 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 * Publicar no GitHub (Push origin no GitHub Desktop).
 * Atualizar a URL do receptor no console do Google Cast (App ID 27687E0B) para `https://waxclub.com.br/tv/` (site na Hostinger desde 13/10/2026; a cópia no GitHub Pages fica até essa troca).
 * App da Fire TV (`H:\Github\WaxClubClient`): renomear para WaxClub, anunciar `_waxclub-tv._tcp` e sincronizar o receptor.
-* Hostinger: site `waxclub.com.br` criado (servidor no Brasil) e banco MySQL `waxclub` criado pelo usuário; faltam o subdomínio `api`, o `.env` com a senha do banco (escrito pelo usuário), o e-mail `no-reply@` e o projeto OAuth no Google Cloud.
+* Hostinger: site `waxclub.com.br` criado (servidor no Brasil) e banco MySQL `waxclub` criado pelo usuário; subdomínio `api.waxclub.com.br` com SSL e a API PHP publicada (código em `server/`, ver `server/README.md`); faltam o `waxclub.env` com a senha do banco (escrito pelo usuário, modelo em `server/waxclub.env.example`), o e-mail `no-reply@` e o projeto OAuth no Google Cloud.
