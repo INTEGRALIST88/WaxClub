@@ -2239,4 +2239,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String cloudLoginFailed(String service) {
     return 'Couldn\'t connect to $service. Try again.';
   }
+
+  @override
+  String get panelPluginOn => 'on — tap to turn off, hold and drag to reorder';
+
+  @override
+  String get panelPluginOff => 'off — tap to turn on, hold and drag to reorder';
 }

@@ -437,6 +437,57 @@ class PluginStore extends ChangeNotifier {
     return true;
   }
 
+  // ---------- Painel da tela principal (linha de plugins abaixo da barra) ----------
+
+  /// Categorias que mudam o que aparece na tela e entram no painel (letras e exibição; ferramentas de
+  /// hardware, como estroboscópio e horas da agulha, quando existirem).
+  static const Set<PluginCategory> panelCategories = {PluginCategory.display, PluginCategory.sources};
+
+  /// Ordem do painel escolhida pelo usuário (arrastando). Para as fontes de letras é também a ordem da busca.
+  final List<String> _order = [];
+
+  /// Ordem inicial: exibição, depois as letras do próprio usuário (S5) e as fontes da web (S1 → S4).
+  int _defaultRank(PluginInfo p) {
+    final cat = p.category == PluginCategory.display ? 0 : 1;
+    final mine = p.id == PluginCatalog.myLyricsId ? 0 : 1;
+    return cat * 10000 + mine * 1000 + p.number;
+  }
+
+  int _rank(PluginInfo p) {
+    final i = _order.indexOf(p.id);
+    return i >= 0 ? i : 100000 + _defaultRank(p);
+  }
+
+  /// Plugins do painel: instalados, disponíveis e que podem ser ligados/desligados, da esquerda para a
+  /// direita na prioridade do usuário.
+  List<PluginInfo> panelPlugins() {
+    final list = catalog
+        .where((p) => panelCategories.contains(p.category) && isInstalled(p) && !p.isComingSoon && !p.locked)
+        .toList();
+    list.sort((a, b) => _rank(a).compareTo(_rank(b)));
+    return list;
+  }
+
+  /// Arrastou o plugin da posição [from] para [to] no painel (índices de [panelPlugins]).
+  Future<void> movePanelPlugin(int from, int to) async {
+    final list = panelPlugins();
+    if (from < 0 || from >= list.length) return;
+    final moved = list.removeAt(from);
+    list.insert(to.clamp(0, list.length), moved);
+    final ids = list.map((p) => p.id).toList();
+    _order
+      ..removeWhere(ids.contains)
+      ..insertAll(0, ids);
+    notifyListeners();
+    await _save();
+  }
+
+  /// Fontes de letras ligadas, na ordem de busca do usuário ('local', 'lrclib', 'netease'...).
+  List<String> lyricsEngineOrder() => [
+        for (final p in panelPlugins())
+          if (p.category == PluginCategory.sources && p.engine != null && isActive(p)) p.engine!,
+      ];
+
   /// A fonte de letras [engine] está instalada e ligada (LRCLIB, NetEase...).
   bool isLyricsEngineOn(String engine) =>
       catalog.any((p) => p.category == PluginCategory.sources && p.engine == engine && isInstalled(p) && isActive(p));
@@ -460,6 +511,9 @@ class PluginStore extends ChangeNotifier {
         _installed
           ..clear()
           ..addAll((j['installed'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains));
+        _order
+          ..clear()
+          ..addAll((j['order'] as List<dynamic>? ?? const []).whereType<String>().where(known.contains));
         _versions
           ..clear()
           ..addAll((j['versions'] as Map<String, dynamic>? ?? const {}).map((k, v) => MapEntry(k, '$v')));
@@ -509,6 +563,7 @@ class PluginStore extends ChangeNotifier {
         'installed': _installed.toList(),
         'active': _active.toList(),
         'versions': _versions,
+        'order': _order,
         'bundledLyrics': _bundled,
         'seenBuiltIns': catalog.where((p) => p.isBuiltIn).map((p) => p.id).toList(),
       }));

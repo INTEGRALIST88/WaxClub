@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.14] — 14/10/2026 (Painel de Plugins na Barra de Cima)
+
+* **Nova linha na barra de cima** (celular em pé e no cockpit da transmissão), logo abaixo dos botões de madeira: uma **caixinha por plugin que muda a tela** — exibição (D2 Curiosidades; D3 VU, quando existir) e fontes de letras (S1–S5), e as ferramentas de hardware (estroboscópio, horas da agulha) quando existirem. Ficam de fora idioma, IA, conexões, os travados (D1) e os não instalados.
+  * Cada caixinha tem uma **luz na cor da categoria** — acesa ligado, apagada desligado — e o **código da jukebox**.
+  * **Tocar liga/desliga**; **segurar e arrastar** troca de lugar. Da esquerda para a direita é a prioridade: nas fontes de letras é a **ordem da busca** (a cascata segue o painel; as letras do usuário, S5, só passam na frente do cache e da web quando estão em primeiro). A ordem fica salva no aparelho.
+  * As caixinhas dividem a largura da tela conforme a quantidade.
+* Testes: `plugin_panel_test.dart` (quais entram, arrastar e salvar, ordem da busca, caixinha liga/desliga e largura) — 291 no total.
+
+---
 ## [v1.4.13] — 14/10/2026 (Dropbox e OneDrive Cadastrados)
 
 * **Dropbox:** app "WaxClub" cadastrado (Scoped access, App folder → `Dropbox/Apps/WaxClub`); App key pública no app (`27dns92hbr92qwn`, PKCE, sem segredo). O login pede **só leitura** (`account_info.read files.metadata.read files.content.read`), mesmo que o cadastro libere escrita.

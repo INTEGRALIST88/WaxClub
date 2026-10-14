@@ -32,6 +32,7 @@ import '../widgets/wood_tile_button.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
+import '../widgets/plugin_panel_strip.dart';
 import '../../services/plugins/plugin_manifest.dart';
 import '../../services/lyrics_provider_service.dart';
 import '../../services/local_lyrics_library.dart';
@@ -121,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _plugins.bindConnection(PluginCatalog.discogsId, _discogsConnection);
     // Fontes de letras: cada site é um plugin (Lyrics sources); a busca consulta só os ligados
     LyricsProviderService.sourceEnabled = _plugins.isLyricsEngineOn;
+    LyricsProviderService.sourceOrder = _plugins.lyricsEngineOrder; // ordem do painel = ordem da busca
     // Plugin S5: letras do próprio usuário
     LyricsProviderService.myLyrics = _myLyrics;
     _myLyrics.load();
@@ -194,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _profile.dispose();
     PluginLinks.instance.pending.removeListener(_onPluginLink);
     LyricsProviderService.sourceEnabled = (_) => true;
+    LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
     LyricsProviderService.myLyrics = null;
     _myLyrics.dispose();
     for (final c in _clouds) {
@@ -1259,7 +1262,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _engine,
+      animation: Listenable.merge([_engine, _plugins]),
       builder: (context, _) {
         final telemetry = _engine.telemetry;
         final isListening = telemetry.isUserListening || telemetry.status == CalibrationStatus.listeningSample1;
@@ -1279,6 +1282,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         if (_engine.manualSuggested) _offerManualMode();
         const tileSize = 40.0;
         final showTrackStrip = compactBar && _engine.currentTrack != null;
+        // Em pé (e no cockpit): linha com os plugins que mudam a tela, para ligar/desligar e ordenar
+        final panelHeight = compactBar ? PluginPanelStrip.heightFor(_plugins) : 0.0;
 
         return Stack(
           children: [
@@ -1291,7 +1296,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 // Em pé: linha de baixo com os botões de madeira encostados à direita e, com música tocando, a
                 // faixa com música, banda · disco e "a seguir" embaixo deles. Deitado: botões na linha de cima.
                 bottom: !compactBar ? null : PreferredSize(
-                  preferredSize: Size.fromHeight(tileSize + 12 + (showTrackStrip ? 86 : 0)),
+                  preferredSize: Size.fromHeight(tileSize + 12 + panelHeight + (showTrackStrip ? 86 : 0)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -1305,6 +1310,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                       ),
+                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins)),
                       if (showTrackStrip) SizedBox(height: 86, child: _portraitTrackInfo()),
                     ],
                   ),

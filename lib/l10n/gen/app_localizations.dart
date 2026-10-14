@@ -3747,6 +3747,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t connect to {service}. Try again.'**
   String cloudLoginFailed(String service);
+
+  /// No description provided for @panelPluginOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on — tap to turn off, hold and drag to reorder'**
+  String get panelPluginOn;
+
+  /// No description provided for @panelPluginOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off — tap to turn on, hold and drag to reorder'**
+  String get panelPluginOff;
 }
 
 class _AppLocalizationsDelegate

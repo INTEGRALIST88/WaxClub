@@ -27,6 +27,21 @@ class LyricsProviderService {
   static bool Function(String source) sourceEnabled = _allSources;
   static bool _allSources(String _) => true;
 
+  /// Ordem das fontes de letras (a do painel de plugins, da esquerda para a direita); sem o app
+  /// configurar, as letras do usuário primeiro e depois LRCLIB, NetEase, Megalobiz e Lyrics.ovh.
+  static List<String> Function() sourceOrder = _defaultOrder;
+  static List<String> _defaultOrder() => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+
+  /// As letras do próprio usuário vêm antes das guardadas (cache) e da web: o S5 está ligado e é a
+  /// primeira fonte ligada no painel.
+  static bool myLyricsFirst() {
+    for (final e in sourceOrder()) {
+      if (!sourceEnabled(e)) continue;
+      return e == 'local';
+    }
+    return false;
+  }
+
   /// Plugin S5 "My lyrics files": letras do próprio usuário no celular (engine 'local').
   static LocalLyricsLibrary? myLyrics;
 
@@ -54,10 +69,6 @@ class LyricsProviderService {
     int? durationSeconds,
     String? preferredSource,
   }) async {
-    // ════════ Letras do próprio usuário (plugin S5): sempre primeiro ════════
-    final mine = fromMyLyrics(trackName, artistName, albumName: albumName);
-    if (mine != null) return mine;
-
     // ════════ 0. Fonte Preferida (se especificada) ════════
     // 'lyrics.ovh' (texto plano, sem timestamps) nunca passa na validação de LRC sincronizado:
     // não é tentada antecipadamente nem excluída da cascata, ficando como último recurso.
@@ -86,63 +97,31 @@ class LyricsProviderService {
       if (triedSource == 'lrclib') lrclibPlain = pref;
     }
 
-    // ════════ 1. LRCLIB (Primário) ════════
-    if (triedSource != 'lrclib' && sourceEnabled('lrclib')) {
+    // ════════ 1. Fontes ligadas, na ordem do painel (da esquerda para a direita) ════════
+    // As letras do próprio usuário (S5) e as sincronizadas da web; o texto simples fica para o fim.
+    for (final engine in sourceOrder()) {
+      if (engine == triedSource || engine == 'lyrics.ovh' || !sourceEnabled(engine)) continue;
+      if (engine == 'local') {
+        final mine = fromMyLyrics(trackName, artistName, albumName: albumName);
+        if (mine != null) return mine;
+        continue;
+      }
       try {
-        debugPrint('[LyricsCascade] 🔍 [1/4] Consultando LRCLIB para "$trackName" - "$artistName"...');
-        final lrclibResponse = await _lrcLibService.fetchLyricsDetails(
+        debugPrint('[LyricsCascade] 🔍 Consultando "$engine" para "$trackName" - "$artistName"...');
+        final r = await _trySource(
+          engine,
           trackName: trackName,
           artistName: artistName,
           albumName: albumName,
           durationSeconds: durationSeconds,
         );
-
-        if (lrclibResponse?.syncedLyrics != null &&
-            _hasValidTimestamps(lrclibResponse!.syncedLyrics!)) {
-          debugPrint('[LyricsCascade] ✅ [1/4] Sucesso na LRCLIB (LRC sincronizado encontrado).');
-          return lrclibResponse;
+        if (r?.syncedLyrics != null && _hasValidTimestamps(r!.syncedLyrics!)) {
+          debugPrint('[LyricsCascade] ✅ Sucesso em "$engine" (LRC sincronizado encontrado).');
+          return r;
         }
-        lrclibPlain ??= lrclibResponse;
+        if (engine == 'lrclib') lrclibPlain ??= r;
       } catch (e) {
-        debugPrint('[LyricsCascade] ⚠️ [1/4] Falha no LRCLIB: $e');
-      }
-    }
-
-    // ════════ 2. NetEase Cloud Music (Secundário) ════════
-    if (triedSource != 'netease' && sourceEnabled('netease')) {
-      try {
-        debugPrint('[LyricsCascade] 🔍 [2/4] Consultando NetEase Cloud Music...');
-        final netEaseResponse = await _fetchFromNetEase(
-          trackName: trackName,
-          artistName: artistName,
-        );
-
-        if (netEaseResponse?.syncedLyrics != null &&
-            _hasValidTimestamps(netEaseResponse!.syncedLyrics!)) {
-          debugPrint('[LyricsCascade] ✅ [2/4] Sucesso no NetEase (LRC sincronizado encontrado).');
-          return netEaseResponse;
-        }
-      } catch (e) {
-        debugPrint('[LyricsCascade] ⚠️ [2/4] Falha no NetEase: $e');
-      }
-    }
-
-    // ════════ 3. Megalobiz (Terciário) ════════
-    if (triedSource != 'megalobiz' && sourceEnabled('megalobiz')) {
-      try {
-        debugPrint('[LyricsCascade] 🔍 [3/4] Consultando Megalobiz...');
-        final megalobizResponse = await _fetchFromMegalobiz(
-          trackName: trackName,
-          artistName: artistName,
-        );
-
-        if (megalobizResponse?.syncedLyrics != null &&
-            _hasValidTimestamps(megalobizResponse!.syncedLyrics!)) {
-          debugPrint('[LyricsCascade] ✅ [3/4] Sucesso no Megalobiz (LRC sincronizado encontrado).');
-          return megalobizResponse;
-        }
-      } catch (e) {
-        debugPrint('[LyricsCascade] ⚠️ [3/4] Falha no Megalobiz: $e');
+        debugPrint('[LyricsCascade] ⚠️ Falha em "$engine": $e');
       }
     }
 
