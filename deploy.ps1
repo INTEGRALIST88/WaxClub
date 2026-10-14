@@ -97,6 +97,13 @@ Remove-Item -LiteralPath $siteDir -Recurse -Force
 Write-Host ("[OK] Site gerado: {0} ({1:N1} MB) - publicar na Hostinger (waxclub.com.br)." -f $siteZip, ((Get-Item -LiteralPath $siteZip).Length / 1MB))
 
 Write-Host "=== 4. Gerando ZIP limpo da auditoria de codigo ==="
+# O Gradle do build que acabou de rodar segura arquivos em android\.gradle (checksums.lock): encerra antes de copiar
+$gradlew = Join-Path $projectDir "android\gradlew.bat"
+if (Test-Path -LiteralPath $gradlew) {
+    Push-Location (Join-Path $projectDir "android")
+    try { & $gradlew --stop *> $null } catch {}
+    Pop-Location
+}
 # Usa H:\ (disco com espaco) quando disponivel; o C:\ costuma estar cheio
 $tempRoot = if (Test-Path -LiteralPath "H:\") { "H:\" } else { $env:TEMP }
 $tempZipDir = Join-Path $tempRoot "waxclub_source_v$version"
@@ -122,7 +129,13 @@ $itemsToInclude = @(
 
 foreach ($item in $itemsToInclude) {
     $fullPath = Join-Path $projectDir $item
-    if (Test-Path -LiteralPath $fullPath) {
+    if (-not (Test-Path -LiteralPath $fullPath)) { continue }
+    if ($item -eq "android") {
+        # Sem as pastas de cache/build (podem estar presas por outro programa, ex.: checksums.lock do Gradle)
+        & robocopy $fullPath (Join-Path $tempZipDir "android") /E /XD .gradle build .kotlin .idea /NFL /NDL /NJH /NJS /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { throw "Falha ao copiar a pasta android (robocopy $LASTEXITCODE)." }
+        $global:LASTEXITCODE = 0
+    } else {
         Copy-Item -LiteralPath $fullPath -Destination $tempZipDir -Recurse -Force
     }
 }
