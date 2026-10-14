@@ -418,11 +418,11 @@ Registro de tudo o que foi proposto e combinado com o usuário, em ordem de prio
 * Traduzir também a página da TV (`web_receiver/index.html`), que ainda tem os textos no próprio HTML.
 * Atualizar a paleta da página da TV (GitHub Pages) para o creme/laranja/madeira do app.
 * Revisar as partes desatualizadas do documento de arquitetura.
-* Separar repositórios: código privado e página pública da TV (GitHub Pages).
+* Repositório privado: a página da TV e as capas já estão no site `waxclub.com.br/tv/` (Hostinger); depois de trocar a URL no console do Cast, tirar `index.html` + `covers/` do GitHub Pages e deixar o repositório privado.
 
 ### 6.3 Pendências do lado do usuário
 * Datas de shows pela cidade do usuário: criar a chave da Ticketmaster Discovery API e/ou pedir o app_id da Bandsintown; pedir a cidade no app até a conta existir (deixado para depois em 13/10/2026).
 * Publicar no GitHub (Push origin no GitHub Desktop).
-* Atualizar a URL do receptor no console do Google Cast para `https://integralist88.github.io/WaxClub/`.
+* Atualizar a URL do receptor no console do Google Cast (App ID 27687E0B) para `https://waxclub.com.br/tv/` (site na Hostinger desde 13/10/2026; a cópia no GitHub Pages fica até essa troca).
 * App da Fire TV (`H:\Github\WaxClubClient`): renomear para WaxClub, anunciar `_waxclub-tv._tcp` e sincronizar o receptor.
-* Hostinger: informar domínio, versão do PHP, quantidade de bancos MySQL, subdomínio, SSH, Cron e SMTP; criar o projeto OAuth no Google Cloud.
+* Hostinger: site `waxclub.com.br` criado (servidor no Brasil) e banco MySQL `waxclub` criado pelo usuário; faltam o subdomínio `api`, o `.env` com a senha do banco (escrito pelo usuário), o e-mail `no-reply@` e o projeto OAuth no Google Cloud.

@@ -122,7 +122,7 @@ void main() {
       final covers = real.discs.where((d) => d.coverUrl != null).toList();
       expect(covers.length, greaterThan(400));
       expect(covers.every((d) => d.isVinylEra), isTrue);
-      expect(covers.every((d) => d.coverUrl!.startsWith('https://integralist88.github.io/WaxClub/covers/')), isTrue);
+      expect(covers.every((d) => d.coverUrl!.startsWith('https://waxclub.com.br/tv/covers/')), isTrue);
       expect(babilonia?.tracks.first.lengthMs, greaterThan(0));
       expect(babilonia?.tracks[1].artist, 'Maria Bethânia');
       // Nomes limpos: sem posição/vendagem do ranking e sem a palavra "trilha"

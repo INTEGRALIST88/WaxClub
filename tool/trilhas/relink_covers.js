@@ -1,10 +1,10 @@
-// Aponta as capas dos LPs para o GitHub Pages do WaxClub e remove os links do site de origem.
+// Aponta as capas dos LPs para o site do WaxClub (Hostinger, waxclub.com.br/tv/covers/) e remove os links do site de origem.
 // Uso: node relink_covers.js <catalogo.json> <covers_map.json> <pastaCapasRecomprimidas>
 const fs = require('fs');
 const path = require('path');
 
 const [CATALOG, MAP, COVERS] = process.argv.slice(2);
-const BASE = 'https://integralist88.github.io/WaxClub/covers/';
+const BASE = 'https://waxclub.com.br/tv/covers/';
 const cat = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
 const map = JSON.parse(fs.readFileSync(MAP, 'utf8'));
 let linked = 0;
@@ -22,4 +22,4 @@ for (const d of cat.discs) {
 cat.coversBase = BASE;
 fs.writeFileSync(CATALOG, JSON.stringify(cat));
 const leftover = cat.discs.filter((d) => d.cover && !d.cover.startsWith(BASE)).length;
-console.log(`capas no GitHub: ${linked}, sem capa: ${removed}, links externos restantes: ${leftover}`);
+console.log(`capas no site: ${linked}, sem capa: ${removed}, links externos restantes: ${leftover}`);

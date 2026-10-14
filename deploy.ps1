@@ -77,17 +77,22 @@ Copy-Item -LiteralPath "$projectDir\MANUAL_FUNCIONAL_WAXCLUB.md" -Destination "$
 Copy-Item -LiteralPath "$projectDir\MANUAL_FUNCIONAL_WAXCLUB.md" -Destination "$driveDir\MANUAL_FUNCIONAL_WAXCLUB_v$version.md" -Force
 Write-Host "[OK] Documentacao atualizada no Google Drive."
 
-# Receptor da TV (Google Cast): precisa ser publicado como index.html na raiz do repositorio
-# GitHub Pages INTEGRALIST88/WaxClub para que a TV use a versao nova
-Copy-Item -LiteralPath "$projectDir\web_receiver\index.html" -Destination "$driveDir\TV_RECEIVER_index_v$version.html" -Force
-Write-Host "[OK] Receptor da TV copiado: TV_RECEIVER_index_v$version.html (publicar no GitHub Pages)."
-
-# Capas das trilhas de novela em LP: publicar como pasta covers/ na raiz do mesmo repositorio
-if (Test-Path "$projectDir\covers") {
-    $coversZip = "$driveDir\TV_RECEIVER_covers_v$version.zip"
-    Compress-Archive -Path "$projectDir\covers" -DestinationPath $coversZip -Force
-    Write-Host "[OK] Capas das trilhas: TV_RECEIVER_covers_v$version.zip (publicar a pasta covers/ no GitHub Pages)."
-}
+# Site waxclub.com.br (Hostinger): pagina inicial + receptor da TV em /tv/ + capas dos LPs em /tv/covers/.
+# O ZIP e publicado pelo plugin da Hostinger (o deploy apaga a raiz do site e extrai o ZIP; subdominios ficam).
+$siteDir = Join-Path $projectDir "build\waxclub_site"
+$siteZip = Join-Path $projectDir "build\waxclub_site.zip"
+if (Test-Path -LiteralPath $siteDir) { Remove-Item -LiteralPath $siteDir -Recurse -Force }
+New-Item -ItemType Directory -Force -Path "$siteDir\tv" | Out-Null
+Copy-Item -LiteralPath "$projectDir\site\index.html" -Destination "$siteDir\index.html" -Force
+Copy-Item -LiteralPath "$projectDir\icon_512.png" -Destination "$siteDir\icon_512.png" -Force
+Copy-Item -LiteralPath "$projectDir\web_receiver\index.html" -Destination "$siteDir\tv\index.html" -Force
+if (Test-Path "$projectDir\covers") { Copy-Item -LiteralPath "$projectDir\covers" -Destination "$siteDir\tv\covers" -Recurse -Force }
+if (Test-Path -LiteralPath $siteZip) { Remove-Item -LiteralPath $siteZip -Force }
+# tar do Windows (bsdtar): caminhos com "/" no ZIP; o Compress-Archive do PowerShell 5.1 grava "\" e quebra no Linux
+& tar.exe -a -c -f $siteZip -C $siteDir index.html icon_512.png tv
+if ($LASTEXITCODE -ne 0) { throw "Falha ao gerar o ZIP do site (tar, codigo $LASTEXITCODE)." }
+Remove-Item -LiteralPath $siteDir -Recurse -Force
+Write-Host ("[OK] Site gerado: {0} ({1:N1} MB) - publicar na Hostinger (waxclub.com.br)." -f $siteZip, ((Get-Item -LiteralPath $siteZip).Length / 1MB))
 
 Write-Host "=== 4. Gerando ZIP limpo da auditoria de codigo ==="
 # Usa H:\ (disco com espaco) quando disponivel; o C:\ costuma estar cheio

@@ -28,6 +28,7 @@ class TvWebReceiverHtml {
 [IO.File]::WriteAllText((Join-Path $root 'lib\services\tv_web_receiver_html.dart'), $dart, (New-Object Text.UTF8Encoding $false))
 Write-Host "[OK] lib/services/tv_web_receiver_html.dart regenerado."
 
-# Página publicada no GitHub Pages (raiz do repositório INTEGRALIST88/WaxClub) = receptor oficial do Google Cast
+# Cópia temporária no GitHub Pages (raiz do repositório INTEGRALIST88/WaxClub); o receptor oficial passa a ser
+# https://waxclub.com.br/tv/ (Hostinger), publicado pelo ZIP do site gerado no deploy.ps1
 [IO.File]::WriteAllText((Join-Path $root 'index.html'), $html, (New-Object Text.UTF8Encoding $false))
 Write-Host "[OK] index.html da raiz (GitHub Pages) atualizado."
