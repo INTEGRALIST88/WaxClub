@@ -2149,7 +2149,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginMyLyricsDesc =>
-      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.';
+      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.';
 
   @override
   String myLyricsCount(int count) {
@@ -2193,4 +2193,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myLyricsClear => 'Remove all';
+
+  @override
+  String get dropboxTitle => 'Dropbox folder';
+
+  @override
+  String dropboxHint(String folder) {
+    return 'Keep your lyrics files in Dropbox/$folder (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder.';
+  }
+
+  @override
+  String get dropboxConnect => 'Connect Dropbox';
+
+  @override
+  String dropboxConnectedAs(String name) {
+    return 'Dropbox: $name';
+  }
+
+  @override
+  String dropboxFolderStatus(String folder, int count, String when) {
+    return 'Folder Dropbox/$folder · $count files · last sync $when';
+  }
+
+  @override
+  String get dropboxNeverSynced => 'never';
+
+  @override
+  String get dropboxSyncNow => 'Sync now';
+
+  @override
+  String dropboxSynced(int added, int updated, int removed) {
+    return 'Dropbox: $added new, $updated updated, $removed removed.';
+  }
+
+  @override
+  String get dropboxSyncFailed =>
+      'Couldn\'t read your Dropbox folder. Check your internet and try again.';
+
+  @override
+  String get dropboxLoginFailed => 'Couldn\'t connect to Dropbox. Try again.';
 }

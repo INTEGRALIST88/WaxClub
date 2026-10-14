@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
+import '../../services/dropbox/dropbox_service.dart';
 import '../../services/local_lyrics_library.dart';
+import 'dropbox_login_screen.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
 import '../../services/plugins/plugin_manifest.dart';
@@ -16,9 +18,10 @@ class PluginJukeboxScreen extends StatefulWidget {
   /// Instala pelo site (baixa o manifesto); sem ele, o caixote só mostra os plugins.
   final PluginInstaller? installer;
 
-  /// Letras do próprio usuário (plugin S5).
+  /// Letras do próprio usuário (plugin S5) e a pasta delas no Dropbox.
   final LocalLyricsLibrary? myLyrics;
-  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics});
+  final DropboxService? dropbox;
+  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics, this.dropbox});
 
   @override
   State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
@@ -91,7 +94,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       backgroundColor: _panel,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics),
+      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics, dropbox: widget.dropbox),
     );
     if (mounted) setState(() {});
   }
@@ -568,7 +571,8 @@ class _PluginSheet extends StatefulWidget {
   final PluginInfo plugin;
   final PluginInstaller? installer;
   final LocalLyricsLibrary? myLyrics;
-  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics});
+  final DropboxService? dropbox;
+  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics, this.dropbox});
 
   @override
   State<_PluginSheet> createState() => _PluginSheetState();
@@ -595,6 +599,105 @@ class _PluginSheetState extends State<_PluginSheet> {
               if (r.skipped.isNotEmpty) l10n.myLyricsSkipped(r.skipped.take(5).join(', ')),
             ].join('\n');
     });
+  }
+
+  String? _syncReport;
+
+  Future<void> _syncDropbox(DropboxService d, LocalLyricsLibrary lib) async {
+    setState(() {
+      _busy = true;
+      _syncReport = null;
+    });
+    String report;
+    try {
+      final r = await d.syncInto(lib);
+      report = [
+        l10n.dropboxSynced(r.added, r.updated, r.removed),
+        if (r.skipped.isNotEmpty) l10n.myLyricsSkipped(r.skipped.take(5).join(', ')),
+      ].join('\n');
+    } catch (_) {
+      report = l10n.dropboxSyncFailed;
+    }
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _syncReport = report;
+    });
+  }
+
+  /// Pasta do app no Dropbox: conectar, sincronizar e desconectar.
+  Widget _dropboxCard(DropboxService d, LocalLyricsLibrary lib) {
+    const blue = Color(0xFF3D9AE8);
+    return AnimatedBuilder(
+      animation: Listenable.merge([d, lib]),
+      builder: (context, _) => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: blue.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: blue.withValues(alpha: 0.5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Icon(Icons.cloud_sync, color: blue),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(d.isConnected ? l10n.dropboxConnectedAs(d.accountName ?? l10n.yourAccount) : l10n.dropboxTitle,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+            ]),
+            const SizedBox(height: 6),
+            Text(
+              d.isConnected
+                  ? l10n.dropboxFolderStatus(DropboxConfig.appFolder, lib.dropboxCount,
+                      d.lastSync == null ? l10n.dropboxNeverSynced : MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(d.lastSync!)))
+                  : l10n.dropboxHint(DropboxConfig.appFolder),
+              style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+            ),
+            const SizedBox(height: 10),
+            if (!d.isConnected)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _busy
+                      ? null
+                      : () async {
+                          final ok = await Navigator.of(context)
+                              .push<bool>(MaterialPageRoute(builder: (_) => DropboxLoginScreen(dropbox: d)));
+                          if (ok == true && mounted) await _syncDropbox(d, lib);
+                        },
+                  icon: const Icon(Icons.login),
+                  label: Text(l10n.dropboxConnect),
+                  style: FilledButton.styleFrom(backgroundColor: blue, foregroundColor: Colors.white),
+                ),
+              )
+            else
+              Row(children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _busy ? null : () => _syncDropbox(d, lib),
+                    icon: const Icon(Icons.sync),
+                    label: Text(l10n.dropboxSyncNow),
+                    style: FilledButton.styleFrom(backgroundColor: blue, foregroundColor: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _busy ? null : () => d.disconnect(),
+                  child: Text(l10n.disconnect, style: const TextStyle(color: Colors.white54)),
+                ),
+              ]),
+            if (_syncReport != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(_syncReport!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Plugin S5: quantas letras há, importar, direitos autorais e como nomear os arquivos.
@@ -628,6 +731,10 @@ class _PluginSheetState extends State<_PluginSheet> {
           padding: const EdgeInsets.only(top: 8),
           child: Text(_importReport!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
         ),
+      if (widget.dropbox case final d? when d.configured) ...[
+        const SizedBox(height: 14),
+        _dropboxCard(d, lib),
+      ],
       if (lib.count > 0)
         Align(
           alignment: Alignment.centerRight,

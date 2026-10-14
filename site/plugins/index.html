@@ -225,16 +225,22 @@
           <code>[al:]</code> (album) and <code>[length:]</code> (song length) are optional.</p>
 
         <h3>Where to keep them</h3>
+        <p><b>Dropbox — automatic (recommended).</b></p>
         <ol>
-          <li>On your computer, create a folder called <code>WaxClub Lyrics</code> <b>inside your Google Drive, OneDrive or
-            Dropbox folder</b> (the one their desktop app keeps in sync). You can use subfolders, e.g.
-            <code>WaxClub Lyrics/The Beatles/Abbey Road/</code>.</li>
-          <li>Save your <code>.lrc</code> / <code>.txt</code> files there. The cloud copies them for you — no need to share
-            folders on your network.</li>
-          <li>In WaxClub: <b>Plugins → S5 My lyrics files → Add lyrics files</b>, open Google Drive, OneDrive or Dropbox in the
-            file picker, go to <code>WaxClub Lyrics</code> and select the files (you can select many at once).</li>
-          <li>Your lyrics always win over the web sources for that song.</li>
+          <li>In WaxClub: <b>Plugins → S5 My lyrics files → Connect Dropbox</b> and sign in. WaxClub creates the folder
+            <code>Dropbox/Apps/WaxClub</code> and can see <b>only that folder</b> — nothing else in your Dropbox.</li>
+          <li>On your computer, save your <code>.lrc</code> / <code>.txt</code> files in <code>Dropbox/Apps/WaxClub</code>
+            (subfolders are fine, e.g. <code>Apps/WaxClub/The Beatles/Abbey Road/</code>).</li>
+          <li>WaxClub updates your lyrics every time it opens (or tap <b>Sync now</b>): new and changed files come in,
+            deleted files go away.</li>
         </ol>
+        <p><b>Google Drive, OneDrive or your phone — pick the files.</b></p>
+        <ol>
+          <li>On your computer, keep a <code>WaxClub Lyrics</code> folder inside your Google Drive or OneDrive folder.</li>
+          <li>In WaxClub: <b>Plugins → S5 My lyrics files → Add lyrics files</b>, open Google Drive or OneDrive in the file
+            picker, go to <code>WaxClub Lyrics</code> and select the files (many at once). Do it again when you add new ones.</li>
+        </ol>
+        <p>No need to share folders on your home network. Your lyrics always win over the web sources for that song.</p>
       </div>
       <div class="panel warn">
         <p style="margin:0">Only add lyrics you have the right to use. WaxClub shows them only to you, on your phone and your TV,
@@ -263,7 +269,7 @@
       ['src', 'S2', 'NetEase Cloud Music', 'avail', 'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.', 'lyrics.netease'],
       ['src', 'S3', 'Megalobiz', 'avail', 'Community archive of synced lyrics (LRC files). Tried after NetEase.', 'lyrics.megalobiz'],
       ['src', 'S4', 'Lyrics.ovh', 'avail', 'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.', 'lyrics.lyricsovh'],
-      ['src', 'S5', 'My lyrics files', 'avail', 'Shows lyrics files you have the right to use (.lrc or .txt), picked from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources. See “Your lyrics files” below.', 'lyrics.myfiles'],
+      ['src', 'S5', 'My lyrics files', 'avail', 'Shows lyrics files you have the right to use (.lrc or .txt), kept in your Dropbox app folder (updated automatically) or picked from your phone, Google Drive or OneDrive. They always win over the web sources. See “Your lyrics files” below.', 'lyrics.myfiles'],
       ['ai', 'A1', 'AI Curiosities', 'soon', 'Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.'],
       ['ai', 'A2', 'AI Translation', 'soon', 'Curiosities and news translated into your language (WaxClub content is in English).'],
       ['conn', 'C1', 'Discogs', 'built', 'Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.'],

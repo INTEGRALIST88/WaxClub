@@ -35,6 +35,7 @@ import '../../services/plugins/plugin_links.dart';
 import '../../services/plugins/plugin_manifest.dart';
 import '../../services/lyrics_provider_service.dart';
 import '../../services/local_lyrics_library.dart';
+import '../../services/dropbox/dropbox_service.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
 import 'account_screen.dart';
@@ -120,6 +121,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     // Plugin S5: letras do próprio usuário
     LyricsProviderService.myLyrics = _myLyrics;
     _myLyrics.load();
+    // Pasta das letras no Dropbox: atualiza ao abrir o app (sem avisar; falha fica para a próxima)
+    _dropbox.load().then((_) async {
+      if (!_dropbox.isConnected) return;
+      try {
+        await _dropbox.syncInto(_myLyrics);
+      } catch (e) {
+        debugPrint('[Dropbox] Sincronização ao abrir falhou: $e');
+      }
+    });
     // Plugin pedido pelo site ("Install" no navegador do celular): instala assim que os plugins carregam
     PluginLinks.instance.pending.addListener(_onPluginLink);
     PluginLinks.instance.start();
@@ -181,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     LyricsProviderService.sourceEnabled = (_) => true;
     LyricsProviderService.myLyrics = null;
     _myLyrics.dispose();
+    _dropbox.dispose();
     _plugins.dispose();
     _account.detachCollection(_collection);
     if (widget.account == null) _account.dispose();
@@ -733,12 +744,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// Jukebox de plugins (idiomas, exibição, fontes de letras, IA, conexões).
   void _openPlugins() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => PluginJukeboxScreen(store: _plugins, installer: _pluginInstaller, myLyrics: _myLyrics),
+      builder: (_) => PluginJukeboxScreen(store: _plugins, installer: _pluginInstaller, myLyrics: _myLyrics, dropbox: _dropbox),
     ));
   }
 
   late final PluginInstaller _pluginInstaller = PluginInstaller(store: _plugins);
   final LocalLyricsLibrary _myLyrics = LocalLyricsLibrary();
+  final DropboxService _dropbox = DropboxService();
 
   /// Link "Install" do site: com a conta pronta (esta tela só existe depois do login), instala na hora.
   void _onPluginLink() {

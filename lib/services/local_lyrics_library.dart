@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dropbox/dropbox_service.dart';
 import 'tracklist_matcher.dart';
 
 /// Uma letra importada pelo usuário (arquivo .lrc ou .txt que ele tem o direito de usar).
@@ -13,6 +14,10 @@ class LocalLyricsEntry {
   final double? durationSeconds;
   final String fileName;
 
+  /// Veio da pasta do app no Dropbox (caminho e revisão do arquivo lá); nulo = escolhido no seletor.
+  final String? dropboxPath;
+  final String? dropboxRev;
+
   const LocalLyricsEntry({
     required this.title,
     required this.artist,
@@ -20,7 +25,20 @@ class LocalLyricsEntry {
     required this.lyrics,
     this.durationSeconds,
     required this.fileName,
+    this.dropboxPath,
+    this.dropboxRev,
   });
+
+  LocalLyricsEntry fromDropbox(String path, String rev) => LocalLyricsEntry(
+        title: title,
+        artist: artist,
+        album: album,
+        lyrics: lyrics,
+        durationSeconds: durationSeconds,
+        fileName: fileName,
+        dropboxPath: path,
+        dropboxRev: rev,
+      );
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -29,6 +47,8 @@ class LocalLyricsEntry {
         'lyrics': lyrics,
         if (durationSeconds != null) 'duration': durationSeconds,
         'file': fileName,
+        if (dropboxPath != null) 'dropboxPath': dropboxPath,
+        if (dropboxRev != null) 'dropboxRev': dropboxRev,
       };
 
   factory LocalLyricsEntry.fromJson(Map<String, dynamic> j) => LocalLyricsEntry(
@@ -38,7 +58,24 @@ class LocalLyricsEntry {
         lyrics: j['lyrics'] as String,
         durationSeconds: (j['duration'] as num?)?.toDouble(),
         fileName: j['file'] as String? ?? '',
+        dropboxPath: j['dropboxPath'] as String?,
+        dropboxRev: j['dropboxRev'] as String?,
       );
+}
+
+/// Pasta de letras na nuvem (a pasta do app no Dropbox): listar e baixar.
+abstract class LyricsFolderSource {
+  Future<List<DropboxFile>> listAppFolder();
+  Future<String> download(String path);
+}
+
+/// Resultado de uma sincronização com a pasta da nuvem.
+class LyricsFolderSync {
+  final int added;
+  final int updated;
+  final int removed;
+  final List<String> skipped;
+  const LyricsFolderSync({required this.added, required this.updated, required this.removed, required this.skipped});
 }
 
 /// Resultado de uma importação: quantas letras entraram e quais arquivos não foram entendidos.
@@ -121,6 +158,50 @@ class LocalLyricsLibrary extends ChangeNotifier {
       await _save();
     }
     return LocalLyricsImport(added, skipped);
+  }
+
+  int get dropboxCount => _entries.where((e) => e.dropboxPath != null).length;
+
+  /// Atualiza a partir da pasta do app no Dropbox: baixa só os arquivos novos ou alterados (pela
+  /// revisão), tira os que foram apagados de lá. Os escolhidos à mão no seletor ficam.
+  Future<LyricsFolderSync> syncFrom(LyricsFolderSource folder) async {
+    await load();
+    final files = (await folder.listAppFolder()).where((f) {
+      final n = f.name.toLowerCase();
+      return (n.endsWith('.lrc') || n.endsWith('.txt')) && f.size <= maxFileBytes;
+    }).toList();
+    final byPath = {for (final e in _entries) if (e.dropboxPath != null) e.dropboxPath!.toLowerCase(): e};
+    var added = 0, updated = 0;
+    final skipped = <String>[];
+    for (final f in files) {
+      final known = byPath[f.path.toLowerCase()];
+      if (known != null && known.dropboxRev == f.rev) continue;
+      final String content;
+      try {
+        content = await folder.download(f.path);
+      } catch (_) {
+        skipped.add(f.name);
+        continue;
+      }
+      final e = parse(f.name, content)?.fromDropbox(f.path, f.rev);
+      if (e == null) {
+        skipped.add(f.name);
+        continue;
+      }
+      _entries.removeWhere((x) =>
+          (x.dropboxPath?.toLowerCase() == f.path.toLowerCase()) || TracklistMatcher.isSameTrack(x.title, x.artist, e.title, e.artist));
+      _entries.add(e);
+      known == null ? added++ : updated++;
+    }
+    final present = files.map((f) => f.path.toLowerCase()).toSet();
+    final before = _entries.length;
+    _entries.removeWhere((e) => e.dropboxPath != null && !present.contains(e.dropboxPath!.toLowerCase()));
+    final removed = before - _entries.length;
+    if (added + updated + removed > 0) {
+      notifyListeners();
+      await _save();
+    }
+    return LyricsFolderSync(added: added, updated: updated, removed: removed, skipped: skipped);
   }
 
   Future<void> clear() async {

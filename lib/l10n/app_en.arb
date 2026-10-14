@@ -1339,7 +1339,7 @@
   "pluginMyLyricsName": "My lyrics files",
   "pluginMyLyricsAuthor": "You (your own files)",
   "pluginMyLyricsLicense": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
-  "pluginMyLyricsDesc": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.",
+  "pluginMyLyricsDesc": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.",
   "myLyricsCount": "{count, plural, =0{No lyrics files yet} =1{1 lyrics file on this phone} other{{count} lyrics files on this phone}}",
   "@myLyricsCount": {
     "placeholders": {
@@ -1367,5 +1367,55 @@
       }
     }
   },
-  "myLyricsClear": "Remove all"
+  "myLyricsClear": "Remove all",
+  "dropboxTitle": "Dropbox folder",
+  "dropboxHint": "Keep your lyrics files in Dropbox/{folder} (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder.",
+  "@dropboxHint": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "dropboxConnect": "Connect Dropbox",
+  "dropboxConnectedAs": "Dropbox: {name}",
+  "@dropboxConnectedAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dropboxFolderStatus": "Folder Dropbox/{folder} · {count} files · last sync {when}",
+  "@dropboxFolderStatus": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "dropboxNeverSynced": "never",
+  "dropboxSyncNow": "Sync now",
+  "dropboxSynced": "Dropbox: {added} new, {updated} updated, {removed} removed.",
+  "@dropboxSynced": {
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "removed": {
+        "type": "int"
+      }
+    }
+  },
+  "dropboxSyncFailed": "Couldn't read your Dropbox folder. Check your internet and try again.",
+  "dropboxLoginFailed": "Couldn't connect to Dropbox. Try again."
 }

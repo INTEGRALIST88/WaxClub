@@ -2,6 +2,18 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.11] — 14/10/2026 (Letras do Usuário pela Pasta do Dropbox)
+
+* **Plugin S5 "My lyrics files" + Dropbox:** **Connect Dropbox** (login do Dropbox dentro do app, OAuth 2 com PKCE — sem segredo no app; acesso renovável guardado cifrado no aparelho). O WaxClub enxerga **só a pasta do app** (`Dropbox/Apps/WaxClub`), nada mais da conta.
+  * O usuário salva os `.lrc`/`.txt` nessa pasta pelo computador (subpastas valem); o app **atualiza ao abrir** e no botão **Sync now**: baixa só os arquivos novos ou alterados (pela revisão do Dropbox), tira os apagados lá; os escolhidos à mão no seletor ficam.
+  * Cartão do Dropbox no S5: conta conectada, pasta, quantas letras vieram de lá, última sincronização, **Disconnect** (revoga o acesso).
+  * Nomes com acentos funcionam (cabeçalho do Dropbox com \\uXXXX).
+* **Pendente do lado do usuário:** cadastrar o app no Dropbox (Scoped access → App folder; permissões `files.metadata.read` e `files.content.read`; Redirect URI `https://waxclub.com.br/auth/dropbox/`; "Allow public clients (PKCE)") e informar a **App key** — sem ela, o cartão do Dropbox não aparece.
+* **Site:** página `/auth/dropbox/` (retorno do login, reserva) e, em /plugins/ → "Your lyrics files", os passos do Dropbox automático e do Google Drive/OneDrive pelo seletor.
+* Dependência `crypto` (SHA-256 do PKCE) declarada no pubspec.
+* Testes: `dropbox_lyrics_test.dart` (PKCE do RFC 7636, acentos no cabeçalho, login com state, renovação do acesso, sincronização: novos, alterados, apagados, manuais ficam) — 284 no total.
+
+---
 ## [v1.4.10] — 14/10/2026 (Nenhuma Fonte de Letras Embutida, Plugin "My Lyrics Files" e Página de Plugins no Site)
 
 * **Nenhuma fonte de letras embutida** (app da loja): S1 LRCLIB passou a ser instalável como as outras (site ou jukebox). **Antes do lançamento, para os testes,** as quatro fontes da web vêm instaladas uma vez (`PluginCatalog.preLaunchBundledLyrics = true` — mudar para `false` no lançamento); depois vale o que o usuário instalar ou desinstalar.

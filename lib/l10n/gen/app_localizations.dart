@@ -3643,7 +3643,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginMyLyricsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Pick them from your phone, Google Drive, OneDrive or Dropbox. They always win over the web sources.'**
+  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in your Dropbox app folder (updated automatically) or pick them from your phone, Google Drive or OneDrive. They always win over the web sources.'**
   String get pluginMyLyricsDesc;
 
   /// No description provided for @myLyricsCount.
@@ -3687,6 +3687,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove all'**
   String get myLyricsClear;
+
+  /// No description provided for @dropboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropbox folder'**
+  String get dropboxTitle;
+
+  /// No description provided for @dropboxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your lyrics files in Dropbox/{folder} (on your computer too) and WaxClub keeps them up to date by itself. WaxClub can only see that folder.'**
+  String dropboxHint(String folder);
+
+  /// No description provided for @dropboxConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Dropbox'**
+  String get dropboxConnect;
+
+  /// No description provided for @dropboxConnectedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropbox: {name}'**
+  String dropboxConnectedAs(String name);
+
+  /// No description provided for @dropboxFolderStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder Dropbox/{folder} · {count} files · last sync {when}'**
+  String dropboxFolderStatus(String folder, int count, String when);
+
+  /// No description provided for @dropboxNeverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'never'**
+  String get dropboxNeverSynced;
+
+  /// No description provided for @dropboxSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get dropboxSyncNow;
+
+  /// No description provided for @dropboxSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropbox: {added} new, {updated} updated, {removed} removed.'**
+  String dropboxSynced(int added, int updated, int removed);
+
+  /// No description provided for @dropboxSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read your Dropbox folder. Check your internet and try again.'**
+  String get dropboxSyncFailed;
+
+  /// No description provided for @dropboxLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t connect to Dropbox. Try again.'**
+  String get dropboxLoginFailed;
 }
 
 class _AppLocalizationsDelegate
