@@ -1069,21 +1069,11 @@
   "manualSuggestionAction": "Manual mode",
   "accountTitle": "WaxClub account",
   "accountTooltip": "WaxClub account",
-  "accountIntro": "Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.",
   "accountEmailLabel": "Email",
   "accountSendCode": "Send code",
-  "accountCodeSent": "We sent a 6-digit code to {email}. It expires in 15 minutes. Check your spam folder if it does not arrive.",
-  "@accountCodeSent": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
   "accountCodeLabel": "6-digit code",
   "accountSignIn": "Sign in",
   "accountResend": "Send a new code",
-  "accountChangeEmail": "Use another email",
   "accountSignedInAs": "Signed in as",
   "accountLastSync": "Last synced: {when}",
   "@accountLastSync": {
@@ -1108,5 +1098,65 @@
   "accountErrorExpired": "This code has expired or was used too many times. Ask for a new one.",
   "accountErrorTooMany": "Too many codes requested. Try again in an hour.",
   "accountErrorNetwork": "No connection to the WaxClub server. Check your internet.",
-  "accountErrorGeneric": "Something went wrong. Please try again."
+  "accountErrorGeneric": "Something went wrong. Please try again.",
+  "authWelcome": "Welcome to WaxClub",
+  "authSubtitle": "Sign in to join the club: your records, your city and your listening history, always in sync.",
+  "authPassword": "Password",
+  "authShowPassword": "Show password",
+  "authForgotPassword": "Forgot password?",
+  "authNoAccount": "New to WaxClub?",
+  "authCreateAccount": "Create account",
+  "authContinueWithGoogle": "Continue with Google",
+  "authOr": "or",
+  "signUpTitle": "Create your account",
+  "signUpUsername": "Username",
+  "signUpUsernameHint": "3 to 20 characters: letters, numbers, dot or underscore.",
+  "signUpUsernameTaken": "This username is taken.",
+  "signUpUsernameAvailable": "Available",
+  "signUpPasswordHint": "At least 8 characters.",
+  "signUpCountry": "Country",
+  "signUpState": "State / province",
+  "signUpCity": "City",
+  "signUpSearch": "Search",
+  "signUpPickCountryFirst": "Choose the country first",
+  "signUpPickStateFirst": "Choose the state first",
+  "signUpCityHint": "Type to search your city",
+  "signUpNoResults": "Nothing found",
+  "signUpLocationWhy": "Your city is used to show concerts near you.",
+  "verifyTitle": "Confirm your email",
+  "verifyBody": "We sent a 6-digit code to {email}. Enter it below to activate your account. Check your spam folder if it does not arrive.",
+  "@verifyBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyConfirm": "Confirm",
+  "verifyResent": "A new code is on its way.",
+  "forgotTitle": "Reset password",
+  "forgotBody": "Enter the email of your account. We will send you a code to choose a new password.",
+  "forgotCodeSent": "If {email} has a WaxClub account, a 6-digit code is on its way.",
+  "@forgotCodeSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "forgotNewPassword": "New password",
+  "forgotSave": "Save and sign in",
+  "profileCompleteTitle": "Complete your profile",
+  "profileCompleteBody": "Choose a username and tell us where you are.",
+  "profileSave": "Save",
+  "accountEditProfile": "Edit profile",
+  "authErrorCredentials": "Wrong email or password.",
+  "authErrorNoPassword": "This account has no password yet. Tap \"Forgot password?\" to create one.",
+  "authErrorEmailTaken": "This email already has an account. Sign in or reset the password.",
+  "authErrorWeakPassword": "The password needs at least 8 characters.",
+  "authErrorUsername": "Choose a valid username.",
+  "authErrorLocation": "Choose your country, state and city.",
+  "authErrorTooManyAttempts": "Too many attempts. Wait 15 minutes and try again.",
+  "authErrorRequired": "Fill in all the fields.",
+  "geoAttribution": "Location data © GeoNames (geonames.org), CC BY 4.0."
 }

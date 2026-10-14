@@ -9,24 +9,97 @@ import '../collection_service.dart';
 class WaxClubAccount {
   final int id;
   final String email;
+  final String? username;
   final String? displayName;
+  final String? countryCode;
+  final String? stateCode;
+  final String? stateName;
+  final int? cityId;
   final String? city;
+  final bool hasPassword;
+  final bool google;
 
-  const WaxClubAccount({required this.id, required this.email, this.displayName, this.city});
+  /// Nome de usuário e local preenchidos (quem entrou pelo Google ainda precisa completar).
+  final bool profileComplete;
+
+  const WaxClubAccount({
+    required this.id,
+    required this.email,
+    this.username,
+    this.displayName,
+    this.countryCode,
+    this.stateCode,
+    this.stateName,
+    this.cityId,
+    this.city,
+    this.hasPassword = false,
+    this.google = false,
+    this.profileComplete = false,
+  });
+
+  /// "Campinas, São Paulo, BR"
+  String get locationLabel => [city, stateName, countryCode].whereType<String>().where((s) => s.isNotEmpty).join(', ');
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'email': email,
+        if (username != null) 'username': username,
         if (displayName != null) 'displayName': displayName,
+        if (countryCode != null) 'countryCode': countryCode,
+        if (stateCode != null) 'stateCode': stateCode,
+        if (stateName != null) 'stateName': stateName,
+        if (cityId != null) 'cityId': cityId,
         if (city != null) 'city': city,
+        'hasPassword': hasPassword,
+        'google': google,
+        'profileComplete': profileComplete,
       };
 
   factory WaxClubAccount.fromJson(Map<String, dynamic> j) => WaxClubAccount(
         id: (j['id'] as num).toInt(),
         email: j['email'] as String,
+        username: j['username'] as String?,
         displayName: j['displayName'] as String?,
+        countryCode: j['countryCode'] as String?,
+        stateCode: j['stateCode'] as String?,
+        stateName: j['stateName'] as String?,
+        cityId: (j['cityId'] as num?)?.toInt(),
         city: j['city'] as String?,
+        hasPassword: j['hasPassword'] == true,
+        google: j['google'] == true,
+        profileComplete: j['profileComplete'] == true,
       );
+}
+
+/// País da lista do cadastro (base GeoNames).
+class GeoCountry {
+  final String code;
+  final String name;
+  final bool hasStates;
+  const GeoCountry(this.code, this.name, {this.hasStates = false});
+}
+
+/// Estado/província de um país.
+class GeoState {
+  final String code;
+  final String name;
+  const GeoState(this.code, this.name);
+}
+
+/// Cidade (busca no servidor).
+class GeoCity {
+  final int id;
+  final String name;
+  final String stateCode;
+  const GeoCity(this.id, this.name, this.stateCode);
+}
+
+/// Local escolhido no cadastro.
+class LocationChoice {
+  final GeoCountry country;
+  final GeoState? state;
+  final GeoCity city;
+  const LocationChoice({required this.country, this.state, required this.city});
 }
 
 /// Erro devolvido pela API (`error` do JSON) ou de rede (`network`).
@@ -130,6 +203,13 @@ class AccountService extends ChangeNotifier {
     collection.addListener(_onCollectionChanged);
   }
 
+  void detachCollection(CollectionService collection) {
+    if (_collection != collection) return;
+    collection.removeListener(_onCollectionChanged);
+    _collection = null;
+    _syncTimer?.cancel();
+  }
+
   void _onCollectionChanged() {
     if (!isSignedIn || _syncing) return;
     _syncTimer?.cancel();
@@ -140,6 +220,7 @@ class AccountService extends ChangeNotifier {
   Future<void> load() async {
     if (_loaded) return;
     _loaded = true;
+    _loading = true;
     _token = await _store.read(_kToken);
     final raw = await _store.read(_kAccount);
     if (raw != null) {
@@ -149,6 +230,7 @@ class AccountService extends ChangeNotifier {
     }
     _lastSyncAt = DateTime.tryParse(await _store.read(_kLastSync) ?? '');
     if (_token == null) _account = null;
+    _loading = false;
     notifyListeners();
     if (isSignedIn) unawaited(_refreshAndSync());
   }
@@ -166,15 +248,117 @@ class AccountService extends ChangeNotifier {
     await sync();
   }
 
-  /// Pede o código de 6 dígitos para o e-mail.
-  Future<void> requestCode(String email) async {
-    await _request('POST', '/auth/email/start', body: {'email': email.trim()}, auth: false);
+  bool get isLoaded => _loaded && !_loading;
+  bool _loading = false;
+
+  static const String _device = 'WaxClub Android';
+
+  /// Cadastro com senha: o servidor manda um código para confirmar o e-mail ([verifyEmail]).
+  Future<void> register({
+    required String email,
+    required String password,
+    required String username,
+    required LocationChoice location,
+  }) async {
+    await _request('POST', '/auth/register',
+        body: {
+          'email': email.trim(),
+          'password': password,
+          'username': username.trim(),
+          ..._locationBody(location),
+        },
+        auth: false);
   }
 
-  /// Confere o código, abre a sessão e envia a coleção do aparelho para a conta.
-  Future<void> verifyCode(String email, String code) async {
-    final j = await _request('POST', '/auth/email/verify',
-        body: {'email': email.trim(), 'code': code.trim(), 'device': 'WaxClub Android'}, auth: false);
+  /// Confirma o e-mail com o código e entra na conta.
+  Future<void> verifyEmail(String email, String code) async {
+    final j = await _request('POST', '/auth/verify-email',
+        body: {'email': email.trim(), 'code': code.trim(), 'device': _device}, auth: false);
+    await _openSession(j);
+  }
+
+  Future<void> resendVerification(String email) async {
+    await _request('POST', '/auth/verify-email/resend', body: {'email': email.trim()}, auth: false);
+  }
+
+  /// Login com e-mail e senha. E-mail ainda não confirmado: erro `email_not_verified` (o servidor reenvia o código).
+  Future<void> login(String email, String password) async {
+    final j = await _request('POST', '/auth/login',
+        body: {'email': email.trim(), 'password': password, 'device': _device}, auth: false);
+    await _openSession(j);
+  }
+
+  /// Login com o token do Google (idToken obtido no aparelho).
+  Future<void> loginWithGoogle(String idToken) async {
+    final j = await _request('POST', '/auth/google', body: {'idToken': idToken, 'device': _device}, auth: false);
+    await _openSession(j);
+  }
+
+  /// "Esqueci a senha": manda o código para o e-mail.
+  Future<void> forgotPassword(String email) async {
+    await _request('POST', '/auth/password/forgot', body: {'email': email.trim()}, auth: false);
+  }
+
+  /// Nova senha com o código do e-mail; entra na conta (as outras sessões são encerradas).
+  Future<void> resetPassword(String email, String code, String password) async {
+    final j = await _request('POST', '/auth/password/reset',
+        body: {'email': email.trim(), 'code': code.trim(), 'password': password, 'device': _device}, auth: false);
+    await _openSession(j);
+  }
+
+  /// Nome de usuário e local (completar o cadastro ou editar o perfil).
+  Future<void> updateProfile({required String username, required LocationChoice location}) async {
+    final j = await _request('PATCH', '/me', body: {'username': username.trim(), ..._locationBody(location)});
+    await _saveAccount(WaxClubAccount.fromJson(j['user'] as Map<String, dynamic>));
+  }
+
+  /// `null` quando o nome é inválido; senão, se está livre.
+  Future<bool?> usernameAvailable(String username) async {
+    final j = await _request('GET', '/auth/username-available?u=${Uri.encodeQueryComponent(username.trim())}', auth: false);
+    return j['valid'] == true ? j['available'] == true : null;
+  }
+
+  Map<String, dynamic> _locationBody(LocationChoice l) => {
+        'countryCode': l.country.code,
+        if (l.state != null) 'stateCode': l.state!.code,
+        'cityId': l.city.id,
+      };
+
+  // ---------- listas do cadastro ----------
+
+  List<GeoCountry>? _countries;
+
+  Future<List<GeoCountry>> countries() async {
+    if (_countries != null) return _countries!;
+    final j = await _request('GET', '/geo/countries', auth: false);
+    return _countries = [
+      for (final c in (j['countries'] as List).cast<Map<String, dynamic>>())
+        GeoCountry(c['code'] as String, c['name'] as String, hasStates: c['hasStates'] == true),
+    ];
+  }
+
+  Future<List<GeoState>> states(String countryCode) async {
+    final j = await _request('GET', '/geo/states?country=${Uri.encodeQueryComponent(countryCode)}', auth: false);
+    return [
+      for (final s in (j['states'] as List).cast<Map<String, dynamic>>()) GeoState(s['code'] as String, s['name'] as String),
+    ];
+  }
+
+  Future<List<GeoCity>> cities(String countryCode, {String? stateCode, String query = ''}) async {
+    final qs = [
+      'country=${Uri.encodeQueryComponent(countryCode)}',
+      if (stateCode != null) 'state=${Uri.encodeQueryComponent(stateCode)}',
+      if (query.trim().isNotEmpty) 'q=${Uri.encodeQueryComponent(query.trim())}',
+    ].join('&');
+    final j = await _request('GET', '/geo/cities?$qs', auth: false);
+    return [
+      for (final c in (j['cities'] as List).cast<Map<String, dynamic>>())
+        GeoCity((c['id'] as num).toInt(), c['name'] as String, c['stateCode'] as String? ?? ''),
+    ];
+  }
+
+  /// Guarda a sessão nova e envia a coleção do aparelho para a conta.
+  Future<void> _openSession(Map<String, dynamic> j) async {
     _token = j['token'] as String;
     await _store.write(_kToken, _token);
     // conta nova neste aparelho: a próxima sincronização envia tudo e recebe tudo

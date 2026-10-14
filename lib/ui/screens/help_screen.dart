@@ -90,6 +90,11 @@ class HelpScreen extends StatelessWidget {
                 child: Text(l10n.helpCopyLogsHint,
                     style: const TextStyle(color: Colors.white24, fontSize: 11)),
               ),
+              const SizedBox(height: 4),
+              Center(
+                child: Text(l10n.geoAttribution,
+                    textAlign: TextAlign.center, style: const TextStyle(color: Colors.white24, fontSize: 11)),
+              ),
             ],
           ),
         ],

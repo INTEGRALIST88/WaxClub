@@ -1545,19 +1545,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountTooltip => 'WaxClub account';
 
   @override
-  String get accountIntro =>
-      'Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.';
-
-  @override
   String get accountEmailLabel => 'Email';
 
   @override
   String get accountSendCode => 'Send code';
-
-  @override
-  String accountCodeSent(String email) {
-    return 'We sent a 6-digit code to $email. It expires in 15 minutes. Check your spam folder if it does not arrive.';
-  }
 
   @override
   String get accountCodeLabel => '6-digit code';
@@ -1567,9 +1558,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountResend => 'Send a new code';
-
-  @override
-  String get accountChangeEmail => 'Use another email';
 
   @override
   String get accountSignedInAs => 'Signed in as';
@@ -1632,4 +1620,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get authWelcome => 'Welcome to WaxClub';
+
+  @override
+  String get authSubtitle =>
+      'Sign in to join the club: your records, your city and your listening history, always in sync.';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authForgotPassword => 'Forgot password?';
+
+  @override
+  String get authNoAccount => 'New to WaxClub?';
+
+  @override
+  String get authCreateAccount => 'Create account';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authOr => 'or';
+
+  @override
+  String get signUpTitle => 'Create your account';
+
+  @override
+  String get signUpUsername => 'Username';
+
+  @override
+  String get signUpUsernameHint =>
+      '3 to 20 characters: letters, numbers, dot or underscore.';
+
+  @override
+  String get signUpUsernameTaken => 'This username is taken.';
+
+  @override
+  String get signUpUsernameAvailable => 'Available';
+
+  @override
+  String get signUpPasswordHint => 'At least 8 characters.';
+
+  @override
+  String get signUpCountry => 'Country';
+
+  @override
+  String get signUpState => 'State / province';
+
+  @override
+  String get signUpCity => 'City';
+
+  @override
+  String get signUpSearch => 'Search';
+
+  @override
+  String get signUpPickCountryFirst => 'Choose the country first';
+
+  @override
+  String get signUpPickStateFirst => 'Choose the state first';
+
+  @override
+  String get signUpCityHint => 'Type to search your city';
+
+  @override
+  String get signUpNoResults => 'Nothing found';
+
+  @override
+  String get signUpLocationWhy =>
+      'Your city is used to show concerts near you.';
+
+  @override
+  String get verifyTitle => 'Confirm your email';
+
+  @override
+  String verifyBody(String email) {
+    return 'We sent a 6-digit code to $email. Enter it below to activate your account. Check your spam folder if it does not arrive.';
+  }
+
+  @override
+  String get verifyConfirm => 'Confirm';
+
+  @override
+  String get verifyResent => 'A new code is on its way.';
+
+  @override
+  String get forgotTitle => 'Reset password';
+
+  @override
+  String get forgotBody =>
+      'Enter the email of your account. We will send you a code to choose a new password.';
+
+  @override
+  String forgotCodeSent(String email) {
+    return 'If $email has a WaxClub account, a 6-digit code is on its way.';
+  }
+
+  @override
+  String get forgotNewPassword => 'New password';
+
+  @override
+  String get forgotSave => 'Save and sign in';
+
+  @override
+  String get profileCompleteTitle => 'Complete your profile';
+
+  @override
+  String get profileCompleteBody =>
+      'Choose a username and tell us where you are.';
+
+  @override
+  String get profileSave => 'Save';
+
+  @override
+  String get accountEditProfile => 'Edit profile';
+
+  @override
+  String get authErrorCredentials => 'Wrong email or password.';
+
+  @override
+  String get authErrorNoPassword =>
+      'This account has no password yet. Tap \"Forgot password?\" to create one.';
+
+  @override
+  String get authErrorEmailTaken =>
+      'This email already has an account. Sign in or reset the password.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'The password needs at least 8 characters.';
+
+  @override
+  String get authErrorUsername => 'Choose a valid username.';
+
+  @override
+  String get authErrorLocation => 'Choose your country, state and city.';
+
+  @override
+  String get authErrorTooManyAttempts =>
+      'Too many attempts. Wait 15 minutes and try again.';
+
+  @override
+  String get authErrorRequired => 'Fill in all the fields.';
+
+  @override
+  String get geoAttribution =>
+      'Location data © GeoNames (geonames.org), CC BY 4.0.';
 }

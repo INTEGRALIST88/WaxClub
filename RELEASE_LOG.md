@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.21] — 14/10/2026 (Login Obrigatório e Cadastro Completo)
+
+* **Login antes de abrir o app:** a primeira tela é a de entrada (e-mail e senha). A sessão fica salva: o login só volta depois de sair da conta.
+* **Cadastro:** nome de usuário (único, conferido enquanto digita), e-mail, senha (mínimo 8 caracteres) e local — **país**, **estado/província** (quando o país tem) e **cidade**, cada um escolhido numa lista com busca. A cidade será usada para os shows perto do usuário.
+* **Confirmação do e-mail** com o código de 6 dígitos (reenvio na própria tela); login de conta não confirmada leva à confirmação.
+* **Esqueci a senha:** código no e-mail + senha nova; entra na conta e encerra as outras sessões.
+* **Completar o perfil:** quem entrou pelo código antigo (1.3.20) ou, no futuro, pelo Google escolhe nome de usuário e local antes de usar o app.
+* **Tela da conta:** @usuário, e-mail e local, "Edit profile", sincronização, sair e apagar a conta (sair volta para a tela de login).
+* **Google:** o servidor já aceita; o botão "Continue with Google" aparece quando o Client ID do Google Cloud for configurado. **Apple** fica para depois (decisão do usuário).
+* **Servidor (API, esquema 3):** `/v1/auth/register`, `/verify-email`, `/login`, `/password/forgot`, `/password/reset`, `/username-available`; perfil com usuário e local; base de países (252), estados (3.768) e cidades (161.702) do **GeoNames** (CC BY 4.0, crédito na Ajuda e no site) em `/v1/geo/*`; senhas guardadas só como hash; limite de tentativas de login. E-mails pela caixa `waxclub@waxclub.com.br` (SMTP).
+* Testes: `widget_test.dart` (login como primeira tela, completar o perfil), `account_service_test.dart` (senha, cadastro com local, confirmação, conta não confirmada, listas e perfil) — 236 no total.
+
+---
 ## [v1.3.20] — 13/10/2026 (Conta WaxClub e Sincronização da Coleção)
 
 * **Conta WaxClub:** botão da nuvem no topo de **My Collection** abre a tela da conta. Entrar com o **código de 6 dígitos enviado ao e-mail** (sem senha); a conta é criada no primeiro login. Na conta: última sincronização, "Sync now", sair e **apagar a conta** (remove do servidor a conta, a coleção sincronizada e as audições; a coleção do aparelho continua).

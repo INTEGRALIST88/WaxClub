@@ -2584,12 +2584,6 @@ abstract class AppLocalizations {
   /// **'WaxClub account'**
   String get accountTooltip;
 
-  /// No description provided for @accountIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to keep your collection and listening history safe in your WaxClub account and in sync across your devices.'**
-  String get accountIntro;
-
   /// No description provided for @accountEmailLabel.
   ///
   /// In en, this message translates to:
@@ -2601,12 +2595,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send code'**
   String get accountSendCode;
-
-  /// No description provided for @accountCodeSent.
-  ///
-  /// In en, this message translates to:
-  /// **'We sent a 6-digit code to {email}. It expires in 15 minutes. Check your spam folder if it does not arrive.'**
-  String accountCodeSent(String email);
 
   /// No description provided for @accountCodeLabel.
   ///
@@ -2625,12 +2613,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send a new code'**
   String get accountResend;
-
-  /// No description provided for @accountChangeEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Use another email'**
-  String get accountChangeEmail;
 
   /// No description provided for @accountSignedInAs.
   ///
@@ -2739,6 +2721,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get accountErrorGeneric;
+
+  /// No description provided for @authWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to WaxClub'**
+  String get authWelcome;
+
+  /// No description provided for @authSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to join the club: your records, your city and your listening history, always in sync.'**
+  String get authSubtitle;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authForgotPassword;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'New to WaxClub?'**
+  String get authNoAccount;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authCreateAccount;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authOr.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get authOr;
+
+  /// No description provided for @signUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get signUpTitle;
+
+  /// No description provided for @signUpUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get signUpUsername;
+
+  /// No description provided for @signUpUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'3 to 20 characters: letters, numbers, dot or underscore.'**
+  String get signUpUsernameHint;
+
+  /// No description provided for @signUpUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is taken.'**
+  String get signUpUsernameTaken;
+
+  /// No description provided for @signUpUsernameAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get signUpUsernameAvailable;
+
+  /// No description provided for @signUpPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters.'**
+  String get signUpPasswordHint;
+
+  /// No description provided for @signUpCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get signUpCountry;
+
+  /// No description provided for @signUpState.
+  ///
+  /// In en, this message translates to:
+  /// **'State / province'**
+  String get signUpState;
+
+  /// No description provided for @signUpCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get signUpCity;
+
+  /// No description provided for @signUpSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get signUpSearch;
+
+  /// No description provided for @signUpPickCountryFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the country first'**
+  String get signUpPickCountryFirst;
+
+  /// No description provided for @signUpPickStateFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the state first'**
+  String get signUpPickStateFirst;
+
+  /// No description provided for @signUpCityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search your city'**
+  String get signUpCityHint;
+
+  /// No description provided for @signUpNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get signUpNoResults;
+
+  /// No description provided for @signUpLocationWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your city is used to show concerts near you.'**
+  String get signUpLocationWhy;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. Enter it below to activate your account. Check your spam folder if it does not arrive.'**
+  String verifyBody(String email);
+
+  /// No description provided for @verifyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get verifyConfirm;
+
+  /// No description provided for @verifyResent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new code is on its way.'**
+  String get verifyResent;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email of your account. We will send you a code to choose a new password.'**
+  String get forgotBody;
+
+  /// No description provided for @forgotCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If {email} has a WaxClub account, a 6-digit code is on its way.'**
+  String forgotCodeSent(String email);
+
+  /// No description provided for @forgotNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get forgotNewPassword;
+
+  /// No description provided for @forgotSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and sign in'**
+  String get forgotSave;
+
+  /// No description provided for @profileCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your profile'**
+  String get profileCompleteTitle;
+
+  /// No description provided for @profileCompleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a username and tell us where you are.'**
+  String get profileCompleteBody;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get profileSave;
+
+  /// No description provided for @accountEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get accountEditProfile;
+
+  /// No description provided for @authErrorCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email or password.'**
+  String get authErrorCredentials;
+
+  /// No description provided for @authErrorNoPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has no password yet. Tap \"Forgot password?\" to create one.'**
+  String get authErrorNoPassword;
+
+  /// No description provided for @authErrorEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account. Sign in or reset the password.'**
+  String get authErrorEmailTaken;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password needs at least 8 characters.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authErrorUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a valid username.'**
+  String get authErrorUsername;
+
+  /// No description provided for @authErrorLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your country, state and city.'**
+  String get authErrorLocation;
+
+  /// No description provided for @authErrorTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait 15 minutes and try again.'**
+  String get authErrorTooManyAttempts;
+
+  /// No description provided for @authErrorRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in all the fields.'**
+  String get authErrorRequired;
+
+  /// No description provided for @geoAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Location data © GeoNames (geonames.org), CC BY 4.0.'**
+  String get geoAttribution;
 }
 
 class _AppLocalizationsDelegate

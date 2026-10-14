@@ -13,6 +13,8 @@ class FakeApi {
   final List<String> calls = [];
   int clock = 1000;
   bool expireSession = false;
+  Map<String, dynamic>? registered;
+  Map<String, dynamic> user = {'id': 7, 'email': 'a@b.com', 'username': 'vinylfan', 'profileComplete': true};
 
   String _time(int t) => DateTime.utc(2026, 1, 1).add(Duration(seconds: t)).toIso8601String();
 
@@ -23,19 +25,42 @@ class FakeApi {
     http.Response json(int s, Object o) =>
         http.Response(jsonEncode(o), s, headers: {'content-type': 'application/json; charset=utf-8'});
     final path = r.url.path.replaceFirst('/v1', '');
-    if (path == '/auth/email/start') {
-      return (body['email'] as String).contains('@') ? json(200, {'sent': true}) : json(422, {'error': 'invalid_email'});
+    final session = {'token': 'wx_test', 'user': user};
+    if (path == '/auth/register') {
+      registered = body;
+      return json(200, {'pending': 'verify_email', 'email': body['email']});
     }
-    if (path == '/auth/email/verify') {
-      return body['code'] == '123456'
-          ? json(200, {
-              'token': 'wx_test',
-              'user': {'id': 7, 'email': body['email']},
-            })
-          : json(401, {'error': 'invalid_code', 'attemptsLeft': 4});
+    if (path == '/auth/verify-email') {
+      return body['code'] == '123456' ? json(200, session) : json(401, {'error': 'invalid_code', 'attemptsLeft': 4});
+    }
+    if (path == '/auth/login') {
+      if (body['email'] == 'new@b.com') return json(403, {'error': 'email_not_verified'});
+      return body['password'] == 'password1' ? json(200, session) : json(401, {'error': 'invalid_credentials'});
+    }
+    if (path == '/auth/username-available') {
+      final u = r.url.queryParameters['u']!;
+      return json(200, {'valid': u.length >= 3, 'available': u != 'taken'});
+    }
+    if (path == '/geo/states') {
+      return json(200, {
+        'states': [
+          {'code': '27', 'name': 'São Paulo'},
+        ],
+      });
+    }
+    if (path == '/geo/cities') {
+      return json(200, {
+        'cities': [
+          {'id': 3467865, 'name': 'Campinas', 'stateCode': '27'},
+        ],
+      });
     }
     if (!authed || expireSession) return json(401, {'error': 'unauthorized'});
-    if (path == '/me') return json(200, {'user': {'id': 7, 'email': 'a@b.com'}});
+    if (path == '/me' && r.method == 'PATCH') {
+      user = {...user, 'username': body['username'], 'countryCode': body['countryCode'], 'cityId': body['cityId'], 'profileComplete': true};
+      return json(200, {'user': user});
+    }
+    if (path == '/me') return json(200, {'user': user});
     if (path == '/auth/logout') return json(200, {'ok': true});
     if (path == '/collection/sync') {
       final out = [];
@@ -98,25 +123,65 @@ void main() {
   CollectionItem disc(String album, {String artist = 'Artist'}) =>
       CollectionItem(album: album, artist: artist, addedAt: DateTime(2026, 1, 1));
 
-  test('código errado mostra o erro da API; código certo abre a sessão e guarda o token', () async {
-    await expectLater(account.requestCode('sem-arroba'), throwsA(isA<AccountApiException>().having((e) => e.code, 'code', 'invalid_email')));
-    await account.requestCode('a@b.com');
-    await expectLater(account.verifyCode('a@b.com', '000000'),
-        throwsA(isA<AccountApiException>().having((e) => e.attemptsLeft, 'attemptsLeft', 4)));
+  test('senha errada mostra o erro da API; senha certa abre a sessão e guarda o token', () async {
+    await expectLater(account.login('a@b.com', 'errada'),
+        throwsA(isA<AccountApiException>().having((e) => e.code, 'code', 'invalid_credentials')));
     expect(account.isSignedIn, isFalse);
 
-    await account.verifyCode('a@b.com', '123456');
+    await account.login('a@b.com', 'password1');
     await settle(account);
     expect(account.isSignedIn, isTrue);
-    expect(account.account!.email, 'a@b.com');
+    expect(account.account!.username, 'vinylfan');
     expect(store.values['waxclub.account.token'], 'wx_test');
   });
 
+  test('cadastro envia nome de usuário e local; o código do e-mail confirma e entra na conta', () async {
+    final location = LocationChoice(
+      country: const GeoCountry('BR', 'Brazil', hasStates: true),
+      state: const GeoState('27', 'São Paulo'),
+      city: const GeoCity(3467865, 'Campinas', '27'),
+    );
+    await account.register(email: 'new@b.com', password: 'password1', username: 'NewFan', location: location);
+    expect(api.registered, containsPair('username', 'NewFan'));
+    expect(api.registered, containsPair('countryCode', 'BR'));
+    expect(api.registered, containsPair('stateCode', '27'));
+    expect(api.registered, containsPair('cityId', 3467865));
+    expect(account.isSignedIn, isFalse, reason: 'só entra depois de confirmar o e-mail');
+
+    await expectLater(account.verifyEmail('new@b.com', '000000'),
+        throwsA(isA<AccountApiException>().having((e) => e.attemptsLeft, 'attemptsLeft', 4)));
+    await account.verifyEmail('new@b.com', '123456');
+    await settle(account);
+    expect(account.isSignedIn, isTrue);
+  });
+
+  test('login de conta não confirmada avisa email_not_verified', () async {
+    await expectLater(account.login('new@b.com', 'password1'),
+        throwsA(isA<AccountApiException>().having((e) => e.code, 'code', 'email_not_verified')));
+  });
+
+  test('listas do cadastro e perfil: estados, cidades, nome livre/ocupado e atualização do perfil', () async {
+    expect((await account.states('BR')).single.name, 'São Paulo');
+    expect((await account.cities('BR', stateCode: '27', query: 'camp')).single.id, 3467865);
+    expect(await account.usernameAvailable('vinylfan2'), isTrue);
+    expect(await account.usernameAvailable('taken'), isFalse);
+    expect(await account.usernameAvailable('ab'), isNull);
+
+    api.user = {'id': 7, 'email': 'a@b.com', 'profileComplete': false};
+    await account.login('a@b.com', 'password1');
+    await settle(account);
+    expect(account.account!.profileComplete, isFalse);
+    await account.updateProfile(
+      username: 'vinylfan',
+      location: const LocationChoice(country: GeoCountry('BR', 'Brazil'), city: GeoCity(3467865, 'Campinas', '27')),
+    );
+    expect(account.account!.profileComplete, isTrue);
+  });
   test('primeira sincronização envia a coleção e as audições do aparelho', () async {
     await collection.add(disc('Abbey Road'));
     await collection.add(disc('Revolver'));
     await collection.recordTrackPlay(album: 'Abbey Road', artist: 'Artist', track: 'Come Together');
-    await account.verifyCode('a@b.com', '123456');
+    await account.login('a@b.com', 'password1');
     await settle(account);
     expect(await account.sync(), isTrue);
 
@@ -133,7 +198,7 @@ void main() {
 
   test('remoção no aparelho apaga na conta; disco vindo de outro aparelho entra na coleção', () async {
     await collection.add(disc('Abbey Road'));
-    await account.verifyCode('a@b.com', '123456');
+    await account.login('a@b.com', 'password1');
     await settle(account);
     await account.sync();
 
@@ -168,7 +233,7 @@ void main() {
   });
 
   test('sessão expirada no servidor sai da conta no aparelho', () async {
-    await account.verifyCode('a@b.com', '123456');
+    await account.login('a@b.com', 'password1');
     await settle(account);
     api.expireSession = true;
     expect(await account.sync(), isFalse);
@@ -177,7 +242,7 @@ void main() {
   });
 
   test('sessão salva é retomada ao abrir o app', () async {
-    await account.verifyCode('a@b.com', '123456');
+    await account.login('a@b.com', 'password1');
     await settle(account);
     final again = AccountService(baseUrl: 'https://api.test/v1', store: store, client: MockClient(api.handle));
     await again.load();

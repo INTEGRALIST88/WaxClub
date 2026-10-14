@@ -39,7 +39,10 @@ class HomeScreen extends StatefulWidget {
   /// Motor injetado nos testes (no app, a tela cria o seu).
   final WaxClubEngine? engine;
 
-  const HomeScreen({super.key, this.engine});
+  /// Conta WaxClub (criada no início do app, antes do login); nos testes a tela cria a sua.
+  final AccountService? account;
+
+  const HomeScreen({super.key, this.engine, this.account});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -78,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final CollectionService _collection = CollectionService();
 
   /// Conta WaxClub (api.waxclub.com.br): sincroniza a coleção e as audições.
-  final AccountService _account = AccountService();
+  late final AccountService _account = widget.account ?? AccountService();
   final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
   String? _lastPlayKey;
 
@@ -151,7 +154,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_recordPlayIfNew);
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
-    _account.dispose();
+    _account.detachCollection(_collection);
+    if (widget.account == null) _account.dispose();
     _collection.dispose();
     if (_portraitLocked) SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _pulseController.dispose();
