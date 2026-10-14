@@ -1409,7 +1409,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           child: LyricsListView(
                             lyrics: _engine.lyrics,
                             activeIndex: _engine.activeLineIndex,
-                            onSeek: (seconds) => _engine.seekTo(seconds),
+                            onSeek: (seconds) => _engine.syncToLine(seconds),
                             emptyState: _engine.currentTrack == null
                                 ? HomeGreeting(
                                     name: _profile.displayName,

@@ -470,25 +470,42 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
         _divider(compact),
 
         // Sincronia da letra (nudge)
-        _subHead(l10n.lyricsSync, l10n.lyricsSyncHint, dimValue: true),
-        Row(
-          children: [
-            Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)),
-            SizedBox(
-              width: 76,
-              child: Column(
-                children: [
-                  Text(l10n.offset, style: const TextStyle(fontSize: 11, color: Colors.white54)),
-                  Text(
-                    '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(child: _nudgeButton('+0.5s  ⏩', () => engine.nudgeSync(0.5), compact)),
-          ],
+        // Com letra: −0.5 s · [linha anterior · atual · seguinte, tocáveis] · +0.5 s numa linha só; tocar na
+        // linha que está sendo cantada acerta celular e TV de uma vez (vários segundos)
+        _subHead(
+          l10n.lyricsSync,
+          engine.lyrics.isNotEmpty
+              ? '${l10n.lyricsTapLine} · ${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s' // l10n-ignore
+              : l10n.lyricsSyncHint,
+          dimValue: true,
         ),
+        if (engine.lyrics.isNotEmpty)
+          Row(
+            children: [
+              SizedBox(width: 54, child: _nudgeButton('−0.5', () => engine.nudgeSync(-0.5), compact)), // l10n-ignore
+              ..._tapLines(compact),
+              SizedBox(width: 54, child: _nudgeButton('+0.5', () => engine.nudgeSync(0.5), compact)), // l10n-ignore
+            ],
+          )
+        else
+          Row(
+            children: [
+              Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)),
+              SizedBox(
+                width: 76,
+                child: Column(
+                  children: [
+                    Text(l10n.offset, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+                    Text(
+                      '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s',
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: _nudgeButton('+0.5s  ⏩', () => engine.nudgeSync(0.5), compact)),
+            ],
+          ),
       ],
     );
 
@@ -498,6 +515,49 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with SingleTi
       // O conteúdo cabe na tela; a rolagem interna só existe como proteção em telas muito baixas
       child: SingleChildScrollView(physics: const ClampingScrollPhysics(), child: content),
     );
+  }
+
+  /// A linha anterior, a atual e a seguinte lado a lado: tocar na que está sendo cantada acerta celular e TV.
+  List<Widget> _tapLines(bool compact) {
+    final engine = widget.engine;
+    final lines = engine.lyrics;
+    final active = engine.activeLineIndex.clamp(0, lines.length - 1);
+    Widget cell(int i) {
+      final ok = i >= 0 && i < lines.length && lines[i].text.trim().isNotEmpty;
+      final current = i == active;
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Material(
+            color: current ? AppTheme.orange.withValues(alpha: 0.22) : Colors.black.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: ok ? () => engine.syncToLine(lines[i].timestamp.inMilliseconds / 1000.0) : null,
+              child: Container(
+                height: compact ? 34 : 38,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  ok ? lines[i].text : '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: current ? AppTheme.cream : Colors.white60,
+                    fontWeight: current ? FontWeight.w800 : FontWeight.w500,
+                    fontSize: 11,
+                    height: 1.15,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return [cell(active - 1), cell(active), cell(active + 1)];
   }
 
   Widget _divider(bool compact) => Padding(

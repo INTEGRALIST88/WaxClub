@@ -90,6 +90,51 @@ void main() {
       expect(r.matchedTracks, 3);
     });
 
+    test('busca de texto do iTunes não acha o disco: procura na discografia do artista (Favourite Worst Nightmare)', () async {
+      final client = MockClient((req) async {
+        final q = req.url.queryParameters;
+        Map<String, dynamic> body;
+        if (req.url.path == '/search' && q['entity'] == 'album') {
+          body = {'resultCount': 0, 'results': []}; // a busca de texto falha com este título
+        } else if (req.url.path == '/search' && q['entity'] == 'musicArtist') {
+          body = {
+            'results': [
+              {'wrapperType': 'artist', 'artistId': 62820413, 'artistName': 'Arctic Monkeys'}
+            ]
+          };
+        } else if (q['entity'] == 'album') {
+          body = {
+            'results': [
+              {'wrapperType': 'artist', 'artistName': 'Arctic Monkeys'},
+              {'wrapperType': 'collection', 'collectionId': 663097964, 'artistName': 'Arctic Monkeys', 'collectionName': 'AM'},
+              {'wrapperType': 'collection', 'collectionId': 251499221, 'artistName': 'Arctic Monkeys', 'collectionName': 'Favourite Worst Nightmare'},
+            ]
+          };
+        } else {
+          expect(q['id'], '251499221');
+          body = {
+            'results': [
+              for (final t in ['Brianstorm', 'Teddy Picker', 'D Is for Dangerous', 'Balaclava'])
+                {'wrapperType': 'track', 'trackName': t}
+            ]
+          };
+        }
+        return http.Response.bytes(utf8.encode(jsonEncode(body)), 200);
+      });
+      final r = await RecognitionCatalogService(client: client).check(
+        artist: 'Arctic Monkeys',
+        album: 'Favourite Worst Nightmare',
+        tracklist: const [
+          TrackEntry(position: 1, title: 'Brianstorm'),
+          TrackEntry(position: 2, title: 'Teddy Picker'),
+          TrackEntry(position: 3, title: 'D Is For Dangerous'),
+          TrackEntry(position: 4, title: 'Balaclava'),
+        ],
+      );
+      expect(r!.found, isTrue, reason: 'o disco está no catálogo; o Modo Manual não deve ligar');
+      expect(r.matchedTracks, 4);
+    });
+
     test('sem código: busca o álbum por artista + título; ausente = não encontrado', () async {
       final client = MockClient((req) async {
         if (req.url.path == '/search') return http.Response(jsonEncode({'results': []}), 200);
@@ -186,6 +231,31 @@ void main() {
       expect(engine.lyricBiasSeconds, closeTo(2.5, 0.001), reason: 'o ajuste vale para o resto do lado');
       engine.stopManual();
       expect(engine.lyricBiasSeconds, 0, reason: 'parar encerra a sessão do ajuste');
+      engine.dispose();
+    });
+
+    test('tocar na linha cantada no Modo Manual acerta o relógio do disco (e não agenda a escuta do automático)', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final engine = WaxClubEngine(
+        recordService: _FakeRecord(),
+        shazamService: _CountingShazam(),
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      );
+      final lp = [
+        const TrackEntry(position: 1, title: 'Linha A1', number: 'A1', side: 'A', lengthMs: 60000),
+        const TrackEntry(position: 2, title: 'Linha A2', number: 'A2', side: 'A', lengthMs: 60000),
+      ];
+      await engine.prepareScannedRecord(albumTitle: 'Disco Linhas', artist: 'Banda', tracklist: lp, source: 'discogs');
+      await engine.startManualPlayback(trackIndex: 0, useMic: false);
+      // A música já está nos 20 s, mas a letra ficou no começo: o usuário toca na linha dos 20 s
+      engine.syncToLine(20.0);
+      expect(engine.telemetry.currentPositionSeconds, closeTo(20.0, 0.1));
+      expect(engine.lyricBiasSeconds, closeTo(20.0, 0.1), reason: 'o deslocamento vale para o resto do lado');
+      expect(engine.isManualPlaying, isTrue);
+      engine.stopManual();
       engine.dispose();
     });
 

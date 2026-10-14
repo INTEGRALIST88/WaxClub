@@ -12,12 +12,16 @@ class AudioLevelReport {
   /// silêncio de forma sustentada — ex.: a agulha encontrando a música. `null` se nunca acontece.
   final double? soundOnsetSeconds;
 
+  /// Volume (dBFS) de cada janela de 100 ms, na ordem — para achar quedas curtas (sulco entre faixas).
+  final List<double> windowDbs;
+
   const AudioLevelReport({
     required this.medianDb,
     required this.p90Db,
     required this.peakDb,
     required this.isSilent,
     this.soundOnsetSeconds,
+    this.windowDbs = const [],
   });
 
   @override
@@ -125,6 +129,7 @@ class AudioLevelAnalyzer {
       peakDb: peakDb,
       isSilent: isSilent,
       soundOnsetSeconds: onset,
+      windowDbs: List.unmodifiable(windowDbs),
     );
   }
 

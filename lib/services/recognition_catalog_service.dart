@@ -60,16 +60,39 @@ class RecognitionCatalogService {
     return CatalogCheckResult(found: matched * 2 >= tracklist.length, matchedTracks: matched, totalTracks: tracklist.length);
   }
 
+  /// Álbum no catálogo: pela busca de texto e, se ela não achar (a busca do iTunes falha com alguns
+  /// títulos, ex.: "Favourite Worst Nightmare"), pela discografia completa do artista.
   Future<int?> _findAlbumId(String artist, String album) async {
-    final res = await _client
-        .get(Uri.https('itunes.apple.com', '/search', {'term': '$artist $album', 'entity': 'album', 'limit': '15'}))
-        .timeout(const Duration(seconds: 10));
-    if (res.statusCode != 200) return null;
-    final results = (jsonDecode(utf8.decode(res.bodyBytes))['results'] as List<dynamic>?) ?? const [];
+    final bySearch = await _results(Uri.https('itunes.apple.com', '/search', {'term': '$artist $album', 'entity': 'album', 'limit': '15'}));
+    final found = _matchAlbum(bySearch, artist, album);
+    if (found != null) return found;
+
+    final artists = await _results(Uri.https('itunes.apple.com', '/search', {'term': artist, 'entity': 'musicArtist', 'limit': '5'}));
+    for (final a in artists) {
+      if (a is! Map || !TracklistMatcher.isSameArtist('${a['artistName'] ?? ''}', artist)) continue;
+      final id = (a['artistId'] as num?)?.toInt();
+      if (id == null) continue;
+      final albums = await _results(Uri.https('itunes.apple.com', '/lookup', {'id': '$id', 'entity': 'album', 'limit': '200'}));
+      final match = _matchAlbum(albums, artist, album);
+      if (match != null) return match;
+    }
+    return null;
+  }
+
+  Future<List<dynamic>> _results(Uri uri) async {
+    final res = await _client.get(uri).timeout(const Duration(seconds: 10));
+    if (res.statusCode != 200) return const [];
+    return (jsonDecode(utf8.decode(res.bodyBytes))['results'] as List<dynamic>?) ?? const [];
+  }
+
+  /// Mesmo artista e mesmo disco (aceita edições: "AM (Deluxe)", "Rumours (Remastered)").
+  static int? _matchAlbum(List<dynamic> results, String artist, String album) {
     final target = TracklistMatcher.normalize(album);
+    if (target.isEmpty) return null;
     for (final r in results) {
-      if (r is! Map) continue;
+      if (r is! Map || r['wrapperType'] == 'artist') continue;
       final name = TracklistMatcher.normalize('${r['collectionName'] ?? ''}');
+      if (name.isEmpty) continue;
       final artistOk = TracklistMatcher.isSameArtist('${r['artistName'] ?? ''}', artist);
       if (artistOk && (name == target || name.startsWith(target) || target.startsWith(name))) {
         return (r['collectionId'] as num?)?.toInt();

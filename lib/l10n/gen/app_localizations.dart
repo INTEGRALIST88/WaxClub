@@ -535,7 +535,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpTiming1.
   ///
   /// In en, this message translates to:
-  /// **'Use the −0.5s / +0.5s buttons to nudge the lyrics. The offset is remembered for that song.'**
+  /// **'Lyrics a few seconds off? Tap the line that is being sung: the lyrics jump to it on the phone and on the TV. While casting, the phone panel shows the previous, current and next lines to tap. For small corrections use −0.5 s / +0.5 s; the offset is remembered for that song (in Manual mode it moves the whole side).'**
   String get helpTiming1;
 
   /// No description provided for @helpChangeRecord.
@@ -3303,6 +3303,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Source: {source}'**
   String curiositiesSource(String source);
+
+  /// No description provided for @lyricsTapLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Or tap the line being sung'**
+  String get lyricsTapLine;
 }
 
 class _AppLocalizationsDelegate

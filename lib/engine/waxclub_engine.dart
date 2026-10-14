@@ -2581,7 +2581,14 @@ class WaxClubEngine extends ChangeNotifier {
   }
 
   /// Permite ao usuário pular para um ponto específico ao clicar numa estrofe (com 300ms de antecipação).
+  /// Vai para a posição [seconds] da música (barra de progresso, realinhamento). Avisa a TV; no Modo
+  /// Manual move o relógio do disco (letra e trocas de faixa) em vez de agendar a escuta do automático.
   void seekTo(double seconds) {
+    if (isManualPlaying && _tStart != null && !_isPaused) {
+      _rebaseManualClock();
+      _manualNudge(seconds - _currentPositionSeconds);
+      return;
+    }
     _baseOffset = seconds;
     _tStart = DateTime.now();
     _currentPositionSeconds = seconds;
@@ -2590,9 +2597,15 @@ class WaxClubEngine extends ChangeNotifier {
       milliseconds: (((seconds + _lyricBiasSeconds) * 1000) + leadTimeMs).round(),
     );
     _activeLineIndex = LrcParser.findActiveIndex(_lyrics, lookaheadDuration);
-    _scheduleEndOfTrackListener();
+    _telemetry = _telemetry.copyWith(currentPositionSeconds: _currentPositionSeconds, activeLineIndex: _activeLineIndex);
+    if (!_manualMode) _scheduleEndOfTrackListener();
     notifyListeners();
+    _sendCastSyncWithTvLookahead();
   }
+
+  /// Toque na linha da letra que está sendo cantada ([lineSeconds] = horário da linha): ela vira a
+  /// linha ativa no celular e na TV. O ajuste ±0.5 s em vigor é descontado.
+  void syncToLine(double lineSeconds) => seekTo(lineSeconds - (isManualPlaying ? 0.0 : _lyricBiasSeconds));
 
   /// Permite ajuste fino manual do pitch slider (+/- 0.05).
   void setManualPitchAdjustment(double delta) {
@@ -2696,6 +2709,15 @@ class WaxClubEngine extends ChangeNotifier {
 
   /// Segundos do lado já tocados antes da faixa atual (relógio do disco, para os ajustes).
   double _manualTimelineBeforeTrack = 0.0;
+
+  /// Fim da faixa esperado pela minutagem (relógio real), para aceitar só o sulco perto dele.
+  DateTime? _manualExpectedEnd;
+
+  /// Margem em torno do fim esperado: menor com minutagem confiável (prensagem), maior sem ela.
+  double get _manualEndTolerance {
+    final d = _trackDurationSeconds ?? 0;
+    return manualDurationsReliable ? math.max(3.0, d * 0.025) : math.max(8.0, d * 0.06);
+  }
 
   /// Quando a faixa atual começou de verdade, e se foi o microfone que ouviu o começo.
   DateTime? _manualTrackOnset;
@@ -2912,9 +2934,10 @@ class WaxClubEngine extends ChangeNotifier {
     final mySession = _sessionId;
     final index = _manualIndex;
     // Microfone ligado: escuta dos últimos segundos da faixa até a seguinte começar
+    _manualExpectedEnd = DateTime.now().add(Duration(milliseconds: (toEnd * 1000).round()));
     if (_manualUseMic && !_manualWatching) {
       _manualWatchTimer?.cancel();
-      final lead = math.max(0.0, toEnd - manualListenLeadSeconds);
+      final lead = math.max(0.0, toEnd - math.max(manualListenLeadSeconds, _manualEndTolerance + 2));
       _manualWatchTimer = Timer(Duration(milliseconds: (lead * 1000).round()), () {
         if (_sessionId == mySession && !_isDisposed && _manualIndex == index) {
           unawaited(_manualWatchBoundary(mySession, index));
@@ -2940,7 +2963,8 @@ class WaxClubEngine extends ChangeNotifier {
       }
       if (!_manualDetector.inGap && !_manualGraceUsed) {
         _manualGraceUsed = true;
-        _manualAdvanceTimer = Timer(Duration(milliseconds: (manualSegueGraceSeconds * 1000).round()), () {
+        final grace = math.max(manualSegueGraceSeconds, _manualEndTolerance);
+        _manualAdvanceTimer = Timer(Duration(milliseconds: (grace * 1000).round()), () {
           if (_sessionId == mySession && !_isDisposed) _manualAdvanceFromTimer(mySession);
         });
         return;
@@ -2954,8 +2978,9 @@ class WaxClubEngine extends ChangeNotifier {
     if (_manualWatching) return;
     _manualWatching = true;
     _manualDetector.reset();
+    final tol = _manualEndTolerance;
     final deadline = DateTime.now().add(Duration(
-      milliseconds: ((manualListenLeadSeconds + manualGapSeconds + manualSegueGraceSeconds +
+      milliseconds: ((math.max(manualListenLeadSeconds, tol + 2) + manualGapSeconds + math.max(manualSegueGraceSeconds, tol) +
                   ManualBoundaryDetector.maxGapSeconds + 3) *
               1000)
           .round(),
@@ -2964,18 +2989,15 @@ class WaxClubEngine extends ChangeNotifier {
     notifyListeners();
     try {
       while (_sessionId == mySession && !_isDisposed && _manualIndex == index && DateTime.now().isBefore(deadline)) {
-        final outcome = await _captureLevelOnly(chunk: const Duration(milliseconds: 500));
+        final outcome = await _captureLevelOnly(chunk: const Duration(milliseconds: 1000));
         if (_sessionId != mySession || _isDisposed || _manualIndex != index) return;
-        if (outcome.cancelled) {
+        final dbs = outcome.report?.windowDbs ?? const <double>[];
+        if (outcome.cancelled || dbs.isEmpty) {
           await Future.delayed(const Duration(milliseconds: 200));
           continue;
         }
-        final boundary = _manualDetector.feed(
-          start: outcome.captureStart,
-          silent: outcome.silent,
-          soundOnset: outcome.soundOnset,
-        );
-        if (boundary != null && _manualBoundaryUsable(index)) {
+        final boundary = _manualDetector.feedWindows(outcome.captureStart, dbs);
+        if (boundary != null && _manualBoundaryUsable(index) && _manualNearExpectedEnd(boundary.silenceStart, tol)) {
           _manualWatching = false;
           await _manualBoundaryFound(mySession, index, boundary);
           return;
@@ -2988,6 +3010,15 @@ class WaxClubEngine extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  /// A queda só conta como sulco perto do fim esperado pela minutagem (trechos baixos no meio da música
+  /// ficam de fora); depois do fim esperado, a margem também cobre o prazo extra das faixas emendadas.
+  bool _manualNearExpectedEnd(DateTime silenceStart, double tol) {
+    final end = _manualExpectedEnd;
+    if (end == null) return true;
+    final diff = silenceStart.difference(end).inMilliseconds / 1000.0;
+    return diff >= -tol && diff <= tol + manualGapSeconds;
   }
 
   /// O sulco só vale entre duas faixas do mesmo lado (a última do lado termina no fim do sulco).

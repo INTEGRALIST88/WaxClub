@@ -5,32 +5,35 @@ void main() {
   final t0 = DateTime(2026, 10, 14, 20);
   DateTime at(double s) => t0.add(Duration(milliseconds: (s * 1000).round()));
 
-  group('sulco entre faixas pelo microfone', () {
-    test('silêncio de 1 a 3 s seguido de som = fim de uma faixa e começo da seguinte', () {
+  group('sulco entre faixas pelo microfone (janelas de 100 ms, relativo à música)', () {
+    List<double> level(double db, double seconds) => List.filled((seconds * 10).round(), db);
+
+    test('queda de 2 s em relação à música seguida da volta do som = fim de uma faixa e começo da seguinte', () {
       final d = ManualBoundaryDetector();
-      expect(d.feed(start: at(0), silent: false), isNull);
-      expect(d.feed(start: at(0.5), silent: true), isNull);
+      // 6 s de música (−20 dB), 2 s de sulco com chiado do disco (−40 dB, longe de silêncio absoluto), música de novo
+      expect(d.feedWindows(at(0), level(-20, 6)), isNull);
+      expect(d.feedWindows(at(6), level(-40, 2)), isNull);
       expect(d.inGap, isTrue);
-      expect(d.feed(start: at(1.0), silent: true), isNull);
-      final b = d.feed(start: at(2.5), silent: false, soundOnset: at(2.7));
+      final b = d.feedWindows(at(8), level(-21, 1));
       expect(b, isNotNull);
-      expect(b!.silenceStart, at(0.5));
-      expect(b.onset, at(2.7), reason: 'o começo da faixa seguinte é o primeiro som');
-      expect(b.gapSeconds, closeTo(2.2, 0.01));
-      expect(d.inGap, isFalse);
+      expect(b!.silenceStart, at(6));
+      expect(b.onset, at(8));
+      expect(b.gapSeconds, closeTo(2.0, 0.01));
     });
 
-    test('pausa curta da própria música não é troca de faixa', () {
+    test('trecho baixo curto dentro da música não é troca de faixa', () {
       final d = ManualBoundaryDetector();
-      d.feed(start: at(0), silent: true);
-      expect(d.feed(start: at(0.2), silent: false), isNull);
+      d.feedWindows(at(0), level(-20, 6));
+      expect(d.feedWindows(at(6), [...level(-40, 0.2), ...level(-20, 1)]), isNull);
     });
 
-    test('silêncio longo demais não é o sulco (fim do lado, agulha levantada)', () {
+    test('queda pequena (música mais baixa) não conta; silêncio longo demais também não', () {
       final d = ManualBoundaryDetector();
-      d.feed(start: at(0), silent: true);
-      expect(d.gapTooLong(at(4)), isTrue);
-      expect(d.feed(start: at(5), silent: false), isNull);
+      d.feedWindows(at(0), level(-20, 6));
+      expect(d.feedWindows(at(6), [...level(-28, 2), ...level(-20, 1)]), isNull, reason: 'só 8 dB abaixo');
+      final e = ManualBoundaryDetector();
+      e.feedWindows(at(0), level(-20, 6));
+      expect(e.feedWindows(at(6), [...level(-45, 6), ...level(-20, 1)]), isNull, reason: 'fim do lado / agulha levantada');
     });
   });
 

@@ -275,7 +275,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpTiming1 =>
-      'Use the −0.5s / +0.5s buttons to nudge the lyrics. The offset is remembered for that song.';
+      'Lyrics a few seconds off? Tap the line that is being sung: the lyrics jump to it on the phone and on the TV. While casting, the phone panel shows the previous, current and next lines to tap. For small corrections use −0.5 s / +0.5 s; the offset is remembered for that song (in Manual mode it moves the whole side).';
 
   @override
   String get helpChangeRecord => 'Change record and Discogs';
@@ -1947,4 +1947,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String curiositiesSource(String source) {
     return 'Source: $source';
   }
+
+  @override
+  String get lyricsTapLine => 'Or tap the line being sung';
 }

@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.3] — 14/10/2026 (Toque na Linha Acerta a TV, Sulco pelo Microfone Refeito e Catálogo do Arctic Monkeys)
+
+* **Toque na linha da letra corrigido:** (1) não avisava a TV — a letra mudava só no celular; (2) no Modo Manual mexia só na música e ainda agendava a escuta do automático; (3) com ajuste ±0.5 s em vigor, caía deslocado. Agora a linha tocada vira a linha ativa no celular **e na TV**, e no Modo Manual move o relógio do disco (letra e trocas de faixa). Comandos separados: `seekTo` (posição na música: barra de progresso) e o novo `syncToLine` (horário da linha tocada).
+* **Painel da transmissão:** na sincronia da letra, **−0.5 · [linha anterior · atual · seguinte] · +0.5** numa linha só — tocar na linha que está sendo cantada acerta celular e TV de uma vez (vários segundos), sem aumentar o painel.
+* **Sulco entre faixas pelo microfone refeito:** antes, "silêncio" era medido em trechos de 0,5 s contra um limite fixo (−55 dB) quando o volume da música não era conhecido (o caso do Modo Manual) — o chiado do vinil e a sala nunca ficavam abaixo dele, e um sulco de 1–2 s se perdia dentro do trecho. Agora: janelas de **100 ms**, queda **relativa ao volume da própria música** (≥ 12 dB abaixo do percentil 70 dos últimos ~8 s), de 0,4 a 3,5 s, seguida da volta do som; só vale **perto do fim esperado pela minutagem** (±3 s ou 2,5% com minutagem confiável; ±8 s ou 6% sem ela), e a escuta começa mais cedo e espera mais quanto menos confiável for a minutagem. Silêncio longo (fim do lado) é ignorado até a música voltar.
+* **Catálogo de reconhecimento:** "Favourite Worst Nightmare" (Arctic Monkeys) aparecia como "não encontrado" e ligava o Modo Manual — a busca de texto do iTunes não acha esse título. Agora, se a busca de texto falhar, o app procura na **discografia completa do artista** (achou o disco, 12 faixas).
+* Testes: detector relativo (chiado do vinil, trecho baixo, queda pequena, silêncio longo), toque na linha no Modo Manual, catálogo pela discografia do artista — 254 no total.
+
+---
 ## [v1.4.2] — 14/10/2026 (Curiosidades no Idioma do Artista, Banco Compartilhado e ⓘ na Coleção)
 
 * **My Collection:** ícone **ⓘ** à direita de cada disco, que **brilha prateado um disco após o outro** ao abrir a tela. Só aparece com o plugin **Curiosidades (D2)** ligado. O toque abre o popup das curiosidades do disco, cada uma com a fonte.

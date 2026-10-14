@@ -177,7 +177,7 @@
   "helpSpeed1": "Turntables rarely spin at exactly 33⅓ RPM. WaxClub measures your turntable's real speed while songs play and keeps the lyrics on time.",
   "helpSpeed2": "In the controls you can fine-tune the speed, reset it or lock it.",
   "helpTiming": "Lyrics running early or late",
-  "helpTiming1": "Use the −0.5s / +0.5s buttons to nudge the lyrics. The offset is remembered for that song.",
+  "helpTiming1": "Lyrics a few seconds off? Tap the line that is being sung: the lyrics jump to it on the phone and on the TV. While casting, the phone panel shows the previous, current and next lines to tap. For small corrections use −0.5 s / +0.5 s; the offset is remembered for that song (in Manual mode it moves the whole side).",
   "helpChangeRecord": "Change record and Discogs",
   "helpChangeRecord1": "Songs often appear on several records (albums, compilations, soundtracks). Tap the cover at the top left of the screen, then \"Change record\" to pick the exact record on your turntable; it becomes the default for those songs. Only vinyl records (LP and EP) are listed.",
   "helpChangeRecord2": "Tick \"Search Discogs\" to search the largest vinyl database. It is the same switch as the Discogs plugin (C1) in Plugins, where you also connect or disconnect your Discogs account. Your Discogs sign-in stays on this phone only.",
@@ -1230,5 +1230,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "lyricsTapLine": "Or tap the line being sung"
 }

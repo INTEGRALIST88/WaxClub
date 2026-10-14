@@ -15,40 +15,108 @@ class ManualBoundary {
   double get gapSeconds => onset.difference(silenceStart).inMilliseconds / 1000.0;
 }
 
-/// Acha o sulco entre faixas: silêncio de [minGapSeconds] a [maxGapSeconds] seguido de som.
-/// Recebe as capturas curtas do microfone na ordem ([feed]); um silêncio curto demais é uma pausa
-/// da própria música, e um longo demais não é o espaço entre faixas (fim do lado, agulha levantada).
+/// Acha o sulco entre faixas pelo volume do microfone, em janelas de 100 ms, **relativo à música**:
+/// o volume de referência é o da própria faixa (percentil 70 dos últimos ~8 s); o sulco é uma queda de
+/// pelo menos [dropDb] abaixo dele, durando de [minGapSeconds] a [maxGapSeconds], seguida da volta do som
+/// (3 janelas seguidas a menos de [returnDb] da referência). Assim o chiado do disco e o barulho da sala
+/// não atrapalham (não depende de um silêncio absoluto). Quem chama decide se a queda está perto do fim
+/// esperado pela minutagem.
 class ManualBoundaryDetector {
-  /// O espaço entre faixas num LP fica em torno de 1 a 3 segundos.
   static const double minGapSeconds = 0.4;
   static const double maxGapSeconds = 3.5;
+  static const double dropDb = 12.0;
+  static const double returnDb = 8.0;
+  static const double windowSeconds = 0.1;
+  static const int _refWindows = 80; // ~8 s de música
+  static const int _returnRun = 3;
 
-  DateTime? _silenceStart;
+  final List<double> _music = [];
+  DateTime? _gapStart;
+  DateTime? _returnStart;
+  int _aboveRun = 0;
 
-  /// Está no meio de um silêncio (talvez o sulco entre faixas).
-  bool get inGap => _silenceStart != null;
-  DateTime? get silenceStart => _silenceStart;
+  /// Silêncio longo demais (fim do lado, agulha levantada): ignora até a música voltar.
+  bool _longSilence = false;
 
-  /// Silêncio já passou do tamanho máximo do sulco entre faixas.
+  bool get inGap => _gapStart != null;
+  DateTime? get silenceStart => _gapStart;
+
+  /// Volume de referência da música (nulo enquanto não ouviu o bastante).
+  double? get musicLevel {
+    if (_music.length < 10) return null;
+    final sorted = List<double>.from(_music)..sort();
+    return sorted[(sorted.length * 0.7).floor().clamp(0, sorted.length - 1)];
+  }
+
   bool gapTooLong(DateTime now) =>
-      _silenceStart != null && now.difference(_silenceStart!).inMilliseconds / 1000.0 > maxGapSeconds;
+      _gapStart != null && now.difference(_gapStart!).inMilliseconds / 1000.0 > maxGapSeconds;
 
-  void reset() => _silenceStart = null;
+  void reset() {
+    _music.clear();
+    _gapStart = null;
+    _returnStart = null;
+    _aboveRun = 0;
+    _longSilence = false;
+  }
 
-  /// Uma captura: [start] = começo dela, [silent] = só silêncio, [soundOnset] = onde o som começou nela.
-  /// Devolve o limite entre as faixas quando o som volta depois de um silêncio do tamanho certo.
-  ManualBoundary? feed({required DateTime start, required bool silent, DateTime? soundOnset}) {
-    if (silent) {
-      _silenceStart ??= start;
+  /// Uma captura: [start] = começo dela, [dbs] = volume de cada janela de 100 ms. Devolve a primeira
+  /// queda do tamanho do sulco seguida da volta do som (o começo da faixa seguinte), se houver.
+  ManualBoundary? feedWindows(DateTime start, List<double> dbs) {
+    ManualBoundary? found;
+    for (var i = 0; i < dbs.length; i++) {
+      final t = start.add(Duration(milliseconds: (i * windowSeconds * 1000).round()));
+      final b = _feed(t, dbs[i]);
+      if (b != null && found == null) found = b;
+    }
+    return found;
+  }
+
+  ManualBoundary? _feed(DateTime t, double db) {
+    final ref = musicLevel;
+    if (ref == null) {
+      _music.add(db);
       return null;
     }
-    final silenceStart = _silenceStart;
-    _silenceStart = null;
-    if (silenceStart == null) return null;
-    final onset = soundOnset ?? start;
-    final gap = onset.difference(silenceStart).inMilliseconds / 1000.0;
-    if (gap < minGapSeconds || gap > maxGapSeconds) return null;
-    return ManualBoundary(silenceStart: silenceStart, onset: onset);
+    if (_longSilence) {
+      if (db >= ref - returnDb) _longSilence = false;
+      return null;
+    }
+    if (_gapStart == null) {
+      if (db < ref - dropDb) {
+        _gapStart = t;
+        _aboveRun = 0;
+        _returnStart = null;
+      } else {
+        _music.add(db);
+        if (_music.length > _refWindows) _music.removeAt(0);
+      }
+      return null;
+    }
+    // Dentro da queda: espera o som voltar de forma sustentada
+    if (db >= ref - returnDb) {
+      _returnStart ??= t;
+      _aboveRun++;
+      if (_aboveRun >= _returnRun) {
+        final gapStart = _gapStart!;
+        final onset = _returnStart!;
+        _gapStart = null;
+        _returnStart = null;
+        _aboveRun = 0;
+        final gap = onset.difference(gapStart).inMilliseconds / 1000.0;
+        if (gap >= minGapSeconds && gap <= maxGapSeconds) {
+          return ManualBoundary(silenceStart: gapStart, onset: onset);
+        }
+      }
+    } else {
+      _aboveRun = 0;
+      _returnStart = null;
+      // Silêncio comprido demais: não é o sulco entre faixas (fim do lado, agulha levantada)
+      if (t.difference(_gapStart!).inMilliseconds / 1000.0 > maxGapSeconds + 1) {
+        _gapStart = null;
+        _longSilence = true;
+      }
+    }
+    return null;
   }
 }
 
