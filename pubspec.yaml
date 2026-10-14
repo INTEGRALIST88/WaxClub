@@ -2,7 +2,7 @@ name: waxclub
 description: "WaxClub - Real-time karaoke lyrics synchronized with vinyl records and pitch drift compensation."
 publish_to: 'none'
 
-version: 1.3.22+2322
+version: 1.3.23+2323
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -68,3 +68,8 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
+    # Letra retrô 3D dos destaques (música/banda, títulos, saudação, marca). Masterday (Subectype):
+    # licença gratuita só para uso pessoal — comprar a licença comercial (app + web) antes de publicar.
+    - family: Masterday
+      fonts:
+        - asset: assets/fonts/Masterday.otf

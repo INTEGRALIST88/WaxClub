@@ -29,6 +29,7 @@ import '../../services/curiosities_service.dart';
 import '../widgets/chrome_play_button.dart';
 import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
+import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/discogs/discogs_collection_service.dart';
 import '../../services/account/account_service.dart';
@@ -555,27 +556,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    track.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
-                  ),
-                  const SizedBox(height: 2),
+                  RetroText(track.title, fontSize: 19, depth: 2),
                   Row(
                     children: [
                       if (_engine.isAlbumLocked) ...[
                         const Icon(Icons.album, size: 13, color: AppTheme.cream),
                         const SizedBox(width: 4),
                       ],
-                      Expanded(
-                        child: Text(
-                          artistAlbum,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: AppTheme.cream, fontSize: 13, fontWeight: FontWeight.w600),
-                        ),
-                      ),
+                      Expanded(child: RetroText(artistAlbum, fontSize: 14, depth: 1)),
                     ],
                   ),
                   if (sideEnd != null || next != null) ...[
@@ -1135,18 +1123,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 children: [
                                   if (_engine.currentTrack != null) ...[
                                     // Linha 1: Nome da Música (+20% em destaque)
-                                    Text(
-                                      _engine.currentTrack!.title,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 17.5,
-                                        color: Colors.white,
-                                        letterSpacing: -0.3,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2),
+                                    RetroText(_engine.currentTrack!.title, fontSize: 18, depth: 2),
                                     // Linha 2: Nome do Disco (com ícone de disco neon se travado)
                                     Row(
                                       children: [
@@ -1155,20 +1132,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           const SizedBox(width: 4),
                                         ],
                                         Expanded(
-                                          child: Text(
+                                          child: RetroText(
                                             (_engine.lockedAlbumName != null && _engine.lockedAlbumName!.isNotEmpty)
                                                 ? _engine.lockedAlbumName!
                                                 : ((_engine.currentTrack?.album != null &&
                                                         _engine.currentTrack!.album!.isNotEmpty)
                                                     ? _engine.currentTrack!.album!
                                                     : (_engine.currentTrack?.artist ?? l10n.unknownAlbum)),
-                                            style: const TextStyle(
-                                              fontSize: 12.5,
-                                              color: AppTheme.cream,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                            fontSize: 13.5,
+                                            depth: 1,
                                           ),
                                         ),
                                       ],
@@ -1212,15 +1184,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Row(
                                       children: [
                                         // O nome tem prioridade: só a versão encolhe quando falta espaço
-                                        Text(
-                                          kAppName,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: compactBar ? 15 : 17,
-                                            letterSpacing: -0.5,
-                                          ),
-                                        ),
+                                        RetroText(kAppName, fontSize: compactBar ? 17 : 20, depth: 2),
                                         const SizedBox(width: 6),
                                         // Versão: some primeiro quando falta espaço
                                         Flexible(

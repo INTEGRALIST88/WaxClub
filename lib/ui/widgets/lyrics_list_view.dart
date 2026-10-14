@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../app_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -195,10 +196,7 @@ class _LyricsListViewState extends State<LyricsListView> {
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
-            kAppName,
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5),
-          ),
+          const RetroText(kAppName, fontSize: 34),
           const SizedBox(height: 4),
           const Text(
             kAppTagline,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../services/discogs/discogs_auth_service.dart';
@@ -125,7 +126,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: Colors.white,
-        title: Text(l10n.signInToDiscogs, style: const TextStyle(fontSize: 17)),
+        title: RetroText(l10n.signInToDiscogs, fontSize: 20, depth: 3),
         actions: [
           if (_web != null)
             IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: l10n.reload),

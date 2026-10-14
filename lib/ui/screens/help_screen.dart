@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../app_info.dart';
 import '../theme/app_theme.dart';
@@ -45,7 +46,7 @@ class HelpScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: Text(l10n.help, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: RetroText(l10n.help, fontSize: 24, depth: 3),
       ),
       body: Stack(
         children: [

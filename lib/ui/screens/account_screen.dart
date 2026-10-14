@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../services/account/account_service.dart';
 import '../theme/app_theme.dart';
@@ -71,7 +72,7 @@ class _AccountScreenState extends State<AccountScreen> {
           appBar: AppBar(
             backgroundColor: AppTheme.surface,
             foregroundColor: AppTheme.cream,
-            title: Text(l10n.accountTitle, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            title: RetroText(l10n.accountTitle, fontSize: 22, depth: 3),
           ),
           body: Stack(
             children: [

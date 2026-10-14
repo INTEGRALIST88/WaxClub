@@ -4,6 +4,7 @@ import '../../../app_info.dart';
 import '../../../l10n/l10n.dart';
 import '../../../services/account/account_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/retro_text.dart';
 import 'auth_widgets.dart';
 import 'location_fields.dart';
 
@@ -83,9 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return AuthScaffold(
       showLogo: true,
       children: [
-        Text(l10n.authWelcome,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.cream, fontSize: 24, fontWeight: FontWeight.w800)),
+        Center(child: RetroText(l10n.authWelcome, fontSize: 30, maxLines: 2, textAlign: TextAlign.center)),
         const SizedBox(height: 8),
         Text(l10n.authSubtitle, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, height: 1.4)),
         const SizedBox(height: 24),

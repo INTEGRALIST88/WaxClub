@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../app_info.dart';
 import '../theme/app_theme.dart';
+import 'retro_text.dart';
 
 /// Frases da saudação da tela principal, variando com a hora do dia e a cada abertura do app.
 class Greeting {
@@ -97,15 +98,11 @@ class HomeGreeting extends StatelessWidget {
                 ],
                 GestureDetector(
                   onTap: onEditName,
-                  child: Text(
+                  child: RetroText(
                     greeting.title,
+                    fontSize: compact ? 24 : 32,
+                    maxLines: 3,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: compact ? 22 : 27,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.cream,
-                      letterSpacing: -0.4,
-                    ),
                   ),
                 ),
                 SizedBox(height: compact ? 4 : 10),

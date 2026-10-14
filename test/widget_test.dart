@@ -29,6 +29,9 @@ Future<void> closeApp(WidgetTester tester) async {
 
 void main() {
   testWidgets('sem conta: a primeira tela é o login (e-mail e senha, criar conta, esqueci a senha)', (tester) async {
+    tester.view.physicalSize = const Size(800, 1800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await pumpApp(tester, signedIn: false);
     expect(find.text('Welcome to WaxClub'), findsOneWidget);
     expect(find.text('Create account'), findsOneWidget);

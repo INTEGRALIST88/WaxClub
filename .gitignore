@@ -53,3 +53,7 @@ backups/
 hs_err_pid*.log
 .claude/
 /android/app/.cxx/
+
+# Fonte Masterday: licença só pessoal, não pode ir para o repositório público (fica só no PC até comprar a licença)
+assets/fonts/Masterday.otf
+site/assets/fonts/Masterday.otf

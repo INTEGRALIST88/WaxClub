@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../theme/app_theme.dart';
@@ -93,7 +94,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       appBar: AppBar(
         backgroundColor: _bg,
         foregroundColor: AppTheme.cream,
-        title: Text(l10n.jukeboxTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: RetroText(l10n.jukeboxTitle, fontSize: 22, depth: 3),
       ),
       body: AnimatedBuilder(
         animation: _store,

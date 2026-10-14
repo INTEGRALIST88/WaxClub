@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.3.23] — 14/10/2026 (Letra Retrô 3D)
+
+* **Letra retrô 3D** (fonte **Masterday**, embutida no app, com todos os acentos): miolo creme, contorno marrom e relevo para baixo/direita, como a amostra do usuário. Feita por código (camadas de texto), não com recortes de imagem.
+* Onde aparece: **nome da música e banda/disco** (barra superior em pé e deitado), **títulos das telas** (My Collection, Plugin Jukebox, WaxClub account, Help, Identify, cadastro na coleção, login do Discogs, telas de login/cadastro), **saudação** da tela inicial, **"Welcome to WaxClub"** e o **nome WaxClub**. A letra da música e os textos longos continuam na fonte normal (leitura).
+* Componente `RetroText` (`lib/ui/widgets/retro_text.dart`); leitores de tela leem o texto uma vez só.
+* ⚠️ **Licença da fonte:** a Masterday (Subectype) baixada é gratuita só para **uso pessoal**. Antes de publicar (Play Store/site) é preciso comprar a licença comercial (app + web) em subectype.com — decisão do usuário: usar agora "por conta e risco" e resolver depois. O site continua com a Pacifico.
+* A TV (Chromecast/Fire TV/Smart View) ainda usa a fonte antiga nos títulos.
+
+---
 ## [v1.3.22] — 14/10/2026 (Discogs como Plugin — Categoria Connections)
 
 * **Nova categoria de plugins "Connections"** (letra **C**, compacto laranja) na Plugin Jukebox: serviços externos ligados à conta do usuário em cada serviço.

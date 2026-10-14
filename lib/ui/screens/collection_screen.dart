@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/track_entry.dart';
 import '../../services/account/account_service.dart';
@@ -71,7 +72,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.myCollection, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                RetroText(l10n.myCollection, fontSize: 21, depth: 3),
                 Text(l10n.recordCount(items.length),
                     style: const TextStyle(fontSize: 12, color: Colors.white60)),
               ],

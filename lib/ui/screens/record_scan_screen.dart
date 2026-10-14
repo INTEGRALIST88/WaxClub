@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -229,7 +230,7 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: Text(l10n.scanTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: RetroText(l10n.scanTitle, fontSize: 22, depth: 3),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline_rounded),

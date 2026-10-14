@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/retro_text.dart';
 import '../../engine/waxclub_engine.dart';
 import '../../services/recognition_catalog_service.dart';
 import '../../l10n/l10n.dart';
@@ -304,7 +305,7 @@ class _CollectionEntryScreenState extends State<CollectionEntryScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.cream,
-        title: Text(l10n.entryTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: RetroText(l10n.entryTitle, fontSize: 22, depth: 3),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
