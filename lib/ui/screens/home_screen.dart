@@ -1094,7 +1094,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final logoSize = compactBar ? 46.0 : 50.0;
         _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
         if (_engine.manualSuggested) _offerManualMode();
-        final tileSize = compactBar ? 40.0 : 42.0;
+        const tileSize = 40.0;
         final showTrackStrip = compactBar && _engine.currentTrack != null;
 
         return Stack(
@@ -1105,9 +1105,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 toolbarHeight: 74,
                 flexibleSpace: const _WoodTopPanel(),
                 // Em pé, com música tocando: música, banda · disco e "a seguir" numa faixa abaixo do disco
-                // Linha de baixo: botões de madeira encostados à direita; em pé, com música tocando, a faixa
-                // com música, banda · disco e "a seguir" vem embaixo deles
-                bottom: PreferredSize(
+                // Em pé: linha de baixo com os botões de madeira encostados à direita e, com música tocando, a
+                // faixa com música, banda · disco e "a seguir" embaixo deles. Deitado: botões na linha de cima.
+                bottom: !compactBar ? null : PreferredSize(
                   preferredSize: Size.fromHeight(tileSize + 12 + (showTrackStrip ? 86 : 0)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -1294,6 +1294,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ],
                       ),
                 actions: [
+                  if (!compactBar) _woodButtons(tileSize),
                   _buildCastButton(),
                   const SizedBox(width: 4),
                 ],
