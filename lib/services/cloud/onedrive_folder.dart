@@ -7,7 +7,9 @@ import 'cloud_folder.dart';
 /// permissões delegadas `Files.ReadWrite.AppFolder`, `User.Read` e `offline_access`. Cliente público
 /// (PKCE): não há segredo no app. O WaxClub só enxerga a pasta do app (`OneDrive/Apps/<nome do app>`).
 class OneDriveConfig {
-  static const String clientId = String.fromEnvironment('ONEDRIVE_CLIENT_ID');
+  /// ID público do app "WaxClub" na Microsoft (não é segredo: o login usa PKCE).
+  static const String clientId =
+      String.fromEnvironment('ONEDRIVE_CLIENT_ID', defaultValue: 'f993ec1a-2e5a-4e72-87f0-16e4c068a491');
   static const String redirectUri = 'https://waxclub.com.br/auth/onedrive/';
   static const String appFolder = 'OneDrive/Apps/WaxClub';
   static const String scopes = 'offline_access User.Read Files.ReadWrite.AppFolder';

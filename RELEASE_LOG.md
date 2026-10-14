@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.13] — 14/10/2026 (Dropbox e OneDrive Cadastrados)
+
+* **Dropbox:** app "WaxClub" cadastrado (Scoped access, App folder → `Dropbox/Apps/WaxClub`); App key pública no app (`27dns92hbr92qwn`, PKCE, sem segredo). O login pede **só leitura** (`account_info.read files.metadata.read files.content.read`), mesmo que o cadastro libere escrita.
+* **OneDrive:** app "WaxClub" registrado na Microsoft (Entra ID, diretório "Diretório Padrão" da conta Azure gratuita): todas as contas Microsoft (pessoais e corporativas), plataforma "Aplicativos móveis e de área de trabalho" com `https://waxclub.com.br/auth/onedrive/`, permissões delegadas `Files.ReadWrite.AppFolder` e `User.Read` (o `offline_access` é pedido no login), fluxos de cliente público ligados. Client ID público no app (`f993ec1a-2e5a-4e72-87f0-16e4c068a491`).
+* Com as chaves no app, os cartões **Dropbox** e **OneDrive** aparecem no plugin S5.
+
+---
 ## [v1.4.12] — 14/10/2026 (Letras do Usuário também no OneDrive e no Google Drive)
 
 * **Plugin S5 "My lyrics files" com três nuvens automáticas** (cartões no S5; cada um com Connect / Sync now / Disconnect; todas atualizam ao abrir o app):

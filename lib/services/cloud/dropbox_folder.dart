@@ -6,7 +6,11 @@ import 'cloud_folder.dart';
 /// (`Dropbox/Apps/<nome do app>`), permissões `files.metadata.read` e `files.content.read`, e clientes
 /// públicos (PKCE) liberados. A chave do app é pública (não há segredo no app).
 class DropboxConfig {
-  static const String appKey = String.fromEnvironment('DROPBOX_APP_KEY');
+  /// Chave pública do app "WaxClub" no Dropbox (não é segredo: o login usa PKCE).
+  static const String appKey = String.fromEnvironment('DROPBOX_APP_KEY', defaultValue: '27dns92hbr92qwn');
+
+  /// Só leitura, mesmo que o cadastro no Dropbox libere mais permissões.
+  static const String scopes = 'account_info.read files.metadata.read files.content.read';
 
   /// Retorno do login. O app intercepta a navegação para ele dentro do WebView; a página existe no site
   /// só como reserva ("volte ao WaxClub"). Precisa estar cadastrado em "Redirect URIs" no Dropbox.
@@ -52,6 +56,7 @@ class DropboxFolder extends CloudLyricsFolder with OAuthTokens implements WebLog
       'code_challenge': Pkce.challenge(_verifier!),
       'code_challenge_method': 'S256',
       'token_access_type': 'offline',
+      'scope': DropboxConfig.scopes,
       'redirect_uri': DropboxConfig.redirectUri,
       'state': _state!,
     });
