@@ -155,6 +155,40 @@ void main() {
       engine.dispose();
     });
 
+    test('ajuste ±0.5 s no Modo Manual move o relógio do disco: a troca de faixa muda e o ajuste vale para a próxima', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final engine = WaxClubEngine(
+        recordService: _FakeRecord(),
+        shazamService: _CountingShazam(),
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      );
+      final longLp = [
+        const TrackEntry(position: 1, title: 'Longa A1', number: 'A1', side: 'A', lengthMs: 3000),
+        const TrackEntry(position: 2, title: 'Longa A2', number: 'A2', side: 'A', lengthMs: 3000),
+      ];
+      await engine.prepareScannedRecord(albumTitle: 'Disco Longo', artist: 'Banda', tracklist: longLp, source: 'discogs');
+      expect(await engine.startManualPlayback(trackIndex: 0, useMic: false), isTrue);
+      final started = DateTime.now();
+
+      // Letra atrasada: o usuário adianta 2,5 s → a faixa de 3 s acaba ~0,5 s depois, não 3 s
+      engine.nudgeSync(0.5);
+      engine.nudgeSync(1.0);
+      engine.nudgeSync(1.0);
+      expect(engine.lyricBiasSeconds, closeTo(2.5, 0.001));
+      expect(engine.telemetry.currentPositionSeconds, greaterThanOrEqualTo(2.5));
+
+      await _waitFor(() => engine.currentTrack?.title == 'Longa A2');
+      expect(DateTime.now().difference(started).inMilliseconds, lessThan(2000),
+          reason: 'a troca de faixa foi reagendada com o ajuste');
+      expect(engine.lyricBiasSeconds, closeTo(2.5, 0.001), reason: 'o ajuste vale para o resto do lado');
+      engine.stopManual();
+      expect(engine.lyricBiasSeconds, 0, reason: 'parar encerra a sessão do ajuste');
+      engine.dispose();
+    });
+
     test('desligar a chave encerra a escuta manual; sem disco não começa', () async {
       final cache = VinylCacheService(storageDirectory: dir);
       await cache.init();

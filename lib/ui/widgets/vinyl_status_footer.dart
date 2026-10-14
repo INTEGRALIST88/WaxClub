@@ -24,6 +24,11 @@ class VinylStatusFooter extends StatefulWidget {
   /// Substitui o microfone cromado no centro (ex.: o ▶ cromado do Modo Manual).
   final Widget? centerButton;
 
+  /// Modo Manual tocando (sem TV): faixa fina com o ajuste da letra (−0.5 s / valor / +0.5 s)
+  /// logo acima do ▶; [lyricBiasSeconds] é o ajuste somado na sessão.
+  final bool showLyricSync;
+  final double lyricBiasSeconds;
+
   const VinylStatusFooter({
     super.key,
     required this.telemetry,
@@ -37,6 +42,8 @@ class VinylStatusFooter extends StatefulWidget {
     this.onMicPressed,
     this.micSize = 60,
     this.centerButton,
+    this.showLyricSync = false,
+    this.lyricBiasSeconds = 0,
   });
 
   @override
@@ -46,6 +53,44 @@ class VinylStatusFooter extends StatefulWidget {
 class _VinylStatusFooterState extends State<VinylStatusFooter> {
   bool _showFineTuning = false;
   double _manualSliderValue = 0.0;
+
+  /// Faixa fina do ajuste da letra (Modo Manual): adianta/atrasa a letra e as trocas de faixa.
+  Widget _buildLyricSyncStrip() {
+    final b = widget.lyricBiasSeconds;
+    final label = '${b > 0 ? '+' : b < 0 ? '−' : '±'}${b.abs().toStringAsFixed(1)}s'; // l10n-ignore
+    Widget nudge(String text, double delta) => InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: widget.onNudge == null ? null : () => widget.onNudge!(delta),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+            child: Text(text, style: const TextStyle(color: AppTheme.cream, fontSize: 12.5, fontWeight: FontWeight.w700)),
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Center(
+        child: Container(
+          height: 26,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.25),
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(color: AppTheme.carveLight),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              nudge('⏪ −0.5s', -0.5), // l10n-ignore
+              Tooltip(
+                message: l10n.lyricSyncTooltip,
+                child: Text(label, style: const TextStyle(color: AppTheme.orange, fontSize: 12.5, fontWeight: FontWeight.w800)),
+              ),
+              nudge('+0.5s ⏩', 0.5), // l10n-ignore
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +131,11 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
         child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: widget.showLyricSync ? 12 : 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.showLyricSync) _buildLyricSyncStrip(),
               // Linha fina acima: "Calibrating in Xs" ou a etapa especial, só quando houver
               if (_hasStatusInfo(telemetry))
                 Padding(

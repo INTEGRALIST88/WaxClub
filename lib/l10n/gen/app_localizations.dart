@@ -2425,7 +2425,7 @@ abstract class AppLocalizations {
   /// No description provided for @manualUseMicHint.
   ///
   /// In en, this message translates to:
-  /// **'The microphone only measures the volume to find where the music starts. No song recognition.'**
+  /// **'The microphone finds the start of the music, then listens to the end of each track to change to the next one right on time.'**
   String get manualUseMicHint;
 
   /// No description provided for @manualNoMicHint.
@@ -3175,7 +3175,7 @@ abstract class AppLocalizations {
   /// No description provided for @readyStepsManual.
   ///
   /// In en, this message translates to:
-  /// **'1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.'**
+  /// **'1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.'**
   String get readyStepsManual;
 
   /// No description provided for @readyGotIt.
@@ -3183,6 +3183,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it'**
   String get readyGotIt;
+
+  /// No description provided for @lyricSyncTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.'**
+  String get lyricSyncTooltip;
+
+  /// No description provided for @manualNeedleSkipWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.'**
+  String get manualNeedleSkipWarning;
+
+  /// No description provided for @helpManual3.
+  ///
+  /// In en, this message translates to:
+  /// **'With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable\'s speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.'**
+  String get helpManual3;
+
+  /// No description provided for @helpManual4.
+  ///
+  /// In en, this message translates to:
+  /// **'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.'**
+  String get helpManual4;
 }
 
 class _AppLocalizationsDelegate

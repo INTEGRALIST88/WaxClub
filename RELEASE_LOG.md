@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.1] — 14/10/2026 (Modo Manual: Ajuste que Funciona, Microfone nas Trocas de Faixa e Rotação da Sessão)
+
+* **Ajuste ±0.5 s no Modo Manual corrigido** (celular e TV): antes deslocava só a letra da música atual, era salvo por música e a troca de faixa continuava no horário antigo — a próxima música desfazia a correção. Agora o ajuste **move o relógio do disco**: letra e trocas de faixa juntas, valendo para o resto do lado (zera ao parar).
+* **Faixa fina de ajuste no rodapé** (Modo Manual sem transmitir): `−0.5s | valor | +0.5s` logo acima do ▶; o rodapé ficou um pouco mais alto.
+* **Microfone nas trocas de faixa:** com o microfone ligado, o app escuta dos **10 s finais** de cada faixa até a seguinte começar e acha o **sulco entre faixas** (silêncio de 0,4 a 3,5 s seguido de som) — a próxima faixa começa no som dela. No fim da minutagem, se ainda houver silêncio, espera o som; se a música continuar (faixas emendadas), dá até 5 s extras.
+* **Rotação da vitrola na sessão:** (1) dois ajustes separados por mais de 1 minuto viram uma estimativa (correção = ajuste ÷ intervalo); (2) com minutagem de **fonte confiável** (prensagem no Discogs/MusicBrainz ou o catálogo de trilhas) e todas as faixas do lado com duração, a duração medida pelo microfone (do começo da faixa ao silêncio do fim) entra na estimativa — fora disso o microfone só acha o começo das faixas e a medida é descartada. Limite ±4%; vale só nesta sessão.
+* **Agulha pulando:** aviso na janela de início do Modo Manual, no "Ready to play" e na Ajuda (corrigir com −0.5 s / +0.5 s ou tocando na faixa certa).
+* Peças novas testáveis: `lib/engine/manual_timing.dart` (`ManualBoundaryDetector`, `ManualTimingEstimator`). Testes: `manual_timing_test.dart` e novo caso em `manual_mode_test.dart` — 247 no total.
+
+---
 ## [v1.4] — 14/10/2026 (Perfil, Botões na Segunda Linha, Adicionar Disco e Ajustes dos Testes)
 
 > A partir desta versão a numeração segue 1.4, 1.4.1, 1.4.2... (decisão do usuário). Reúne o que estava preparado como 1.3.25.

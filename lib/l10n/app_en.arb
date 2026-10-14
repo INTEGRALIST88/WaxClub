@@ -1011,7 +1011,7 @@
   },
   "manualStartTitle": "Where does the needle start?",
   "manualUseMic": "Detect the start with the microphone",
-  "manualUseMicHint": "The microphone only measures the volume to find where the music starts. No song recognition.",
+  "manualUseMicHint": "The microphone finds the start of the music, then listens to the end of each track to change to the next one right on time.",
   "manualNoMicHint": "The lyrics start as soon as you pick the track.",
   "manualMissingDurations": "{count, plural, =1{1 track has no length: tap it in the tracklist when it starts.} other{{count} tracks have no length: tap them in the tracklist when they start.}}",
   "@manualMissingDurations": {
@@ -1195,6 +1195,10 @@
   "collectionAddRecord": "Add a record",
   "readyTitle": "Ready to play",
   "readyStepsAuto": "1. Put side A on the turntable.\n2. Drop the needle.\n3. Tap the microphone button: WaxClub listens and the lyrics start in sync.",
-  "readyStepsManual": "1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.",
-  "readyGotIt": "Got it"
+  "readyStepsManual": "1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.",
+  "readyGotIt": "Got it",
+  "lyricSyncTooltip": "Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.",
+  "manualNeedleSkipWarning": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.",
+  "helpManual3": "With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable's speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.",
+  "helpManual4": "If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list."
 }

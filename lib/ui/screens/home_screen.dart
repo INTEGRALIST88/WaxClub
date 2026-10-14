@@ -1357,6 +1357,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       isListening: isListening,
                       onMicPressed: _onFabPressed,
                       micSize: micSize,
+                      showLyricSync: _engine.isManualMode && _engine.isManualPlaying,
+                      lyricBiasSeconds: _engine.lyricBiasSeconds,
                       // Modo Manual: o microfone vira o ▶ cromado
                       centerButton: _engine.isManualMode
                           ? ChromePlayButton(

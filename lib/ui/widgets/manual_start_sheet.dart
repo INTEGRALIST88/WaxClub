@@ -101,6 +101,21 @@ class _ManualStartSheetState extends State<ManualStartSheet> {
             child: Text(l10n.manualMissingDurations(missing),
                 style: const TextStyle(color: Color(0xFFF6B74A), fontSize: 12.5)),
           ),
+        // Agulha pulando (ou levantada) tira a letra do lugar
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFF6B74A)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(l10n.manualNeedleSkipWarning,
+                    style: const TextStyle(color: Colors.white60, fontSize: 12.5, height: 1.35)),
+              ),
+            ],
+          ),
+        ),
         ...rows,
       ],
     );

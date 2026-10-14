@@ -1440,7 +1440,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualUseMicHint =>
-      'The microphone only measures the volume to find where the music starts. No song recognition.';
+      'The microphone finds the start of the music, then listens to the end of each track to change to the next one right on time.';
 
   @override
   String get manualNoMicHint =>
@@ -1872,8 +1872,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readyStepsManual =>
-      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.';
+      '1. Put side A on the turntable.\n2. Tap the chrome ▶ and pick the first track.\n3. Drop the needle: the lyrics start with the music.\n\nIf the needle skips, the lyrics can go out of sync: fix it with −0.5 s / +0.5 s.';
 
   @override
   String get readyGotIt => 'Got it';
+
+  @override
+  String get lyricSyncTooltip =>
+      'Lyrics timing: tap − or + if the lyrics run late or early. In Manual mode it also moves the track changes.';
+
+  @override
+  String get manualNeedleSkipWarning =>
+      'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s, or tap the right track in the list.';
+
+  @override
+  String get helpManual3 =>
+      'With the microphone on, WaxClub listens to the last 10 seconds of each track until the next one starts, so it finds the gap between tracks (usually 1 to 3 seconds) and changes tracks right on time. When the track timing comes from a trusted source (the pressing on Discogs or MusicBrainz), it also estimates your turntable\'s speed. Two lyric adjustments (−0.5 s / +0.5 s) more than a minute apart also estimate the speed for this session.';
+
+  @override
+  String get helpManual4 =>
+      'If the needle skips or you lift it, the lyrics can go out of sync. Fix it with −0.5 s / +0.5 s (just above the ▶, or on the phone panel while casting), or tap the right track in the list.';
 }
