@@ -721,7 +721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockSpeed => 'Lock speed';
 
   @override
-  String get lyricsSync => 'Lyrics sync';
+  String get lyricsSync => 'Time sync';
 
   @override
   String get lyricsSyncHint => 'if the lyrics run early or late';
@@ -1959,6 +1959,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lyricsTapToCalibrate => 'Tap the line being sung to calibrate';
+
+  @override
+  String get timeSyncTapHint => 'Tap to shift the timing';
 
   @override
   String get manualAlreadyPlaying =>

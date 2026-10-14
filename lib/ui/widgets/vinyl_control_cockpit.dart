@@ -13,8 +13,8 @@ import 'flip_side_button.dart';
 /// Música, banda, disco e "a seguir" já aparecem na barra de cima; aqui, sem rolagem:
 ///  1. TV conectada (faixa fina com "Desconectar");
 ///  2. barra de minutagem;
-///  3. **sincronia da letra** em destaque: as linhas em volta da que está sendo cantada, tocáveis — tocar
-///     na linha cantada acerta celular e TV (no Modo Manual, é a calibração; a região pulsa prateada ao
+///  3. **Time sync** em destaque: 5 colunas — duas linhas antes, a cantada no centro e duas depois —, tocáveis;
+///     tocar na linha cantada acerta celular e TV (sem letra, as colunas deslocam o tempo: −2 s … +2 s) (no Modo Manual, é a calibração; a região pulsa prateada ao
 ///     começar a transmissão e enquanto o começo da faixa for incerto);
 ///  4. rotação medida e ajuste fino da rotação;
 ///  5. ação principal no rodapé: Ouvir/Ressincronizar ou "Vire o disco"; no Modo Manual, ▶/parar e
@@ -260,7 +260,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with TickerPr
     );
   }
 
-  // ─── 3. SINCRONIA DA LETRA ───
+  // ─── 3. TIME SYNC (sincronia da letra / do tempo) ───
   Widget _buildLyricSync(bool compact) {
     final engine = widget.engine;
     final hasLyrics = engine.lyrics.isNotEmpty;
@@ -272,7 +272,7 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with TickerPr
         children: [
           _subHead(
             l10n.lyricsSync,
-            hasLyrics ? l10n.lyricsTapToCalibrate : l10n.lyricsSyncHint,
+            hasLyrics ? l10n.lyricsTapToCalibrate : l10n.timeSyncTapHint,
             accentValue: hasLyrics,
           ),
           Expanded(child: hasLyrics ? _tapLines(compact) : _nudgeFallback(compact)),
@@ -303,85 +303,133 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with TickerPr
     );
   }
 
-  /// As linhas em volta da que está sendo cantada (quantas couberem): tocar na linha cantada acerta
-  /// celular e TV de uma vez.
+  // 5 colunas: a do centro (a linha que está tocando) é a mais larga
+  static const List<int> _colFlex = [3, 4, 6, 4, 3];
+
+  /// Cinco colunas lado a lado: duas linhas antes, a que está sendo cantada no centro e duas depois.
+  /// Tocar na coluna da linha cantada acerta celular e TV de uma vez.
   Widget _tapLines(bool compact) {
     final engine = widget.engine;
     final lines = engine.lyrics;
     final active = engine.activeLineIndex.clamp(0, lines.length - 1);
-    final rowHeight = compact ? 40.0 : 46.0;
-    return LayoutBuilder(builder: (context, c) {
-      var count = (c.maxHeight / rowHeight).floor().clamp(1, 7);
-      if (count.isEven) count -= 1;
-      final half = count ~/ 2;
-      final h = c.maxHeight / count;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var k = 0; k < 5; k++)
+          () {
+            final i = active - 2 + k;
+            final ok = i >= 0 && i < lines.length && lines[i].text.trim().isNotEmpty;
+            return _syncColumn(
+              flex: _colFlex[k],
+              distance: (k - 2).abs(),
+              compact: compact,
+              text: ok ? lines[i].text : '',
+              onTap: ok
+                  ? () {
+                      engine.syncToLine(lines[i].timestamp.inMilliseconds / 1000.0);
+                      if (_pulseUntil != null) setState(() => _pulseUntil = null);
+                    }
+                  : null,
+            );
+          }(),
+      ],
+    );
+  }
 
-      Widget row(int i) {
-        final ok = i >= 0 && i < lines.length && lines[i].text.trim().isNotEmpty;
-        final current = i == active;
-        return SizedBox(
-          height: h,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Material(
-              color: current ? AppTheme.orange.withValues(alpha: 0.24) : Colors.black.withValues(alpha: ok ? 0.2 : 0.08),
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: ok
-                    ? () {
-                        engine.syncToLine(lines[i].timestamp.inMilliseconds / 1000.0);
-                        if (_pulseUntil != null) setState(() => _pulseUntil = null);
-                      }
-                    : null,
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+  /// Sem letra (sem o plugin ou faixa instrumental): as mesmas colunas acertam o tempo
+  /// (−2 s, −0.5 s, posição atual, +0.5 s, +2 s).
+  Widget _nudgeFallback(bool compact) {
+    final engine = widget.engine;
+    final bias = engine.lyricBiasSeconds;
+    const steps = [-2.0, -0.5, 0.0, 0.5, 2.0];
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var k = 0; k < 5; k++)
+          k == 2
+              ? _syncColumn(
+                  flex: _colFlex[k],
+                  distance: 0,
+                  compact: compact,
+                  text: '${_fmt(engine.telemetry.currentPositionSeconds)}\n${bias >= 0 ? '+' : ''}${bias.toStringAsFixed(1)}s', // l10n-ignore
+                  onTap: null,
+                )
+              : _syncColumn(
+                  flex: _colFlex[k],
+                  distance: 1,
+                  compact: compact,
+                  text: '${steps[k] > 0 ? '+' : '−'}${steps[k].abs() == 0.5 ? '0.5' : '2'}s', // l10n-ignore
+                  onTap: () => engine.nudgeSync(steps[k]),
+                ),
+      ],
+    );
+  }
+
+  /// Uma coluna tocável do Time sync; [distance] = 0 no centro (destaque), 1 e 2 para os lados.
+  Widget _syncColumn({
+    required int flex,
+    required int distance,
+    required bool compact,
+    required String text,
+    required VoidCallback? onTap,
+  }) {
+    final current = distance == 0;
+    final fontSize = current ? (compact ? 16.0 : 18.0) : (distance == 1 ? (compact ? 12.5 : 13.5) : (compact ? 11.5 : 12.5));
+    final color = current ? AppTheme.cream : (distance == 1 ? Colors.white70 : Colors.white54);
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Material(
+          color: current ? AppTheme.orange.withValues(alpha: 0.24) : Colors.black.withValues(alpha: text.isEmpty ? 0.08 : 0.2),
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: onTap,
+            child: LayoutBuilder(builder: (context, c) {
+              // A palavra mais larga cabe inteira na coluna (sem quebrar no meio): reduz a fonte se preciso
+              var size = fontSize;
+              final room = c.maxWidth - 6;
+              var widest = 0.0;
+              for (final word in text.split(RegExp(r'\s+'))) {
+                if (word.isEmpty) continue;
+                final painter = TextPainter(
+                  text: TextSpan(
+                    text: word,
+                    style: DefaultTextStyle.of(context).style.merge(
+                          TextStyle(fontSize: size, fontWeight: current ? FontWeight.w800 : FontWeight.w600, height: 1.18),
+                        ),
+                  ),
+                  textDirection: TextDirection.ltr,
+                  textScaler: MediaQuery.textScalerOf(context),
+                  maxLines: 1,
+                )..layout();
+                if (painter.width > widest) widest = painter.width;
+                painter.dispose();
+              }
+              if (widest > room) size = (size * room / widest * 0.96).clamp(7.5, fontSize);
+              final lineHeight = size * 1.18;
+              final maxLines = ((c.maxHeight - 12) / lineHeight).floor().clamp(1, 20);
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                child: Center(
                   child: Text(
-                    ok ? lines[i].text : '',
-                    maxLines: current ? 2 : 1,
+                    text,
+                    maxLines: maxLines,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: current ? AppTheme.cream : Colors.white60,
-                      fontWeight: current ? FontWeight.w800 : FontWeight.w500,
-                      fontSize: current ? (compact ? 14.5 : 16) : (compact ? 12 : 13),
-                      height: 1.15,
+                      color: color,
+                      fontWeight: current ? FontWeight.w800 : FontWeight.w600,
+                      fontSize: size,
+                      height: 1.18,
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
-        );
-      }
-
-      return Column(children: [for (var i = active - half; i <= active + half; i++) row(i)]);
-    });
-  }
-
-  /// Sem letra (instrumental): só o ajuste ±0.5 s sobra para acertar o tempo.
-  Widget _nudgeFallback(bool compact) {
-    final engine = widget.engine;
-    return Center(
-      child: Row(
-        children: [
-          Expanded(child: _nudgeButton('⏪  −0.5s', () => engine.nudgeSync(-0.5), compact)), // l10n-ignore
-          SizedBox(
-            width: 76,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(l10n.offset, style: const TextStyle(fontSize: 11, color: Colors.white54)),
-                Text(
-                  '${engine.lyricBiasSeconds >= 0 ? '+' : ''}${engine.lyricBiasSeconds.toStringAsFixed(1)}s', // l10n-ignore
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-          Expanded(child: _nudgeButton('+0.5s  ⏩', () => engine.nudgeSync(0.5), compact)), // l10n-ignore
-        ],
+        ),
       ),
     );
   }
@@ -579,14 +627,6 @@ class _VinylControlCockpitState extends State<VinylControlCockpit> with TickerPr
           ),
         ],
       ),
-    );
-  }
-
-  Widget _nudgeButton(String label, VoidCallback onTap, bool compact) {
-    return _woodTap(
-      onTap: onTap,
-      height: compact ? 32 : 38,
-      child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
     );
   }
 

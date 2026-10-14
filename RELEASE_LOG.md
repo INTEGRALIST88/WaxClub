@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.6] — 14/10/2026 (Time Sync em 5 Colunas)
+
+* **"Lyrics sync" virou "Time sync"** no painel da transmissão (nem todo mundo usa o plugin de letra).
+* **5 colunas lado a lado** no mesmo espaço: duas linhas antes, **a que está tocando no centro** (coluna mais larga, fonte maior, destaque laranja) e duas depois. Tocar na coluna da linha cantada acerta celular e TV — é o ajuste manual do usuário.
+* **Leitura:** fontes maiores (centro 18, vizinhas 13,5, pontas 12,5); a fonte de cada coluna diminui só o necessário para a palavra mais larga caber inteira (nada de palavra quebrada no meio), e o número de linhas acompanha a altura da coluna.
+* **Sem letra** (sem o plugin ou faixa instrumental): as mesmas colunas acertam o tempo — **−2 s · −0.5 s · posição/ajuste · +0.5 s · +2 s**.
+
+---
 ## [v1.4.5] — 14/10/2026 (Painel da Transmissão Focado na Letra e Modo Manual sem Shazam)
 
 * **Painel do celular durante a transmissão, redesenhado:** saíram a capa, o nome da música/disco e o "a seguir" (já estão na barra de cima) e os botões −0.5/+0.5 (só voltam quando a faixa não tem letra). Ficaram: a TV conectada, a **barra de minutagem**, a **sincronia da letra em destaque** — as linhas antes e depois da que está sendo cantada (até 7, conforme a altura da tela), cada uma tocável; tocar na linha cantada acerta celular e TV —, a rotação e o botão principal.

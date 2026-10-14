@@ -2,7 +2,7 @@ name: waxclub
 description: "WaxClub - Real-time karaoke lyrics synchronized with vinyl records and pitch drift compensation."
 publish_to: 'none'
 
-version: 1.4.5+2405
+version: 1.4.6+2406
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

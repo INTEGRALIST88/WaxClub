@@ -1261,7 +1261,7 @@ abstract class AppLocalizations {
   /// No description provided for @lyricsSync.
   ///
   /// In en, this message translates to:
-  /// **'Lyrics sync'**
+  /// **'Time sync'**
   String get lyricsSync;
 
   /// No description provided for @lyricsSyncHint.
@@ -3327,6 +3327,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap the line being sung to calibrate'**
   String get lyricsTapToCalibrate;
+
+  /// No description provided for @timeSyncTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to shift the timing'**
+  String get timeSyncTapHint;
 
   /// No description provided for @manualAlreadyPlaying.
   ///
