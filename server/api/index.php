@@ -9,6 +9,7 @@ require __DIR__ . '/lib/auth.php';
 require __DIR__ . '/lib/collection.php';
 require __DIR__ . '/lib/curiosities.php';
 require __DIR__ . '/lib/photos.php';
+require __DIR__ . '/lib/brain.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -48,6 +49,11 @@ $routes = [
     ['POST', '#^/v1/photos$#', 'photos_add'],
     ['GET', '#^/v1/photos/(\d+)$#', 'photos_get'],
     ['DELETE', '#^/v1/photos/(\d+)$#', 'photos_delete'],
+    ['GET', '#^/v1/brain$#', 'brain_list'],
+    ['PUT', '#^/v1/brain/order$#', 'brain_order'],
+    ['GET', '#^/v1/brain/([a-z]+)/key$#', 'brain_key'],
+    ['PUT', '#^/v1/brain/([a-z]+)$#', 'brain_put'],
+    ['DELETE', '#^/v1/brain/([a-z]+)$#', 'brain_delete'],
 ];
 
 $pathMatched = false;

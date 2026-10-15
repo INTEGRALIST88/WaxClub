@@ -20,6 +20,9 @@ import '../widgets/flip_side_button.dart';
 import '../widgets/album_picker_sheet.dart';
 import '../widgets/home_greeting.dart';
 import '../../services/collection_service.dart';
+import '../../services/brain/account_brain_remote.dart';
+import '../../services/brain/brain_service.dart';
+import 'waxbrain_screen.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
 import 'record_scan_screen.dart';
@@ -97,6 +100,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final UserProfileStore _profile = UserProfileStore();
   final CollectionService _collection = CollectionService();
 
+  /// WaxBrain: chaves de IA do usuário (BYOK), no cofre do celular e, criptografadas, na conta.
+  final BrainService _brain = BrainService();
+  final GlobalKey _brainKey = GlobalKey();
+  bool _brainAttached = false;
+
   /// Conta WaxClub (api.waxclub.com.br): sincroniza a coleção e as audições.
   late final AccountService _account = widget.account ?? AccountService();
   final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
@@ -117,7 +125,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _profile.load();
     _collection.load();
     _account.attachCollection(_collection);
+    _account.addListener(_onAccountForBrain);
     _account.load();
+    _brain.load();
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
     _plugins.bindConnection(PluginCatalog.discogsId, _discogsConnection);
     // Fontes de letras: cada site é um plugin (Lyrics sources); a busca consulta só os ligados
@@ -206,6 +216,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
     _plugins.dispose();
     _account.detachCollection(_collection);
+    _account.removeListener(_onAccountForBrain);
+    _brain.dispose();
     if (widget.account == null) _account.dispose();
     _collection.dispose();
     if (_portraitLocked) SystemChrome.setPreferredOrientations(DeviceOrientation.values);
@@ -772,7 +784,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   /// Botões de madeira da linha de baixo da barra, da esquerda para a direita: usuário, Identify,
-  /// Manual (chave liga/desliga), My Collection, Plugins e Help.
+  /// Manual (chave liga/desliga), WaxBrain, My Collection, Plugins e Help.
   Widget _woodButtons(double size) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -785,11 +797,28 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             size: size,
             key: _manualKey,
           ),
+          WoodTileButton(asset: 'assets/images/btn_brain.png', label: l10n.waxBrain, onPressed: _openBrain, size: size, key: _brainKey),
           WoodTileButton(asset: 'assets/images/btn_collection.png', label: l10n.myCollection, onPressed: _openCollection, size: size, key: _collectionKey),
           WoodTileButton(asset: 'assets/images/btn_plugins.png', label: l10n.plugins, onPressed: _openPlugins, size: size, key: _pluginsKey),
           WoodTileButton(asset: 'assets/images/btn_help.png', label: l10n.help, onPressed: _openHelp, size: size, key: _helpKey),
         ],
       );
+
+  /// Conta conectada: o WaxBrain passa a guardar uma cópia criptografada das chaves na conta (e traz as
+  /// que já estavam lá); conta desconectada: segue só no celular.
+  void _onAccountForBrain() {
+    if (_account.isSignedIn && !_brainAttached) {
+      _brainAttached = true;
+      _brain.attachRemote(AccountBrainRemote(_account));
+    } else if (!_account.isSignedIn && _brainAttached) {
+      _brainAttached = false;
+      _brain.detachRemote();
+    }
+  }
+
+  void _openBrain() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => WaxBrainScreen(brain: _brain)));
+  }
 
   /// Jukebox de plugins (idiomas, exibição, fontes de letras, IA, conexões).
   void _openPlugins() {

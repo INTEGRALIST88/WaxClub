@@ -572,6 +572,28 @@ class AccountService extends ChangeNotifier {
 
   Future<void> deletePhoto(int id) => _request('DELETE', '/photos/$id');
 
+  // ---------- WaxBrain (chaves de IA, criptografadas no servidor) ----------
+
+  /// Chips guardados na conta (id e final da chave); nulo se o servidor está sem a senha do WaxBrain.
+  Future<List<({String id, String hint})>?> brainList() async {
+    final j = await _request('GET', '/brain');
+    if (j['configured'] != true) return null;
+    return [
+      for (final c in (j['chips'] as List<dynamic>? ?? const []).whereType<Map<String, dynamic>>())
+        (id: c['provider'] as String, hint: c['hint'] as String? ?? ''),
+    ];
+  }
+
+  Future<String?> brainKey(String provider) async =>
+      (await _request('GET', '/brain/${Uri.encodeComponent(provider)}/key'))['key'] as String?;
+
+  Future<void> brainPut(String provider, String key, int position, String status) =>
+      _request('PUT', '/brain/${Uri.encodeComponent(provider)}', body: {'key': key, 'position': position, 'status': status});
+
+  Future<void> brainDelete(String provider) => _request('DELETE', '/brain/${Uri.encodeComponent(provider)}');
+
+  Future<void> brainOrder(List<String> providers) => _request('PUT', '/brain/order', body: {'providers': providers});
+
   /// Endereço da imagem (precisa de [authHeaders]).
   String photoUrl(int id) => '$baseUrl/photos/$id';
   Map<String, String> get authHeaders => {if (_token != null) 'Authorization': 'Bearer $_token'};

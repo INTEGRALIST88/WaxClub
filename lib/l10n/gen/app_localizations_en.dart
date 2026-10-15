@@ -2362,4 +2362,155 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pluginMusixmatchDesc =>
       'The world\'s largest lyrics catalog, founded in 2010 in Bologna, Italy. Its lyrics are licensed from publishers; synced lyrics need a paid commercial license, so this plugin is coming soon.';
+
+  @override
+  String get waxBrain => 'WaxBrain';
+
+  @override
+  String get brainIntro =>
+      'Plug in an AI chip to power WaxClub\'s AI plugins. You use your own key (some providers have free plans), and nothing is plugged in until you choose.';
+
+  @override
+  String get brainPluggedSection => 'Plugged chips';
+
+  @override
+  String get brainOrderHint =>
+      'AI plugins use the first chip that\'s ready. Drag to change the order.';
+
+  @override
+  String get brainSocketsSection => 'Chip sockets';
+
+  @override
+  String get brainSocketsHintEmpty =>
+      'No chip plugged in yet. Free chips need no credit card — Gemini is the easiest one to start with.';
+
+  @override
+  String get brainSocketsHint =>
+      'Plug in more chips: when one reaches its usage limit, the next one takes over.';
+
+  @override
+  String get brainTapToPlug => 'Tap to plug in';
+
+  @override
+  String get brainFree => 'Free';
+
+  @override
+  String get brainPaid => 'Paid';
+
+  @override
+  String brainPlugTitle(String name) {
+    return 'Plug in $name';
+  }
+
+  @override
+  String brainPaidWarning(String vendor) {
+    return '$vendor charges for API use: you need to add credit (card) to your account there. The free ChatGPT and Grok chat apps don\'t include API access.';
+  }
+
+  @override
+  String brainStep1(String vendor) {
+    return 'Sign in to $vendor (you can use your Google account where it\'s offered).';
+  }
+
+  @override
+  String get brainStep2 => 'Tap “Create API key” (or “Create new key”).';
+
+  @override
+  String get brainStep3 =>
+      'Tap “Copy” and come back to WaxClub — the key is picked up automatically.';
+
+  @override
+  String brainOpenKeyPage(String vendor) {
+    return 'Open $vendor';
+  }
+
+  @override
+  String get brainPasteHint => 'Already have the key? Paste it here:';
+
+  @override
+  String get brainPasteField => 'API key';
+
+  @override
+  String get brainPasteButton => 'Paste';
+
+  @override
+  String get brainPlugButton => 'Plug in';
+
+  @override
+  String brainNoKeyCopied(String name) {
+    return 'No $name key found in what you copied. Copy the key and come back, or paste it by hand.';
+  }
+
+  @override
+  String get brainTryAgain => 'Try again';
+
+  @override
+  String get brainKeyFoundTitle => 'Key found';
+
+  @override
+  String brainKeyFoundBody(String name, String hint) {
+    return 'Plug in this $name key (ending in …$hint)?';
+  }
+
+  @override
+  String brainPluggedTitle(String name) {
+    return '$name plugged in';
+  }
+
+  @override
+  String brainPluggedBody(String name) {
+    return 'The key was tested and the $name chip is ready for the AI plugins.';
+  }
+
+  @override
+  String brainPluggedLimitBody(String name) {
+    return 'The key works, but its $name usage limit is reached right now. The chip stays plugged in and is used again when the limit resets.';
+  }
+
+  @override
+  String brainPluggedOfflineBody(String name) {
+    return 'The $name chip is plugged in, but the key couldn\'t be tested (no connection). It will be tested again later.';
+  }
+
+  @override
+  String get brainRejectedTitle => 'Key not accepted';
+
+  @override
+  String brainRejectedBody(String vendor) {
+    return '$vendor did not accept this key. Check that you copied the whole key, or create a new one.';
+  }
+
+  @override
+  String brainUnplugTitle(String name) {
+    return 'Unplug $name?';
+  }
+
+  @override
+  String get brainUnplugBody =>
+      'The key is removed from this phone and from your WaxClub account. You can plug it in again at any time.';
+
+  @override
+  String get brainUnplugButton => 'Unplug';
+
+  @override
+  String get brainTestAgain => 'Test again';
+
+  @override
+  String get brainChangeKey => 'Change key';
+
+  @override
+  String get brainStatusOk => 'Ready';
+
+  @override
+  String get brainStatusLimit => 'Limit reached';
+
+  @override
+  String get brainStatusInvalid => 'Key rejected';
+
+  @override
+  String get brainStatusOffline => 'Not tested';
+
+  @override
+  String get brainPrivacyNote =>
+      'Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models.';
 }

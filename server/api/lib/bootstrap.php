@@ -243,6 +243,22 @@ function migrations(): array
                 CONSTRAINT fk_photos_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // 1.4.31: WaxBrain — chaves de IA do usuário, criptografadas (AES-256-GCM, senha BRAIN_SECRET no env)
+        6 => [
+            "CREATE TABLE IF NOT EXISTS brain_keys (
+                user_id BIGINT UNSIGNED NOT NULL,
+                provider VARCHAR(20) NOT NULL,
+                position TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                key_cipher VARBINARY(512) NOT NULL,
+                key_nonce VARBINARY(24) NOT NULL,
+                key_hint VARCHAR(8) NOT NULL,
+                status VARCHAR(12) NOT NULL DEFAULT 'ok',
+                validated_at DATETIME(3) NULL,
+                updated_at DATETIME(3) NOT NULL,
+                PRIMARY KEY (user_id, provider),
+                CONSTRAINT fk_brain_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

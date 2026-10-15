@@ -3957,6 +3957,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The world\'s largest lyrics catalog, founded in 2010 in Bologna, Italy. Its lyrics are licensed from publishers; synced lyrics need a paid commercial license, so this plugin is coming soon.'**
   String get pluginMusixmatchDesc;
+
+  /// No description provided for @waxBrain.
+  ///
+  /// In en, this message translates to:
+  /// **'WaxBrain'**
+  String get waxBrain;
+
+  /// No description provided for @brainIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Plug in an AI chip to power WaxClub\'s AI plugins. You use your own key (some providers have free plans), and nothing is plugged in until you choose.'**
+  String get brainIntro;
+
+  /// No description provided for @brainPluggedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugged chips'**
+  String get brainPluggedSection;
+
+  /// No description provided for @brainOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'AI plugins use the first chip that\'s ready. Drag to change the order.'**
+  String get brainOrderHint;
+
+  /// No description provided for @brainSocketsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Chip sockets'**
+  String get brainSocketsSection;
+
+  /// No description provided for @brainSocketsHintEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No chip plugged in yet. Free chips need no credit card — Gemini is the easiest one to start with.'**
+  String get brainSocketsHintEmpty;
+
+  /// No description provided for @brainSocketsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plug in more chips: when one reaches its usage limit, the next one takes over.'**
+  String get brainSocketsHint;
+
+  /// No description provided for @brainTapToPlug.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to plug in'**
+  String get brainTapToPlug;
+
+  /// No description provided for @brainFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get brainFree;
+
+  /// No description provided for @brainPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get brainPaid;
+
+  /// No description provided for @brainPlugTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plug in {name}'**
+  String brainPlugTitle(String name);
+
+  /// No description provided for @brainPaidWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{vendor} charges for API use: you need to add credit (card) to your account there. The free ChatGPT and Grok chat apps don\'t include API access.'**
+  String brainPaidWarning(String vendor);
+
+  /// No description provided for @brainStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to {vendor} (you can use your Google account where it\'s offered).'**
+  String brainStep1(String vendor);
+
+  /// No description provided for @brainStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “Create API key” (or “Create new key”).'**
+  String get brainStep2;
+
+  /// No description provided for @brainStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “Copy” and come back to WaxClub — the key is picked up automatically.'**
+  String get brainStep3;
+
+  /// No description provided for @brainOpenKeyPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {vendor}'**
+  String brainOpenKeyPage(String vendor);
+
+  /// No description provided for @brainPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have the key? Paste it here:'**
+  String get brainPasteHint;
+
+  /// No description provided for @brainPasteField.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get brainPasteField;
+
+  /// No description provided for @brainPasteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get brainPasteButton;
+
+  /// No description provided for @brainPlugButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Plug in'**
+  String get brainPlugButton;
+
+  /// No description provided for @brainNoKeyCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'No {name} key found in what you copied. Copy the key and come back, or paste it by hand.'**
+  String brainNoKeyCopied(String name);
+
+  /// No description provided for @brainTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get brainTryAgain;
+
+  /// No description provided for @brainKeyFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key found'**
+  String get brainKeyFoundTitle;
+
+  /// No description provided for @brainKeyFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Plug in this {name} key (ending in …{hint})?'**
+  String brainKeyFoundBody(String name, String hint);
+
+  /// No description provided for @brainPluggedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} plugged in'**
+  String brainPluggedTitle(String name);
+
+  /// No description provided for @brainPluggedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The key was tested and the {name} chip is ready for the AI plugins.'**
+  String brainPluggedBody(String name);
+
+  /// No description provided for @brainPluggedLimitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The key works, but its {name} usage limit is reached right now. The chip stays plugged in and is used again when the limit resets.'**
+  String brainPluggedLimitBody(String name);
+
+  /// No description provided for @brainPluggedOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The {name} chip is plugged in, but the key couldn\'t be tested (no connection). It will be tested again later.'**
+  String brainPluggedOfflineBody(String name);
+
+  /// No description provided for @brainRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key not accepted'**
+  String get brainRejectedTitle;
+
+  /// No description provided for @brainRejectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{vendor} did not accept this key. Check that you copied the whole key, or create a new one.'**
+  String brainRejectedBody(String vendor);
+
+  /// No description provided for @brainUnplugTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unplug {name}?'**
+  String brainUnplugTitle(String name);
+
+  /// No description provided for @brainUnplugBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The key is removed from this phone and from your WaxClub account. You can plug it in again at any time.'**
+  String get brainUnplugBody;
+
+  /// No description provided for @brainUnplugButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unplug'**
+  String get brainUnplugButton;
+
+  /// No description provided for @brainTestAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Test again'**
+  String get brainTestAgain;
+
+  /// No description provided for @brainChangeKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Change key'**
+  String get brainChangeKey;
+
+  /// No description provided for @brainStatusOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get brainStatusOk;
+
+  /// No description provided for @brainStatusLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit reached'**
+  String get brainStatusLimit;
+
+  /// No description provided for @brainStatusInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Key rejected'**
+  String get brainStatusInvalid;
+
+  /// No description provided for @brainStatusOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested'**
+  String get brainStatusOffline;
+
+  /// No description provided for @brainPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models.'**
+  String get brainPrivacyNote;
 }
 
 class _AppLocalizationsDelegate
