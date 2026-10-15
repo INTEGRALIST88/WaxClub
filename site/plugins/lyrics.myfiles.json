@@ -11,8 +11,9 @@
   "author": "You (your own files)",
   "publisher": "WaxClub",
   "homepage": "https://waxclub.com.br/plugins/#my-lyrics",
+  "origin": "Your own files",
   "license": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
-  "description": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as synced .lrc files (with timestamps). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone.",
+  "description": "Shows synced lyrics files (.lrc with timestamps) you obtained legally (bought or licensed, written by you, in the public domain or used with permission). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. See “Your lyrics files” below.",
   "builtIn": false,
   "minAppVersion": "1.4.10",
   "provides": {

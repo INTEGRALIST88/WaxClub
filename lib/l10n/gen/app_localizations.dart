@@ -3457,7 +3457,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginLrclibDesc.
   ///
   /// In en, this message translates to:
-  /// **'Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.'**
+  /// **'Free, open-source database of synced lyrics, built and corrected by its community (lrclib.net). Independent project; no country of origin stated.'**
   String get pluginLrclibDesc;
 
   /// No description provided for @pluginNeteaseName.
@@ -3475,7 +3475,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginNeteaseDesc.
   ///
   /// In en, this message translates to:
-  /// **'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.'**
+  /// **'Synced lyrics from NetEase Cloud Music, the streaming service of NetEase, Inc. (Hangzhou, China, since 2013). Huge catalog, strong on Asian and international releases.'**
   String get pluginNeteaseDesc;
 
   /// No description provided for @pluginMegalobizName.
@@ -3493,7 +3493,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginMegalobizDesc.
   ///
   /// In en, this message translates to:
-  /// **'Community archive of synced lyrics (LRC files). Tried after NetEase.'**
+  /// **'Community website where listeners make and share LRC files (synced lyrics) with its online LRC maker; strong on J-pop and K-pop. Country of origin not disclosed.'**
   String get pluginMegalobizDesc;
 
   /// No description provided for @pluginSourceLicense.
@@ -3855,6 +3855,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'found nothing for this song'**
   String get panelPluginNothing;
+
+  /// No description provided for @pluginKugouName.
+  ///
+  /// In en, this message translates to:
+  /// **'Kugou Music'**
+  String get pluginKugouName;
+
+  /// No description provided for @pluginKugouAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'kugou.com'**
+  String get pluginKugouAuthor;
+
+  /// No description provided for @pluginKugouDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced lyrics from Kugou (酷狗音乐), one of China\'s largest music services, founded in 2004 in Guangzhou, China, and part of Tencent Music Entertainment. Good on Western rock and Brazilian classics.'**
+  String get pluginKugouDesc;
+
+  /// No description provided for @pluginQqMusicName.
+  ///
+  /// In en, this message translates to:
+  /// **'QQ Music'**
+  String get pluginQqMusicName;
+
+  /// No description provided for @pluginQqMusicAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'y.qq.com'**
+  String get pluginQqMusicAuthor;
+
+  /// No description provided for @pluginQqMusicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced lyrics from QQ Music (QQ音乐), Tencent\'s music service (Shenzhen, China, since 2005), part of Tencent Music Entertainment. Often has the songs other sources miss.'**
+  String get pluginQqMusicDesc;
+
+  /// No description provided for @pluginMusixmatchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Musixmatch'**
+  String get pluginMusixmatchName;
+
+  /// No description provided for @pluginMusixmatchAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'musixmatch.com'**
+  String get pluginMusixmatchAuthor;
+
+  /// No description provided for @pluginMusixmatchLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Licensed lyrics (commercial license required)'**
+  String get pluginMusixmatchLicense;
+
+  /// No description provided for @pluginMusixmatchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The world\'s largest lyrics catalog, founded in 2010 in Bologna, Italy. Its lyrics are licensed from publishers; synced lyrics need a paid commercial license, so this plugin is coming soon.'**
+  String get pluginMusixmatchDesc;
 }
 
 class _AppLocalizationsDelegate

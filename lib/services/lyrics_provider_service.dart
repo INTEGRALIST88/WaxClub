@@ -10,6 +10,7 @@ import 'lrclib_service.dart';
 /// 1. LRCLIB (fonte primária, metadados limpos e estáveis)
 /// 2. NetEase Cloud Music (enorme catálogo com letras LRC sincronizadas, excelente para faixas nacionais/internacionais)
 /// 3. Megalobiz (arquivo colaborativo de letras sincronizadas)
+/// 4. Kugou e QQ Music (Tencent Music, China): LRC sincronizado, instalados pelo site
 ///
 /// Só vale letra **com tempo** (LRC sincronizado): texto simples conta como não encontrado (luz vermelha).
 class LyricsProviderService {
@@ -23,15 +24,15 @@ class LyricsProviderService {
   LrcLibService get lrcLibService => _lrcLibService;
 
   /// Fontes de letras ligadas: cada site é um plugin da categoria Lyrics sources ('lrclib', 'netease',
-  /// 'megalobiz'). O app consulta os plugins instalados e ligados; sem o app configurar,
+  /// 'megalobiz', 'kugou', 'qqmusic'). O app consulta os plugins instalados e ligados; sem o app configurar,
   /// todas valem (testes).
   static bool Function(String source) sourceEnabled = _allSources;
   static bool _allSources(String _) => true;
 
   /// Ordem das fontes de letras (a do painel de plugins, da esquerda para a direita); sem o app
-  /// configurar, as letras do usuário primeiro e depois LRCLIB, NetEase e Megalobiz.
+  /// configurar, as letras do usuário primeiro e depois LRCLIB, NetEase, Megalobiz, Kugou e QQ Music.
   static List<String> Function() sourceOrder = _defaultOrder;
-  static List<String> _defaultOrder() => const ['local', 'lrclib', 'netease', 'megalobiz'];
+  static List<String> _defaultOrder() => const ['local', 'lrclib', 'netease', 'megalobiz', 'kugou', 'qqmusic'];
 
   /// As letras do próprio usuário vêm antes das guardadas (cache) e da web: o S5 está ligado e é a
   /// primeira fonte ligada no painel.
@@ -160,6 +161,10 @@ class LyricsProviderService {
           return await _fetchFromNetEase(trackName: trackName, artistName: artistName);
         case 'megalobiz':
           return await _fetchFromMegalobiz(trackName: trackName, artistName: artistName);
+        case 'kugou':
+          return await _fetchFromKugou(trackName: trackName, artistName: artistName, durationSeconds: durationSeconds);
+        case 'qqmusic':
+          return await _fetchFromQqMusic(trackName: trackName, artistName: artistName, durationSeconds: durationSeconds);
         default:
           return null;
       }
@@ -316,6 +321,144 @@ class LyricsProviderService {
       debugPrint('[LyricsCascade:Megalobiz] Erro: $e');
       return null;
     }
+  }
+
+  /// Kugou (酷狗音乐, Guangzhou, China — Tencent Music): busca a letra pelo "Artista - Música" e baixa o
+  /// LRC sincronizado (vem em base64). Só aceita o candidato do mesmo artista e da mesma música.
+  Future<LrcResponse?> _fetchFromKugou({
+    required String trackName,
+    required String artistName,
+    int? durationSeconds,
+  }) async {
+    try {
+      final cleanTrack = _cleanSearchTerm(trackName);
+      final cleanArtist = _cleanSearchTerm(artistName);
+      final searchUri = Uri.https('krcs.kugou.com', '/search', {
+        'ver': '1',
+        'man': 'yes',
+        'client': 'mobi',
+        'keyword': '$cleanArtist - $cleanTrack',
+        'duration': durationSeconds == null ? '' : '${durationSeconds * 1000}',
+        'hash': '',
+      });
+      final searchRes = await _client.get(searchUri).timeout(const Duration(seconds: 6));
+      if (searchRes.statusCode != 200) return null;
+      final candidates = (jsonDecode(searchRes.body) as Map<String, dynamic>)['candidates'] as List<dynamic>? ?? const [];
+      for (final c in candidates.take(5)) {
+        final m = c as Map<String, dynamic>;
+        if (!_sameArtist(m['singer'] as String?, cleanArtist) || !_sameSong(m['song'] as String?, cleanTrack)) continue;
+        final id = m['id']?.toString();
+        final key = m['accesskey'] as String?;
+        if (id == null || key == null) continue;
+        final dlUri = Uri.https('krcs.kugou.com', '/download', {
+          'ver': '1',
+          'client': 'pc',
+          'id': id,
+          'accesskey': key,
+          'fmt': 'lrc',
+          'charset': 'utf8',
+        });
+        final dlRes = await _client.get(dlUri).timeout(const Duration(seconds: 6));
+        if (dlRes.statusCode != 200) continue;
+        final content = (jsonDecode(dlRes.body) as Map<String, dynamic>)['content'] as String?;
+        if (content == null || content.isEmpty) continue;
+        final lrc = utf8.decode(base64Decode(content), allowMalformed: true);
+        if (!_hasValidTimestamps(lrc)) continue;
+        // A duração vem em segundos ou em milissegundos, conforme o candidato
+        final raw = (m['duration'] as num?)?.toDouble();
+        final duration = raw == null ? null : (raw > 10000 ? raw / 1000.0 : raw);
+        return LrcResponse(syncedLyrics: lrc, durationSeconds: duration, source: 'kugou');
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[LyricsCascade:Kugou] Erro: $e');
+      return null;
+    }
+  }
+
+  /// QQ Music (QQ音乐, Shenzhen, China — Tencent Music): procura a música e baixa o LRC sincronizado. Entre
+  /// os resultados do mesmo artista e da mesma música, prefere a versão de estúdio com a duração mais perto.
+  Future<LrcResponse?> _fetchFromQqMusic({
+    required String trackName,
+    required String artistName,
+    int? durationSeconds,
+  }) async {
+    try {
+      final cleanTrack = _cleanSearchTerm(trackName);
+      final cleanArtist = _cleanSearchTerm(artistName);
+      final searchUri = Uri.https('c.y.qq.com', '/soso/fcgi-bin/client_search_cp', {
+        'w': '$cleanArtist $cleanTrack',
+        'format': 'json',
+        'n': '8',
+      });
+      final searchRes = await _client.get(searchUri).timeout(const Duration(seconds: 6));
+      if (searchRes.statusCode != 200) return null;
+      final data = (jsonDecode(searchRes.body) as Map<String, dynamic>)['data'] as Map<String, dynamic>?;
+      final list = (data?['song'] as Map<String, dynamic>?)?['list'] as List<dynamic>? ?? const [];
+      final variant = RegExp(r'\b(live|remix|ao vivo)\b', caseSensitive: false);
+      final wantsVariant = variant.hasMatch(trackName);
+      final matches = <Map<String, dynamic>>[];
+      for (final s in list) {
+        final m = s as Map<String, dynamic>;
+        final singers = (m['singer'] as List<dynamic>? ?? const []).map((x) => (x as Map<String, dynamic>)['name'] as String?);
+        if (!singers.any((n) => _sameArtist(n, cleanArtist))) continue;
+        final name = m['songname'] as String?;
+        if (!_sameSong(name, cleanTrack)) continue;
+        if (!wantsVariant && variant.hasMatch(name ?? '')) continue;
+        matches.add(m);
+      }
+      final d = durationSeconds;
+      if (d != null) {
+        num gap(Map<String, dynamic> m) => ((m['interval'] as num? ?? 0) - d).abs();
+        matches.sort((a, b) => gap(a).compareTo(gap(b)));
+      }
+      for (final m in matches.take(3)) {
+        final mid = m['songmid'] as String?;
+        if (mid == null) continue;
+        final lyricUri = Uri.https('c.y.qq.com', '/lyric/fcgi-bin/fcg_query_lyric_new.fcg', {'songmid': mid, 'format': 'json'});
+        final lyricRes = await _client.get(lyricUri, headers: {'Referer': 'https://y.qq.com/'}).timeout(const Duration(seconds: 6));
+        if (lyricRes.statusCode != 200) continue;
+        final b64 = (jsonDecode(lyricRes.body) as Map<String, dynamic>)['lyric'] as String?;
+        if (b64 == null || b64.isEmpty) continue;
+        final lrc = utf8.decode(base64Decode(b64), allowMalformed: true);
+        if (!_hasValidTimestamps(lrc)) continue;
+        return LrcResponse(
+          syncedLyrics: lrc,
+          durationSeconds: (m['interval'] as num?)?.toDouble(),
+          albumName: m['albumname'] as String?,
+          source: 'qqmusic',
+        );
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[LyricsCascade:QQMusic] Erro: $e');
+      return null;
+    }
+  }
+
+  /// Só letras e números, sem acento e em minúsculas, para comparar nomes vindos de fontes diferentes.
+  static String _key(String s) {
+    const from = 'áàâãäéèêëíìîïóòôõöúùûüçñ';
+    const to = 'aaaaaeeeeiiiiooooouuuucn';
+    final b = StringBuffer();
+    for (final ch in s.toLowerCase().split('')) {
+      final i = from.indexOf(ch);
+      b.write(i >= 0 ? to[i] : ch);
+    }
+    return b.toString().replaceAll(RegExp(r'^the\s+'), '').replaceAll(RegExp(r'[^a-z0-9぀-鿿]'), '');
+  }
+
+  static bool _sameArtist(String? found, String wanted) {
+    if (found == null) return false;
+    final a = _key(found), b = _key(wanted);
+    return a.isNotEmpty && b.isNotEmpty && (a.contains(b) || b.contains(a));
+  }
+
+  static bool _sameSong(String? found, String wanted) {
+    if (found == null) return false;
+    final a = _key(_cleanSearchTerm(found).replaceAll(RegExp(r'\(.*?\)|（.*?）'), ''));
+    final b = _key(wanted.replaceAll(RegExp(r'\(.*?\)'), ''));
+    return a.isNotEmpty && b.isNotEmpty && (a == b || a.startsWith(b) || b.startsWith(a));
   }
 
   static String _cleanSearchTerm(String text) {

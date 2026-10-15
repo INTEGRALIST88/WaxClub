@@ -1,0 +1,26 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.kugou",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 4,
+  "code": "S4",
+  "name": "Kugou Music",
+  "version": "1.0.0",
+  "author": "kugou.com",
+  "publisher": "WaxClub",
+  "homepage": "https://www.kugou.com",
+  "origin": "China (Guangzhou)",
+  "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
+  "description": "Synced lyrics from Kugou (酷狗音乐), one of China’s largest music services, founded in 2004 and part of Tencent Music Entertainment. Good on Western rock and Brazilian classics.",
+  "builtIn": false,
+  "minAppVersion": "1.4.21",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "kugou",
+    "synced": true,
+    "order": 4
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.kugou"
+}

@@ -11,8 +11,9 @@
   "author": "music.163.com",
   "publisher": "WaxClub",
   "homepage": "https://music.163.com",
+  "origin": "China (Hangzhou)",
   "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
-  "description": "Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.",
+  "description": "Synced lyrics from NetEase Cloud Music, the streaming service of NetEase, Inc., launched in 2013. Huge catalog, strong on Asian and international releases.",
   "builtIn": false,
   "minAppVersion": "1.4.9",
   "provides": {

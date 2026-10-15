@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.21] — 15/10/2026 (Novas Fontes: Kugou e QQ Music)
+
+* **S4 Kugou Music** (酷狗音乐 — Guangzhou, China; Tencent Music) e **S6 QQ Music** (QQ音乐 — Shenzhen, China; Tencent Music): duas fontes novas de letras **sincronizadas**, instaladas **só pelo site** (não vêm de fábrica, nem no pré-lançamento).
+  * Só aceitam o resultado do mesmo artista e da mesma música (sem acento, maiúsculas e "The"); a QQ Music pula versões ao vivo/remix e prefere a duração mais perto da faixa.
+  * Conferido ao vivo: Kugou achou Placebo, Elis Regina, Millencolin e Beatles (Mutantes não); QQ Music achou Elis, Mutantes, Millencolin e Beatles (Placebo não). Música inexistente fica vermelha nas duas.
+* **S7 Musixmatch** (Bologna, Itália) anunciado como "em breve": a letra sincronizada exige licença comercial paga.
+* **Site:** cada fonte de letras com descrição do fornecedor e **país de origem** (linha "Origin" no cartão e campo `origin` no manifesto); página inicial lista Kugou e QQ Music.
+* Testes: Kugou pula o candidato de outro artista e converte a duração em ms; QQ Music ignora a versão ao vivo, escolhe a duração mais perto e fica vermelho sem resultado.
+
+---
 ## [v1.4.20] — 15/10/2026 (Só Letra com Tempo; Lyrics.ovh Removido)
 
 * **Regra nova:** letra **sem tempo** (texto simples) conta como **não encontrada** — a fonte fica com a **luz vermelha** e a próxima do painel é consultada. O WaxClub não mostra mais letra em "ritmo estimado" (não servia para acompanhar o disco).

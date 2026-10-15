@@ -2036,7 +2036,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginLrclibDesc =>
-      'Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.';
+      'Free, open-source database of synced lyrics, built and corrected by its community (lrclib.net). Independent project; no country of origin stated.';
 
   @override
   String get pluginNeteaseName => 'NetEase Cloud Music';
@@ -2046,7 +2046,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginNeteaseDesc =>
-      'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.';
+      'Synced lyrics from NetEase Cloud Music, the streaming service of NetEase, Inc. (Hangzhou, China, since 2013). Huge catalog, strong on Asian and international releases.';
 
   @override
   String get pluginMegalobizName => 'Megalobiz';
@@ -2056,7 +2056,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginMegalobizDesc =>
-      'Community archive of synced lyrics (LRC files). Tried after NetEase.';
+      'Community website where listeners make and share LRC files (synced lyrics) with its online LRC maker; strong on J-pop and K-pop. Country of origin not disclosed.';
 
   @override
   String get pluginSourceLicense =>
@@ -2304,4 +2304,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get panelPluginNothing => 'found nothing for this song';
+
+  @override
+  String get pluginKugouName => 'Kugou Music';
+
+  @override
+  String get pluginKugouAuthor => 'kugou.com';
+
+  @override
+  String get pluginKugouDesc =>
+      'Synced lyrics from Kugou (酷狗音乐), one of China\'s largest music services, founded in 2004 in Guangzhou, China, and part of Tencent Music Entertainment. Good on Western rock and Brazilian classics.';
+
+  @override
+  String get pluginQqMusicName => 'QQ Music';
+
+  @override
+  String get pluginQqMusicAuthor => 'y.qq.com';
+
+  @override
+  String get pluginQqMusicDesc =>
+      'Synced lyrics from QQ Music (QQ音乐), Tencent\'s music service (Shenzhen, China, since 2005), part of Tencent Music Entertainment. Often has the songs other sources miss.';
+
+  @override
+  String get pluginMusixmatchName => 'Musixmatch';
+
+  @override
+  String get pluginMusixmatchAuthor => 'musixmatch.com';
+
+  @override
+  String get pluginMusixmatchLicense =>
+      'Licensed lyrics (commercial license required)';
+
+  @override
+  String get pluginMusixmatchDesc =>
+      'The world\'s largest lyrics catalog, founded in 2010 in Bologna, Italy. Its lyrics are licensed from publishers; synced lyrics need a paid commercial license, so this plugin is coming soon.';
 }

@@ -11,8 +11,9 @@
   "author": "megalobiz.com",
   "publisher": "WaxClub",
   "homepage": "https://www.megalobiz.com",
+  "origin": "Not disclosed by the site",
   "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
-  "description": "Community archive of synced lyrics (LRC files). Tried after NetEase.",
+  "description": "Community website where listeners make and share LRC files (synced lyrics) with its online LRC maker. Strong on J-pop and K-pop.",
   "builtIn": false,
   "minAppVersion": "1.4.9",
   "provides": {

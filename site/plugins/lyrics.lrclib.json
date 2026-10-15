@@ -11,8 +11,9 @@
   "author": "lrclib.net",
   "publisher": "WaxClub",
   "homepage": "https://lrclib.net",
+  "origin": "Independent open-source project (no country stated)",
   "license": "Open lyrics database (lrclib.net)",
-  "description": "Synced lyrics (with timestamps) from the open LRCLIB database. The first web source WaxClub tries.",
+  "description": "Free, open-source database of synced lyrics, built and corrected by its community: anyone can add or fix a song. Clean metadata and exact song lengths.",
   "builtIn": false,
   "minAppVersion": "1.4.9",
   "provides": {

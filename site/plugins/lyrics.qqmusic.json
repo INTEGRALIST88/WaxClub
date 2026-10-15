@@ -1,0 +1,26 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "lyrics.qqmusic",
+  "category": "S",
+  "categoryName": "Lyrics sources",
+  "number": 6,
+  "code": "S6",
+  "name": "QQ Music",
+  "version": "1.0.0",
+  "author": "y.qq.com",
+  "publisher": "WaxClub",
+  "homepage": "https://y.qq.com",
+  "origin": "China (Shenzhen)",
+  "license": "Lyrics © their authors and publishers; fetched from the site for personal listening",
+  "description": "Synced lyrics from QQ Music (QQ音乐), Tencent’s music service launched in 2005, part of Tencent Music Entertainment. Often has the songs other sources miss.",
+  "builtIn": false,
+  "minAppVersion": "1.4.21",
+  "provides": {
+    "type": "lyrics-source",
+    "engine": "qqmusic",
+    "synced": true,
+    "order": 6
+  },
+  "install": "https://waxclub.com.br/install/?plugin=lyrics.qqmusic"
+}

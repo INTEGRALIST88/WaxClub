@@ -1273,13 +1273,13 @@
   "pluginLrclibName": "LRCLIB",
   "pluginLrclibAuthor": "lrclib.net",
   "pluginLrclibLicense": "Open lyrics database (lrclib.net)",
-  "pluginLrclibDesc": "Synced lyrics (with timestamps) from the open LRCLIB database. The first source WaxClub tries; comes with the app.",
+  "pluginLrclibDesc": "Free, open-source database of synced lyrics, built and corrected by its community (lrclib.net). Independent project; no country of origin stated.",
   "pluginNeteaseName": "NetEase Cloud Music",
   "pluginNeteaseAuthor": "music.163.com",
-  "pluginNeteaseDesc": "Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.",
+  "pluginNeteaseDesc": "Synced lyrics from NetEase Cloud Music, the streaming service of NetEase, Inc. (Hangzhou, China, since 2013). Huge catalog, strong on Asian and international releases.",
   "pluginMegalobizName": "Megalobiz",
   "pluginMegalobizAuthor": "megalobiz.com",
-  "pluginMegalobizDesc": "Community archive of synced lyrics (LRC files). Tried after NetEase.",
+  "pluginMegalobizDesc": "Community website where listeners make and share LRC files (synced lyrics) with its online LRC maker; strong on J-pop and K-pop. Country of origin not disclosed.",
   "pluginSourceLicense": "Lyrics © their authors and publishers; fetched from the site for personal listening",
   "pluginInstallAfterSignIn": "Sign in or create your WaxClub account to install the plugin {plugin}.",
   "@pluginInstallAfterSignIn": {
@@ -1503,5 +1503,15 @@
     }
   },
   "photosDeleteInfo": "The photo is deleted from your WaxClub account. This cannot be undone.",
-  "panelPluginNothing": "found nothing for this song"
+  "panelPluginNothing": "found nothing for this song",
+  "pluginKugouName": "Kugou Music",
+  "pluginKugouAuthor": "kugou.com",
+  "pluginKugouDesc": "Synced lyrics from Kugou (酷狗音乐), one of China's largest music services, founded in 2004 in Guangzhou, China, and part of Tencent Music Entertainment. Good on Western rock and Brazilian classics.",
+  "pluginQqMusicName": "QQ Music",
+  "pluginQqMusicAuthor": "y.qq.com",
+  "pluginQqMusicDesc": "Synced lyrics from QQ Music (QQ音乐), Tencent's music service (Shenzhen, China, since 2005), part of Tencent Music Entertainment. Often has the songs other sources miss.",
+  "pluginMusixmatchName": "Musixmatch",
+  "pluginMusixmatchAuthor": "musixmatch.com",
+  "pluginMusixmatchLicense": "Licensed lyrics (commercial license required)",
+  "pluginMusixmatchDesc": "The world's largest lyrics catalog, founded in 2010 in Bologna, Italy. Its lyrics are licensed from publishers; synced lyrics need a paid commercial license, so this plugin is coming soon."
 }

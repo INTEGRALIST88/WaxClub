@@ -160,6 +160,16 @@ class PluginCatalog {
           description: l10n.pluginMegalobizDesc,
           engine: 'megalobiz', // l10n-ignore
         ),
+        PluginInfo(
+          id: 'lyrics.kugou',
+          category: PluginCategory.sources,
+          number: 4,
+          name: l10n.pluginKugouName,
+          author: l10n.pluginKugouAuthor,
+          license: l10n.pluginSourceLicense,
+          description: l10n.pluginKugouDesc,
+          engine: 'kugou', // l10n-ignore
+        ),
         // Letras que o próprio usuário obteve legalmente e copiou para o celular (só exibição, só no aparelho)
         PluginInfo(
           id: myLyricsId,
@@ -170,6 +180,27 @@ class PluginCatalog {
           license: l10n.pluginMyLyricsLicense,
           description: l10n.pluginMyLyricsDesc,
           engine: 'local', // l10n-ignore
+        ),
+        PluginInfo(
+          id: 'lyrics.qqmusic',
+          category: PluginCategory.sources,
+          number: 6,
+          name: l10n.pluginQqMusicName,
+          author: l10n.pluginQqMusicAuthor,
+          license: l10n.pluginSourceLicense,
+          description: l10n.pluginQqMusicDesc,
+          engine: 'qqmusic', // l10n-ignore
+        ),
+        // Musixmatch: letras licenciadas; a sincronizada exige licença comercial paga
+        PluginInfo(
+          id: 'lyrics.musixmatch',
+          category: PluginCategory.sources,
+          number: 7,
+          name: l10n.pluginMusixmatchName,
+          author: l10n.pluginMusixmatchAuthor,
+          license: l10n.pluginMusixmatchLicense,
+          description: l10n.pluginMusixmatchDesc,
+          availability: PluginAvailability.comingSoon,
         ),
         PluginInfo(
           id: 'ai.curiosities',

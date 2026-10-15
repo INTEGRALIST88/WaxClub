@@ -93,6 +93,7 @@
     .b-soon { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #a855f7; }
     .card h3 { margin: 0 0 6px; font-size: 1.15rem; }
     .card p { margin: 0; color: var(--cream-muted); font-size: 0.92rem; }
+    .card p.origin { margin-top: 8px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em; color: var(--cream); opacity: 0.75; }
     .install {
       display: block; text-align: center; margin-top: 14px; padding: 11px 14px; border-radius: 12px;
       background: var(--terracotta); color: #fff; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
@@ -263,10 +264,13 @@
       ['lang', 'L6', 'Português', 'soon', 'Portuguese menus and tips.'],
       ['disp', 'D1', 'Record Curiosities', 'built', 'When a song has no lyrics: short facts about the record and the track, plus recent news about the artist, each with its source (Wikipedia, Discogs pressing notes or the news outlet).'],
       ['disp', 'D2', 'Analog VU Meters', 'soon', 'A pair of classic needle VU meters with warm amber backlight, dancing to the music on your TV.'],
-      ['src', 'S1', 'LRCLIB', 'avail', 'Synced lyrics (with timestamps) from the open LRCLIB database. The first web source WaxClub tries.', 'lyrics.lrclib'],
-      ['src', 'S2', 'NetEase Cloud Music', 'avail', 'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.', 'lyrics.netease'],
-      ['src', 'S3', 'Megalobiz', 'avail', 'Community archive of synced lyrics (LRC files). Tried after NetEase.', 'lyrics.megalobiz'],
-      ['src', 'S5', 'My lyrics files', 'avail', 'Shows synced lyrics files (.lrc with timestamps) you have the right to use, kept in a Dropbox, OneDrive or Google Drive folder (updated automatically) or picked from your phone. See “Your lyrics files” below.', 'lyrics.myfiles'],
+      ['src', 'S1', "LRCLIB", 'avail', "Free, open-source database of synced lyrics, built and corrected by its community: anyone can add or fix a song. Clean metadata and exact song lengths.", 'lyrics.lrclib', "Independent open-source project (no country stated)"],
+      ['src', 'S2', "NetEase Cloud Music", 'avail', "Synced lyrics from NetEase Cloud Music, the streaming service of NetEase, Inc., launched in 2013. Huge catalog, strong on Asian and international releases.", 'lyrics.netease', "China (Hangzhou)"],
+      ['src', 'S3', "Megalobiz", 'avail', "Community website where listeners make and share LRC files (synced lyrics) with its online LRC maker. Strong on J-pop and K-pop.", 'lyrics.megalobiz', "Not disclosed by the site"],
+      ['src', 'S4', "Kugou Music", 'avail', "Synced lyrics from Kugou (酷狗音乐), one of China’s largest music services, founded in 2004 and part of Tencent Music Entertainment. Good on Western rock and Brazilian classics.", 'lyrics.kugou', "China (Guangzhou)"],
+      ['src', 'S5', "My lyrics files", 'avail', "Shows synced lyrics files (.lrc with timestamps) you obtained legally (bought or licensed, written by you, in the public domain or used with permission). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. See “Your lyrics files” below.", 'lyrics.myfiles', "Your own files"],
+      ['src', 'S6', "QQ Music", 'avail', "Synced lyrics from QQ Music (QQ音乐), Tencent’s music service launched in 2005, part of Tencent Music Entertainment. Often has the songs other sources miss.", 'lyrics.qqmusic', "China (Shenzhen)"],
+      ['src', 'S7', "Musixmatch", 'soon', "The world’s largest lyrics catalog, founded in 2010. Its lyrics are licensed from music publishers; synced lyrics require a paid commercial license, which WaxClub does not have yet.", null, "Italy (Bologna)"],
       ['ai', 'A1', 'AI Curiosities', 'soon', 'Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.'],
       ['ai', 'A2', 'AI Translation', 'soon', 'Curiosities and news translated into your language (WaxClub content is in English).'],
       ['conn', 'C1', 'Discogs', 'built', 'Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.'],
@@ -299,6 +303,7 @@
       top.appendChild(meta);
       top.appendChild(el('h3', null, p[2]));
       top.appendChild(el('p', null, p[4]));
+      if (p[6]) top.appendChild(el('p', 'origin', 'Origin: ' + p[6]));
       card.appendChild(top);
       if (p[3] === 'avail' && p[5]) {
         var a = el('a', 'install', 'Install');
