@@ -1,0 +1,24 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "ai.translate",
+  "category": "A",
+  "categoryName": "AI",
+  "number": 2,
+  "code": "A2",
+  "name": "AI translator",
+  "version": "1.0.0",
+  "author": "WaxClub",
+  "publisher": "WaxClub",
+  "homepage": "https://waxclub.com.br/plugins/",
+  "origin": "Your own AI chip (WaxBrain)",
+  "license": "AI-generated translations, always marked; kept only on your phone",
+  "description": "Translates everything that isn't a menu: song lyrics (each line with its translation below it, on the phone and on the TV), curiosities and news about the record, into the language you choose. The AI translates whole phrases, so a phrase that runs across two lines is translated together, and it works on the next songs of the record while the current one plays. Uses an AI chip from your WaxBrain (Gemini is free); translations stay on your phone.",
+  "builtIn": false,
+  "minAppVersion": "1.4.33",
+  "provides": {
+    "type": "ai-translator",
+    "needs": "waxbrain"
+  },
+  "install": "https://waxclub.com.br/install/?plugin=ai.translate"
+}

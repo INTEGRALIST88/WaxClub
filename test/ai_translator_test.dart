@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -8,6 +9,7 @@ import 'package:waxclub/services/brain/brain_ai.dart';
 import 'package:waxclub/services/brain/brain_chips.dart';
 import 'package:waxclub/services/brain/brain_service.dart';
 import 'package:waxclub/services/plugins/plugin_catalog.dart';
+import 'package:waxclub/services/plugins/plugin_manifest.dart';
 
 final _gemini = 'AIza${'a' * 35}';
 final _groq = 'gsk_${'b' * 40}';
@@ -142,13 +144,16 @@ void main() {
     expect(l.withTranslation('Hello').translation, isNull);
   });
 
-  test('plugin A2 vem instalado e desligado (precisa de chip e idioma)', () async {
+  test('plugin A2 não vem no app: instala pelo manifesto do site e entra ligado', () async {
     final store = PluginStore();
     final a2 = store.byId(PluginCatalog.translatorId)!;
     expect(a2.code, 'A2');
+    expect(store.isInstalled(a2), isFalse, reason: 'nada pré-instalado');
+    final manifest = PluginManifest.fromJson(
+        jsonDecode(File('site/plugins/ai.translate.json').readAsStringSync()) as Map<String, dynamic>);
+    expect(manifest.id, PluginCatalog.translatorId);
+    expect(await store.installFromManifest(manifest), isTrue);
     expect(store.isInstalled(a2), isTrue);
-    expect(store.isActive(a2), isFalse);
-    expect(await store.toggle(a2), isTrue);
     expect(store.isActive(a2), isTrue);
   });
 }

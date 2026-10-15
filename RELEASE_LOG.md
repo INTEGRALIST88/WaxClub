@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.33] — 15/10/2026 (A2 — Tradutor de IA, pelo Site)
+
+* **Plugin A2 "AI translator"** — instalado **pelo site** (waxclub.com.br/plugins, botão Install); nada vem pré-instalado no app. Traduz tudo o que não é menu:
+  * **Letras:** cada linha original com a **tradução embaixo** (menor, creme), no celular e na TV (Chromecast, Smart View, site). A IA traduz frases inteiras: quando uma frase atravessa duas linhas, a tradução fica sob a primeira; linhas longas podem ter a tradução quebrada em duas. A sincronia não muda (o tempo de cada linha vem do disco).
+  * **Disco inteiro adiantado:** enquanto uma música toca, as próximas do disco com letra no aparelho são traduzidas, uma de cada vez (para não estourar o limite do chip grátis); quando a música começa, a tradução já está pronta.
+  * **Curiosidades e notícias** traduzidas (também no ⓘ dos discos da coleção), marcadas como "AI translation".
+  * **Idioma escolhido no plugin** (≈30 idiomas), nos detalhes da jukebox, que também mostram o chip em uso e o atalho "Open the WaxBrain".
+  * **Privacidade/direitos autorais:** a tradução é feita com a chave do próprio usuário, fica só no celular (feita uma vez por música e guardada) e não é compartilhada nem enviada ao servidor.
+* **Executor de IA** (base de todos os plugins de IA, que não têm código, só o pedido): usa o primeiro chip pronto do WaxBrain; no limite ou chave recusada, marca o chip e passa ao próximo. Toda resposta segue as regras do app, que o plugin não consegue tirar.
+* Site: manifesto `plugins/ai.translate.json`, catálogo e página de plugins com o A2 disponível.
+* Testes: executor (formato do Gemini, regras do app, troca de chip no limite, respostas dos 3 formatos), tradutor (sem idioma não traduz, tradução guardada e não pedida de novo, resposta com número de linhas diferente descartada, JSON com texto em volta), A2 instalado pelo manifesto do site.
+
+---
 ## [v1.4.32] — 15/10/2026 (Jukebox Reimaginada)
 
 * **Plugin Jukebox redesenhada:**

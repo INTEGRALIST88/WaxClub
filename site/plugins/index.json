@@ -56,6 +56,15 @@
       "version": "1.0.0",
       "builtIn": false,
       "manifest": "/plugins/lyrics.qqmusic.json"
+    },
+    {
+      "id": "ai.translate",
+      "code": "A2",
+      "name": "AI translator",
+      "category": "A",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/ai.translate.json"
     }
   ]
 }

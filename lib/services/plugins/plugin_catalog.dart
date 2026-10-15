@@ -224,8 +224,7 @@ class PluginCatalog {
           author: l10n.pluginAuthorWaxClub,
           license: l10n.pluginLicenseAi,
           description: l10n.pluginAiTranslateDesc,
-          availability: PluginAvailability.builtIn,
-          startsOff: true,
+          availability: PluginAvailability.installable, // instala pelo site; nada vem pré-instalado
         ),
         PluginInfo(
           id: discogsId,
@@ -243,6 +242,7 @@ class PluginCatalog {
   static const String discogsId = 'connect.discogs';
 
   /// A2: tradutor de IA (letras, curiosidades e informações do disco) com a chave do WaxBrain.
+  /// Instala pelo site (waxclub.com.br/plugins), como as fontes de letras.
   static const String translatorId = 'ai.translate';
 
   /// Plugin D1: curiosidades do disco e da faixa.
