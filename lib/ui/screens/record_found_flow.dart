@@ -47,7 +47,8 @@ Future<bool> runRecordFoundFlow(
     if (!context.mounted) return false;
   }
 
-  await prepareRecordForPlay(context, engine: engine, release: release, tracklist: tracklist, catalog: catalog);
+  final missing =
+      await prepareRecordForPlay(context, engine: engine, release: release, tracklist: tracklist, catalog: catalog);
   if (!context.mounted) return false;
 
   final listen = await showDialog<bool>(
@@ -62,7 +63,10 @@ Future<bool> runRecordFoundFlow(
       ],
     ),
   );
-  return listen == true;
+  if (listen != true || !context.mounted) return false;
+  // Só quem quer ouvir um disco fora do reconhecimento vai para o Modo Manual
+  if (missing) await switchToManualForMissingRecord(context, engine);
+  return true;
 }
 
 /// Cadastro do disco na coleção (nota, estado, observações; e no Discogs, se conectado).
@@ -94,8 +98,9 @@ Future<bool> addReleaseToCollection(
 }
 
 /// Deixa o disco pronto para tocar: lista de faixas travada e disco padrão das músicas dele.
-/// Se o disco não estiver no catálogo de reconhecimento, avisa e liga o Modo Manual.
-Future<void> prepareRecordForPlay(
+/// Retorna `true` se o disco não está no catálogo de reconhecimento. Não liga o Modo Manual: isso só
+/// acontece quando o usuário decide ouvir o disco ([switchToManualForMissingRecord]).
+Future<bool> prepareRecordForPlay(
   BuildContext context, {
   required WaxClubEngine engine,
   required ReleaseCandidate release,
@@ -111,9 +116,13 @@ Future<void> prepareRecordForPlay(
     releaseFormat: release.format,
     source: release.providerId,
   );
-  if (!context.mounted) return;
+  if (!context.mounted) return false;
   final check = await _checkRecognitionCatalog(context, catalog ?? RecognitionCatalogService(), release, tracklist);
-  if (!context.mounted || check == null || check.found) return;
+  return check != null && !check.found;
+}
+
+/// O usuário quer ouvir um disco fora do catálogo de reconhecimento: avisa e liga o Modo Manual.
+Future<void> switchToManualForMissingRecord(BuildContext context, WaxClubEngine engine) async {
   await showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(

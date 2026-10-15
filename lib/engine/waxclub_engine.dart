@@ -14,6 +14,7 @@ import '../services/lyrics_provider_service.dart';
 import '../services/session_log_service.dart';
 import '../services/shazam_service.dart';
 import '../services/tracklist_matcher.dart';
+import '../services/tracklist_provider.dart';
 import '../services/track_predictor.dart';
 import '../services/vinyl_cache_service.dart';
 import '../services/prefetch_service.dart';
@@ -446,6 +447,17 @@ class WaxClubEngine extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// O Modo Manual vale para um disco: trocar de disco (não de lado) desliga a chave e para a minutagem
+  /// do disco anterior. Outra edição do mesmo disco ("Beatles For Sale (Remastered)") não conta como troca.
+  void _resetManualIfRecordChanged(String newAlbum) {
+    final current = _lockedAlbumName;
+    if (!_manualMode || current == null) return;
+    String key(String a) => TracklistMatcher.normalize(catalogSearchName(a));
+    if (key(current) == key(newAlbum)) return;
+    if (isManualPlaying || _manualPendingIndex != null) _stopManual(l10n.manualModeOffStatus);
+    _resetManualMode('record_changed');
+  }
+
   /// Trava o nome, capa, artista e tracklist do disco para a sessão.
   void _lockAlbum({
     required String albumName,
@@ -454,6 +466,7 @@ class WaxClubEngine extends ChangeNotifier {
     List<TrackEntry> tracklist = const [],
   }) {
     if (albumName.isEmpty || albumName.toLowerCase() == 'unknown album') return;
+    _resetManualIfRecordChanged(albumName);
     _lockedAlbumName = albumName;
     _lockedAlbumArtist = artist;
     if (coverUrl != null && coverUrl.isNotEmpty) {
@@ -573,6 +586,7 @@ class WaxClubEngine extends ChangeNotifier {
     ], albumTitle, source: 'user');
     if (_isDisposed) return;
 
+    _resetManualIfRecordChanged(albumTitle);
     _unlockAlbum(reason: 'Disco escolhido pelo usuário: "$albumTitle"');
     _lockAlbum(albumName: albumTitle, coverUrl: coverUrl, artist: artist, tracklist: tracklist);
     _lockedAlbumSource = 'user';

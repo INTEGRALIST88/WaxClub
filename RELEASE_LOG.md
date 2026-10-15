@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.24] — 15/10/2026 (Modo Manual Só Quando o Usuário Quer Ouvir)
+
+* **Disco fora do reconhecimento:** cadastrar um disco que o catálogo de reconhecimento não tem **não liga mais o Modo Manual sozinho**. O aviso "Not in the recognition system" e a chave MANUAL só aparecem quando o usuário responde **Yes** ao "Let's listen?" (ou toca Play num disco da coleção). Respondendo **No**, a chave continua desligada (o padrão).
+* **Trocar de disco desliga o Modo Manual:** escolher outro disco (câmera, coleção ou "Change record") desliga a chave e para a minutagem do disco anterior. **Virar o lado** não desliga, nem outra edição do mesmo disco ("Disco (Remastered)").
+* A v1.4.23 foi publicada no Drive, mas não chegou a ser instalada no celular (aparelho desconectado); esta versão inclui tudo dela.
+* Teste: trocar de disco desliga o Modo Manual; edição remasterizada do mesmo disco não.
+
+---
 ## [v1.4.23] — 15/10/2026 (Virada de Disco, Capa na TV, Coleção e Busca no Discogs)
 
 * **Virada de disco:**

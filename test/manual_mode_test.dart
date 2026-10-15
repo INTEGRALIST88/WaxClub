@@ -224,6 +224,29 @@ void main() {
       engine.dispose();
     });
 
+    test('trocar de disco desliga o Modo Manual; outra edição do mesmo disco não', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final engine = WaxClubEngine(
+        recordService: _FakeRecord(),
+        shazamService: _CountingShazam(),
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      );
+      await engine.prepareScannedRecord(albumTitle: 'Disco', artist: 'Banda', tracklist: _lp, source: 'discogs');
+      engine.setManualMode(true);
+
+      // Mesmo disco, edição remasterizada: a chave continua ligada
+      await engine.prepareScannedRecord(albumTitle: 'Disco (Remastered)', artist: 'Banda', tracklist: _lp, source: 'discogs');
+      expect(engine.isManualMode, isTrue);
+
+      // Outro disco: a chave desliga (volta ao padrão, automático)
+      await engine.prepareScannedRecord(albumTitle: 'Outro Disco', artist: 'Banda', tracklist: _lp, source: 'discogs');
+      expect(engine.isManualMode, isFalse);
+      engine.dispose();
+    });
+
     test('ajuste ±0.5 s no Modo Manual move o relógio do disco: a troca de faixa muda e o ajuste vale para a próxima', () async {
       final cache = VinylCacheService(storageDirectory: dir);
       await cache.init();

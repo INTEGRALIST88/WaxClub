@@ -498,7 +498,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// volta à tela principal e mostra a sequência: a escuta só começa quando o usuário quiser.
   Future<void> _startRecord(ReleaseCandidate release, List<TrackEntry> tracks) async {
     Navigator.of(context).popUntil((r) => r.isFirst);
-    await prepareRecordForPlay(context, engine: _engine, release: release, tracklist: tracks);
+    final missing = await prepareRecordForPlay(context, engine: _engine, release: release, tracklist: tracks);
+    if (!mounted) return;
+    // Pediu para tocar este disco: fora do reconhecimento, só o Modo Manual acompanha
+    if (missing) await switchToManualForMissingRecord(context, _engine);
     if (!mounted) return;
     await _showReadyToPlay();
   }
