@@ -230,6 +230,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discogsTokenCaptured => 'Token found on the page. Connecting…';
 
   @override
+  String get discogsConnectedTitle => 'Discogs connected';
+
+  @override
+  String get discogsTokenCapturedBody =>
+      'Your Discogs token was captured successfully.';
+
+  @override
+  String get discogsConnectedBody =>
+      'Your Discogs account was connected successfully.';
+
+  @override
   String get discogsTokenHelpTitle => 'Generate your token';
 
   @override

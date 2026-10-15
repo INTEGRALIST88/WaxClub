@@ -460,6 +460,24 @@ abstract class AppLocalizations {
   /// **'Token found on the page. Connecting…'**
   String get discogsTokenCaptured;
 
+  /// No description provided for @discogsConnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discogs connected'**
+  String get discogsConnectedTitle;
+
+  /// No description provided for @discogsTokenCapturedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discogs token was captured successfully.'**
+  String get discogsTokenCapturedBody;
+
+  /// No description provided for @discogsConnectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discogs account was connected successfully.'**
+  String get discogsConnectedBody;
+
   /// No description provided for @discogsTokenHelpTitle.
   ///
   /// In en, this message translates to:

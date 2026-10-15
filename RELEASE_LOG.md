@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.30] — 15/10/2026 (Popup de Sucesso e Volta ao App)
+
+* **Conectou, avisa e volta:** depois de capturar o token (ou colar e salvar), aparece o popup **"Discogs connected"** — "Your Discogs token was captured successfully." e a conta conectada; o **OK** fecha o navegador e volta ao app.
+* **Corrigido o navegador que ficava parado depois de conectar:** a página às vezes terminava de carregar antes de o token aparecer, o app abria as instruções de gerar o token, e ao conectar o "fechar" fechava as instruções em vez do navegador (botão Save desabilitado, conta já conectada por trás). Agora o app lê a página de novo por até ~3 s antes de concluir que não há token, ignora uma segunda leitura simultânea e fecha tudo o que estiver por cima ao voltar.
+* Obs.: o navegador do app guarda a sessão do Discogs (como qualquer navegador); por isso, depois do primeiro login, ele já abre na página do token sem pedir usuário e senha.
+
+---
 ## [v1.4.29] — 15/10/2026 (Token Capturado na Página em Português e Visível no Rodapé)
 
 * **Captura do token corrigida:** a página do Discogs em português (`/pt_BR/settings/developers`, e os outros idiomas) não era reconhecida como a página do token, então o app nem tentava ler. Agora vale qualquer idioma.

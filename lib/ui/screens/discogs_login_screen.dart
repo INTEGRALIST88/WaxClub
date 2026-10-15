@@ -83,7 +83,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     setState(() => _busy = true);
     try {
       await widget.auth.completeOAuth(_requestToken!, verifier);
-      if (mounted) Navigator.of(context).pop(true);
+      if (mounted) await _connected(captured: false);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -94,43 +94,84 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     }
   }
 
+  /// Conta conectada: avisa com um popup e, no OK, fecha o navegador e volta ao app.
+  Future<void> _connected({required bool captured}) async {
+    final route = ModalRoute.of(context);
+    final nav = Navigator.of(context);
+    // Fecha o que estiver por cima do navegador (ex.: as instruções de gerar o token)
+    if (route != null) nav.popUntil((r) => r == route);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: RetroText(l10n.discogsConnectedTitle, fontSize: 24, depth: 2, maxLines: 2),
+        content: Text(
+          '${captured ? l10n.discogsTokenCapturedBody : l10n.discogsConnectedBody}\n\n'
+          '${l10n.connectedAs(widget.auth.username ?? 'Discogs')}', // l10n-ignore
+          style: const TextStyle(color: Colors.white70, height: 1.4),
+        ),
+        actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.ok))],
+      ),
+    );
+    if (!mounted) return;
+    if (route != null) nav.popUntil((r) => r == route);
+    nav.pop(true);
+  }
+
   /// As instruções de gerar o token já foram mostradas nesta tela (não repete a cada recarga).
   bool _helpShown = false;
 
   /// O token do campo foi lido da página (campo destacado e aviso "Token found").
   bool _captured = false;
 
+  /// Leitura da página em andamento (evita duas leituras quando a página termina de carregar duas vezes).
+  bool _reading = false;
+
+  /// Texto da página para achar o token. O Discogs mostra o token em
+  /// <code><span class="select-all">…</span></code>, depois de "Token atual:"; sem esse elemento
+  /// (página mudou), devolve o texto visível inteiro.
+  Future<String> _pageText(WebViewController web) async {
+    final raw = await web.runJavaScriptReturningResult(
+      "(function(){var s=document.querySelector('code .select-all');" // l10n-ignore
+      "if(s&&s.textContent.trim())return 'Token: '+s.textContent.trim();" // l10n-ignore
+      "var t=document.body?document.body.innerText:'';" // l10n-ignore
+      "document.querySelectorAll('input,textarea,code').forEach(function(e){t+='\\n'+(e.value||e.textContent||'');});" // l10n-ignore
+      'return t;})()', // l10n-ignore
+    );
+    return raw is String && raw.startsWith('"') ? (jsonDecode(raw) as String) : raw.toString();
+  }
+
   /// Depois do login, o Discogs abre a página de desenvolvedor: o app lê o token na própria página,
   /// preenche o campo e conecta sozinho. Sem token na página, explica como gerar (ou copiar e colar);
   /// quando a página recarrega com o token novo, ele é capturado.
   Future<void> _captureTokenFromPage(String url) async {
     final web = _web;
-    if (web == null || _busy || !DiscogsAuthService.isTokenPage(url)) return;
-    String text;
+    if (web == null || _busy || _captured || _reading || !DiscogsAuthService.isTokenPage(url)) return;
+    // A página pode terminar de carregar antes de o token aparecer: lê de novo por até ~3 s antes de
+    // concluir que a conta não tem token (antes, as instruções abriam por engano e atrapalhavam o fechar)
+    _reading = true;
+    String? token;
     try {
-      // O Discogs mostra o token em <code><span class="select-all">…</span></code>, depois de "Token atual:";
-      // sem esse elemento (página mudou), lê o texto visível inteiro
-      final raw = await web.runJavaScriptReturningResult(
-        "(function(){var s=document.querySelector('code .select-all');" // l10n-ignore
-        "if(s&&s.textContent.trim())return 'Token: '+s.textContent.trim();" // l10n-ignore
-        "var t=document.body?document.body.innerText:'';" // l10n-ignore
-        "document.querySelectorAll('input,textarea,code').forEach(function(e){t+='\\n'+(e.value||e.textContent||'');});" // l10n-ignore
-        'return t;})()', // l10n-ignore
-      );
-      text = raw is String && raw.startsWith('"') ? (jsonDecode(raw) as String) : raw.toString();
+      for (var attempt = 0; attempt < 4 && token == null; attempt++) {
+        if (attempt > 0) await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) return;
+        token = DiscogsAuthService.tokenFromPageText(await _pageText(web));
+      }
     } catch (e) {
       debugPrint('[DiscogsLogin] Não foi possível ler a página: $e');
       return;
+    } finally {
+      _reading = false;
     }
-    if (!mounted) return;
-    final token = DiscogsAuthService.tokenFromPageText(text);
+    if (!mounted || _captured) return;
     if (token != null) {
-      // O token aparece no campo do rodapé (destacado) antes de conectar, para o usuário ver o que foi lido
+      // O token aparece no campo do rodapé (destacado); em seguida conecta e avisa com o popup
       setState(() {
-        _tokenField.text = token;
+        _tokenField.text = token!;
         _captured = true;
       });
-      await Future.delayed(const Duration(milliseconds: 1800));
+      await Future.delayed(const Duration(milliseconds: 900));
       if (!mounted) return;
       await _savePersonalToken();
       return;
@@ -168,7 +209,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     });
     try {
       await widget.auth.loginWithPersonalToken(_tokenField.text);
-      if (mounted) Navigator.of(context).pop(true);
+      if (mounted) await _connected(captured: _captured);
     } catch (e) {
       if (mounted) {
         setState(() {
