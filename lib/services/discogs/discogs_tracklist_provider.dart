@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../models/track_entry.dart';
 import '../tracklist_provider.dart';
 import 'discogs_auth_service.dart';
+import 'discogs_config.dart';
 
 /// Catálogo de discos do Discogs (a maior base de vinil: prensagens, coletâneas, lados A/B e capas).
 /// Exige a conta do usuário conectada ([DiscogsAuthService]); limite de 60 consultas por minuto.
@@ -17,7 +18,9 @@ class DiscogsTracklistProvider implements TracklistProvider {
         _client = client ?? http.Client();
 
   Future<Map<String, dynamic>?> _get(String path, Map<String, String> query) async {
-    final headers = _auth.authHeaders;
+    // A busca exige a conta; a página de uma prensagem (/releases/{id}) é pública
+    final headers = _auth.authHeaders ??
+        (path.startsWith('/releases/') ? const {'User-Agent': DiscogsConfig.userAgent} : null);
     if (headers == null) throw StateError('Conta Discogs não conectada');
     final res = await _client
         .get(Uri.https('api.discogs.com', path, query), headers: headers)
@@ -84,19 +87,124 @@ class DiscogsTracklistProvider implements TracklistProvider {
   }
 
   /// Prensagens com este código de barras (EAN/UPC lido pela câmera). Sem agrupar edições.
+  /// O Discogs guarda o código como o colecionador digitou ("5400863170370", "5 400863 170370",
+  /// UPC sem o 0 da frente...): tenta cada forma e, por fim, o texto livre (que também procura nos
+  /// identificadores da prensagem).
   Future<List<ReleaseCandidate>> searchByBarcode(String barcode) async {
     final code = barcode.replaceAll(RegExp(r'\D'), '');
     if (code.isEmpty) return [];
-    final data = await _get('/database/search', {'type': 'release', 'barcode': code, 'per_page': '50'});
-    return parseSearchResults(data);
+    for (final v in barcodeVariants(code)) {
+      final found = parseSearchResults(await _get('/database/search', {'type': 'release', 'barcode': v, 'per_page': '50'}));
+      if (found.isNotEmpty) return found;
+    }
+    return parseSearchResults(await _get('/database/search', {'type': 'release', 'q': code, 'per_page': '50'}));
   }
 
-  /// Prensagens com este número de catálogo (ex.: "6349 123", "SHVL 804"), só vinil. Sem agrupar edições.
+  /// Prensagens com este número de catálogo (ex.: "6349 123", "SHVL 804", "PIASC0999DLP"). Sem agrupar
+  /// edições. Tenta o número como foi lido, sem separadores e com espaço entre letras e números; depois
+  /// sem o filtro de vinil (prensagem cadastrada com formato incompleto) e, por fim, no texto livre.
   Future<List<ReleaseCandidate>> searchByCatalogNumber(String catno) async {
     final q = catno.trim();
     if (q.isEmpty) return [];
-    final data = await _get('/database/search', {'type': 'release', 'catno': q, 'format': 'Vinyl', 'per_page': '50'});
-    return parseSearchResults(data);
+    final variants = catalogNumberVariants(q);
+    for (final v in variants) {
+      final found = parseSearchResults(
+          await _get('/database/search', {'type': 'release', 'catno': v, 'format': 'Vinyl', 'per_page': '50'}));
+      if (found.isNotEmpty) return found;
+    }
+    final anyFormat = parseSearchResults(await _get('/database/search', {'type': 'release', 'catno': variants.first, 'per_page': '50'}));
+    if (anyFormat.isNotEmpty) return anyFormat;
+    return parseSearchResults(await _get('/database/search', {'type': 'release', 'q': q, 'per_page': '50'}));
+  }
+
+  /// Formas em que um código de barras costuma estar cadastrado no Discogs.
+  static List<String> barcodeVariants(String raw) {
+    final d = raw.replaceAll(RegExp(r'\D'), '');
+    final out = <String>{d};
+    if (d.length == 13) {
+      out.add('${d[0]} ${d.substring(1, 7)} ${d.substring(7)}'); // como vem impresso: 5 400863 170370
+      if (d.startsWith('0')) out.add(d.substring(1)); // EAN de um UPC-A americano
+    } else if (d.length == 12) {
+      out.add('0$d');
+      out.add('${d[0]} ${d.substring(1, 6)} ${d.substring(6, 11)} ${d[11]}'); // 0 12345 67890 5
+    }
+    return out.toList();
+  }
+
+  /// Formas de um número de catálogo: como lido, sem separadores e com espaço entre letras e números
+  /// ("PIAS C 0999" ↔ "PIASC0999DLP" ↔ "PIASC 0999 DLP"; "SHVL-804" ↔ "SHVL 804").
+  static List<String> catalogNumberVariants(String raw) {
+    final t = raw.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+    final compact = t.replaceAll(RegExp(r'[\s.\-/]'), '');
+    final spaced = compact.replaceAllMapped(RegExp(r'(?<=[A-Z])(?=\d)|(?<=\d)(?=[A-Z])'), (_) => ' ');
+    final dashed = compact.replaceAllMapped(RegExp(r'(?<=[A-Z])(?=\d)'), (_) => '-');
+    return {t, compact, spaced, dashed}.where((s) => s.isNotEmpty).toList();
+  }
+
+  /// Número da prensagem num link ou código do Discogs ("discogs.com/release/35436508-Bloc-Party...",
+  /// "[r35436508]", "r35436508"); nulo se o texto não for isso.
+  static String? releaseIdFrom(String text) {
+    final t = text.trim();
+    final link = RegExp(r'discogs\.com/(?:[a-z]{2}(?:[_-][a-z]{2})?/)?release/(\d+)', caseSensitive: false).firstMatch(t);
+    if (link != null) return link.group(1);
+    final code = RegExp(r'^\[?r(\d{3,})\]?$', caseSensitive: false).firstMatch(t);
+    return code?.group(1);
+  }
+
+  /// A prensagem pelo número (link colado pelo usuário). Funciona mesmo sem a conta conectada.
+  Future<ReleaseCandidate?> fetchRelease(String releaseId) async {
+    final data = await _get('/releases/$releaseId', const {});
+    return data == null ? null : parseRelease(data);
+  }
+
+  /// Converte a página completa da prensagem (/releases/{id}) no mesmo formato dos resultados da busca.
+  static ReleaseCandidate? parseRelease(Map<String, dynamic> d) {
+    final id = d['id'];
+    final title = (d['title'] as String?)?.trim();
+    if (id == null || title == null || title.isEmpty) return null;
+    final artist = DiscogsTracklistProvider.trackArtist(d['artists']);
+    final formats = <String>[];
+    for (final f in (d['formats'] as List<dynamic>? ?? const [])) {
+      if (f is! Map) continue;
+      if (f['name'] is String) formats.add(f['name'] as String);
+      for (final x in (f['descriptions'] as List<dynamic>? ?? const [])) {
+        if (x is String) formats.add(x);
+      }
+    }
+    final lower = formats.map((f) => f.toLowerCase()).toList();
+    final labels = d['labels'] as List<dynamic>? ?? const [];
+    final firstLabel = labels.isNotEmpty && labels.first is Map ? labels.first as Map : null;
+    String? barcode;
+    for (final i in (d['identifiers'] as List<dynamic>? ?? const [])) {
+      if (i is Map && i['type'] == 'Barcode' && i['value'] is String) {
+        barcode = i['value'] as String;
+        break;
+      }
+    }
+    final images = d['images'] as List<dynamic>? ?? const [];
+    final cover = images.isNotEmpty && images.first is Map ? (images.first as Map)['uri'] as String? : null;
+    final master = d['master_id'];
+    final year = d['year'];
+    return ReleaseCandidate(
+      providerId: 'discogs', // l10n-ignore
+      releaseId: id.toString(),
+      albumTitle: title,
+      format: formats.isEmpty ? null : formats.join(', '),
+      primaryType: lower.contains('album') || lower.contains('lp') ? 'Album' : (lower.contains('single') ? 'Single' : null),
+      secondaryTypes: [
+        if (lower.contains('compilation') || (artist ?? '').toLowerCase().startsWith('various')) 'Compilation',
+        if (lower.contains('live')) 'Live',
+      ],
+      artistName: artist,
+      year: (year is num && year > 0) ? year.toString() : null,
+      country: d['country'] as String?,
+      coverUrl: (cover != null && cover.isNotEmpty) ? cover : d['thumb'] as String?,
+      label: firstLabel?['name']?.toString(),
+      catalogNumber: (firstLabel?['catno'] as String?)?.trim(),
+      barcode: barcode,
+      trackCount: (d['tracklist'] as List<dynamic>?)?.length,
+      groupId: (master is num && master > 0) ? 'm$master' : null,
+    );
   }
 
   /// Converte os resultados da busca do Discogs ("Artista - Disco", formatos, ano, capa...).

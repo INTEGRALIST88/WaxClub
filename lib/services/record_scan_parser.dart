@@ -36,6 +36,19 @@ class RecordScanParser {
     return out;
   }
 
+  /// Códigos de barras válidos escritos no texto da foto (ex.: "PIASC0999DLP / 5400863170370." ou
+  /// os números sob as barras, "5 400863 170370"), sem repetir.
+  static List<String> barcodesIn(String text) {
+    final out = <String>[];
+    for (final m in RegExp(r'\d[\d ]{6,18}\d').allMatches(text)) {
+      final digits = m.group(0)!.replaceAll(' ', '');
+      if ((digits.length == 12 || digits.length == 13) && isValidBarcode(digits) && !out.contains(digits)) {
+        out.add(digits);
+      }
+    }
+    return out;
+  }
+
   static bool _plausible(String c) {
     final digits = c.replaceAll(RegExp(r'\D'), '');
     final hasLetters = RegExp(r'[A-Z]').hasMatch(c);

@@ -1783,13 +1783,13 @@ abstract class AppLocalizations {
   /// No description provided for @scanCatalogField.
   ///
   /// In en, this message translates to:
-  /// **'Catalog number'**
+  /// **'Catalog number or barcode'**
   String get scanCatalogField;
 
   /// No description provided for @scanTypedField.
   ///
   /// In en, this message translates to:
-  /// **'Artist and album'**
+  /// **'Artist and album, or Discogs link'**
   String get scanTypedField;
 
   /// No description provided for @search.

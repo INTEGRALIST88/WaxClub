@@ -835,8 +835,8 @@
   "scanReadingPhoto": "Reading the photo...",
   "scanCatalogFound": "Catalog numbers found — tap the right one:",
   "scanCatalogNoneFound": "No catalog number found in the photo. Type it below or take another photo closer to the text.",
-  "scanCatalogField": "Catalog number",
-  "scanTypedField": "Artist and album",
+  "scanCatalogField": "Catalog number or barcode",
+  "scanTypedField": "Artist and album, or Discogs link",
   "search": "Search",
   "scanSearching": "Looking for \"{query}\"...",
   "@scanSearching": {

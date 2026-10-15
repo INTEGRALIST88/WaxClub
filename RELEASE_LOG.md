@@ -2,6 +2,16 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.25] — 15/10/2026 (Identificação pelo Discogs: Código de Barras, Catálogo e Link)
+
+* **Código de barras:** o Discogs guarda o código como o colecionador digitou. A busca agora tenta só os dígitos, a forma impressa ("5 400863 170370") e a variante UPC/EAN; sem resultado, procura o número no texto livre (que também olha os identificadores da prensagem).
+* **Nº de catálogo:** tenta como foi lido, sem separadores e com espaço/hífen entre letras e números ("PIASC0999DLP" ↔ "PIASC 0999 DLP", "SHVL-804" ↔ "SHVL 804"); depois sem o filtro de vinil (cadastro com formato incompleto) e, por fim, no texto livre.
+* **Foto da contracapa:** o código de barras escrito no texto ("PIASC0999DLP / 5400863170370") aparece como primeira opção; o campo do nº de catálogo aceita também código de barras ("Catalog number or barcode").
+* **Link do Discogs:** colar o link da prensagem (ex.: `discogs.com/release/35436508-...`) no campo "Artist and album, or Discogs link" abre o disco direto, com faixas e capa — funciona até sem a conta conectada.
+* Busca por código exato não descarta a prensagem achada por não dizer "LP" (vinil continua primeiro); a busca espera a conta do Discogs terminar de carregar (antes podia cair direto na MusicBrainz).
+* Testes: com os dados do Bloc Party — Silent Alarm (2025): formas do código e do catálogo, código achado na foto, link/código [r…], prensagem completa, ordem das tentativas.
+
+---
 ## [v1.4.24] — 15/10/2026 (Modo Manual Só Quando o Usuário Quer Ouvir)
 
 * **Disco fora do reconhecimento:** cadastrar um disco que o catálogo de reconhecimento não tem **não liga mais o Modo Manual sozinho**. O aviso "Not in the recognition system" e a chave MANUAL só aparecem quando o usuário responde **Yes** ao "Let's listen?" (ou toca Play num disco da coleção). Respondendo **No**, a chave continua desligada (o padrão).

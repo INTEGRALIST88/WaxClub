@@ -130,7 +130,13 @@ class DiscogsAuthService extends ChangeNotifier {
   /// O app tem chaves próprias cadastradas no Discogs (login pela tela do Discogs).
   bool get supportsOAuthLogin => _consumerKey.isNotEmpty && _consumerSecret.isNotEmpty;
 
-  Future<void> load() async {
+  /// Carregamento em andamento: quem chama de novo espera o mesmo (antes, a 2ª chamada voltava na hora
+  /// e uma busca logo na abertura podia achar a conta "desconectada" e ir direto à base reserva).
+  Future<void>? _loading;
+
+  Future<void> load() => _loading ??= _load();
+
+  Future<void> _load() async {
     if (_loaded) return;
     _loaded = true;
     final raw = await _store.read(_credentialsKey);

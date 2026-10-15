@@ -1072,10 +1072,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'No catalog number found in the photo. Type it below or take another photo closer to the text.';
 
   @override
-  String get scanCatalogField => 'Catalog number';
+  String get scanCatalogField => 'Catalog number or barcode';
 
   @override
-  String get scanTypedField => 'Artist and album';
+  String get scanTypedField => 'Artist and album, or Discogs link';
 
   @override
   String get search => 'Search';

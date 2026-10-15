@@ -4,6 +4,7 @@ import '../models/track_entry.dart';
 import 'discogs/discogs_auth_service.dart';
 import 'discogs/discogs_tracklist_provider.dart';
 import 'musicbrainz_tracklist_provider.dart';
+import 'record_scan_parser.dart';
 import 'tracklist_matcher.dart';
 import 'tracklist_provider.dart';
 import 'wikipedia_tracklist_service.dart';
@@ -61,6 +62,9 @@ class AlbumCatalogService {
 
   /// Busca livre digitada pelo usuário (artista, disco...).
   Future<AlbumCatalogResult> search(String query, {String? artist, String? currentAlbum}) {
+    // Link do Discogs colado ("discogs.com/release/35436508-..."): vai direto à prensagem
+    final releaseId = DiscogsTracklistProvider.releaseIdFrom(query);
+    if (releaseId != null) return byDiscogsRelease(releaseId);
     final text = catalogSearchName(query);
     final album = currentAlbum == null ? null : catalogSearchName(currentAlbum);
     return _withFallback(
@@ -71,21 +75,46 @@ class AlbumCatalogService {
   }
 
   /// Prensagens de vinil com este código de barras (câmera), sem agrupar edições.
+  /// Código exato: prefere vinil, mas não descarta a prensagem achada (ex.: formato incompleto no cadastro).
   Future<AlbumCatalogResult> byBarcode(String barcode) {
     return _withFallback(
       discogs: () => _discogs.searchByBarcode(barcode),
-      musicBrainz: () async => vinylLpOrEpOnly(await _musicBrainz.searchByBarcode(barcode)),
+      musicBrainz: () async => _vinylFirst(await _musicBrainz.searchByBarcode(barcode)),
       sort: _byYear,
+      filter: _vinylFirst,
     );
   }
 
-  /// Prensagens de vinil com este número de catálogo, sem agrupar edições.
+  /// Prensagens com este número de catálogo, sem agrupar edições. Aceita também um código de barras
+  /// ou o link do Discogs digitados no mesmo campo.
   Future<AlbumCatalogResult> byCatalogNumber(String catno) {
+    final releaseId = DiscogsTracklistProvider.releaseIdFrom(catno);
+    if (releaseId != null) return byDiscogsRelease(releaseId);
+    final digits = catno.replaceAll(RegExp(r'[\s-]'), '');
+    if (RegExp(r'^\d{12,13}$').hasMatch(digits) && RecordScanParser.isValidBarcode(digits)) return byBarcode(digits);
     return _withFallback(
       discogs: () => _discogs.searchByCatalogNumber(catno),
-      musicBrainz: () async => vinylLpOrEpOnly(await _musicBrainz.searchByCatalogNumber(catno)),
+      musicBrainz: () async => _vinylFirst(await _musicBrainz.searchByCatalogNumber(catno)),
       sort: _byYear,
+      filter: _vinylFirst,
     );
+  }
+
+  /// A prensagem do link do Discogs colado pelo usuário (não exige a conta conectada).
+  Future<AlbumCatalogResult> byDiscogsRelease(String releaseId) async {
+    try {
+      final release = await _discogs.fetchRelease(releaseId);
+      return AlbumCatalogResult(albums: [if (release != null) release], source: 'discogs');
+    } catch (e) {
+      debugPrint('[AlbumCatalog] Prensagem $releaseId do Discogs indisponível: $e');
+      return AlbumCatalogResult(albums: const [], source: 'discogs', notice: l10n.noticeDiscogsUnavailable);
+    }
+  }
+
+  /// Vinil primeiro; se nenhum resultado for vinil, mantém todos (o código lido é da prensagem em mãos).
+  static List<ReleaseCandidate> _vinylFirst(List<ReleaseCandidate> list) {
+    final vinyl = [for (final c in list) if (c.isVinyl) c];
+    return vinyl.isNotEmpty ? vinyl : list;
   }
 
   /// Notas da prensagem no Discogs (para as curiosidades); nulo sem a conta conectada ou sem notas.
@@ -110,11 +139,13 @@ class AlbumCatalogService {
     required Future<List<ReleaseCandidate>> Function() discogs,
     required Future<List<ReleaseCandidate>> Function() musicBrainz,
     required List<ReleaseCandidate> Function(List<ReleaseCandidate>) sort,
+    List<ReleaseCandidate> Function(List<ReleaseCandidate>) filter = vinylLpOrEpOnly,
   }) async {
     String? notice;
+    await auth.load(); // a busca pode começar antes de a conta terminar de carregar
     if (auth.isEnabled) {
       try {
-        final found = vinylLpOrEpOnly(await discogs());
+        final found = filter(await discogs());
         if (found.isNotEmpty) return AlbumCatalogResult(albums: sort(found), source: 'discogs');
         notice = l10n.noticeDiscogsNoVinyl;
       } catch (e) {

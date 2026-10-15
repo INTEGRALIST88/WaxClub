@@ -137,7 +137,12 @@ class _RecordScanScreenState extends State<RecordScanScreen> {
     final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
     try {
       final text = await recognizer.processImage(InputImage.fromFilePath(photo.path));
-      final found = RecordScanParser.catalogNumberCandidates(text.text);
+      // Código de barras escrito na foto vem primeiro (é o mais preciso); depois os números de catálogo.
+      // O campo de catálogo aceita os dois.
+      final found = [
+        ...RecordScanParser.barcodesIn(text.text),
+        ...RecordScanParser.catalogNumberCandidates(text.text),
+      ];
       if (!mounted) return;
       setState(() {
         _catalogCandidates = found;
