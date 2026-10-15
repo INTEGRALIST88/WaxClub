@@ -3867,6 +3867,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The photo is deleted from your WaxClub account. This cannot be undone.'**
   String get photosDeleteInfo;
+
+  /// No description provided for @panelPluginNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'found nothing for this song'**
+  String get panelPluginNothing;
 }
 
 class _AppLocalizationsDelegate

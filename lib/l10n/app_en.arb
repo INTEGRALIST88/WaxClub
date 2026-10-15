@@ -1505,5 +1505,6 @@
       }
     }
   },
-  "photosDeleteInfo": "The photo is deleted from your WaxClub account. This cannot be undone."
+  "photosDeleteInfo": "The photo is deleted from your WaxClub account. This cannot be undone.",
+  "panelPluginNothing": "found nothing for this song"
 }

@@ -96,7 +96,7 @@ class WaxClubEngine extends ChangeNotifier {
     _castService.onClientScreenConfirmed = (deviceName) {
       debugPrint('[WaxClubEngine] 📺 Tela cliente confirmada: $deviceName. Enviando dados imediatos com compensação de delay...');
       if (_currentTrack != null) {
-        _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+        _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
         _sendCastSyncWithTvLookahead();
       }
       notifyListeners();
@@ -202,7 +202,7 @@ class WaxClubEngine extends ChangeNotifier {
   Future<bool> connectCast(CastDevice device) async {
     final success = await _castService.connectTo(device);
     if (success && _currentTrack != null) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
       _sendCastSyncWithTvLookahead();
     }
     notifyListeners();
@@ -213,7 +213,7 @@ class WaxClubEngine extends ChangeNotifier {
   Future<bool> connectCastByIp(String ip) async {
     final success = await _castService.connectToHost(ip);
     if (success && _currentTrack != null) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
       _sendCastSyncWithTvLookahead();
     }
     notifyListeners();
@@ -615,7 +615,7 @@ class WaxClubEngine extends ChangeNotifier {
     );
     notifyListeners();
     if (_castService.isConnected) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(current.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(current.title));
       _sendCastSyncWithTvLookahead();
     }
     if (_tStart != null && !_isPaused && !isAwaitingSideFlip) {
@@ -649,6 +649,26 @@ class WaxClubEngine extends ChangeNotifier {
 
   List<LyricLine> _lyrics = [];
   List<LyricLine> get lyrics => _lyrics;
+
+  /// As curiosidades (D1) estão na frente das fontes de letras no painel e há curiosidades para esta
+  /// música: a TV recebe a música sem letra (e mostra as curiosidades), mesmo que haja letra.
+  bool _curiositiesFirst = false;
+  bool get curiositiesFirst => _curiositiesFirst;
+  set curiositiesFirst(bool value) {
+    if (_curiositiesFirst == value) return;
+    _curiositiesFirst = value;
+    if (_castService.isConnected && _currentTrack != null) {
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
+      _sendCastSyncWithTvLookahead();
+    }
+  }
+
+  List<LyricLine> get _tvLyrics => _curiositiesFirst ? const [] : _lyrics;
+
+  /// O que cada fonte de letras achou para a música atual (luz vermelha no painel para as que não
+  /// encontraram ou trouxeram letra quebrada). Vazio quando a letra veio da memória ou do aparelho.
+  Map<String, LyricsAttempt> _lyricsAttempts = const {};
+  Map<String, LyricsAttempt> get lyricsAttempts => _lyricsAttempts;
 
   // Variáveis do algoritmo de compensação de velocidade mecânica
   DateTime? _tStart;
@@ -1092,7 +1112,7 @@ class WaxClubEngine extends ChangeNotifier {
 
       _startPlaybackTicker();
       if (_castService.isConnected && _currentTrack != null) {
-        _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+        _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
       }
 
       // Agenda as checagens de sincronia (realinhamento + regressão de rotação) e o fim da faixa
@@ -1129,6 +1149,9 @@ class WaxClubEngine extends ChangeNotifier {
     _lyricsSource = (content == null || content.isEmpty)
         ? null
         : (r.lyricsSource ?? _cacheService.getLyricsSource(track.title, track.artist));
+    _lyricsAttempts = r.source == 'network' // l10n-ignore
+        ? Map.of(_lyricsService.lastAttempts)
+        : (r.lyricsSource == 'local' ? const {'local': LyricsAttempt.found} : const {}); // l10n-ignore
     return r;
   }
 
@@ -1152,6 +1175,7 @@ class WaxClubEngine extends ChangeNotifier {
     final lrc = r?.syncedLyrics;
     _lyrics = (lrc == null || lrc.isEmpty) ? [] : LrcParser.parse(lrc, estimatedDurationSeconds: _trackDurationSeconds);
     _lyricsSource = (lrc == null || lrc.isEmpty) ? null : r?.source;
+    _lyricsAttempts = r?.source == 'local' ? const {'local': LyricsAttempt.found} : Map.of(_lyricsService.lastAttempts); // l10n-ignore
     _currentTrack = track.copyWith(lrcContent: lrc);
     if (lrc != null && lrc.isNotEmpty) {
       await _cacheService.cacheTrack(_currentTrack!, lrc);
@@ -1166,7 +1190,7 @@ class WaxClubEngine extends ChangeNotifier {
     _telemetry = _telemetry.copyWith(activeLineIndex: _activeLineIndex);
     notifyListeners();
     if (_castService.isConnected && _currentTrack != null) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
       _sendCastSyncWithTvLookahead();
     }
   }
@@ -1215,7 +1239,10 @@ class WaxClubEngine extends ChangeNotifier {
     final cached = _cacheService.findCachedTrack(track.title, track.artist);
     final cachedSource = cached?.lyricsSource;
     final cachedSourceOff = cachedSource != null && !LyricsProviderService.sourceEnabled(cachedSource);
-    if (cached != null && cached.lrcContent != null && cached.lrcContent!.isNotEmpty && !cachedSourceOff) {
+    final cachedBroken = cached?.lrcContent != null &&
+        cached!.lrcContent!.isNotEmpty &&
+        !LyricsQuality.usable(cached.lrcContent!, durationSeconds: cached.durationMs == null ? null : cached.durationMs! / 1000.0);
+    if (cached != null && cached.lrcContent != null && cached.lrcContent!.isNotEmpty && !cachedSourceOff && !cachedBroken) {
       final dur = cached.durationMs != null && cached.durationMs! > 0 ? (cached.durationMs! / 1000.0) : null;
       final fromCache = _ResolvedLyrics(
         lrcContent: cached.lrcContent,
@@ -1295,7 +1322,7 @@ class WaxClubEngine extends ChangeNotifier {
           debugPrint('[WaxClubEngine] 📋 Tracklist do disco travado atualizada via prefetch (${_lockedTracklist.length} faixas).');
           // Com a tracklist, o lado do disco (A/B) passa a ser conhecido: atualiza o selo na TV
           if (_castService.isConnected && _currentTrack != null) {
-            _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+            _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
           }
         }
         _telemetry = _telemetry.copyWith(
@@ -1638,7 +1665,7 @@ class WaxClubEngine extends ChangeNotifier {
 
     // A TV acompanha a faixa prevista imediatamente
     if (_castService.isConnected) {
-      _castService.sendTrack(predicted, _lyrics, side: _sideFor(predicted.title));
+      _castService.sendTrack(predicted, _tvLyrics, side: _sideFor(predicted.title));
     }
     return predicted;
   }
@@ -1938,7 +1965,7 @@ class WaxClubEngine extends ChangeNotifier {
 
           // Metadados confirmados (álbum/capa/duração) seguem para a TV
           if (_castService.isConnected && _currentTrack != null) {
-            _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+            _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
           }
 
           _prefetchService.onTrackChanged();
@@ -2262,7 +2289,7 @@ class WaxClubEngine extends ChangeNotifier {
 
     _startPlaybackTicker();
     if (_castService.isConnected) {
-      _castService.sendTrack(nextTrack, _lyrics, side: _sideFor(nextTrack.title));
+      _castService.sendTrack(nextTrack, _tvLyrics, side: _sideFor(nextTrack.title));
     }
     _syncCheckIndex = 0;
     _scheduleNextSyncCheck();
@@ -2578,7 +2605,7 @@ class WaxClubEngine extends ChangeNotifier {
           await _cacheService.cacheTrack(confirmed, confirmed.lrcContent);
           if (_sessionId != mySession || _isDisposed) return;
           if (_castService.isConnected) {
-            _castService.sendTrack(confirmed, _lyrics, side: _sideFor(confirmed.title));
+            _castService.sendTrack(confirmed, _tvLyrics, side: _sideFor(confirmed.title));
           }
         }
         _startPlaybackTicker();
@@ -3141,7 +3168,7 @@ class WaxClubEngine extends ChangeNotifier {
       isMicActive: _manualOnsetUncertain,
     );
     if (_castService.isConnected && _currentTrack != null) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
     }
     _scheduleManualAdvance();
   }
@@ -3447,7 +3474,7 @@ class WaxClubEngine extends ChangeNotifier {
 
     _startPlaybackTicker();
     if (_castService.isConnected && _currentTrack != null) {
-      _castService.sendTrack(_currentTrack!, _lyrics, side: _sideFor(_currentTrack!.title));
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
     }
     _updateStatus(
       CalibrationStatus.calibrated,

@@ -121,7 +121,7 @@ void main() {
       final client = MockClient((request) async {
         if (request.url.path.endsWith('/api/get')) {
           return http.Response(
-            jsonEncode({'trackName': 'Rara', 'artistName': 'Banda', 'duration': 120.0, 'plainLyrics': 'linha simples', 'syncedLyrics': null}),
+            jsonEncode({'trackName': 'Rara', 'artistName': 'Banda', 'duration': 120.0, 'plainLyrics': 'linha simples\nsegunda linha\nterceira linha\nquarta linha', 'syncedLyrics': null}),
             200,
           );
         }
@@ -129,7 +129,7 @@ void main() {
         return http.Response('not found', 404);
       });
       final result = await LyricsProviderService(client: client).fetchLyricsDetails(trackName: 'Rara', artistName: 'Banda');
-      expect(result?.syncedLyrics, equals('linha simples'));
+      expect(result?.syncedLyrics, startsWith('linha simples'));
       expect(result?.source, equals('lrclib'));
     });
   });

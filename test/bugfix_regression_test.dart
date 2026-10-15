@@ -218,7 +218,7 @@ void main() {
   test('Bug 7: fonte preferida lyrics.ovh continua sendo aceita na cascata', () async {
     final client = MockClient((request) async {
       if (request.url.host == 'api.lyrics.ovh') {
-        return http.Response(jsonEncode({'lyrics': 'Linha um\nLinha dois'}), 200);
+        return http.Response(jsonEncode({'lyrics': 'Linha um\nLinha dois\nLinha três\nLinha quatro'}), 200);
       }
       return http.Response('not found', 404);
     });

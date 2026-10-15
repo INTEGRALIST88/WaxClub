@@ -5,7 +5,9 @@ import '../theme/app_theme.dart';
 
 /// Linha de plugins abaixo da barra de cima (em pé e no cockpit da transmissão): uma caixinha por plugin
 /// que muda a tela (curiosidades e fontes de letras), com a luz na cor da categoria — acesa ligado, apagada
-/// desligado — e o código da jukebox (D1, S1...). A fonte que está fornecendo a letra na tela fica marcada.
+/// desligado, **vermelha** quando não encontrou nada para esta música (ou trouxe letra quebrada) — e o código
+/// da jukebox (D1, S1...). Da esquerda para a direita é a prioridade: o primeiro plugin ligado que tem
+/// conteúdo é o que aparece na tela, e ganha um **brilho embaixo**.
 ///
 /// * Tocar liga/desliga.
 /// * Arrastar para os lados troca de lugar: as outras caixinhas abrem espaço deslizando, e soltar grava a
@@ -17,11 +19,17 @@ import '../theme/app_theme.dart';
 class PluginPanelStrip extends StatefulWidget {
   final PluginStore store;
 
-  /// Fonte da letra que está na tela ('lrclib', 'local'...), para marcar a caixinha em uso.
-  final String? activeEngine;
+  /// Plugin que está aparecendo na tela (brilho embaixo).
+  final String? shownId;
+
+  /// Plugins que não encontraram nada para esta música (luz vermelha).
+  final Set<String> failedIds;
   static const double height = 34;
 
-  const PluginPanelStrip({super.key, required this.store, this.activeEngine});
+  /// Vermelho reservado para "não encontrou".
+  static const Color failedColor = Color(0xFFFF3B30);
+
+  const PluginPanelStrip({super.key, required this.store, this.shownId, this.failedIds = const {}});
 
   /// Altura que a linha ocupa (zero sem plugins no painel).
   static double heightFor(PluginStore store) => store.panelPlugins().isEmpty ? 0 : height + 8;
@@ -182,9 +190,28 @@ class _PluginPanelStripState extends State<PluginPanelStrip> with SingleTickerPr
               animation: _slide,
               builder: (context, _) {
                 final t = Curves.easeOutCubic.transform(_slide.value);
+                final shown = widget.shownId;
                 return Stack(
                   clipBehavior: Clip.none,
                   children: [
+                    // Brilho embaixo do plugin que está aparecendo na tela (desliza junto)
+                    if (shown != null && ids.contains(shown) && _dragId != shown)
+                      Positioned(
+                        left: _lerp(shown, t) * w + w * 0.15,
+                        width: w * 0.7,
+                        top: PluginPanelStrip.height + 2,
+                        height: 3,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: AppTheme.cream,
+                            borderRadius: BorderRadius.circular(2),
+                            boxShadow: [
+                              BoxShadow(color: AppTheme.cream.withValues(alpha: 0.9), blurRadius: 8, spreadRadius: 1),
+                              BoxShadow(color: byId[shown]!.category.color.withValues(alpha: 0.7), blurRadius: 14, spreadRadius: 2),
+                            ],
+                          ),
+                        ),
+                      ),
                     for (final id in ids)
                       Positioned(
                         key: ValueKey(id),
@@ -206,8 +233,9 @@ class _PluginPanelStripState extends State<PluginPanelStrip> with SingleTickerPr
 
   Widget _draggableChip(PluginInfo p, double w) {
     final on = _store.isActive(p);
-    final inUse = on && p.engine != null && p.engine == widget.activeEngine;
-    final chip = _PluginChip(plugin: p, on: on, inUse: inUse, onTap: () => _store.toggle(p));
+    final failed = on && widget.failedIds.contains(p.id);
+    final shown = on && widget.shownId == p.id;
+    final chip = _PluginChip(plugin: p, on: on, failed: failed, shown: shown, onTap: () => _store.toggle(p));
     return Draggable<String>(
       data: p.id,
       feedback: Material(
@@ -217,7 +245,7 @@ class _PluginPanelStripState extends State<PluginPanelStrip> with SingleTickerPr
         child: SizedBox(
           width: w,
           height: PluginPanelStrip.height,
-          child: Transform.scale(scale: 1.08, child: _PluginChip(plugin: p, on: on, inUse: inUse, onTap: () {})),
+          child: Transform.scale(scale: 1.08, child: _PluginChip(plugin: p, on: on, failed: failed, shown: shown, onTap: () {})),
         ),
       ),
       // No lugar da caixinha arrastada fica só o contorno (mostra onde ela vai cair)
@@ -248,26 +276,29 @@ class _PluginChip extends StatelessWidget {
   final PluginInfo plugin;
   final bool on;
 
-  /// Esta fonte está fornecendo a letra que está na tela.
-  final bool inUse;
+  /// Não encontrou nada para esta música: luz vermelha.
+  final bool failed;
+
+  /// É o que está aparecendo na tela.
+  final bool shown;
   final VoidCallback onTap;
 
-  const _PluginChip({required this.plugin, required this.on, required this.inUse, required this.onTap});
+  const _PluginChip({required this.plugin, required this.on, required this.failed, required this.shown, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final color = plugin.category.color;
+    final color = failed ? PluginPanelStrip.failedColor : plugin.category.color;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       // Rótulo para leitores de tela (sem Tooltip: o toque longo não disputa com o arraste)
       child: Semantics(
         button: true,
-        label: '${plugin.code} · ${plugin.name} — ${on ? l10n.panelPluginOn : l10n.panelPluginOff}', // l10n-ignore
+        label: '${plugin.code} · ${plugin.name} — ${failed ? l10n.panelPluginNothing : (on ? l10n.panelPluginOn : l10n.panelPluginOff)}', // l10n-ignore
         child: Material(
           color: Colors.black.withValues(alpha: on ? 0.35 : 0.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: inUse ? AppTheme.cream : (on ? color.withValues(alpha: 0.6) : Colors.white12), width: inUse ? 1.4 : 1),
+            side: BorderSide(color: shown ? AppTheme.cream : (on ? color.withValues(alpha: 0.6) : Colors.white12), width: shown ? 1.4 : 1),
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -293,16 +324,12 @@ class _PluginChip extends StatelessWidget {
                     Text(
                       plugin.code,
                       style: TextStyle(
-                        color: inUse ? AppTheme.cream : (on ? Colors.white : Colors.white38),
+                        color: shown ? AppTheme.cream : (on ? Colors.white : Colors.white38),
                         fontWeight: FontWeight.w800,
                         fontSize: 12.5,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    if (inUse) ...[
-                      const SizedBox(width: 3),
-                      const Icon(Icons.music_note_rounded, size: 12, color: AppTheme.cream),
-                    ],
                   ],
                 ),
               ),

@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.17] — 15/10/2026 (O Primeiro do Painel Aparece na Tela, Luz Vermelha e Letra Quebrada Descartada)
+
+* **A ordem do painel decide o que aparece, para qualquer tipo de plugin:** da esquerda para a direita, o **primeiro plugin ligado que tem conteúdo** para esta música é o que aparece na tela — se o D1 (Curiosidades) estiver na frente das fontes de letras, as curiosidades aparecem **no lugar da letra** (no celular e na TV, que recebe a música sem letra), mesmo havendo letra. Esse plugin ganha um **brilho embaixo** da caixinha (desliza junto quando reordena).
+* **Luz vermelha = não encontrou nada** (cor reservada para isso): a fonte de letras que não achou a letra — ou achou letra quebrada — e o D1 quando não há curiosidades para a música. O app passa para o próximo plugin do painel.
+* **Letra quebrada conta como não encontrada:** sincronizada com menos de 3 linhas; texto sem tempo com menos de 4 linhas; tempo incompatível com a música (a última linha bem depois do fim — mais de 20% + 15 s — ou antes de um quarto da música). Vale para as fontes da web, para as letras do usuário (S5) e para a letra guardada no aparelho (que é buscada de novo).
+* A marca ♪ da 1.4.16 deu lugar ao brilho.
+* Testes: `panel_priority_test.dart` (regras da letra exibível, cascata que descarta a quebrada e marca vermelho, luz vermelha e brilho no painel) — 300 no total.
+
+---
 ## [v1.4.16] — 14/10/2026 (Painel que Arrasta e Faz Efeito, D1 = Curiosidades e Fotos dos Discos)
 
 * **Painel de plugins — arrastar de verdade, com animação suave:** o arraste começa assim que o dedo se move (antes exigia segurar e não funcionava); enquanto arrasta, as outras caixinhas **deslizam abrindo espaço** e o lugar de destino aparece contornado; soltar grava a ordem; soltar fora da linha pergunta se quer ejetar. A animação é própria e roda mesmo com as animações do Android desligadas.

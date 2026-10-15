@@ -118,7 +118,7 @@ class PluginCatalog {
         // (Até a 1.4.15 o D1 era "Synced lyrics", travado; as letras agora são os plugins S e a exibição
         // delas é do próprio app — o D1 passou a ser as Curiosidades.)
         PluginInfo(
-          id: 'display.curiosities',
+          id: curiositiesId,
           category: PluginCategory.display,
           number: 1,
           name: l10n.pluginCuriositiesName,
@@ -215,6 +215,9 @@ class PluginCatalog {
 
   /// Plugin C1: conta Discogs (busca de prensagens, coleção no Discogs).
   static const String discogsId = 'connect.discogs';
+
+  /// Plugin D1: curiosidades do disco e da faixa.
+  static const String curiositiesId = 'display.curiosities';
 
   /// Plugin S5: letras do próprio usuário (arquivos .lrc/.txt no celular).
   static const String myLyricsId = 'lyrics.myfiles';

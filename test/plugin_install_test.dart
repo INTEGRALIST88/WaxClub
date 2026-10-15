@@ -189,7 +189,7 @@ void main() {
     test('importa, acha pela música (sem ligar para maiúsculas e "The") e vence as fontes da web', () async {
       final lib = LocalLyricsLibrary(directory: dir);
       final r = await lib.importFiles([
-        (name: 'The Beatles - Something.lrc', content: '[00:01.00]Something in the way she moves'),
+        (name: 'The Beatles - Something.lrc', content: '[00:01.00]Something in the way she moves\n[00:06.00]Attracts me like no other lover\n[00:12.00]Something in the way she woos me'),
         (name: 'foto.jpg', content: 'x'),
       ]);
       expect(r.added, 1);

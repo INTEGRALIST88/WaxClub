@@ -2311,4 +2311,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get photosDeleteInfo =>
       'The photo is deleted from your WaxClub account. This cannot be undone.';
+
+  @override
+  String get panelPluginNothing => 'found nothing for this song';
 }

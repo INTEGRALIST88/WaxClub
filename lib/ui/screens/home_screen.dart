@@ -558,7 +558,41 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   String? _curiositiesSentKey;
 
   bool get _curiositiesOn =>
-      _plugins.catalog.any((p) => p.id == 'display.curiosities' && _plugins.isActive(p)); // l10n-ignore
+      _plugins.catalog.any((p) => p.id == PluginCatalog.curiositiesId && _plugins.isActive(p));
+
+  /// O que a tela mostra, pela ordem do painel: o primeiro plugin ligado, da esquerda para a direita, que
+  /// tem conteúdo para esta música (curiosidades ou letra de uma fonte S). Os que não acharam nada (ou
+  /// trouxeram letra quebrada) vão para [failed] — luz vermelha no painel.
+  ({String? shown, Set<String> failed}) _panelState() {
+    if (_engine.currentTrack == null) return (shown: null, failed: const <String>{});
+    final failed = <String>{};
+    String? shown;
+    final attempts = _engine.lyricsAttempts;
+    final hasLyrics = _engine.lyrics.isNotEmpty;
+    final c = _curiosities;
+    for (final p in _plugins.panelPlugins()) {
+      if (!_plugins.isActive(p)) continue;
+      if (p.id == PluginCatalog.curiositiesId) {
+        if (c == null) continue; // ainda buscando
+        if (c.isEmpty) {
+          failed.add(p.id);
+        } else {
+          shown ??= p.id;
+        }
+        continue;
+      }
+      if (p.category == PluginCategory.sources) {
+        final a = attempts[p.engine];
+        if (a == LyricsAttempt.notFound || a == LyricsAttempt.broken) {
+          failed.add(p.id);
+          continue;
+        }
+        final source = _engine.lyricsSource;
+        if (hasLyrics && (source == p.engine || (source == null && a == null))) shown ??= p.id;
+      }
+    }
+    return (shown: shown, failed: failed);
+  }
 
   /// 1ª faixa do lado: as curiosidades do disco (e as notícias) entram antes das da faixa.
   bool get _isSideStart {
@@ -1296,6 +1330,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final compactBar = MediaQuery.sizeOf(context).width < 600;
         final logoSize = compactBar ? 46.0 : 50.0;
         _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
+        final panel = _panelState();
+        // Curiosidades na frente das letras no painel: aparecem no lugar da letra (celular e TV)
+        final curiositiesFirst = panel.shown == PluginCatalog.curiositiesId;
+        _engine.curiositiesFirst = curiositiesFirst;
         if (_engine.manualSuggested) _offerManualMode();
         const tileSize = 40.0;
         final showTrackStrip = compactBar && _engine.currentTrack != null;
@@ -1327,7 +1365,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                       ),
-                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, activeEngine: _engine.lyricsSource)),
+                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, shownId: panel.shown, failedIds: panel.failed)),
                       if (showTrackStrip) SizedBox(height: 86, child: _portraitTrackInfo()),
                     ],
                   ),
@@ -1524,7 +1562,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         // Lista vertical de letras sincronizadas
                         Positioned.fill(
                           child: LyricsListView(
-                            lyrics: _engine.lyrics,
+                            lyrics: curiositiesFirst ? const [] : _engine.lyrics,
                             activeIndex: _engine.activeLineIndex,
                             onSeek: (seconds) => _engine.syncToLine(seconds),
                             emptyState: _engine.currentTrack == null
