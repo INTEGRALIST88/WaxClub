@@ -164,7 +164,7 @@ class _LyricsListViewState extends State<LyricsListView> {
                 ? Text(display, textAlign: TextAlign.center)
                 : Column(mainAxisSize: MainAxisSize.min, children: [
                     Text(display, textAlign: TextAlign.center),
-                    // Tradução (plugin A2): menor, creme, logo abaixo da linha original
+                    // Tradução (plugin A2): menor, em itálico e creme, logo abaixo da linha original
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
@@ -174,6 +174,7 @@ class _LyricsListViewState extends State<LyricsListView> {
                           fontFamily: 'Inter', // l10n-ignore
                           fontVariations: const [FontVariation('wght', 500)], // l10n-ignore
                           fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic,
                           fontSize: _fontSize * 0.62,
                           height: 1.25,
                           letterSpacing: 0,
