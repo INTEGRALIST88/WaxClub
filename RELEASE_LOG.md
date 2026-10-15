@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.32] — 15/10/2026 (Jukebox Reimaginada)
+
+* **Plugin Jukebox redesenhada:**
+  * **Gabinete:** nogueira (como os botões de madeira do app), friso cromado e tubo de neon nas 5 cores das categorias.
+  * **Vitrine:** à esquerda, a **pilha de discos** vista de lado (um por plugin instalado, na cor da categoria, com sulcos, selo e a etiqueta do código; acesos quando ligados) e o **prato girando** com o disco escolhido. À direita, o **mecanismo**: trilho cromado, braço que desce até o disco tocado e o puxa para fora, engrenagens girando e um medidor de neon dos ligados.
+  * **Faixa de comando:** visor âmbar com o disco escolhido e **botões-joia** (All, L, D, S, A, C) que filtram as cartelas e apagam os discos das outras categorias. O teclado numérico saiu.
+  * **Cartelas de seleção** creme (número, código e nome, categoria e autor) com **ON/OFF** na cor da categoria e **ⓘ**; tocar na cartela busca o disco e abre os detalhes. Depois vêm o caixote (não instalados) e o link do site.
+  * **Celular deitado:** vitrine e comandos à esquerda, cartelas à direita.
+* Testes: a jukebox mostra a pilha e as cartelas; ON/OFF liga e desliga; o visor mostra o escolhido; o joia filtra; a cartela abre os detalhes.
+
+---
 ## [v1.4.31] — 15/10/2026 (WaxBrain: Chaves de IA do Usuário)
 
 * **WaxBrain** (botão de madeira com cérebro, ao lado do Manual): o usuário encaixa as **próprias chaves de IA** (modelo BYOK) em chips. Os plugins de IA vão usá-lo (a ligação com os plugins vem na próxima etapa).
