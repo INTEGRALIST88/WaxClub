@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waxclub/services/plugins/plugin_catalog.dart';
 import 'package:waxclub/ui/screens/plugin_jukebox_screen.dart';
-import 'package:waxclub/ui/widgets/seven_inch_record.dart';
+import 'package:waxclub/ui/widgets/jukebox_machine.dart';
 
 const _fr = PluginInfo(
   id: 'lang.fr',
@@ -122,10 +122,9 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(home: PluginJukeboxScreen(store: store)));
     await tester.pump(const Duration(milliseconds: 100));
-    for (final key in ['C', '1', 'Select']) {
-      await tester.tap(find.text(key).first);
-      await tester.pump();
-    }
+    // tocar na cartela do C1: o braço busca o disco e abrem os detalhes
+    await tester.tap(find.byKey(const ValueKey('strip-${PluginCatalog.discogsId}')));
+    await tester.pump(const Duration(milliseconds: 700));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('No account connected yet.'), findsOneWidget);
 
@@ -135,24 +134,39 @@ void main() {
     expect(find.text('Disconnect'), findsOneWidget);
   });
 
-  testWidgets('jukebox: discos por categoria e seleção pelo teclado abre o plugin', (tester) async {
+  testWidgets('jukebox: pilha de discos, cartelas, ON/OFF, filtro por categoria e detalhes', (tester) async {
     tester.view.physicalSize = const Size(400, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
+    final store = PluginStore();
 
-    await tester.pumpWidget(MaterialApp(home: PluginJukeboxScreen(store: PluginStore())));
+    await tester.pumpWidget(MaterialApp(home: PluginJukeboxScreen(store: store)));
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Plugin Jukebox'), findsOneWidget);
-    expect(find.byType(SevenInchRecord), findsWidgets);
+    expect(find.byType(JukeboxMachine), findsOneWidget, reason: 'vitrine com a pilha e o mecanismo');
+    expect(find.byKey(const ValueKey('strip-lang.en')), findsOneWidget);
+    expect(find.text('Tap a record or a strip'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    // Teclado: L + 1 + Select → abre English
-    await tester.tap(find.text('L').first);
-    await tester.pump();
-    await tester.tap(find.text('1').first);
-    await tester.pump();
-    await tester.tap(find.text('Select'));
+    // ON/OFF da cartela liga e desliga o plugin (Curiosidades, D1)
+    final d1 = store.byCode('D1')!;
+    expect(store.isActive(d1), isTrue);
+    await tester.tap(find.descendant(of: find.byKey(const ValueKey('strip-display.curiosities')), matching: find.text('ON')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(store.isActive(d1), isFalse);
+    expect(find.descendant(of: find.byKey(const ValueKey('strip-display.curiosities')), matching: find.text('OFF')), findsOneWidget);
+    expect(find.text('D1 · Record curiosities'), findsOneWidget, reason: 'o visor mostra o disco escolhido');
+
+    // Botão-joia "L" filtra as cartelas: só os idiomas
+    await tester.tap(find.text('L'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('strip-lang.en')), findsOneWidget);
+    expect(find.byKey(const ValueKey('strip-display.curiosities')), findsNothing);
+
+    // Tocar na cartela abre os detalhes do plugin
+    await tester.tap(find.byKey(const ValueKey('strip-lang.en')));
+    await tester.pump(const Duration(milliseconds: 700));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.textContaining('menus and texts of the app in English'), findsOneWidget);
     expect(find.textContaining('Only one Language plugin plays at a time'), findsOneWidget);

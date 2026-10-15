@@ -1572,5 +1572,9 @@
   "brainStatusLimit": "Limit reached",
   "brainStatusInvalid": "Key rejected",
   "brainStatusOffline": "Not tested",
-  "brainPrivacyNote": "Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models."
+  "brainPrivacyNote": "Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models.",
+  "jukeboxTapToChoose": "Tap a record or a strip",
+  "jukeboxDetails": "Details",
+  "jukeboxOn": "ON",
+  "jukeboxOff": "OFF"
 }

@@ -4197,6 +4197,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models.'**
   String get brainPrivacyNote;
+
+  /// No description provided for @jukeboxTapToChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a record or a strip'**
+  String get jukeboxTapToChoose;
+
+  /// No description provided for @jukeboxDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get jukeboxDetails;
+
+  /// No description provided for @jukeboxOn.
+  ///
+  /// In en, this message translates to:
+  /// **'ON'**
+  String get jukeboxOn;
+
+  /// No description provided for @jukeboxOff.
+  ///
+  /// In en, this message translates to:
+  /// **'OFF'**
+  String get jukeboxOff;
 }
 
 class _AppLocalizationsDelegate

@@ -2513,4 +2513,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get brainPrivacyNote =>
       'Your keys are stored encrypted on this phone and in your WaxClub account, and are only sent to their own provider. On free plans, the provider may use what is sent to improve its models.';
+
+  @override
+  String get jukeboxTapToChoose => 'Tap a record or a strip';
+
+  @override
+  String get jukeboxDetails => 'Details';
+
+  @override
+  String get jukeboxOn => 'ON';
+
+  @override
+  String get jukeboxOff => 'OFF';
 }

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../widgets/retro_text.dart';
 import '../../l10n/l10n.dart';
@@ -9,10 +10,12 @@ import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
 import '../../services/plugins/plugin_manifest.dart';
 import '../theme/app_theme.dart';
+import '../widgets/jukebox_machine.dart';
 import '../widgets/seven_inch_record.dart';
 
-/// Página de plugins em forma de jukebox: cada plugin é um compacto de 7" cuja cor diz a categoria
-/// (Language, Display, AI...). Seleciona-se pelo código da cartela (teclado da jukebox) ou tocando no disco.
+/// Página de plugins em forma de jukebox: cada plugin instalado é um disco na pilha da vitrine, na cor da
+/// categoria (Language, Display, AI...), com o mecanismo ao lado; no corpo, as cartelas de seleção com
+/// ON/OFF e detalhes. Botões-joia filtram por categoria. Deitado: vitrine à esquerda, cartelas à direita.
 class PluginJukeboxScreen extends StatefulWidget {
   final PluginStore store;
 
@@ -31,16 +34,15 @@ class PluginJukeboxScreen extends StatefulWidget {
 class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
   static const Color _bg = Color(0xFF0E0B12);
   static const Color _panel = Color(0xFF18131E);
-  static const Color _panel2 = Color(0xFF221B2A);
-  static const Color _line = Color(0xFF3A3045);
   static const Color _muted = Color(0xFFA99FB5);
   static const Color _stripColor = Color(0xFFF3EAD6);
+  static const Color _stripDim = Color(0xFFD9CDB4);
   static const Color _ink = Color(0xFF2B2231);
+  static const Color _red = Color(0xFFB8432B);
   static const Color _amber = Color(0xFFF6B74A);
+  static const List<Color> _chrome = [Color(0xFF6D6A73), Color(0xFFE9E6EE), Color(0xFF9B97A3), Color(0xFF55525B)];
 
   PluginStore get _store => widget.store;
-  String _typed = '';
-  String? _message;
   String? _selectedId;
   PluginCategory? _filter;
 
@@ -50,46 +52,15 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
     _store.load();
   }
 
-  void _press(String key) {
-    setState(() {
-      if (key == 'clear') { // l10n-ignore
-        _typed = '';
-        _message = null;
-        return;
-      }
-      final cat = PluginCategory.fromLetter(key);
-      if (cat != null) {
-        _typed = key;
-        _message = l10n.jukeboxNowNumber(cat.label);
-      } else if (_typed.length == 1) {
-        _typed += key;
-        _message = l10n.jukeboxPressSelect;
-      } else {
-        _message = l10n.jukeboxStartWithLetter;
-      }
-    });
-  }
-
-  void _selectTyped() {
-    if (_typed.length < 2) {
-      setState(() => _message = l10n.jukeboxTypeCode);
-      return;
-    }
-    final code = _typed;
-    setState(() => _typed = '');
-    final p = _store.byCode(code);
-    if (p == null) {
-      setState(() => _message = l10n.jukeboxNoSuchCode(code));
-      return;
-    }
-    _open(p);
+  /// Escolhe o plugin: o braço da jukebox vai buscar o disco e, em seguida, abrem os detalhes.
+  Future<void> _choose(PluginInfo p) async {
+    final wasSelected = _selectedId == p.id;
+    setState(() => _selectedId = p.id);
+    if (!wasSelected && _store.isInstalled(p)) await Future.delayed(const Duration(milliseconds: 520));
+    if (mounted) await _open(p);
   }
 
   Future<void> _open(PluginInfo p) async {
-    setState(() {
-      _selectedId = p.id;
-      _message = '${p.code} · ${p.name}';
-    });
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: _panel,
@@ -97,6 +68,12 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics, clouds: widget.clouds),
     );
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggle(PluginInfo p) async {
+    setState(() => _selectedId = p.id);
+    await _store.toggle(p);
     if (mounted) setState(() {});
   }
 
@@ -111,430 +88,397 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       ),
       body: AnimatedBuilder(
         animation: _store,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-          children: [
-            Text(l10n.jukeboxLede, style: const TextStyle(color: _muted, height: 1.4)),
-            const SizedBox(height: 16),
-            _cabinet(),
-            const SizedBox(height: 22),
-            _sectionTitle(l10n.jukeboxOnThePlatter),
-            _platter(),
-            const SizedBox(height: 22),
-            _sectionTitle(l10n.jukeboxSelectionStrips),
-            _filters(),
-            const SizedBox(height: 10),
-            _strips(),
-            if (_store.notInstalled().isNotEmpty) ...[
-              const SizedBox(height: 22),
-              _sectionTitle(l10n.jukeboxCrate),
-              Text(l10n.jukeboxCrateHint, style: const TextStyle(color: _muted, fontSize: 13)),
-              const SizedBox(height: 10),
-              _crate(),
-            ],
-            const SizedBox(height: 22),
-            _moreOnSite(),
-            const SizedBox(height: 22),
-            _legend(),
-          ],
-        ),
+        builder: (context, _) => LayoutBuilder(builder: (context, c) {
+          final landscape = c.maxWidth > c.maxHeight * 1.15;
+          if (landscape) {
+            // Deitado: gabinete à esquerda, cartelas à direita
+            return Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              SizedBox(
+                width: math.min(c.maxWidth * 0.48, 520),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 6, 12),
+                  child: Column(children: [
+                    Expanded(child: _cabinet()),
+                    const SizedBox(height: 8),
+                    _controlBand(),
+                  ]),
+                ),
+              ),
+              Expanded(
+                child: Padding(padding: const EdgeInsets.fromLTRB(6, 0, 12, 12), child: _stripsBody()),
+              ),
+            ]);
+          }
+          // Em pé: gabinete no alto, faixa de comando e as cartelas no corpo
+          final cabinetH = (c.maxHeight * 0.38).clamp(230.0, 360.0);
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Column(children: [
+              SizedBox(height: cabinetH, child: _cabinet()),
+              const SizedBox(height: 8),
+              _controlBand(),
+              const SizedBox(height: 8),
+              Expanded(child: _stripsBody()),
+            ]),
+          );
+        }),
       ),
     );
   }
 
-  Widget _sectionTitle(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
-      );
-
-  // ---------- Gabinete: vitrine, mostrador e teclado ----------
+  // ---------- Gabinete: madeira, cromado, neon e a vitrine com a pilha e o mecanismo ----------
   Widget _cabinet() {
     final installed = _store.installed();
-    return CustomPaint(
-      painter: _NeonArchPainter(),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 22, 14, 16),
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(150), bottom: Radius.circular(18)),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF4A2E1C), Color(0xFF2A1A10), Color(0xFF1A110B)],
-          ),
+    final discs = [
+      for (final p in installed)
+        JukeboxDisc(
+          code: p.code,
+          color: p.category.color,
+          active: _store.isActive(p),
+          dimmed: _filter != null && p.category != _filter,
         ),
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
+    ];
+    final selectedIndex = installed.indexWhere((p) => p.id == _selectedId);
+    return CustomPaint(
+      foregroundPainter: _NeonFramePainter(),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(46), bottom: Radius.circular(14)),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF5A3620), Color(0xFF3A2414), Color(0xFF24160C)],
+          ),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.6), blurRadius: 18, offset: const Offset(0, 8))],
+        ),
+        child: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            for (final c in PluginCategory.values) _lamp(c.color),
+            const SizedBox(width: 10),
             const Text('WAXCLUB', // l10n-ignore
-                style: TextStyle(color: AppTheme.cream, fontSize: 15, letterSpacing: 6, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 10),
-            // Vitrine com os compactos instalados
-            Container(
-              padding: const EdgeInsets.fromLTRB(6, 22, 6, 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B0910),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(110), bottom: Radius.circular(10)),
-                border: Border.all(color: _line),
-                gradient: RadialGradient(
-                  center: const Alignment(0, -1),
-                  radius: 1.2,
-                  colors: [PluginCategory.ai.color.withValues(alpha: 0.18), const Color(0xFF0B0910)],
-                ),
+                style: TextStyle(color: AppTheme.cream, fontSize: 13, letterSpacing: 6, fontWeight: FontWeight.w800)),
+            const SizedBox(width: 10),
+            for (final c in PluginCategory.values.toList().reversed) _lamp(c.color),
+          ]),
+          const SizedBox(height: 8),
+          // Vitrine (vidro escuro com friso cromado)
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(2.5),
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(34), bottom: Radius.circular(10)),
+                gradient: LinearGradient(colors: _chrome),
               ),
-              child: SizedBox(
-                height: 118,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  itemCount: installed.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, i) {
-                    final p = installed[i];
-                    final on = _store.isActive(p);
-                    final selected = _selectedId == p.id;
-                    return GestureDetector(
-                      onTap: () => _open(p),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedSlide(
-                            offset: selected ? const Offset(0, -0.05) : Offset.zero,
-                            duration: const Duration(milliseconds: 300),
-                            child: SevenInchRecord(color: p.category.color, code: p.code, size: 80, glow: on || selected),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(p.code,
-                              style: TextStyle(
-                                color: on ? Colors.white : _muted,
-                                fontFamily: 'monospace', // l10n-ignore
-                                fontWeight: on ? FontWeight.w800 : FontWeight.w500,
-                              )),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            // Mostrador
-            Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 380),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(color: const Color(0xFF050407), borderRadius: BorderRadius.circular(10), border: Border.all(color: _line)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${_typed.isNotEmpty ? _typed[0] : '_'} ${_typed.length > 1 ? _typed[1] : '_'}',
-                    style: const TextStyle(
-                      color: _amber,
-                      fontSize: 26,
-                      letterSpacing: 5,
-                      fontFamily: 'monospace', // l10n-ignore
-                      fontWeight: FontWeight.w700,
-                      shadows: [Shadow(color: Color(0x99F6B74A), blurRadius: 10)],
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32), bottom: Radius.circular(8)),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(-0.3, -0.8),
+                      radius: 1.3,
+                      colors: [PluginCategory.ai.color.withValues(alpha: 0.22), const Color(0xFF120E17), const Color(0xFF07060A)],
+                      stops: const [0.0, 0.55, 1.0],
                     ),
                   ),
-                  Text(_message ?? l10n.jukeboxChooseSelection, style: const TextStyle(color: _muted, fontSize: 13)),
-                ],
+                  child: installed.isEmpty
+                      ? Center(child: Text(l10n.jukeboxNothingPlaying, style: const TextStyle(color: _muted)))
+                      : JukeboxMachine(
+                          discs: discs,
+                          selected: selectedIndex < 0 ? null : selectedIndex,
+                          onTapDisc: (i) => _choose(installed[i]),
+                        ),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
-            _keypad(),
-          ],
-        ),
+          ),
+        ]),
       ),
     );
   }
 
-  Widget _keypad() {
-    Widget key(String label, VoidCallback onTap, {Color? top, Color? bottom, Color textColor = _ink, int flex = 1}) {
-      return Expanded(
+  Widget _lamp(Color c) => Container(
+        width: 7,
+        height: 7,
+        margin: const EdgeInsets.symmetric(horizontal: 2.5),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color.lerp(c, Colors.white, 0.25),
+          boxShadow: [BoxShadow(color: c.withValues(alpha: 0.8), blurRadius: 6)],
+        ),
+      );
+
+  // ---------- Faixa de comando: visor âmbar e botões-joia por categoria ----------
+  Widget _controlBand() {
+    final sel = _selectedId == null ? null : _store.byId(_selectedId!);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: _chrome),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        // visor
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A0806),
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(color: Colors.black, width: 1.5),
+          ),
+          child: Text(
+            sel == null ? l10n.jukeboxTapToChoose : '${sel.code} · ${sel.name}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _amber,
+              fontSize: 14,
+              letterSpacing: 1.2,
+              fontFamily: 'monospace', // l10n-ignore
+              fontWeight: FontWeight.w700,
+              shadows: [Shadow(color: Color(0xAAF6B74A), blurRadius: 8)],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(children: [
+          _jewel(l10n.jukeboxAll, const Color(0xFFF3EAD6), _filter == null, () => setState(() => _filter = null), flex: 2),
+          for (final c in PluginCategory.values)
+            _jewel(c.letter, c.color, _filter == c, () => setState(() => _filter = _filter == c ? null : c)),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _jewel(String label, Color color, bool on, VoidCallback onTap, {int flex = 1}) => Expanded(
         flex: flex,
         child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: Semantics(
+            button: true,
+            selected: on,
+            child: GestureDetector(
               onTap: onTap,
-              child: Ink(
-                height: 42,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 30,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [top ?? const Color(0xFFFBF6EA), bottom ?? const Color(0xFFDDD2BB)],
+                    colors: on
+                        ? [Color.lerp(color, Colors.white, 0.45)!, color]
+                        : [Color.lerp(color, Colors.black, 0.45)!, Color.lerp(color, Colors.black, 0.7)!],
                   ),
-                  boxShadow: const [BoxShadow(color: Color(0xFF8E8170), offset: Offset(0, 3))],
+                  border: Border.all(color: Colors.black.withValues(alpha: 0.6)),
+                  boxShadow: on ? [BoxShadow(color: color.withValues(alpha: 0.75), blurRadius: 10)] : null,
                 ),
-                child: Center(
-                  child: Text(label,
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'monospace', // l10n-ignore
-                        fontSize: label.length > 2 ? 13 : 16,
-                      )),
-                ),
+                child: Text(label,
+                    style: TextStyle(
+                      color: on ? _ink : Colors.white70,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      fontFamily: 'monospace', // l10n-ignore
+                    )),
               ),
             ),
           ),
         ),
       );
-    }
 
-    final letters = [
-      for (final c in PluginCategory.values)
-        key(c.letter, () => _press(c.letter),
-            top: Color.lerp(c.color, Colors.white, 0.75), bottom: Color.lerp(c.color, Colors.white, 0.35)),
-    ];
-    final digits = [for (var i = 1; i <= 9; i++) '$i'];
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 380),
-      child: Column(
-        children: [
-          Row(children: letters),
-          Row(children: [for (final d in digits.sublist(0, 5)) key(d, () => _press(d))]),
-          Row(children: [for (final d in digits.sublist(5)) key(d, () => _press(d)), key('0', () => _press('0'))]),
-          Row(children: [
-            key(l10n.jukeboxClear, () => _press('clear'), flex: 2), // l10n-ignore
-            key(l10n.jukeboxSelect, _selectTyped,
-                flex: 3, top: const Color(0xFFFF9D7A), bottom: const Color(0xFFE8673F), textColor: Colors.white),
-          ]),
-        ],
-      ),
-    );
-  }
-
-  // ---------- No prato ----------
-  Widget _platter() {
+  // ---------- Corpo: cartelas de seleção (instalados), caixote (a instalar) e o site ----------
+  Widget _stripsBody() {
+    final installed = _store.installed().where((p) => _filter == null || p.category == _filter).toList();
+    final crate = _store.notInstalled().where((p) => _filter == null || p.category == _filter).toList();
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: _panel, borderRadius: BorderRadius.circular(14), border: Border.all(color: _line)),
-      child: Column(
-        children: [
-          for (final c in PluginCategory.values)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 112,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(c.label, style: TextStyle(color: c.color, fontWeight: FontWeight.w800)),
-                        Text(c.rule, style: const TextStyle(color: _muted, fontSize: 11.5)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _store.activeIn(c).isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(l10n.jukeboxNothingPlaying, style: const TextStyle(color: _muted, fontSize: 13)),
-                          )
-                        : Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              for (final p in _store.activeIn(c))
-                                GestureDetector(
-                                  onTap: () => _open(p),
-                                  child: Container(
-                                    padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
-                                    decoration: BoxDecoration(color: _panel2, borderRadius: BorderRadius.circular(999)),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SevenInchRecord(color: c.color, code: p.code, size: 40, spinning: true),
-                                        const SizedBox(width: 8),
-                                        Flexible(child: Text(p.name, style: const TextStyle(color: Colors.white, fontSize: 13))),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                  ),
-                ],
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF3A2414), Color(0xFF24160C)],
+        ),
+        border: Border.all(color: const Color(0xFF6D6A73), width: 1.5),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(9),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (var i = 0; i < installed.length; i++) _strip(installed[i], i + 1),
+            if (installed.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.jukeboxNothingPlaying, style: const TextStyle(color: _muted), textAlign: TextAlign.center),
               ),
-            ),
-        ],
+            if (crate.isNotEmpty) ...[
+              _crateHeader(),
+              for (var i = 0; i < crate.length; i++) _strip(crate[i], installed.length + i + 1, inCrate: true),
+            ],
+            const SizedBox(height: 8),
+            _moreOnSite(),
+          ],
+        ),
       ),
     );
   }
 
-  // ---------- Cartelas ----------
-  Widget _filters() {
-    Widget chip(String label, PluginCategory? c) {
-      final on = _filter == c;
-      return ChoiceChip(
-        selected: on,
-        onSelected: (_) => setState(() => _filter = c),
-        showCheckmark: false,
-        backgroundColor: _panel,
-        selectedColor: _panel2,
-        side: BorderSide(color: on ? (c?.color ?? Colors.white) : _line),
-        avatar: c == null ? null : CircleAvatar(radius: 5, backgroundColor: c.color),
-        label: Text(label, style: TextStyle(color: on ? Colors.white : _muted, fontSize: 13)),
-      );
-    }
-
-    return Wrap(spacing: 8, runSpacing: 8, children: [
-      chip(l10n.jukeboxAll, null),
-      for (final c in PluginCategory.values) chip(c.label, c),
-    ]);
-  }
-
-  Widget _strips() {
-    final list = _store.catalog.where((p) => _store.isInstalled(p) && (_filter == null || p.category == _filter)).toList();
-    return Column(children: [for (final p in list) _strip(p)]);
-  }
-
-  Widget _strip(PluginInfo p) {
+  /// Cartela de seleção (como os títulos datilografados das jukeboxes): número, código e nome,
+  /// categoria e autor, botão ON/OFF e detalhes.
+  Widget _strip(PluginInfo p, int number, {bool inCrate = false}) {
     final on = _store.isActive(p);
+    final selected = _selectedId == p.id;
+    final color = p.category.color;
+    final paper = inCrate ? _stripDim : _stripColor;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      key: ValueKey('strip-${p.id}'), // l10n-ignore
+      padding: const EdgeInsets.only(bottom: 6),
       child: Material(
-        color: _stripColor,
-        borderRadius: BorderRadius.circular(4),
+        color: paper,
+        borderRadius: BorderRadius.circular(5),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => _open(p),
+          onTap: () => _choose(p),
           child: Container(
-            decoration: BoxDecoration(border: on ? Border.all(color: p.category.color, width: 3) : null, borderRadius: BorderRadius.circular(4)),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    width: 56,
-                    color: p.category.color,
-                    alignment: Alignment.center,
-                    child: Text(p.code,
-                        style: const TextStyle(color: _ink, fontSize: 18, fontWeight: FontWeight.w900, fontFamily: 'monospace')), // l10n-ignore
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(child: Text(p.name, style: const TextStyle(color: _ink, fontWeight: FontWeight.w800, fontSize: 14.5))),
-                              _badge(p),
-                            ],
-                          ),
-                          Text(p.author, style: const TextStyle(color: _ink, fontSize: 12)),
-                          Text(p.license, style: const TextStyle(color: Color(0xFF6B5D48), fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(color: color, width: 6),
+                top: BorderSide(color: selected ? color : Colors.transparent, width: 2),
+                bottom: BorderSide(color: selected ? color : Colors.transparent, width: 2),
+                right: BorderSide(color: selected ? color : Colors.transparent, width: 2),
               ),
             ),
+            padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+            child: Row(children: [
+              SizedBox(
+                width: 34,
+                child: Text(number.toString().padLeft(2, '0'),
+                    style: TextStyle(
+                      color: inCrate ? _ink.withValues(alpha: 0.5) : _ink,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'monospace', // l10n-ignore
+                    )),
+              ),
+              Container(width: 2, height: 34, color: _red.withValues(alpha: 0.75)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  Row(children: [
+                    Text(p.code,
+                        style: TextStyle(
+                          color: Color.lerp(color, _ink, 0.55),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          fontFamily: 'monospace', // l10n-ignore
+                        )),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(p.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: inCrate ? _ink.withValues(alpha: 0.65) : _ink, fontWeight: FontWeight.w800, fontSize: 14.5)),
+                    ),
+                  ]),
+                  Text(
+                    '${p.category.label} · ${p.isComingSoon ? l10n.jukeboxComingSoon : p.author}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: _ink.withValues(alpha: 0.6), fontSize: 11.5),
+                  ),
+                ]),
+              ),
+              const SizedBox(width: 6),
+              if (!inCrate) _onOff(p, on),
+              if (inCrate) _crateBadge(p),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: l10n.jukeboxDetails,
+                icon: Icon(Icons.info_outline_rounded, color: _ink.withValues(alpha: 0.75), size: 22),
+                onPressed: () => _choose(p),
+              ),
+            ]),
           ),
         ),
       ),
     );
   }
 
-  Widget _badge(PluginInfo p) {
-    final String text;
-    final Color bg;
-    final Color fg;
-    if (p.isComingSoon) {
-      text = l10n.jukeboxComingSoon;
-      bg = const Color(0xFF6B5D48);
-      fg = _stripColor;
-    } else if (_store.isActive(p)) {
-      text = l10n.jukeboxOnPlatter;
-      bg = _ink;
-      fg = _stripColor;
-    } else {
-      return const SizedBox.shrink();
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
-      child: Text(text.toUpperCase(), style: TextStyle(color: fg, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+  /// Botão ON/OFF da cartela: aceso na cor da categoria quando o disco está no prato.
+  Widget _onOff(PluginInfo p, bool on) {
+    final color = p.category.color;
+    final canToggle = _store.canToggle(p);
+    return Semantics(
+      button: canToggle,
+      toggled: on,
+      child: GestureDetector(
+        onTap: canToggle ? () => _toggle(p) : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 46,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: on ? color : const Color(0xFF4A4250),
+            border: Border.all(color: _ink.withValues(alpha: 0.5)),
+            boxShadow: on ? [BoxShadow(color: color.withValues(alpha: 0.8), blurRadius: 8)] : null,
+          ),
+          child: Text(on ? l10n.jukeboxOn : l10n.jukeboxOff,
+              style: TextStyle(
+                color: on ? _ink : Colors.white70,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                letterSpacing: 0.8,
+              )),
+        ),
+      ),
     );
   }
 
-  // ---------- Caixote (em breve / para instalar) ----------
-  Widget _crate() {
-    final list = _store.notInstalled();
-    return LayoutBuilder(builder: (context, c) {
-      final cols = c.maxWidth > 560 ? 3 : 2;
-      final w = (c.maxWidth - (cols - 1) * 10) / cols;
-      return Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          for (final p in list)
-            SizedBox(
-              width: w,
-              child: Material(
-                color: _panel2,
-                borderRadius: BorderRadius.circular(10),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () => _open(p),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(children: [
-                          SevenInchRecord(color: p.category.color, code: p.code, size: 46, dimmed: p.isComingSoon),
-                          const SizedBox(width: 10),
-                          Expanded(child: Text(p.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
-                        ]),
-                        const SizedBox(height: 6),
-                        Text('${p.category.label} · ${p.isComingSoon ? l10n.jukeboxComingSoon : p.author}',
-                            style: const TextStyle(color: _muted, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+  Widget _crateBadge(PluginInfo p) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(color: _ink.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(6)),
+        child: Text(
+          (p.isComingSoon ? l10n.jukeboxComingSoon : l10n.jukeboxInstall).toUpperCase(),
+          style: const TextStyle(color: _stripColor, fontSize: 9.5, fontWeight: FontWeight.w800, letterSpacing: 0.6),
+        ),
       );
-    });
-  }
+
+  Widget _crateHeader() => Padding(
+        padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+        child: Row(children: [
+          const Icon(Icons.inventory_2_outlined, color: AppTheme.cream, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(l10n.jukeboxCrate, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w800, fontSize: 15)),
+              Text(l10n.jukeboxCrateHint, style: const TextStyle(color: _muted, fontSize: 11.5)),
+            ]),
+          ),
+        ]),
+      );
 
   /// Mais plugins no site: no celular, o "Install" de cada um abre o app e instala sozinho.
   Widget _moreOnSite() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _panel,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _amber.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            for (final c in PluginCategory.values) ...[
-              SevenInchRecord(color: c.color, code: '', size: 24),
-              const SizedBox(width: 4),
-            ],
-          ]),
-          const SizedBox(height: 10),
           Text(l10n.jukeboxMoreOnSiteTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
           const SizedBox(height: 4),
-          Text(l10n.jukeboxMoreOnSite, style: const TextStyle(color: _muted, fontSize: 13, height: 1.4)),
+          Text(l10n.jukeboxMoreOnSite, style: const TextStyle(color: _muted, fontSize: 12.5, height: 1.4)),
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
@@ -547,21 +491,6 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _legend() {
-    return Wrap(
-      spacing: 18,
-      runSpacing: 10,
-      children: [
-        for (final c in PluginCategory.values)
-          Row(mainAxisSize: MainAxisSize.min, children: [
-            SevenInchRecord(color: c.color, code: '', size: 22),
-            const SizedBox(width: 8),
-            Text('${c.letter} · ${c.label}', style: const TextStyle(color: _muted, fontSize: 13)),
-          ]),
-      ],
     );
   }
 }
@@ -948,35 +877,31 @@ class _PluginSheetState extends State<_PluginSheet> {
 }
 
 /// Arco de neon colorido em volta do gabinete da jukebox.
-class _NeonArchPainter extends CustomPainter {
+/// Tubo de neon contornando o gabinete, nas cores das categorias.
+class _NeonFramePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final rrect = RRect.fromRectAndCorners(
       rect.deflate(1.5),
-      topLeft: const Radius.circular(150),
-      topRight: const Radius.circular(150),
-      bottomLeft: const Radius.circular(18),
-      bottomRight: const Radius.circular(18),
+      topLeft: const Radius.circular(46),
+      topRight: const Radius.circular(46),
+      bottomLeft: const Radius.circular(14),
+      bottomRight: const Radius.circular(14),
     );
-    final colors = [
-      PluginCategory.display.color,
-      PluginCategory.ai.color,
-      const Color(0xFFF6B74A),
-      PluginCategory.language.color,
-    ];
+    final colors = [for (final c in PluginCategory.values) c.color];
     final shader = SweepGradient(colors: [...colors, colors.first]).createShader(rect);
     canvas.drawRRect(rrect, Paint()
       ..shader = shader
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+      ..strokeWidth = 7
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7));
     canvas.drawRRect(rrect, Paint()
       ..shader = shader
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3);
+      ..strokeWidth = 2.2);
   }
 
   @override
-  bool shouldRepaint(covariant _NeonArchPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _NeonFramePainter oldDelegate) => false;
 }
