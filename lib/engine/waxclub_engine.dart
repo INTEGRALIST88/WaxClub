@@ -740,6 +740,8 @@ class WaxClubEngine extends ChangeNotifier {
       ));
     }
     _refreshSpeed();
+    // Música reconhecida = a agulha já está tocando
+    _awaitingNeedle = false;
     final now = DateTime.now();
     final elapsed = now.difference(captureStart).inMilliseconds / 1000.0;
     _baseOffset = recognized.offsetSeconds + elapsed * effectiveSpeedFactor;
@@ -2240,7 +2242,8 @@ class WaxClubEngine extends ChangeNotifier {
               tracklist: resolved.tracklist,
             );
           }
-          final newCover = _lockedAlbumCoverUrl ?? resolved.coverUrl;
+          // Sem capa nova: mantém a que está na tela (antes, a capa sumia ao corrigir o disco)
+          final newCover = _lockedAlbumCoverUrl ?? resolved.coverUrl ?? _currentTrack?.coverUrl;
           final newAlbum = _lockedAlbumName ?? resolved.albumName;
           _currentTrack = _currentTrack?.copyWith(
             album: newAlbum,
@@ -2550,7 +2553,8 @@ class WaxClubEngine extends ChangeNotifier {
         final outcome = await _captureAndIdentify(
           checkpoints: PredictionTuning.identificationCheckpointsFor(attempt),
         );
-        if (_sessionId != mySession || _isDisposed) return;
+        // Pausado durante a escuta: o resume() retoma a espera da agulha
+        if (_sessionId != mySession || _isDisposed || _isPaused) return;
         _telemetry = _telemetry.copyWith(isMicActive: false);
         // Escuta que voltou na hora (microfone indisponível): não gira o laço sem pausa
         final took = DateTime.now().difference(listenStart);
@@ -2870,6 +2874,21 @@ class WaxClubEngine extends ChangeNotifier {
         isMicActive: false,
       );
       _scheduleSideFlipProbe(initial: true);
+      return;
+    }
+
+    // Pausado aguardando a agulha (disco já virado): volta a esperar a agulha, com a letra parada em 0:00.
+    // Sem isso a letra corria em silêncio e a TV ficava presa em "Waiting for the needle".
+    final waitingTrack = _currentTrack;
+    if (_awaitingNeedle && waitingTrack != null) {
+      final mySession = ++_sessionId;
+      _updateStatus(
+        CalibrationStatus.confirmingPrediction,
+        l10n.statusWaitingNeedle(waitingTrack.title),
+        isMicActive: true,
+      );
+      _sendCastSyncWithTvLookahead();
+      unawaited(_awaitNeedleAndConfirm(waitingTrack, mySession));
       return;
     }
 
@@ -3522,6 +3541,8 @@ class WaxClubEngine extends ChangeNotifier {
     _sideFlipProbeTimer?.cancel();
     _sideFlipProbeTimer = null;
     _waitingEndOfSideEnteredAt = null;
+    // Escutar de novo durante a espera da agulha não pode deixar a TV presa em "Waiting for the needle"
+    _awaitingNeedle = false;
     _tickerTimer?.cancel();
     _syncCheckTimer?.cancel();
     _countdownTimer?.cancel();

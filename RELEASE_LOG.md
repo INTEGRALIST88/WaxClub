@@ -2,6 +2,18 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.23] — 15/10/2026 (Virada de Disco, Capa na TV, Coleção e Busca no Discogs)
+
+* **Virada de disco:**
+  * "Waiting for the needle" não fica mais preso na TV (letra congelada) quando o usuário escuta de novo ou pausa durante a espera da agulha; qualquer música reconhecida encerra a espera, e retomar a pausa volta a esperar a agulha.
+  * A capa não some mais ao corrigir a música do novo lado: sem capa nova, fica a que estava na tela.
+  * TV: a troca de capa que chega durante a animação de virada é aplicada no fim dela (antes era descartada); faixa do mesmo disco sem capa mantém a capa; uma troca atrasada (previsão errada) não passa por cima da capa da música certa.
+* **Edição do disco:** entre as edições que batem com as músicas tocadas, o app prefere o LP original; edições deluxe com remixes, backing tracks, vocais isolados, takes e "test pressings" perdem pontos (ex.: "Beatles for Sale" de 14 faixas em vez da caixa de 34). A lista errada fazia a previsão do lado B errar.
+* **Adicionar à coleção pela capa (cockpit):** abre a tela de dados do disco (nota, estado do vinil e da capa, observações, Discogs) em vez de salvar direto; toques repetidos não disparam duas operações.
+* **"Change record" no Discogs:** a busca ignora o que vem entre parênteses/colchetes e sufixos de edição ("(studio Chat + New remix)", "(Remastered)", "- 2009 Remaster") e procura primeiro por banda + disco, depois pela música. Vale também para a MusicBrainz e para a busca digitada.
+* Testes: pontuação de edição original × deluxe e limpeza dos nomes para a busca no catálogo.
+
+---
 ## [v1.4.22] — 15/10/2026 (Música ao Lado da Capa, em Pé)
 
 * **Celular em pé, com música tocando:** as informações da música saíram de baixo do painel de plugins e foram para o **alto da barra, ao lado da capa do disco** — música (destaque), banda, disco e "a seguir"/fim do lado. Tocar nelas abre a lista de faixas, como antes.

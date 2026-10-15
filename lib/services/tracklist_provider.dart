@@ -103,6 +103,36 @@ abstract class TracklistProvider {
   void dispose();
 }
 
+/// Nome limpo para buscar em catálogo: tira o que vem entre parênteses/colchetes e sufixos de edição.
+/// Ex.: "Baby's in Black (studio Chat + New remix)" → "Baby's in Black";
+/// "Beatles For Sale (Remastered)" → "Beatles For Sale"; "Help! - 2009 Remaster" → "Help!".
+String catalogSearchName(String text) {
+  var s = text.replaceAll(RegExp(r'\s*[\(\[][^\)\]]*[\)\]]'), '');
+  s = s.replaceAll(
+    RegExp(r'\s+[-–]\s+.*\b(remaster(ed)?|remix|mix|version|edition|mono|stereo|live|deluxe|anniversary)\b.*$',
+        caseSensitive: false),
+    '',
+  );
+  s = s.replaceAll(RegExp(r'\s+'), ' ').trim();
+  return s.isEmpty ? text.trim() : s;
+}
+
+/// Faixa típica de edição especial/deluxe: remix, backing track, vocal isolado, demo, take, ensaio...
+final RegExp _bonusVersionPattern = RegExp(
+  r'[\(\[\-–].*\b(remix|mix|backing track|naked vocal|isolated|demo|take \d+|outtake|alternate|rehearsal|'
+  r'session|studio chat|test pressing|instrumental|karaoke)\b',
+  caseSensitive: false,
+);
+
+/// Quantas faixas da lista são versões de edição especial (o LP original não tem nenhuma).
+int bonusVersionCount(List<TrackEntry> entries) =>
+    entries.where((e) => _bonusVersionPattern.hasMatch(e.title)).length;
+
+/// Pontuação de uma tracklist como "o LP original": cada faixa bônus e cada faixa além de 20 tira pontos.
+/// Ex.: "Beatles for Sale" de 14 faixas vence a caixa de 34 com remixes e backing tracks.
+int originalEditionPenalty(List<TrackEntry> entries) =>
+    bonusVersionCount(entries) * 3 + (entries.length > 20 ? entries.length - 20 : 0);
+
 /// Só os discos de vinil LP ou EP (a escolha de disco não mostra CD, digital nem singles).
 List<ReleaseCandidate> vinylLpOrEpOnly(List<ReleaseCandidate> list) => [for (final c in list) if (c.isVinylLpOrEp) c];
 

@@ -150,6 +150,8 @@ class PrefetchService {
             int score = 20;
             final fmt = (cand.format ?? '').toLowerCase();
             if (fmt.contains('vinyl') || fmt.contains('lp')) score += 25;
+            // Edição deluxe (remixes, backing tracks...) perde para o LP original: os lados ficam errados nela
+            score -= originalEditionPenalty(entries);
 
             final predSource = PredictionSource(
               albumTitle: cand.albumTitle,
@@ -385,22 +387,36 @@ class PrefetchService {
         artist: artist,
       );
 
+      // Entre os que batem com a ordem tocada, fica o mais próximo do LP original: uma edição deluxe
+      // (remixes, backing tracks antes das faixas originais) também "bate", mas traz os lados errados
+      ReleaseCandidate? best;
+      List<TrackEntry>? bestEntries;
+      var bestPenalty = 1 << 30;
       for (int i = 0; i < min(6, candidates.length); i++) {
         final cand = candidates[i];
         final entries = await _provider.loadTracklist(cand);
 
         final isMatch = TracklistMatcher.isSequentialMatch(entries, titles);
         if (isMatch) {
-          final coverUrl = 'https://coverartarchive.org/release/${cand.releaseId}/front-250';
-          debugPrint('[PrefetchService] 🎯 Álbum retificado com precisão (ordem de ${titles.length} faixas confirmada): "${cand.albumTitle}" (capa: $coverUrl)');
-          return AlbumResolutionResult(
-            albumName: cand.albumTitle,
-            coverUrl: coverUrl,
-            tracklist: entries,
-          );
+          final penalty = originalEditionPenalty(entries) - (cand.isVinyl ? 5 : 0);
+          if (penalty < bestPenalty) {
+            best = cand;
+            bestEntries = entries;
+            bestPenalty = penalty;
+          }
+          if (bonusVersionCount(entries) == 0 && entries.length <= 20) break; // já é o LP original
         } else {
           debugPrint('[PrefetchService] ⏭️ Candidato "${cand.albumTitle}" descartado: ordem das faixas não corresponde à sequência tocada.');
         }
+      }
+      if (best != null && bestEntries != null) {
+        final coverUrl = 'https://coverartarchive.org/release/${best.releaseId}/front-250';
+        debugPrint('[PrefetchService] 🎯 Álbum retificado com precisão (ordem de ${titles.length} faixas confirmada): "${best.albumTitle}" (capa: $coverUrl)');
+        return AlbumResolutionResult(
+          albumName: best.albumTitle,
+          coverUrl: coverUrl,
+          tracklist: bestEntries,
+        );
       }
     } catch (e) {
       debugPrint('[PrefetchService] Erro na resolução de álbum: $e');

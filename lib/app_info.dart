@@ -4,7 +4,7 @@ const String kAppTagline = 'Vinyl Social Club';
 
 /// Versão do aplicativo exibida na interface.
 /// Deve coincidir com o campo `version` do pubspec.yaml (validado em test/app_info_test.dart).
-const String kAppVersion = '1.4.22';
+const String kAppVersion = '1.4.23';
 
 /// ID do cliente "Aplicativo da Web" do projeto Google Cloud "waxclub" (público). O login com Google
 /// pede o idToken para este ID, e a API (api.waxclub.com.br) confere o token com o Google.

@@ -723,6 +723,7 @@ class TvWebReceiverHtml {
     let needleLifted = false;
     let liftedForTitle = null;   // a agulha só desce quando chegar uma música diferente desta
     let currentCoverUrl = null;
+    let coverSeq = 0;            // invalida trocas de capa adiadas quando chega outra faixa
     let lastTrackTitle = null;
     let lastArtistKey = '';
     let lastAlbumKey = '';
@@ -811,20 +812,32 @@ class TvWebReceiverHtml {
       el('artist').textContent = track.artist || '';
       el('album').textContent = track.album || '';
 
+      // Mesmo disco chegando sem capa (ex.: faixa corrigida depois da virada): mantém a capa da tela
+      if (!safeUrl(track.coverUrl) && currentCoverUrl && !isNewDisc) {
+        track = Object.assign({}, track, { coverUrl: currentCoverUrl });
+      }
+      // Só a faixa mais recente troca a capa: uma troca adiada (durante a animação) não sobrescreve
+      // a de uma faixa que chegou depois (ex.: previsão errada do novo lado logo corrigida)
+      const seq = ++coverSeq;
+      const pending = track;
+      const apply = () => { if (seq === coverSeq) applyCover(pending); };
+
       if (isNewDisc && !needleLifted) {
-        playFlip(() => applyCover(track));
+        playFlip(apply);
         dropNeedle(LIFT_MS + FLIP_MS + 300);
       } else if (needleLifted && isNewTrack) {
         // Depois de uma virada: a agulha desce no sulco de fora quando o novo lado começa
         if (flipBusy) {
-          const pending = track;
-          setTimeout(() => applyCover(pending), FLIP_MS / 2);
+          setTimeout(apply, FLIP_MS / 2);
         } else {
-          applyCover(track);
+          apply();
         }
         dropNeedle(flipBusy ? FLIP_MS : 400);
-      } else if (!flipBusy) {
-        applyCover(track);
+      } else if (flipBusy) {
+        // Animação em andamento: troca a capa ao fim dela (antes, a troca era descartada)
+        setTimeout(apply, FLIP_MS);
+      } else {
+        apply();
       }
 
       lastTrackTitle = title;
@@ -978,6 +991,7 @@ class TvWebReceiverHtml {
       lastArtistKey = '';
       lastAlbumKey = '';
       currentCoverUrl = null;
+      coverSeq++;
       document.body.classList.remove('needle-lifted');
       el('disc').classList.remove('flipping');
       el('labelFlip').classList.remove('flipping');

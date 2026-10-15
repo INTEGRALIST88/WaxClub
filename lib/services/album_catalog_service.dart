@@ -47,21 +47,26 @@ class AlbumCatalogService {
     required String artist,
     String? currentAlbum,
   }) {
+    // Sem anotações de edição entre parênteses ("(studio Chat + New remix)", "(Remastered)")
+    final track = catalogSearchName(title);
+    final album = currentAlbum == null ? null : catalogSearchName(currentAlbum);
     return _withFallback(
-      discogs: () => _discogs.searchReleases(title: title, artist: artist, album: currentAlbum),
+      discogs: () => _discogs.searchReleases(title: track, artist: artist, album: album),
       musicBrainz: () async =>
           groupReleaseEditions(vinylLpOrEpOnly(
-              await _musicBrainz.searchReleases(title: title, artist: artist, album: currentAlbum))),
-      sort: (list) => sortForTrack(list, artist: artist, currentAlbum: currentAlbum),
+              await _musicBrainz.searchReleases(title: track, artist: artist, album: album))),
+      sort: (list) => sortForTrack(list, artist: artist, currentAlbum: album),
     );
   }
 
   /// Busca livre digitada pelo usuário (artista, disco...).
   Future<AlbumCatalogResult> search(String query, {String? artist, String? currentAlbum}) {
+    final text = catalogSearchName(query);
+    final album = currentAlbum == null ? null : catalogSearchName(currentAlbum);
     return _withFallback(
-      discogs: () => _discogs.searchReleasesByText(query),
-      musicBrainz: () async => groupReleaseEditions(vinylLpOrEpOnly(await _musicBrainz.searchReleasesByText(query))),
-      sort: (list) => sortForTrack(list, artist: artist, currentAlbum: currentAlbum),
+      discogs: () => _discogs.searchReleasesByText(text),
+      musicBrainz: () async => groupReleaseEditions(vinylLpOrEpOnly(await _musicBrainz.searchReleasesByText(text))),
+      sort: (list) => sortForTrack(list, artist: artist, currentAlbum: album),
     );
   }
 

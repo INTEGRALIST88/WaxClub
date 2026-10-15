@@ -40,9 +40,23 @@ class DiscogsTracklistProvider implements TracklistProvider {
     required String artist,
     String? album,
   }) async {
+    // Sem o que vem entre parênteses ("(studio Chat + New remix)", "(Remastered)"): o Discogs não acha
+    // a faixa nem o disco com essas anotações de edição digital
+    final track = catalogSearchName(title);
+    final albumName = album == null ? '' : catalogSearchName(album);
+    // 1º: banda + disco (o disco que está tocando, em todas as prensagens de vinil)
+    final byAlbum = albumName.isEmpty
+        ? null
+        : await _get('/database/search', {
+            'type': 'release',
+            'release_title': albumName,
+            'artist': artist,
+            'format': 'Vinyl',
+            'per_page': '100',
+          });
     final byArtist = await _get('/database/search', {
       'type': 'release',
-      'track': title,
+      'track': track,
       'artist': artist,
       'format': 'Vinyl',
       'per_page': '100',
@@ -50,12 +64,13 @@ class DiscogsTracklistProvider implements TracklistProvider {
     // Coletâneas são creditadas a "Various": busca pela faixa com o artista no texto livre
     final compilations = await _get('/database/search', {
       'type': 'release',
-      'track': title,
+      'track': track,
       'q': artist,
       'format': 'Vinyl',
       'per_page': '100',
     });
     return groupReleaseEditions([
+      ...parseSearchResults(byAlbum),
       ...parseSearchResults(byArtist),
       ...parseSearchResults(compilations),
     ]);

@@ -863,31 +863,51 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  /// Adiciona (ou retira) da coleção o disco que está tocando.
+  /// Evita que toques repetidos no botão da coleção disparem duas operações seguidas.
+  bool _collectionBusy = false;
+
+  /// Adiciona (ou retira) da coleção o disco que está tocando. Para adicionar, abre a mesma tela de
+  /// dados do disco (nota, estado da capa e do vinil, observações) do fluxo da câmera.
   Future<void> _toggleCurrentInCollection() async {
+    if (_collectionBusy) return;
     final track = _engine.currentTrack;
     if (track == null) return;
     final album =
         (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? track.title);
     final artist = _engine.lockedAlbumArtist ?? track.artist;
     final messenger = ScaffoldMessenger.of(context);
-    if (_collection.contains(album, artist)) {
-      await _collection.remove(album, artist);
-      messenger.showSnackBar(SnackBar(
-        backgroundColor: AppTheme.surfaceLight,
-        content: Text(l10n.removedFromCollection(album), style: const TextStyle(color: Colors.white)),
-      ));
-    } else {
-      await _collection.add(CollectionItem(
-        album: album,
-        artist: artist,
-        coverUrl: _engine.lockedAlbumCoverUrl ?? track.coverUrl,
-        addedAt: DateTime.now(),
-      ));
-      messenger.showSnackBar(SnackBar(
-        backgroundColor: AppTheme.surfaceLight,
-        content: Text(l10n.addedToCollection(album), style: const TextStyle(color: Colors.white)),
-      ));
+    _collectionBusy = true;
+    try {
+      if (_collection.contains(album, artist)) {
+        await _collection.remove(album, artist);
+        messenger.showSnackBar(SnackBar(
+          backgroundColor: AppTheme.surfaceLight,
+          content: Text(l10n.removedFromCollection(album), style: const TextStyle(color: Colors.white)),
+        ));
+        return;
+      }
+      // Edição do disco travado, quando conhecida (Discogs/MusicBrainz), para a coleção e o Discogs
+      final disc = _engine.cacheService.findCachedDisc(album, artist);
+      final source = disc?.tracklistSource;
+      final releaseId = disc?.releaseId ?? '';
+      final knownRelease = releaseId.isNotEmpty && (source == 'discogs' || source == 'musicbrainz'); // l10n-ignore
+      final tracks = _engine.lockedTracklist;
+      await addReleaseToCollection(
+        context,
+        collection: _collection,
+        discogsCollection: _discogsCollection,
+        release: ReleaseCandidate(
+          providerId: knownRelease ? source! : 'local', // l10n-ignore
+          releaseId: knownRelease ? releaseId : '',
+          albumTitle: album,
+          artistName: artist,
+          format: disc?.releaseFormat,
+          coverUrl: _engine.lockedAlbumCoverUrl ?? track.coverUrl,
+          trackCount: tracks.isEmpty ? null : tracks.length,
+        ),
+      );
+    } finally {
+      _collectionBusy = false;
     }
   }
 
