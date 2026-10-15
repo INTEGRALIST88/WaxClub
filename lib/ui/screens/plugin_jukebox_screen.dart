@@ -6,6 +6,7 @@ import '../../services/cloud/cloud_folder.dart';
 import '../../services/cloud/google_drive_folder.dart';
 import '../../services/local_lyrics_library.dart';
 import '../../services/ai_translator.dart';
+import '../../services/imagine/imagined_music.dart';
 import '../../services/brain/brain_service.dart';
 import 'cloud_login_screen.dart';
 import '../../services/plugins/plugin_catalog.dart';
@@ -33,6 +34,9 @@ class PluginJukeboxScreen extends StatefulWidget {
   final BrainService? brain;
   final VoidCallback? openBrain;
 
+  /// Plugin A3 (Imagined Music): modo de exibição.
+  final ImaginedMusic? imagine;
+
   const PluginJukeboxScreen({
     super.key,
     required this.store,
@@ -42,6 +46,7 @@ class PluginJukeboxScreen extends StatefulWidget {
     this.translator,
     this.brain,
     this.openBrain,
+    this.imagine,
   });
 
   @override
@@ -90,6 +95,7 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
         myLyrics: widget.myLyrics,
         clouds: widget.clouds,
         translator: widget.translator,
+        imagine: widget.imagine,
         brain: widget.brain,
         openBrain: widget.openBrain,
       ),
@@ -529,6 +535,7 @@ class _PluginSheet extends StatefulWidget {
   final LocalLyricsLibrary? myLyrics;
   final List<CloudLyricsFolder> clouds;
   final AiTranslator? translator;
+  final ImaginedMusic? imagine;
   final BrainService? brain;
   final VoidCallback? openBrain;
   const _PluginSheet({
@@ -538,6 +545,7 @@ class _PluginSheet extends StatefulWidget {
     this.myLyrics,
     this.clouds = const [],
     this.translator,
+    this.imagine,
     this.brain,
     this.openBrain,
   });
@@ -614,6 +622,58 @@ class _PluginSheetState extends State<_PluginSheet> {
   };
 
   /// Pasta de letras numa nuvem: conectar, sincronizar e desconectar.
+  /// Plugin A3: modo (imagens atrás da letra ou imersivo) e o chip do WaxBrain que o agente usa.
+  List<Widget> _imaginedSection(ImaginedMusic im) {
+    final brain = widget.brain;
+    final chip = brain?.activeChip?.chip;
+    final hasChip = brain?.hasChip ?? false;
+    Widget option(ImagineMode m, String title, String subtitle) => RadioListTile<ImagineMode>(
+          value: m,
+          contentPadding: EdgeInsets.zero,
+          activeColor: AppTheme.orange,
+          title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14.5)),
+          subtitle: Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        );
+    return [
+      const SizedBox(height: 10),
+      RadioGroup<ImagineMode>(
+        groupValue: im.mode,
+        onChanged: (v) async {
+          if (v == null) return;
+          await im.setMode(v);
+          if (mounted) setState(() {});
+        },
+        child: Column(children: [
+          option(ImagineMode.lyrics, l10n.imagineModeLyrics, l10n.imagineModeLyricsHint),
+          option(ImagineMode.immersive, l10n.imagineModeImmersive, l10n.imagineModeImmersiveHint),
+        ]),
+      ),
+      const SizedBox(height: 6),
+      Row(children: [
+        Icon(hasChip ? Icons.memory_rounded : Icons.warning_amber_rounded,
+            color: hasChip ? (chip?.color ?? Colors.greenAccent) : AppTheme.orange, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            hasChip ? l10n.imagineUsesChip(chip?.name ?? '—') : l10n.translatorNeedsChip,
+            style: TextStyle(color: hasChip ? Colors.white70 : AppTheme.orange, fontSize: 13, height: 1.35),
+          ),
+        ),
+      ]),
+      if (widget.openBrain != null) ...[
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: widget.openBrain,
+          icon: const Icon(Icons.psychology_alt_outlined, size: 18),
+          label: Text(l10n.translatorOpenBrain),
+          style: OutlinedButton.styleFrom(foregroundColor: AppTheme.cream, side: const BorderSide(color: AppTheme.cream)),
+        ),
+      ],
+      const SizedBox(height: 10),
+      Text(l10n.imaginePrivacy, style: const TextStyle(color: Colors.white38, fontSize: 11.5, height: 1.4)),
+    ];
+  }
+
   /// Plugin A2: idioma da tradução e o chip do WaxBrain que ela usa.
   List<Widget> _translatorSection(AiTranslator tr) {
     final brain = widget.brain;
@@ -922,6 +982,7 @@ class _PluginSheetState extends State<_PluginSheet> {
             if (store.connectionFor(p) case final c?) ..._connection(p, c),
             if (p.id == PluginCatalog.myLyricsId && installed && widget.myLyrics != null) ..._myLyricsSection(widget.myLyrics!),
             if (p.id == PluginCatalog.translatorId && widget.translator != null) ..._translatorSection(widget.translator!),
+            if (p.id == PluginCatalog.imaginedId && widget.imagine != null) ..._imaginedSection(widget.imagine!),
             const SizedBox(height: 12),
             if (p.isInstallable && !installed && widget.installer != null) ...[
               SizedBox(

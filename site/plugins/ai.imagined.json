@@ -1,0 +1,25 @@
+{
+  "format": "waxclub-plugin",
+  "formatVersion": 1,
+  "id": "ai.imagined",
+  "category": "A",
+  "categoryName": "AI",
+  "number": 3,
+  "code": "A3",
+  "name": "Imagined Music",
+  "version": "1.0.0",
+  "author": "WaxClub",
+  "publisher": "WaxClub",
+  "homepage": "https://waxclub.com.br/plugins/",
+  "origin": "Your own AI chip (WaxBrain) + photos from Unsplash",
+  "license": "Photos from Unsplash, credited to each photographer; scenes chosen by your AI chip",
+  "description": "An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in about every 30 seconds. Uses an AI chip from your WaxBrain (Gemini is free); photos come from Unsplash and are credited to their photographers.",
+  "builtIn": false,
+  "minAppVersion": "1.4.35",
+  "provides": {
+    "type": "ai-visuals",
+    "needs": "waxbrain",
+    "images": "unsplash"
+  },
+  "install": "https://waxclub.com.br/install/?plugin=ai.imagined"
+}

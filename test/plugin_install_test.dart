@@ -47,7 +47,7 @@ void main() {
   group('manifesto (só dados)', () {
     test('todo manifesto publicado no site bate com um plugin que o app conhece', () {
       final files = Directory('site/plugins').listSync().whereType<File>().where((f) => f.path.endsWith('.json') && !f.path.endsWith('index.json'));
-      expect(files.length, 7); // 6 fontes de letras + A2 (tradutor de IA)
+      expect(files.length, 8); // 6 fontes de letras + A2 (tradutor) + A3 (Imagined Music)
       final store = PluginStore(bundleLyricsSources: false);
       for (final f in files) {
         final m = PluginManifest.fromJson(jsonDecode(f.readAsStringSync()) as Map<String, dynamic>);
@@ -62,7 +62,7 @@ void main() {
         expect(p.isBuiltIn, isFalse);
       }
       final index = jsonDecode(File('site/plugins/index.json').readAsStringSync()) as Map<String, dynamic>;
-      expect((index['plugins'] as List).length, 7);
+      expect((index['plugins'] as List).length, 8);
     });
 
     test('formato errado, versão nova do formato e id inválido são recusados', () {

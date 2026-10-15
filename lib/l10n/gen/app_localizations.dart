@@ -4263,6 +4263,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models.'**
   String get translatorPrivacy;
+
+  /// No description provided for @pluginImaginedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Imagined Music'**
+  String get pluginImaginedName;
+
+  /// No description provided for @pluginImaginedLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos from Unsplash, credited to each photographer; scenes chosen by your AI chip'**
+  String get pluginImaginedLicense;
+
+  /// No description provided for @pluginImaginedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in now and then. Uses an AI chip from your WaxBrain; photos come from Unsplash.'**
+  String get pluginImaginedDesc;
+
+  /// No description provided for @imagineModeLyrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Images + lyrics'**
+  String get imagineModeLyrics;
+
+  /// No description provided for @imagineModeLyricsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos play behind the scrolling lyrics.'**
+  String get imagineModeLyricsHint;
+
+  /// No description provided for @imagineModeImmersive.
+  ///
+  /// In en, this message translates to:
+  /// **'Immersive'**
+  String get imagineModeImmersive;
+
+  /// No description provided for @imagineModeImmersiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the images, with a line of the lyrics fading in about every 30 seconds.'**
+  String get imagineModeImmersiveHint;
+
+  /// No description provided for @imagineUsesChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Imagining with your {name} chip from the WaxBrain.'**
+  String imagineUsesChip(String name);
+
+  /// No description provided for @imaginePhotoCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo: {author} · Unsplash'**
+  String imaginePhotoCredit(String author);
+
+  /// No description provided for @imaginePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'The lyrics are sent only to the AI chip you plugged in, with your own key, to choose the scenes; only the scenes (photo searches, colors and chosen lines) are kept on this phone. Photos are shown from Unsplash, credited to their photographers.'**
+  String get imaginePrivacy;
 }
 
 class _AppLocalizationsDelegate

@@ -594,6 +594,17 @@ class AccountService extends ChangeNotifier {
 
   Future<void> brainOrder(List<String> providers) => _request('PUT', '/brain/order', body: {'providers': providers});
 
+  // ---------- A3 Imagined Music (fotos do Unsplash pela busca do servidor) ----------
+
+  /// Fotos do Unsplash para uma busca em inglês (cada uma como mapa: id, url, author, authorUrl...).
+  Future<List<Map<String, dynamic>>> imagineSearch(String query) async {
+    final j = await _request('GET', '/imagine/search?q=${Uri.encodeQueryComponent(query)}');
+    return [for (final p in (j['photos'] as List<dynamic>? ?? const [])) if (p is Map<String, dynamic>) p];
+  }
+
+  /// Avisa o Unsplash (pelo servidor) que a foto foi usada.
+  Future<void> imagineUsed(String downloadLocation) => _request('POST', '/imagine/used', body: {'download': downloadLocation});
+
   /// Endereço da imagem (precisa de [authHeaders]).
   String photoUrl(int id) => '$baseUrl/photos/$id';
   Map<String, String> get authHeaders => {if (_token != null) 'Authorization': 'Bearer $_token'};

@@ -1023,6 +1023,20 @@ class CastSyncService extends ChangeNotifier {
     });
   }
 
+  /// Plugin A3 "Imagined Music": roteiro visual da música atual para a TV. [scenes] = cenas com o
+  /// instante de início (ms), a foto e o crédito; [quotes] = frases do modo imersivo (ms e texto);
+  /// [mode] = 'lyrics' (imagens atrás da letra) ou 'immersive'. Lista vazia de cenas desliga as imagens.
+  /// [title] = música do roteiro: a TV só o usa quando essa música está na tela.
+  void sendImagine({
+    required String mode,
+    required List<Map<String, dynamic>> scenes,
+    List<Map<String, dynamic>> quotes = const [],
+    String? title,
+  }) {
+    if (!isConnected) return;
+    _sendPacket({'type': 'imagine', 'mode': mode, if (title != null) 'title': title, 'scenes': scenes, 'quotes': quotes});
+  }
+
   void _sendPacket(Map<String, dynamic> data) {
     if (_castV2Client.isConnected) {
       _castV2Client.sendCustomMessage(data);

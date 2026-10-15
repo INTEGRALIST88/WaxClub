@@ -65,6 +65,15 @@
       "version": "1.0.0",
       "builtIn": false,
       "manifest": "/plugins/ai.translate.json"
+    },
+    {
+      "id": "ai.imagined",
+      "code": "A3",
+      "name": "Imagined Music",
+      "category": "A",
+      "version": "1.0.0",
+      "builtIn": false,
+      "manifest": "/plugins/ai.imagined.json"
     }
   ]
 }

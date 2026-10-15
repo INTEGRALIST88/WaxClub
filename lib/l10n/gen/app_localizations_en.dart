@@ -2550,4 +2550,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get translatorPrivacy =>
       'Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models.';
+
+  @override
+  String get pluginImaginedName => 'Imagined Music';
+
+  @override
+  String get pluginImaginedLicense =>
+      'Photos from Unsplash, credited to each photographer; scenes chosen by your AI chip';
+
+  @override
+  String get pluginImaginedDesc =>
+      'An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in now and then. Uses an AI chip from your WaxBrain; photos come from Unsplash.';
+
+  @override
+  String get imagineModeLyrics => 'Images + lyrics';
+
+  @override
+  String get imagineModeLyricsHint =>
+      'The photos play behind the scrolling lyrics.';
+
+  @override
+  String get imagineModeImmersive => 'Immersive';
+
+  @override
+  String get imagineModeImmersiveHint =>
+      'Only the images, with a line of the lyrics fading in about every 30 seconds.';
+
+  @override
+  String imagineUsesChip(String name) {
+    return 'Imagining with your $name chip from the WaxBrain.';
+  }
+
+  @override
+  String imaginePhotoCredit(String author) {
+    return 'Photo: $author · Unsplash';
+  }
+
+  @override
+  String get imaginePrivacy =>
+      'The lyrics are sent only to the AI chip you plugged in, with your own key, to choose the scenes; only the scenes (photo searches, colors and chosen lines) are kept on this phone. Photos are shown from Unsplash, credited to their photographers.';
 }

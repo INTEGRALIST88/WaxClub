@@ -63,6 +63,7 @@ function brain_list(): void
     $user = require_user();
     if (brain_secret() === null) {
         json_out(200, ['configured' => false, 'chips' => []]);
+        return;
     }
     $q = db()->prepare('SELECT provider, position, key_hint, status, validated_at, updated_at FROM brain_keys
                         WHERE user_id = ? ORDER BY position, provider');

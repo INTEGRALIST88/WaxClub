@@ -1584,5 +1584,17 @@
   "@translatorUsesChip": {"placeholders": {"name": {"type": "String"}}},
   "translatorNeedsChip": "No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.",
   "translatorOpenBrain": "Open the WaxBrain",
-  "translatorPrivacy": "Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models."
+  "translatorPrivacy": "Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models.",
+  "pluginImaginedName": "Imagined Music",
+  "pluginImaginedLicense": "Photos from Unsplash, credited to each photographer; scenes chosen by your AI chip",
+  "pluginImaginedDesc": "An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in now and then. Uses an AI chip from your WaxBrain; photos come from Unsplash.",
+  "imagineModeLyrics": "Images + lyrics",
+  "imagineModeLyricsHint": "The photos play behind the scrolling lyrics.",
+  "imagineModeImmersive": "Immersive",
+  "imagineModeImmersiveHint": "Only the images, with a line of the lyrics fading in about every 30 seconds.",
+  "imagineUsesChip": "Imagining with your {name} chip from the WaxBrain.",
+  "@imagineUsesChip": {"placeholders": {"name": {"type": "String"}}},
+  "imaginePhotoCredit": "Photo: {author} · Unsplash",
+  "@imaginePhotoCredit": {"placeholders": {"author": {"type": "String"}}},
+  "imaginePrivacy": "The lyrics are sent only to the AI chip you plugged in, with your own key, to choose the scenes; only the scenes (photo searches, colors and chosen lines) are kept on this phone. Photos are shown from Unsplash, credited to their photographers."
 }

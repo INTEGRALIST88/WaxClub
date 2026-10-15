@@ -24,6 +24,8 @@ import '../../services/brain/account_brain_remote.dart';
 import '../../services/brain/brain_service.dart';
 import '../../services/brain/brain_ai.dart';
 import '../../services/ai_translator.dart';
+import '../../services/imagine/imagined_music.dart';
+import '../../services/imagine/account_imagine_search.dart';
 import '../../services/lrc_parser.dart';
 import 'waxbrain_screen.dart';
 import '../../services/user_profile_store.dart';
@@ -113,6 +115,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   late final AiTranslator _translator = AiTranslator(ai: _brainAi);
   String? _lyricsTranslationKey;
 
+  /// Plugin A3 Imagined Music: roteiro visual da música atual (fotos do Unsplash escolhidas pela letra).
+  late final ImaginedMusic _imagine = ImaginedMusic(ai: _brainAi, searcher: AccountImagineSearch(_account));
+  Storyboard? _storyboard;
+  String? _storyboardKey;
+  String? _storyboardSentKey;
+  final Set<String> _imaginePhotosUsed = {};
+
   /// Conta WaxClub (api.waxclub.com.br): sincroniza a coleção e as audições.
   late final AccountService _account = widget.account ?? AccountService();
   final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
@@ -130,6 +139,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.castService.addListener(_onCastServiceStateChanged);
     _engine.addListener(_recordPlayIfNew);
     _engine.addListener(_maybeTranslateLyrics);
+    _engine.addListener(_maybeImagine);
+    _imagine.addListener(_onImagineChanged);
+    _imagine.load();
     _translator.addListener(_onTranslatorChanged);
     _translator.load();
     _profile.addListener(_onProfileChanged);
@@ -215,6 +227,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.castService.removeListener(_onCastServiceStateChanged);
     _engine.removeListener(_recordPlayIfNew);
     _engine.removeListener(_maybeTranslateLyrics);
+    _engine.removeListener(_maybeImagine);
+    _imagine.removeListener(_onImagineChanged);
+    _imagine.dispose();
     _translator.removeListener(_onTranslatorChanged);
     _translator.dispose();
     _profile.removeListener(_onProfileChanged);
@@ -848,6 +863,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         myLyrics: _myLyrics,
         clouds: _clouds,
         translator: _translator,
+        imagine: _imagine,
         brain: _brain,
         openBrain: _openBrain,
       ),
@@ -872,6 +888,168 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _translatorWasOn = translatorOn;
       _onTranslatorChanged();
     }
+    final imagineOn = _imagineOn;
+    if (imagineOn != _imagineWasOn) {
+      _imagineWasOn = imagineOn;
+      _onImagineChanged();
+    }
+  }
+
+  bool _imagineWasOn = false;
+
+  /// O Imagined Music (A3) está no prato.
+  bool get _imagineOn => _plugins.catalog.any((p) => p.id == PluginCatalog.imaginedId && _plugins.isActive(p));
+
+  /// Ligou/desligou o A3 ou trocou o modo: refaz (o roteiro já feito vem do aparelho) e reenvia à TV.
+  void _onImagineChanged() {
+    if (!mounted) return;
+    _storyboardKey = null;
+    _storyboardSentKey = null;
+    _maybeImagine();
+    setState(() {});
+  }
+
+  /// Plugin A3: monta (ou pega do aparelho) o roteiro visual da música atual e o envia à TV.
+  void _maybeImagine() {
+    final cast = _engine.castService;
+    final track = _engine.currentTrack;
+    if (!_imagineOn || track == null) {
+      if (_storyboard != null || _storyboardSentKey != null) {
+        _storyboard = null;
+        _storyboardKey = null;
+        _storyboardSentKey = null;
+        cast.sendImagine(mode: _imagine.mode.name, scenes: const []);
+        if (mounted) setState(() {});
+      }
+      return;
+    }
+    final lines = [for (final l in _engine.lyrics) l.text];
+    final key = ImaginedMusic.keyFor(track.title, track.artist, lines);
+    if (key != _storyboardKey) {
+      _storyboardKey = key;
+      _storyboard = null;
+      _storyboardSentKey = null;
+      final cached = _imagine.cached(track.title, track.artist, lines);
+      if (cached != null) {
+        _storyboard = cached;
+      } else {
+        _imagine
+            .storyboard(
+              title: track.title,
+              artist: track.artist,
+              album: _engine.lockedAlbumName ?? track.album,
+              lines: lines,
+              durationSeconds: _engine.telemetry.trackDurationSeconds,
+            )
+            .then((sb) {
+          if (!mounted || _storyboardKey != key) return;
+          setState(() => _storyboard = sb);
+          _sendStoryboard(key);
+          _prefetchNextStoryboard();
+        });
+        return;
+      }
+    }
+    _sendStoryboard(key);
+  }
+
+  /// Envia o roteiro à TV (uma vez por música e por conexão) e avisa o Unsplash das fotos usadas.
+  void _sendStoryboard(String key) {
+    final sb = _storyboard;
+    final cast = _engine.castService;
+    if (sb == null) return;
+    for (final s in sb.scenes) {
+      final p = s.photo;
+      if (p != null && _imaginePhotosUsed.add(p.id)) {
+        AccountImagineSearch(_account).used(p).catchError((_) {});
+      }
+    }
+    if (!cast.isConnected) {
+      _storyboardSentKey = null;
+      return;
+    }
+    final sentKey = '$key|${_imagine.mode.name}|${cast.connectedClientCount}'; // l10n-ignore
+    if (_storyboardSentKey == sentKey) return;
+    _storyboardSentKey = sentKey;
+    final lyrics = _engine.lyrics;
+    int msOf(int line, double? at) =>
+        at != null ? (at * 1000).round() : (line >= 0 && line < lyrics.length ? lyrics[line].timestamp.inMilliseconds : 0);
+    cast.sendImagine(
+      mode: _imagine.mode.name,
+      title: _engine.currentTrack?.title,
+      scenes: [
+        for (final s in sb.scenes)
+          if (s.photo != null)
+            {
+              'ms': msOf(s.line, s.atSeconds), // l10n-ignore
+              'url': s.photo!.sized(), // l10n-ignore
+              'author': s.photo!.author, // l10n-ignore
+              if (s.photo!.color != null) 'color': s.photo!.color, // l10n-ignore
+              'palette': s.palette, // l10n-ignore
+              'motion': s.motion, // l10n-ignore
+              'transition': s.transition, // l10n-ignore
+              'intensity': s.intensity, // l10n-ignore
+            },
+      ],
+      quotes: [for (final q in sb.quotes) {'ms': msOf(q.line, null), 'text': q.text}], // l10n-ignore
+    );
+  }
+
+  /// Prepara o roteiro da próxima música do disco (só uma adiantada: o Unsplash limita as buscas por hora).
+  Future<void> _prefetchNextStoryboard() async {
+    final current = _engine.currentTrack;
+    final tracks = _engine.lockedTracklist;
+    if (!_imagineOn || current == null || tracks.isEmpty) return;
+    final at = TracklistMatcher.findIndex(tracks, current.title);
+    if (at < 0 || at + 1 >= tracks.length) return;
+    final next = tracks[at + 1];
+    final artist = next.artist ?? _engine.lockedAlbumArtist ?? current.artist;
+    final lrc = _engine.cacheService.findCachedLyrics(next.title, artist);
+    if (lrc == null || lrc.trim().isEmpty) return;
+    final lines = [for (final l in LrcParser.parse(lrc)) l.text];
+    if (_imagine.cached(next.title, artist, lines) != null) return;
+    await _imagine.storyboard(title: next.title, artist: artist, album: _engine.lockedAlbumName, lines: lines);
+  }
+
+  /// Cena atual do roteiro (a última que já começou), para o fundo do celular.
+  ImagineScene? get _currentScene {
+    final sb = _storyboard;
+    if (sb == null) return null;
+    final lyrics = _engine.lyrics;
+    final pos = _engine.telemetry.currentPositionSeconds;
+    ImagineScene? current;
+    for (final s in sb.scenes) {
+      if (s.photo == null) continue;
+      final startsAt = s.atSeconds ?? (s.line < lyrics.length ? lyrics[s.line].timestamp.inMilliseconds / 1000.0 : 0);
+      if (startsAt <= pos + 0.5 || current == null) current = s;
+    }
+    return current;
+  }
+
+  /// Fundo do celular com a foto da cena atual (escurecida para a letra) e o crédito ao fotógrafo.
+  Widget _imagineBackdrop() {
+    final scene = _imagineOn ? _currentScene : null;
+    final photo = scene?.photo;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 1600),
+      child: photo == null
+          ? const SizedBox.expand(key: ValueKey('no-imagine')) // l10n-ignore
+          : Stack(key: ValueKey(photo.id), fit: StackFit.expand, children: [
+              Image.network(photo.sized(), fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()),
+              Container(color: Colors.black.withValues(alpha: _imagine.mode == ImagineMode.immersive ? 0.35 : 0.62)),
+            ]),
+    );
+  }
+
+  /// Crédito ao fotógrafo do Unsplash (exigência da API), com link para o perfil dele.
+  Widget? _imagineCredit() {
+    final photo = _imagineOn ? _currentScene?.photo : null;
+    if (photo == null) return null;
+    return GestureDetector(
+      onTap: photo.authorUrl == null ? null : () => PluginLinks.instance.openUrl(photo.authorUrl!),
+      child: Text(l10n.imaginePhotoCredit(photo.author),
+          style: const TextStyle(color: Colors.white60, fontSize: 10.5, decoration: TextDecoration.underline)),
+    );
   }
 
   bool _translatorWasOn = false;
@@ -1739,6 +1917,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       children: [
                         // Fundo em madeira escura com veio (entorno da letra)
                         const Positioned.fill(child: WoodBackground()),
+                        // Plugin A3: foto da cena atual atrás da letra
+                        Positioned.fill(child: IgnorePointer(child: _imagineBackdrop())),
 
                         // Lista vertical de letras sincronizadas
                         Positioned.fill(
@@ -1757,6 +1937,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 : _curiositiesOrNull(),
                           ),
                         ),
+                        // Plugin A3: crédito ao fotógrafo do Unsplash (com link para o perfil)
+                        if (_imagineCredit() case final credit?) Positioned(left: 12, bottom: 10, child: credit),
 
                         // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
                         // Fim do lado: "Flip the record" acima da barra (o microfone fica na barra)

@@ -259,6 +259,15 @@ function migrations(): array
                 CONSTRAINT fk_brain_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // 1.4.35: A3 "Imagined Music" — buscas no Unsplash guardadas por alguns dias (economiza o limite)
+        7 => [
+            "CREATE TABLE IF NOT EXISTS imagine_cache (
+                qhash CHAR(40) PRIMARY KEY,
+                query VARCHAR(160) NOT NULL,
+                json MEDIUMTEXT NOT NULL,
+                created_at DATETIME(3) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

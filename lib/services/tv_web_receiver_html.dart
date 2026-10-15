@@ -68,6 +68,78 @@ class TvWebReceiverHtml {
       background: radial-gradient(ellipse at 42% 50%, rgba(6, 4, 3, 0.35) 0%, rgba(6, 4, 3, 0.72) 80%);
     }
 
+    /* ─── PLUGIN A3 "IMAGINED MUSIC": fotos das cenas atrás da letra (ou só elas, no modo imersivo) ─── */
+    .imagine { position: fixed; inset: 0; overflow: hidden; opacity: 0; transition: opacity 1.8s ease; pointer-events: none; }
+    body.imagine-on .imagine { opacity: 1; }
+    body.imagine-on .ambient { opacity: 0; }
+    body.imagine-on .disc-layer { opacity: 0.16; transition: opacity 1.8s ease; }
+    body.imagine-immersive .disc-layer,
+    body.imagine-immersive .stage,
+    body.imagine-immersive .speed,
+    body.imagine-immersive .notice { opacity: 0 !important; transition: opacity 1.8s ease; }
+    .im-layer {
+      position: absolute;
+      inset: -7%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 2.4s ease;
+      will-change: transform, opacity;
+    }
+    .im-layer.show { opacity: 1; }
+    .im-layer.cut { transition: opacity 0.25s ease; }
+    @keyframes im-zoom-in { from { transform: scale(1); } to { transform: scale(1.14); } }
+    @keyframes im-zoom-out { from { transform: scale(1.14); } to { transform: scale(1); } }
+    @keyframes im-pan-left { from { transform: scale(1.1) translateX(3%); } to { transform: scale(1.1) translateX(-3%); } }
+    @keyframes im-pan-right { from { transform: scale(1.1) translateX(-3%); } to { transform: scale(1.1) translateX(3%); } }
+    .im-tint { position: absolute; inset: 0; mix-blend-mode: soft-light; opacity: 0.55; transition: background 2.4s ease, opacity 2.4s ease; }
+    .im-dim { position: absolute; inset: 0; background: rgba(6, 4, 3, 0.58); transition: background 1.8s ease; }
+    body.imagine-immersive .im-dim { background: rgba(6, 4, 3, 0.18); }
+    .im-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0, 0, 0, 0.65) 100%); }
+    /* granulação de filme (ruído leve, sem custo de vídeo) */
+    .im-grain {
+      position: absolute;
+      inset: -50%;
+      opacity: 0.09;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      animation: im-grain 0.9s steps(4) infinite;
+    }
+    @keyframes im-grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -2%); } 100% { transform: translate(0, 0); } }
+    .im-credit {
+      position: fixed;
+      left: 2.2vw;
+      bottom: 1.8vh;
+      font-size: 1.5vh;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      pointer-events: none;
+      z-index: 20;
+    }
+    body.imagine-on .im-credit { opacity: 1; }
+    /* frases da letra no modo imersivo: surgem e esmaecem devagar */
+    .im-quote {
+      position: fixed;
+      max-width: 62vw;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      font-size: 5.2vh;
+      line-height: 1.25;
+      color: #fff7ea;
+      text-shadow: 0 0.4vh 3vh rgba(0, 0, 0, 0.75);
+      opacity: 0;
+      transform: translateY(1.2vh);
+      transition: opacity 2.2s ease, transform 2.6s ease;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .im-quote.show { opacity: 1; transform: translateY(0); }
+    .im-quote.pos-0 { left: 8vw; bottom: 14vh; text-align: left; }
+    .im-quote.pos-1 { right: 8vw; top: 16vh; text-align: right; }
+    .im-quote.pos-2 { left: 50%; top: 50%; text-align: center; transform: translate(-50%, -45%); }
+    .im-quote.pos-2.show { transform: translate(-50%, -50%); }
+
     /* ─── DISCO (atrás de tudo; a letra passa por cima) ─── */
     .disc-layer { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
     .disc {
@@ -444,6 +516,16 @@ class TvWebReceiverHtml {
 <body>
   <div id="ambient" class="ambient"></div>
   <div class="shade"></div>
+  <div id="imagine" class="imagine">
+    <div id="imA" class="im-layer"></div>
+    <div id="imB" class="im-layer"></div>
+    <div id="imTint" class="im-tint"></div>
+    <div class="im-dim"></div>
+    <div class="im-vignette"></div>
+    <div class="im-grain"></div>
+  </div>
+  <div id="imQuote" class="im-quote"></div>
+  <div id="imCredit" class="im-credit"></div>
   <div class="disc-layer">
     <div id="disc" class="disc">
       <div class="lead-in"></div>
@@ -855,6 +937,14 @@ class TvWebReceiverHtml {
 
       lastTrackTitle = title;
       lastArtistKey = artistKey;
+      // Roteiro do A3 que chegou antes desta música aparecer
+      if (imPending && imPending.title && norm(imPending.title) === norm(title)) {
+        const pending = imPending;
+        imPending = null;
+        applyImagine(pending);
+      } else if (isNewTrack && imScenes.length) {
+        applyImagine(null); // música nova sem roteiro ainda: volta ao fundo normal até ele chegar
+      }
       lastAlbumKey = albumKey || lastAlbumKey;
 
       lyrics = Array.isArray(lines) ? lines.filter(l => typeof l.ms === 'number') : [];
@@ -924,6 +1014,7 @@ class TvWebReceiverHtml {
         el('needle').style.transform = 'translate3d(0, ' + ((CENTER_Y + r) * vh()) + 'px, 0)';
         el('elapsed').textContent = formatTime(realPos);
         renderCuriosity(realPos);
+        renderImagine(realPos);
         // O anel "já tocado" redesenha uma área grande: atualiza 4x por segundo
         if (now - lastPlayedUpdate > 250) {
           lastPlayedUpdate = now;
@@ -933,6 +1024,118 @@ class TvWebReceiverHtml {
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
+
+    // ─── PLUGIN A3 "IMAGINED MUSIC": roteiro visual vindo do celular ───
+    let imScenes = [];
+    let imQuotes = [];
+    let imMode = 'lyrics';
+    let imIdx = -1;
+    let imFront = 'imA';
+    let imPending = null;       // roteiro de uma música que ainda não está na tela
+    let imQuoteShown = -1;       // frase em exibição (índice)
+    let imQuoteLastMs = -1e9;    // quando a última frase apareceu (ms da música)
+    let imQuoteTimer = null;
+    const IM_QUOTE_GAP_MS = 22000;  // frases com pelo menos ~22 s entre si (o agente as espalha ~30 s)
+    const IM_QUOTE_SHOW_MS = 6500;
+
+    function onImagine(data) {
+      // Roteiro de outra música (chegou antes da troca na tela): guarda até ela aparecer
+      if (data && data.title && lastTrackTitle !== null && norm(data.title) !== norm(lastTrackTitle)) {
+        imPending = data;
+        return;
+      }
+      imPending = null;
+      applyImagine(data);
+    }
+
+    function applyImagine(data) {
+      imScenes = (data && Array.isArray(data.scenes) ? data.scenes : [])
+        .filter(function (s) { return s && typeof s.ms === 'number' && safeUrl(s.url); })
+        .sort(function (a, b) { return a.ms - b.ms; });
+      imQuotes = (data && Array.isArray(data.quotes) ? data.quotes : [])
+        .filter(function (q) { return q && typeof q.ms === 'number' && typeof q.text === 'string' && q.text.trim(); })
+        .sort(function (a, b) { return a.ms - b.ms; });
+      imMode = data && data.mode === 'immersive' ? 'immersive' : 'lyrics';
+      imIdx = -1;
+      imQuoteShown = -1;
+      imQuoteLastMs = -1e9;
+      hideQuote();
+      const on = imScenes.length > 0;
+      document.body.classList.toggle('imagine-on', on);
+      document.body.classList.toggle('imagine-immersive', on && imMode === 'immersive');
+      if (!on) {
+        el('imA').classList.remove('show');
+        el('imB').classList.remove('show');
+        el('imCredit').textContent = '';
+        return;
+      }
+      preloadScene(0);
+      preloadScene(1);
+    }
+
+    function preloadScene(i) {
+      const s = imScenes[i];
+      if (s) { const img = new Image(); img.src = safeUrl(s.url); }
+    }
+
+    function showScene(i) {
+      const s = imScenes[i];
+      if (!s) return;
+      imIdx = i;
+      const back = imFront === 'imA' ? 'imB' : 'imA';
+      const layer = el(back);
+      const next = imScenes[i + 1];
+      const lengthSec = next ? Math.max(8, Math.min(45, (next.ms - s.ms) / 1000 + 3)) : 30;
+      const motion = ['zoom_in', 'zoom_out', 'pan_left', 'pan_right'].indexOf(s.motion) >= 0 ? s.motion : 'zoom_in';
+      layer.style.backgroundImage = 'url("' + safeUrl(s.url).replace(/"/g, '%22') + '")';
+      layer.style.animation = 'none';
+      void layer.offsetWidth;
+      layer.style.animation = 'im-' + motion.replace('_', '-') + ' ' + lengthSec.toFixed(1) + 's linear forwards';
+      const cut = s.transition === 'cut';
+      layer.classList.toggle('cut', cut);
+      el(imFront).classList.toggle('cut', cut);
+      layer.classList.add('show');
+      el(imFront).classList.remove('show');
+      imFront = back;
+      // tingimento na paleta da cena (intensidade = força do tom)
+      const pal = Array.isArray(s.palette) ? s.palette.filter(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); }) : [];
+      const tint = el('imTint');
+      tint.style.background = pal.length >= 2 ? 'linear-gradient(135deg, ' + pal.join(', ') + ')' : (pal[0] || 'transparent');
+      tint.style.opacity = (0.25 + 0.5 * (typeof s.intensity === 'number' ? s.intensity : 0.5)).toFixed(2);
+      el('imCredit').textContent = s.author ? 'Photo: ' + s.author + ' · Unsplash' : '';
+      preloadScene(i + 1);
+    }
+
+    function hideQuote() {
+      el('imQuote').classList.remove('show');
+      clearTimeout(imQuoteTimer);
+    }
+
+    function renderImagine(realPos) {
+      if (!imScenes.length) return;
+      const t = realPos * 1000;
+      let i = 0;
+      for (let k = 0; k < imScenes.length; k++) { if (imScenes[k].ms <= t + 400) i = k; }
+      if (i !== imIdx) showScene(i);
+      if (imMode !== 'immersive' || !imQuotes.length) return;
+      // Frase: perto de quando é cantada, com folga entre uma e outra
+      for (let q = 0; q < imQuotes.length; q++) {
+        const quote = imQuotes[q];
+        if (q === imQuoteShown) continue;
+        if (t >= quote.ms - 600 && t < quote.ms + 3000 && t - imQuoteLastMs >= IM_QUOTE_GAP_MS) {
+          imQuoteShown = q;
+          imQuoteLastMs = t;
+          const box = el('imQuote');
+          box.className = 'im-quote pos-' + (q % 3);
+          box.textContent = quote.text.trim();
+          void box.offsetWidth;
+          box.classList.add('show');
+          clearTimeout(imQuoteTimer);
+          imQuoteTimer = setTimeout(hideQuote, IM_QUOTE_SHOW_MS);
+          break;
+        }
+      }
+    }
 
     // ─── PACOTES DO CELULAR ───
     function updateSync(data) {
@@ -1034,6 +1237,8 @@ class TvWebReceiverHtml {
       currentSide = '';
       setLabelFallback();
       el('ambient').classList.remove('visible');
+      imPending = null;
+      applyImagine(null);
       el('played').style.setProperty('--needle-r', '100%');
       el('pill').classList.remove('visible');
       showNotice('');
@@ -1051,6 +1256,8 @@ class TvWebReceiverHtml {
         updateSync(data);
       } else if (data.type === 'side_flip') {
         onSideFlip(data);
+      } else if (data.type === 'imagine') {
+        onImagine(data);
       } else if (data.type === 'curiosities') {
         setCuriosities(data);
       } else if (data.type === 'stop') {

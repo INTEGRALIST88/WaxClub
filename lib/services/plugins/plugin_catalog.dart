@@ -227,6 +227,16 @@ class PluginCatalog {
           availability: PluginAvailability.installable, // instala pelo site; nada vem pré-instalado
         ),
         PluginInfo(
+          id: imaginedId,
+          category: PluginCategory.ai,
+          number: 3,
+          name: l10n.pluginImaginedName,
+          author: l10n.pluginAuthorWaxClub,
+          license: l10n.pluginImaginedLicense,
+          description: l10n.pluginImaginedDesc,
+          availability: PluginAvailability.installable, // instala pelo site
+        ),
+        PluginInfo(
           id: discogsId,
           category: PluginCategory.connections,
           number: 1,
@@ -244,6 +254,9 @@ class PluginCatalog {
   /// A2: tradutor de IA (letras, curiosidades e informações do disco) com a chave do WaxBrain.
   /// Instala pelo site (waxclub.com.br/plugins), como as fontes de letras.
   static const String translatorId = 'ai.translate';
+
+  /// A3: Imagined Music — fotos (Unsplash) escolhidas por um agente a partir da letra, atrás dela na TV.
+  static const String imaginedId = 'ai.imagined';
 
   /// Plugin D1: curiosidades do disco e da faixa.
   static const String curiositiesId = 'display.curiosities';
