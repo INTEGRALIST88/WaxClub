@@ -710,55 +710,59 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  /// Faixa de informações da barra superior com o celular em pé: música (destaque), banda · disco e
-  /// a próxima faixa (ou o fim do lado). Tocar abre a lista de faixas do disco.
+  /// Informações da música com o celular em pé, no alto da barra ao lado da capa: música (destaque),
+  /// banda, disco e a próxima faixa (ou o fim do lado). Tocar abre a lista de faixas do disco.
   Widget _portraitTrackInfo() {
     final track = _engine.currentTrack!;
     final album = (_engine.lockedAlbumName?.isNotEmpty ?? false) ? _engine.lockedAlbumName! : (track.album ?? '');
-    final artistAlbum = [track.artist, album].where((s) => s.trim().isNotEmpty).join(' · ');
     final sideEnd = _engine.telemetry.sideEndLabel;
     final next = _engine.telemetry.predictedNextTrackTitle;
+    final lines = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RetroText(track.title, fontSize: 26, depth: 3),
+        if (track.artist.trim().isNotEmpty) RetroText(track.artist, fontSize: 21, depth: 2),
+        if (album.trim().isNotEmpty)
+          Row(
+            children: [
+              if (_engine.isAlbumLocked) ...[
+                const Icon(Icons.album, size: 12, color: AppTheme.cream),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(
+                  album,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        if (sideEnd != null || next != null)
+          Text(
+            sideEnd ?? '${l10n.upNextTitle(next!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: sideEnd != null ? Colors.amber : AppTheme.orange,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+      ],
+    );
+    // Se as quatro linhas não couberem na altura da barra, o bloco encolhe um pouco (sem estourar); na
+    // largura, cada linha corta com reticências.
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _showAlbumTracklistModal,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RetroText(track.title, fontSize: 25, depth: 3),
-                  Row(
-                    children: [
-                      if (_engine.isAlbumLocked) ...[
-                        const Icon(Icons.album, size: 13, color: AppTheme.cream),
-                        const SizedBox(width: 4),
-                      ],
-                      Expanded(child: RetroText(artistAlbum, fontSize: 18, depth: 2)),
-                    ],
-                  ),
-                  if (sideEnd != null || next != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      sideEnd ??
-                          '${l10n.upNextTitle(next!)}${_engine.telemetry.nextLyricsReady ? " ⚡" : ""}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: sideEnd != null ? Colors.amber : AppTheme.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const Icon(Icons.queue_music_rounded, color: Colors.white38, size: 22),
-          ],
+      child: LayoutBuilder(
+        builder: (context, c) => FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: SizedBox(width: c.maxWidth, child: lines),
         ),
       ),
     );
@@ -1323,7 +1327,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
         // Tela estreita (celular em pé): sem o texto ao lado do logo, só os botões
         final compactBar = MediaQuery.sizeOf(context).width < 600;
-        final logoSize = compactBar ? 46.0 : 50.0;
+        // Em pé, com música tocando: capa maior no canto e as informações da música ao lado dela
+        final trackOnTop = compactBar && _engine.currentTrack != null;
+        final logoSize = trackOnTop ? 66.0 : (compactBar ? 46.0 : 50.0);
         _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
         final panel = _panelState();
         _syncLyricsWithPanel(panel.shown);
@@ -1337,7 +1343,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         _engine.curiositiesFirst = curiositiesFirst || !lyricsMatchPanel;
         if (_engine.manualSuggested) _offerManualMode();
         const tileSize = 40.0;
-        final showTrackStrip = compactBar && _engine.currentTrack != null;
         // Em pé (e no cockpit): linha com os plugins que mudam a tela, para ligar/desligar e ordenar
         final panelHeight = compactBar ? PluginPanelStrip.heightFor(_plugins) : 0.0;
 
@@ -1346,13 +1351,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Scaffold(
               extendBodyBehindAppBar: true,
               appBar: AppBar(
-                toolbarHeight: 74,
+                toolbarHeight: trackOnTop ? 92 : 74,
                 flexibleSpace: const _WoodTopPanel(),
-                // Em pé, com música tocando: música, banda · disco e "a seguir" numa faixa abaixo do disco
-                // Em pé: linha de baixo com os botões de madeira encostados à direita e, com música tocando, a
-                // faixa com música, banda · disco e "a seguir" embaixo deles. Deitado: botões na linha de cima.
+                // Em pé: linha de baixo com os botões de madeira encostados à direita e, embaixo, o painel de
+                // plugins (a música fica no alto, ao lado da capa). Deitado: botões na linha de cima.
                 bottom: !compactBar ? null : PreferredSize(
-                  preferredSize: Size.fromHeight(tileSize + 12 + panelHeight + (showTrackStrip ? 86 : 0)),
+                  preferredSize: Size.fromHeight(tileSize + 12 + panelHeight),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -1366,9 +1370,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                       ),
-                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, shownId: panel.shown, failedIds: panel.failed)),
-                      if (showTrackStrip) SizedBox(height: 86, child: _portraitTrackInfo()),
-                    ],
+                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, shownId: panel.shown, failedIds: panel.failed)),                    ],
                   ),
                 ),
                 // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
@@ -1418,7 +1420,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
                 titleSpacing: 12,
                 title: compactBar
-                    ? null
+                    ? (trackOnTop ? _portraitTrackInfo() : null)
                     : Row(
                         children: [
                           Expanded(

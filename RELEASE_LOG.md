@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.22] — 15/10/2026 (Música ao Lado da Capa, em Pé)
+
+* **Celular em pé, com música tocando:** as informações da música saíram de baixo do painel de plugins e foram para o **alto da barra, ao lado da capa do disco** — música (destaque), banda, disco e "a seguir"/fim do lado. Tocar nelas abre a lista de faixas, como antes.
+  * **Capa maior** no canto (66 em vez de 46); a barra de cima fica um pouco mais alta (92), mas a faixa de 86 embaixo dos plugins sumiu: sobra mais espaço para a letra.
+  * Se as quatro linhas não couberem, o bloco encolhe um pouco em vez de estourar; nomes longos cortam com reticências.
+* Site: o manifesto antigo do Lyrics.ovh foi apagado do servidor.
+* Teste: em pé, a música fica à direita da capa e acima dos botões e do painel de plugins.
+
+---
 ## [v1.4.21] — 15/10/2026 (Novas Fontes: Kugou e QQ Music)
 
 * **S4 Kugou Music** (酷狗音乐 — Guangzhou, China; Tencent Music) e **S6 QQ Music** (QQ音乐 — Shenzhen, China; Tencent Music): duas fontes novas de letras **sincronizadas**, instaladas **só pelo site** (não vêm de fábrica, nem no pré-lançamento).
