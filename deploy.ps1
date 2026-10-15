@@ -2,7 +2,9 @@
     # Caminho opcional do APK (padrao: saida do 'flutter build apk --release')
     [string]$ApkPath,
     # Publica no Drive sem reinstalar no celular (ex.: o usuario esta testando no aparelho)
-    [switch]$SkipInstall
+    [switch]$SkipInstall,
+    # Endereco da depuracao sem fio do celular (ex.: 192.168.1.50:41234), quando nao estiver no USB
+    [string]$WifiAddress
 )
 
 $ErrorActionPreference = 'Stop'
@@ -163,14 +165,26 @@ Write-Host "=== 5. Instalando no Smartphone Xiaomi via ADB ==="
 if ($SkipInstall) {
     Write-Host "[--] Instalacao pulada (-SkipInstall). APK disponivel no Google Drive."
 } elseif (Test-Path -LiteralPath $adbPath) {
-    $devices = & $adbPath devices
-    if ($devices -match $deviceSerial) {
-        Write-Host "Instalando APK no dispositivo $deviceSerial..."
-        & $adbPath -s $deviceSerial install -r $apkDest
+    # Wi-Fi (depuracao sem fio): conecta no endereco informado; aparelhos ja pareados se conectam sozinhos
+    if ($WifiAddress) { & $adbPath connect $WifiAddress | Out-Host }
+    # O mesmo celular aparece com outro "serial" pelo Wi-Fi (IP:porta): confere o numero de serie de cada um
+    $target = $null
+    foreach ($line in (& $adbPath devices | Select-Object -Skip 1)) {
+        if ($line -notmatch '^(\S+)\s+device\s*$') { continue }
+        $s = $Matches[1]
+        $hw = (& $adbPath -s $s shell getprop ro.serialno | Out-String).Trim()
+        if ($s -eq $deviceSerial -or $hw -eq $deviceSerial) {
+            if (-not $target -or $s -eq $deviceSerial) { $target = $s }  # USB tem preferencia
+        }
+    }
+    if ($target) {
+        $via = if ($target -eq $deviceSerial) { 'USB' } else { "Wi-Fi ($target)" }
+        Write-Host "Instalando APK no dispositivo $deviceSerial via $via..."
+        & $adbPath -s $target install -r $apkDest
         if ($LASTEXITCODE -ne 0) { throw "Falha na instalacao via ADB (codigo $LASTEXITCODE)." }
-        Write-Host "[OK] Instalacao concluida no dispositivo Xiaomi."
+        Write-Host "[OK] Instalacao concluida no dispositivo Xiaomi ($via)."
     } else {
-        Write-Host "[AVISO] Dispositivo Xiaomi ($deviceSerial) nao conectado via ADB. APK disponivel no Google Drive."
+        Write-Host "[AVISO] Dispositivo Xiaomi ($deviceSerial) nao conectado via ADB (USB ou Wi-Fi). APK disponivel no Google Drive."
     }
 } else {
     Write-Host "[AVISO] ADB nao encontrado no caminho esperado."
