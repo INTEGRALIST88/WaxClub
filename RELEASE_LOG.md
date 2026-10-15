@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.31] — 15/10/2026 (WaxBrain: Chaves de IA do Usuário)
+
+* **WaxBrain** (botão de madeira com cérebro, ao lado do Manual): o usuário encaixa as **próprias chaves de IA** (modelo BYOK) em chips. Os plugins de IA vão usá-lo (a ligação com os plugins vem na próxima etapa).
+  * **7 chips, nenhum encaixado de fábrica:** Gemini, Groq, OpenRouter e Mistral (**Free**, sem cartão); ChatGPT, Claude e Grok (**Paid** — a API é cobrada; os apps de conversa grátis não incluem a API).
+  * **Encaixe para leigos:** tocar no chip → passo a passo de 3 passos → o app abre a página da chave no navegador do celular (o login do Google não funciona dentro de apps) → o usuário cria e copia a chave → ao voltar, o app **reconhece a chave copiada**, pergunta "Plug in this … key (ending in …)?", testa no provedor (chamada gratuita) e o chip acende. Depois limpa a área de transferência. Colar à mão continua possível.
+  * **Chips encaixados:** situação (Ready / Limit reached / Key rejected / Not tested), arrastar para mudar a prioridade (o primeiro pronto é usado; no limite, o próximo assume), testar de novo, trocar a chave, desencaixar.
+* **Onde as chaves ficam:** no cofre do celular e, com a conta conectada, numa **cópia criptografada na conta** (AES-256-GCM; a senha `BRAIN_SECRET` fica só no `waxclub.env`, fora do banco). Trocou de celular, os chips voltam; desencaixar apaga dos dois lugares; excluir a conta apaga tudo.
+* **Servidor:** API `/v1/brain` (listar sem as chaves, ler a chave só para o dono, encaixar, desencaixar, reordenar) e tabela `brain_keys` (esquema 6). `BRAIN_SECRET` aceita 64 hexadecimais ou qualquer texto com 32+ caracteres.
+* Testes: formatos de chave dos 7 provedores (Anthropic/OpenRouter não confundidos com OpenAI; Mistral só com o chip escolhido), situação pelo código HTTP, teste da Anthropic com `x-api-key`, cofre e ordem, chip no limite pulado, sincronização com a conta (descer, subir, desencaixar, servidor sem senha).
+
+---
 ## [v1.4.30] — 15/10/2026 (Popup de Sucesso e Volta ao App)
 
 * **Conectou, avisa e volta:** depois de capturar o token (ou colar e salvar), aparece o popup **"Discogs connected"** — "Your Discogs token was captured successfully." e a conta conectada; o **OK** fecha o navegador e volta ao app.

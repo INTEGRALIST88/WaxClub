@@ -8,14 +8,15 @@ const BRAIN_PROVIDERS = ['gemini', 'groq', 'openrouter', 'mistral', 'openai', 'a
 const BRAIN_STATUSES = ['ok', 'invalid', 'limit', 'offline'];
 const BRAIN_KEY_MAX = 300;
 
-/** Senha de 32 bytes vinda do BRAIN_SECRET (64 hex); nula se o servidor ainda não foi configurado. */
+/** Senha de 32 bytes vinda do BRAIN_SECRET: 64 hex viram os próprios bytes; qualquer outro texto com 32+
+ *  caracteres vira o SHA-256 dele. Nula se o servidor ainda não foi configurado (ou senha curta demais). */
 function brain_secret(): ?string
 {
-    $hex = trim(cfg('BRAIN_SECRET'));
-    if (!preg_match('/^[0-9a-fA-F]{64}$/', $hex)) {
-        return null;
+    $s = trim(cfg('BRAIN_SECRET'));
+    if (preg_match('/^[0-9a-fA-F]{64}$/', $s)) {
+        return hex2bin($s);
     }
-    return hex2bin($hex);
+    return strlen($s) >= 32 ? hash('sha256', $s, true) : null;
 }
 
 function brain_secret_or_fail(): string
