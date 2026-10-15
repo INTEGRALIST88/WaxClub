@@ -439,7 +439,7 @@ abstract class AppLocalizations {
   /// No description provided for @discogsTokenHint.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to your account above, tap \"Generate new token\" and paste the token here:'**
+  /// **'Sign in above: WaxClub picks up your token from the page by itself. If it doesn\'t, copy the token and paste it here:'**
   String get discogsTokenHint;
 
   /// No description provided for @discogsTokenField.
@@ -447,6 +447,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discogs personal token'**
   String get discogsTokenField;
+
+  /// No description provided for @discogsTokenCaptured.
+  ///
+  /// In en, this message translates to:
+  /// **'Token found on the page. Connecting…'**
+  String get discogsTokenCaptured;
+
+  /// No description provided for @discogsTokenHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate your token'**
+  String get discogsTokenHelpTitle;
+
+  /// No description provided for @discogsTokenHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\".\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.'**
+  String get discogsTokenHelpBody;
 
   /// No description provided for @save.
   ///

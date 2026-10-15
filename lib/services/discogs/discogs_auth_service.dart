@@ -234,6 +234,16 @@ class DiscogsAuthService extends ChangeNotifier {
   }
 
   /// Alternativa sem chaves do app: token pessoal gerado pelo usuário em discogs.com/settings/developers.
+  /// Token pessoal lido do texto da página de desenvolvedor do Discogs (settings/developers), que mostra
+  /// "Token atual:" / "Your current token:" seguido do token (40 letras e números). Nulo se não houver.
+  static String? tokenFromPageText(String text) {
+    final labeled = RegExp(r'token[^\n:]{0,24}:\s*([A-Za-z0-9]{30,64})\b', caseSensitive: false).firstMatch(text);
+    if (labeled != null) return labeled.group(1);
+    // Sem o rótulo (outro idioma da página): uma linha só com o token
+    final alone = RegExp(r'^\s*([A-Za-z0-9]{40})\s*$', multiLine: true).firstMatch(text);
+    return alone?.group(1);
+  }
+
   Future<void> loginWithPersonalToken(String token) async {
     final t = token.trim();
     if (t.isEmpty) throw Exception(l10n.discogsPasteToken);

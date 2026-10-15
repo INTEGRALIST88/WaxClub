@@ -218,10 +218,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discogsTokenHint =>
-      'Sign in to your account above, tap \"Generate new token\" and paste the token here:';
+      'Sign in above: WaxClub picks up your token from the page by itself. If it doesn\'t, copy the token and paste it here:';
 
   @override
   String get discogsTokenField => 'Discogs personal token';
+
+  @override
+  String get discogsTokenCaptured => 'Token found on the page. Connecting…';
+
+  @override
+  String get discogsTokenHelpTitle => 'Generate your token';
+
+  @override
+  String get discogsTokenHelpBody =>
+      'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\".\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.';
 
   @override
   String get save => 'Save';
