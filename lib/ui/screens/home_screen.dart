@@ -984,6 +984,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               'ms': msOf(s.line, s.atSeconds), // l10n-ignore
               'url': s.photo!.sized(), // l10n-ignore
               'author': s.photo!.author, // l10n-ignore
+              'credit': s.photo!.credit, // l10n-ignore
               if (s.photo!.color != null) 'color': s.photo!.color, // l10n-ignore
               'palette': s.palette, // l10n-ignore
               'motion': s.motion, // l10n-ignore
@@ -1047,7 +1048,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if (photo == null) return null;
     return GestureDetector(
       onTap: photo.authorUrl == null ? null : () => PluginLinks.instance.openUrl(photo.authorUrl!),
-      child: Text(l10n.imaginePhotoCredit(photo.author),
+      child: Text(photo.isArt ? photo.credit : l10n.imaginePhotoCredit(photo.author),
           style: const TextStyle(color: Colors.white60, fontSize: 10.5, decoration: TextDecoration.underline)),
     );
   }

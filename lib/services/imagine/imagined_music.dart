@@ -4,15 +4,23 @@ import 'package:flutter/foundation.dart';
 import '../ai_translator.dart' show TranslatorStore, FileTranslatorStore;
 import '../brain/brain_ai.dart';
 
-/// Foto do Unsplash para uma cena (exibida pelo endereço do Unsplash, com crédito ao fotógrafo).
+/// Imagem de uma cena: foto do Unsplash (exibida pelo endereço do Unsplash, com crédito ao fotógrafo) ou
+/// obra de arte em domínio público do acervo do WaxClub (The Met, Art Institute of Chicago).
 class ImaginePhoto {
   final String id;
-  final String url; // urls.raw (o tamanho vai nos parâmetros)
+  final String url; // Unsplash: urls.raw (o tamanho vai nos parâmetros); acervo: o arquivo 512 px no servidor
   final String? color;
-  final String author;
+  final String author; // fotógrafo ou artista
   final String? authorUrl;
   final String? photoUrl;
-  final String? download; // links.download_location (avisar o uso)
+  final String? download; // links.download_location (avisar o uso ao Unsplash)
+
+  /// 'unsplash' ou o museu da obra ('The Met', 'Art Institute of Chicago').
+  final String source;
+
+  /// Título da obra (acervo) ou descrição da foto.
+  final String? title;
+  final String? date;
 
   const ImaginePhoto({
     required this.id,
@@ -22,11 +30,24 @@ class ImaginePhoto {
     this.authorUrl,
     this.photoUrl,
     this.download,
+    this.source = 'unsplash',
+    this.title,
+    this.date,
   });
 
-  /// Endereço no tamanho usado pelo WaxClub (512 px de largura, WebP quando a TV aceita).
+  bool get isArt => source != 'unsplash';
+
+  /// Endereço no tamanho usado pelo WaxClub (512 px; as obras do acervo já estão nesse tamanho).
   String sized({int width = ImaginedMusic.imageWidth}) =>
-      '$url${url.contains('?') ? '&' : '?'}w=$width&q=75&auto=format&fit=max';
+      isArt ? url : '$url${url.contains('?') ? '&' : '?'}w=$width&q=75&auto=format&fit=max';
+
+  /// Crédito exibido junto da imagem (em inglês, como o resto da tela da TV).
+  String get credit {
+    if (!isArt) return 'Photo: $author · Unsplash'; // l10n-ignore
+    final who = author.trim().isEmpty ? '' : ' — ${author.trim()}';
+    final when = (date ?? '').trim().isEmpty ? '' : ' (${date!.trim()})';
+    return '${title ?? 'Untitled'}$who$when · $source'; // l10n-ignore
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -36,6 +57,9 @@ class ImaginePhoto {
         if (authorUrl != null) 'authorUrl': authorUrl,
         if (photoUrl != null) 'photoUrl': photoUrl,
         if (download != null) 'download': download,
+        if (source != 'unsplash') 'source': source,
+        if (title != null) 'title': title,
+        if (date != null) 'date': date,
       };
 
   factory ImaginePhoto.fromJson(Map<String, dynamic> j) => ImaginePhoto(
@@ -46,6 +70,20 @@ class ImaginePhoto {
         authorUrl: j['authorUrl'] as String?,
         photoUrl: j['photoUrl'] as String?,
         download: j['download'] as String?,
+        source: (j['source'] as String?) ?? 'unsplash',
+        title: j['title'] as String?,
+        date: j['date'] as String?,
+      );
+
+  /// Obra do acervo, como vem de /v1/imagine/art.
+  factory ImaginePhoto.fromArt(Map<String, dynamic> j) => ImaginePhoto(
+        id: '${j['id']}',
+        url: '${j['url']}',
+        author: '${j['artist'] ?? ''}',
+        color: j['color'] as String?,
+        source: '${j['museum'] ?? 'Museum'}',
+        title: j['title'] as String?,
+        date: j['date'] as String?,
       );
 }
 
@@ -54,6 +92,9 @@ class ImagineScene {
   final int line;
   final double? atSeconds;
   final String query;
+
+  /// Busca de obra de arte (acervo de museus) para a mesma cena.
+  final String art;
   final String mood;
   final List<String> palette; // cores #rrggbb
   final String motion; // zoom_in, zoom_out, pan_left, pan_right
@@ -65,6 +106,7 @@ class ImagineScene {
     required this.line,
     this.atSeconds,
     required this.query,
+    this.art = '',
     this.mood = '',
     this.palette = const [],
     this.motion = 'zoom_in',
@@ -77,6 +119,7 @@ class ImagineScene {
         line: line,
         atSeconds: atSeconds,
         query: query,
+        art: art,
         mood: mood,
         palette: palette,
         motion: motion,
@@ -89,6 +132,7 @@ class ImagineScene {
         'line': line,
         if (atSeconds != null) 'at': atSeconds,
         'query': query,
+        if (art.isNotEmpty) 'art': art,
         'mood': mood,
         'palette': palette,
         'motion': motion,
@@ -107,6 +151,7 @@ class ImagineScene {
       line: (j['line'] is num) ? (j['line'] as num).toInt() : 0,
       atSeconds: (j['at'] is num) ? (j['at'] as num).toDouble() : null,
       query: '${j['query'] ?? ''}'.trim(),
+      art: '${j['art'] ?? ''}'.trim(),
       mood: '${j['mood'] ?? ''}',
       palette: [
         for (final c in (j['palette'] as List<dynamic>? ?? const []))
@@ -192,6 +237,9 @@ class Storyboard {
 /// Busca de fotos no servidor do WaxClub (que consulta o Unsplash com a chave dele).
 abstract class ImagineSearch {
   Future<List<ImaginePhoto>> search(String query);
+
+  /// Obras de arte do acervo do WaxClub (domínio público; sem limite de buscas).
+  Future<List<ImaginePhoto>> searchArt(String query);
 
   /// Avisa o Unsplash que a foto foi usada (exigência da API).
   Future<void> used(ImaginePhoto photo);
@@ -312,26 +360,32 @@ class ImaginedMusic extends ChangeNotifier {
     return withPhotos;
   }
 
-  /// Uma foto por cena: a primeira da busca que ainda não foi usada nesta música.
+  /// Uma imagem por cena, sem repetir na música, intercalando: cenas pares com foto do Unsplash, ímpares com
+  /// obra de arte do acervo (que não gasta o limite do Unsplash). Se uma fonte não achar, a outra cobre.
   Future<Storyboard> _attachPhotos(Storyboard board) async {
     final s = searcher;
     if (s == null) return board;
     final used = <String>{};
     final scenes = <ImagineScene>[];
-    for (final scene in board.scenes) {
-      ImaginePhoto? pick;
+
+    Future<ImaginePhoto?> pickFrom(Future<List<ImaginePhoto>> Function() run, String what) async {
       try {
-        final found = await s.search(scene.query);
-        for (final p in found) {
-          if (used.add(p.id)) {
-            pick = p;
-            break;
-          }
+        for (final p in await run()) {
+          if (used.add(p.id)) return p;
         }
       } catch (e) {
-        debugPrint('[Imagine] Busca "${scene.query}" falhou: $e');
+        debugPrint('[Imagine] Busca de $what falhou: $e');
         lastError = 'search_failed';
       }
+      return null;
+    }
+
+    for (var i = 0; i < board.scenes.length; i++) {
+      final scene = board.scenes[i];
+      final artQuery = scene.art.isNotEmpty ? scene.art : scene.query;
+      Future<ImaginePhoto?> photo() => pickFrom(() => s.search(scene.query), 'foto');
+      Future<ImaginePhoto?> art() => pickFrom(() => s.searchArt(artQuery), 'obra');
+      final pick = i.isEven ? (await photo() ?? await art()) : (await art() ?? await photo());
       scenes.add(scene.withPhoto(pick));
     }
     return Storyboard(scenes: scenes, quotes: board.quotes);
@@ -351,13 +405,15 @@ class ImaginedMusic extends ChangeNotifier {
   static String _lyricsPrompt(String title, String artist) =>
       'You are the visual director of "Imagined Music", a slow, cinematic photo slideshow shown behind the lyrics '
       'while a vinyl record plays. You receive the lyrics of "$title" by $artist as a JSON array of lines (index = '
-      'position). Split the song into visual scenes that follow its sections and imagery (usually every 3 to 8 lines; '
-      '4 to 8 scenes in total). For each scene write a short English search query for a stock photo library: '
-      'concrete, photographable subjects, setting, light and mood (for example "solitary silhouette rainy city street '
-      'night blue light"); interpret metaphors visually; never use names of people, bands, brands or places that '
+      'position). Split the song into visual scenes that follow its sections and imagery (usually every 2 to 4 lines; '
+      '8 to 16 scenes in total). For each scene write two short English searches: "query" for a stock photo library '
+      '(concrete, photographable subjects, setting, light and mood, for example "solitary silhouette rainy city street '
+      'night blue light") and "art" for a museum collection of public-domain paintings, prints and old photographs '
+      '(subject plus a fitting art style or era, for example "stormy sea romantic painting" or "night street '
+      'impressionism"); interpret metaphors visually; never use names of people, bands, brands or places that '
       'identify the song, and never ask for text in the image. Also choose 3 to 6 striking short quotes from the '
       'lyrics (the exact text of a single line, up to 60 characters), spread across the whole song, for an immersive '
-      'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","mood":"one word","palette":["#rrggbb",'
+      'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","art":"...","mood":"one word","palette":["#rrggbb",'
       '"#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right","transition":"dissolve|cut",'
       '"intensity":0.5}],"quotes":[{"line":4,"text":"..."}]}. Scenes are in increasing line order and the first '
       'starts at line 0. Use "cut" only for sudden changes of energy; intensity follows the energy of the section.';
@@ -366,9 +422,10 @@ class ImaginedMusic extends ChangeNotifier {
       'You are the visual director of "Imagined Music", a slow, cinematic photo slideshow shown while a vinyl record '
       'plays. The track "$title" by $artist${album == null ? '' : ' (album "$album")'} has no lyrics'
       '${duration == null ? '' : ' and lasts about ${duration.round()} seconds'}. Imagine its mood from the title and '
-      'the album, and create 3 to 6 scenes spread evenly across the track. For each scene write a short English search '
-      'query for a stock photo library (concrete subjects, setting, light and mood; no names of people, bands, brands '
-      'or places; no text in the image). Reply with ONLY JSON: {"scenes":[{"line":0,"at":0,"query":"...","mood":'
+      'the album, and create 6 to 12 scenes spread evenly across the track. For each scene write two short English '
+      'searches: "query" for a stock photo library and "art" for a museum collection of public-domain paintings and '
+      'old photographs (subject plus an art style or era); no names of people, bands, brands or places; no text in '
+      'the image. Reply with ONLY JSON: {"scenes":[{"line":0,"at":0,"query":"...","art":"...","mood":'
       '"one word","palette":["#rrggbb","#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right",'
       '"transition":"dissolve","intensity":0.4}],"quotes":[]} where "at" is the second when the scene starts.';
 }

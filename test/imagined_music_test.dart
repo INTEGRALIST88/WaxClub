@@ -52,6 +52,12 @@ class _FakeSearch implements ImagineSearch {
   }
 
   @override
+  Future<List<ImaginePhoto>> searchArt(String query) async {
+    if (fail) throw Exception('offline');
+    return [ImaginePhoto(id: 'art-$query', url: 'https://waxclub.com.br/imagined/art/$query.webp', author: 'Painter', source: 'The Met', title: 'View')];
+  }
+
+  @override
   Future<void> used(ImaginePhoto photo) async {}
 }
 
@@ -86,11 +92,13 @@ void main() {
     final im = ImaginedMusic(ai: await _ai(_reply), searcher: search, store: store);
     final lines = ['l0', 'l1', 'l2', 'l3', 'l4', 'l5'];
     final sb = (await im.storyboard(title: 'Song', artist: 'Band', lines: lines))!;
-    expect(sb.scenes.map((s) => s.photo!.id), ['p1', 'p-crowded city night rain']);
-    expect(search.queries, ['empty road at dawn', 'crowded city night rain']);
+    // cena par: foto do Unsplash; cena ímpar: obra do acervo
+    expect(sb.scenes.map((s) => s.photo!.id), ['p1', 'art-crowded city night rain']);
+    expect(sb.scenes[1].photo!.credit, 'View — Painter · The Met');
+    expect(search.queries, ['empty road at dawn']);
     expect(im.cached('Song', 'Band', lines), isNotNull);
     await im.storyboard(title: 'Song', artist: 'Band', lines: lines);
-    expect(search.queries.length, 2, reason: 'a segunda vez vem do aparelho');
+    expect(search.queries.length, 1, reason: 'a segunda vez vem do aparelho');
     expect(store.files['waxclub_storyboards.json'], isNot(contains('l3')), reason: 'a letra não é guardada');
   });
 

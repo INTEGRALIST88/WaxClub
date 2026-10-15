@@ -1102,7 +1102,7 @@ class TvWebReceiverHtml {
       const tint = el('imTint');
       tint.style.background = pal.length >= 2 ? 'linear-gradient(135deg, ' + pal.join(', ') + ')' : (pal[0] || 'transparent');
       tint.style.opacity = (0.25 + 0.5 * (typeof s.intensity === 'number' ? s.intensity : 0.5)).toFixed(2);
-      el('imCredit').textContent = s.author ? 'Photo: ' + s.author + ' · Unsplash' : '';
+      el('imCredit').textContent = (typeof s.credit === 'string' && s.credit) ? s.credit : (s.author ? 'Photo: ' + s.author + ' · Unsplash' : '');
       preloadScene(i + 1);
     }
 

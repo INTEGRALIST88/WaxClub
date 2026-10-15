@@ -57,6 +57,7 @@ $routes = [
     ['DELETE', '#^/v1/brain/([a-z]+)$#', 'brain_delete'],
     ['GET', '#^/v1/imagine/search$#', 'imagine_search'],
     ['POST', '#^/v1/imagine/used$#', 'imagine_used'],
+    ['GET', '#^/v1/imagine/art$#', 'imagine_art'],
 ];
 
 $pathMatched = false;

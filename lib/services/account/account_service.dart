@@ -602,6 +602,12 @@ class AccountService extends ChangeNotifier {
     return [for (final p in (j['photos'] as List<dynamic>? ?? const [])) if (p is Map<String, dynamic>) p];
   }
 
+  /// Obras de arte do acervo do WaxClub (domínio público) para uma busca em inglês.
+  Future<List<Map<String, dynamic>>> imagineArt(String query) async {
+    final j = await _request('GET', '/imagine/art?q=${Uri.encodeQueryComponent(query)}');
+    return [for (final a in (j['art'] as List<dynamic>? ?? const [])) if (a is Map<String, dynamic>) a];
+  }
+
   /// Avisa o Unsplash (pelo servidor) que a foto foi usada.
   Future<void> imagineUsed(String downloadLocation) => _request('POST', '/imagine/used', body: {'download': downloadLocation});
 

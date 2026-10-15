@@ -268,6 +268,24 @@ function migrations(): array
                 created_at DATETIME(3) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // A3: acervo de arte em domínio público (CC0: The Met, Art Institute of Chicago), imagens em /imagined/art/
+        8 => [
+            "CREATE TABLE IF NOT EXISTS imagine_art (
+                id VARCHAR(40) PRIMARY KEY,
+                source VARCHAR(10) NOT NULL,
+                museum VARCHAR(60) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                artist VARCHAR(160) NOT NULL DEFAULT '',
+                date_text VARCHAR(60) NOT NULL DEFAULT '',
+                kind VARCHAR(60) NOT NULL DEFAULT '',
+                tags TEXT NOT NULL,
+                file VARCHAR(80) NOT NULL,
+                width SMALLINT UNSIGNED NOT NULL,
+                height SMALLINT UNSIGNED NOT NULL,
+                color CHAR(7) NULL,
+                FULLTEXT KEY ft_art (title, artist, tags, kind)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

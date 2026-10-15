@@ -106,3 +106,40 @@ function imagine_used(): void
     [$status] = imagine_unsplash($download, imagine_key());
     json_out(200, ['ok' => $status === 200]);
 }
+
+const IMAGINE_ART_BASE = 'https://waxclub.com.br/imagined/art/';
+
+// GET /v1/imagine/art?q=<busca em inglês> — obras do acervo CC0 (no nosso servidor; sem limite do Unsplash)
+function imagine_art(): void
+{
+    require_user();
+    $q = trim(preg_replace('/\s+/', ' ', (string) ($_GET['q'] ?? '')));
+    if ($q === '' || mb_strlen($q) > 160) {
+        fail(422, 'invalid_query');
+    }
+    // Busca por relevância nas palavras (título, artista, assuntos); um pouco de sorte entre as melhores
+    $sql = db()->prepare('SELECT id, museum, title, artist, date_text, file, width, height, color,
+                                 MATCH(title, artist, tags, kind) AGAINST (? IN NATURAL LANGUAGE MODE) AS score
+                          FROM imagine_art
+                          WHERE MATCH(title, artist, tags, kind) AGAINST (? IN NATURAL LANGUAGE MODE)
+                          ORDER BY score DESC LIMIT 24');
+    $sql->execute([$q, $q]);
+    $rows = $sql->fetchAll();
+    // Variedade: embaralha as obras quase tão relevantes quanto a melhor (≥ 80% da nota), mantendo o resto atrás
+    $best = $rows ? (float) $rows[0]['score'] : 0.0;
+    $top = array_values(array_filter($rows, fn($r) => (float) $r['score'] >= $best * 0.8));
+    $rest = array_values(array_filter($rows, fn($r) => (float) $r['score'] < $best * 0.8));
+    shuffle($top);
+    $rows = array_merge($top, $rest);
+    $art = array_map(fn(array $r): array => [
+        'id' => $r['id'],
+        'url' => IMAGINE_ART_BASE . rawurlencode($r['file']),
+        'title' => $r['title'],
+        'artist' => $r['artist'],
+        'date' => $r['date_text'],
+        'museum' => $r['museum'],
+        'color' => $r['color'],
+    ], array_slice($rows, 0, 12));
+    json_out(200, ['art' => $art]);
+}
+
