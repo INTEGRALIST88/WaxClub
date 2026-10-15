@@ -1,3 +1,4 @@
+import 'dart:math';
 import '../account/account_service.dart';
 import 'imagined_music.dart';
 
@@ -5,6 +6,8 @@ import 'imagined_music.dart';
 class AccountImagineSearch implements ImagineSearch {
   final AccountService account;
   AccountImagineSearch(this.account);
+
+  static final _random = Random();
 
   @override
   Future<List<ImaginePhoto>> search(String query) async =>
@@ -14,9 +17,26 @@ class AccountImagineSearch implements ImagineSearch {
   Future<List<ImaginePhoto>> searchArt(String query) async =>
       [for (final a in await account.imagineArt(query)) ImaginePhoto.fromArt(a)];
 
+  /// Fotos do Unsplash pelas buscas fixas do sentimento, intercaladas e embaralhadas, mais as obras do
+  /// acervo marcadas com o sentimento (se houver). Uma busca que falhar não derruba as outras.
   @override
-  Future<List<ImaginePhoto>> searchEmotion(String emotion) async =>
-      [for (final a in await account.imagineEmotion(emotion)) ImaginePhoto.fromArt(a)];
+  Future<List<ImaginePhoto>> searchEmotion(String emotion) async {
+    final lists = <List<ImaginePhoto>>[];
+    Object? lastError;
+    for (final q in ImagineScene.emotionQueries[emotion] ?? const <String>[]) {
+      try {
+        lists.add(await search(q));
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    try {
+      lists.add([for (final a in await account.imagineEmotion(emotion)) ImaginePhoto.fromArt(a)]);
+    } catch (_) {} // acervo de sentimentos ainda vazio ou indisponível
+    final all = [for (final l in lists) ...l];
+    if (all.isEmpty && lastError != null) throw lastError;
+    return all..shuffle(_random);
+  }
 
   @override
   Future<void> used(ImaginePhoto photo) async {

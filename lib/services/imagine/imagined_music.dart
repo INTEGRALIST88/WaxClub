@@ -149,11 +149,28 @@ class ImagineScene {
 
   static const _motions = {'zoom_in', 'zoom_out', 'pan_left', 'pan_right'};
 
-  /// Sentimentos com imagens escolhidas a dedo no acervo (as mesmas chaves do servidor).
-  static const emotions = [
-    'love', 'desire', 'longing', 'loneliness', 'sadness', 'anger', 'fear', 'hope', //
-    'joy', 'euphoria', 'freedom', 'nostalgia', 'peace', 'melancholy', 'faith', 'rebellion',
-  ];
+  /// Sentimentos (as mesmas chaves do servidor) e as buscas fixas de cada um no Unsplash: imagens diretas do
+  /// sentimento (casal se beijando, raio, pessoa sozinha...). São poucas buscas no total e o servidor guarda
+  /// cada uma por dias, então quase não gastam o limite do Unsplash.
+  static const emotionQueries = {
+    'love': ['couple kissing', 'holding hands couple', 'heart shape'],
+    'desire': ['couple embrace close', 'red rose petals', 'passionate dance couple'],
+    'longing': ['person waiting by window', 'train station goodbye', 'old letters and photos'],
+    'loneliness': ['person alone empty street', 'lone figure on beach', 'empty bench in fog'],
+    'sadness': ['rain on window', 'person crying', 'wilted flowers'],
+    'anger': ['lightning storm', 'shattered glass', 'fire flames'],
+    'fear': ['dark forest at night', 'stormy sea waves', 'shadow in dark corridor'],
+    'hope': ['sunrise over hills', 'sunlight through clouds', 'seedling sprouting'],
+    'joy': ['friends laughing', 'children playing outdoors', 'confetti celebration'],
+    'euphoria': ['concert crowd lights', 'dance party', 'fireworks night'],
+    'freedom': ['bird flying in sky', 'open road trip', 'person arms open on mountain'],
+    'nostalgia': ['vintage photographs', 'old vinyl records', 'retro film camera'],
+    'peace': ['calm lake reflection', 'meditation at sunset', 'quiet forest morning'],
+    'melancholy': ['autumn leaves in rain', 'foggy grey city', 'looking out rainy window'],
+    'faith': ['lit candles in dark', 'light rays in cathedral', 'starry night sky'],
+    'rebellion': ['protest crowd', 'graffiti wall', 'punk concert'],
+  };
+  static final emotions = emotionQueries.keys.toList(growable: false);
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
 
   factory ImagineScene.fromJson(Map<String, dynamic> j) {
