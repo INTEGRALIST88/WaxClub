@@ -95,6 +95,9 @@ class ImagineScene {
 
   /// Busca de obra de arte (acervo de museus) para a mesma cena.
   final String art;
+
+  /// Sentimento do trecho (um de [emotions]); escolhe a imagem de sentimento da cena. Vazio se não houver.
+  final String emotion;
   final String mood;
   final List<String> palette; // cores #rrggbb
   final String motion; // zoom_in, zoom_out, pan_left, pan_right
@@ -107,6 +110,7 @@ class ImagineScene {
     this.atSeconds,
     required this.query,
     this.art = '',
+    this.emotion = '',
     this.mood = '',
     this.palette = const [],
     this.motion = 'zoom_in',
@@ -120,6 +124,7 @@ class ImagineScene {
         atSeconds: atSeconds,
         query: query,
         art: art,
+        emotion: emotion,
         mood: mood,
         palette: palette,
         motion: motion,
@@ -133,6 +138,7 @@ class ImagineScene {
         if (atSeconds != null) 'at': atSeconds,
         'query': query,
         if (art.isNotEmpty) 'art': art,
+        if (emotion.isNotEmpty) 'emotion': emotion,
         'mood': mood,
         'palette': palette,
         'motion': motion,
@@ -142,16 +148,24 @@ class ImagineScene {
       };
 
   static const _motions = {'zoom_in', 'zoom_out', 'pan_left', 'pan_right'};
+
+  /// Sentimentos com imagens escolhidas a dedo no acervo (as mesmas chaves do servidor).
+  static const emotions = [
+    'love', 'desire', 'longing', 'loneliness', 'sadness', 'anger', 'fear', 'hope', //
+    'joy', 'euphoria', 'freedom', 'nostalgia', 'peace', 'melancholy', 'faith', 'rebellion',
+  ];
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
 
   factory ImagineScene.fromJson(Map<String, dynamic> j) {
     final motion = '${j['motion'] ?? 'zoom_in'}';
     final intensity = (j['intensity'] is num) ? (j['intensity'] as num).toDouble() : 0.5;
+    final emotion = '${j['emotion'] ?? ''}'.trim().toLowerCase();
     return ImagineScene(
       line: (j['line'] is num) ? (j['line'] as num).toInt() : 0,
       atSeconds: (j['at'] is num) ? (j['at'] as num).toDouble() : null,
       query: '${j['query'] ?? ''}'.trim(),
       art: '${j['art'] ?? ''}'.trim(),
+      emotion: emotions.contains(emotion) ? emotion : '',
       mood: '${j['mood'] ?? ''}',
       palette: [
         for (final c in (j['palette'] as List<dynamic>? ?? const []))
@@ -241,6 +255,9 @@ abstract class ImagineSearch {
   /// Obras de arte do acervo do WaxClub (domínio público; sem limite de buscas).
   Future<List<ImaginePhoto>> searchArt(String query);
 
+  /// Imagens escolhidas para um sentimento (um de [ImagineScene.emotions]), já embaralhadas.
+  Future<List<ImaginePhoto>> searchEmotion(String emotion);
+
   /// Avisa o Unsplash que a foto foi usada (exigência da API).
   Future<void> used(ImaginePhoto photo);
 }
@@ -281,13 +298,20 @@ class ImaginedMusic extends ChangeNotifier {
   final Map<String, Future<Storyboard?>> _inFlight = {};
   Future<void>? _loading;
 
+  // Imagens de sentimento: a lista de cada sentimento vem uma vez por sessão; as usadas por último ficam de lado
+  // para não repetir de uma música para a outra (com ~20 por sentimento, um disco inteiro triste não repete)
+  final Map<String, Future<List<ImaginePhoto>>> _emotionPool = {};
+  final List<String> _recentEmotion = [];
+  static const int _recentEmotionMax = 60;
+
   Future<void> load() => _loading ??= _load();
 
   Future<void> _load() async {
     try {
       final s = await _store.read(_settingsFile);
       if (s != null) {
-        _mode = (jsonDecode(s) as Map<String, dynamic>)['mode'] == 'immersive' ? ImagineMode.immersive : ImagineMode.lyrics;
+        _mode =
+            (jsonDecode(s) as Map<String, dynamic>)['mode'] == 'immersive' ? ImagineMode.immersive : ImagineMode.lyrics;
       }
       final c = await _store.read(_cacheFile);
       if (c != null) {
@@ -331,7 +355,8 @@ class ImaginedMusic extends ChangeNotifier {
     });
   }
 
-  Future<Storyboard?> _make(String key, String title, String artist, String? album, List<String> lines, double? duration) async {
+  Future<Storyboard?> _make(
+      String key, String title, String artist, String? album, List<String> lines, double? duration) async {
     final hasLyrics = lines.any((l) => l.trim().isNotEmpty);
     final String reply;
     try {
@@ -360,8 +385,9 @@ class ImaginedMusic extends ChangeNotifier {
     return withPhotos;
   }
 
-  /// Uma imagem por cena, sem repetir na música, intercalando: cenas pares com foto do Unsplash, ímpares com
-  /// obra de arte do acervo (que não gasta o limite do Unsplash). Se uma fonte não achar, a outra cobre.
+  /// Uma imagem por cena, sem repetir na música, em rodízio de três fontes: foto do Unsplash, obra de arte do
+  /// acervo (não gasta o limite do Unsplash) e imagem do sentimento do trecho. Se uma fonte não achar, as
+  /// outras cobrem.
   Future<Storyboard> _attachPhotos(Storyboard board) async {
     final s = searcher;
     if (s == null) return board;
@@ -380,12 +406,41 @@ class ImaginedMusic extends ChangeNotifier {
       return null;
     }
 
+    Future<ImaginePhoto?> feeling(String emotion) async {
+      if (emotion.isEmpty) return null;
+      final List<ImaginePhoto> pool;
+      try {
+        pool = await (_emotionPool[emotion] ??= s.searchEmotion(emotion));
+      } catch (e) {
+        _emotionPool.remove(emotion); // tenta de novo na próxima música
+        debugPrint('[Imagine] Busca do sentimento $emotion falhou: $e');
+        return null;
+      }
+      final fresh = pool.where((p) => !used.contains(p.id) && !_recentEmotion.contains(p.id));
+      final pick = fresh.isNotEmpty ? fresh.first : pool.where((p) => !used.contains(p.id)).firstOrNull;
+      if (pick == null) return null;
+      used.add(pick.id);
+      _recentEmotion
+        ..remove(pick.id)
+        ..add(pick.id);
+      if (_recentEmotion.length > _recentEmotionMax) _recentEmotion.removeAt(0);
+      return pick;
+    }
+
     for (var i = 0; i < board.scenes.length; i++) {
       final scene = board.scenes[i];
       final artQuery = scene.art.isNotEmpty ? scene.art : scene.query;
       Future<ImaginePhoto?> photo() => pickFrom(() => s.search(scene.query), 'foto');
       Future<ImaginePhoto?> art() => pickFrom(() => s.searchArt(artQuery), 'obra');
-      final pick = i.isEven ? (await photo() ?? await art()) : (await art() ?? await photo());
+      final ImaginePhoto? pick;
+      switch (i % 3) {
+        case 0:
+          pick = await photo() ?? await art() ?? await feeling(scene.emotion);
+        case 1:
+          pick = await art() ?? await photo() ?? await feeling(scene.emotion);
+        default:
+          pick = await feeling(scene.emotion) ?? await art() ?? await photo();
+      }
       scenes.add(scene.withPhoto(pick));
     }
     return Storyboard(scenes: scenes, quotes: board.quotes);
@@ -410,10 +465,11 @@ class ImaginedMusic extends ChangeNotifier {
       '(concrete, photographable subjects, setting, light and mood, for example "solitary silhouette rainy city street '
       'night blue light") and "art" for a museum collection of public-domain paintings, prints and old photographs '
       '(subject plus a fitting art style or era, for example "stormy sea romantic painting" or "night street '
-      'impressionism"); interpret metaphors visually; never use names of people, bands, brands or places that '
+      'impressionism"); interpret metaphors visually. Give each scene the "emotion" it carries, one of: '
+      '${ImagineScene.emotions.join(', ')}; never use names of people, bands, brands or places that '
       'identify the song, and never ask for text in the image. Also choose 3 to 6 striking short quotes from the '
       'lyrics (the exact text of a single line, up to 60 characters), spread across the whole song, for an immersive '
-      'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","art":"...","mood":"one word","palette":["#rrggbb",'
+      'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","art":"...","emotion":"longing","mood":"one word","palette":["#rrggbb",'
       '"#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right","transition":"dissolve|cut",'
       '"intensity":0.5}],"quotes":[{"line":4,"text":"..."}]}. Scenes are in increasing line order and the first '
       'starts at line 0. Use "cut" only for sudden changes of energy; intensity follows the energy of the section.';
@@ -424,8 +480,9 @@ class ImaginedMusic extends ChangeNotifier {
       '${duration == null ? '' : ' and lasts about ${duration.round()} seconds'}. Imagine its mood from the title and '
       'the album, and create 6 to 12 scenes spread evenly across the track. For each scene write two short English '
       'searches: "query" for a stock photo library and "art" for a museum collection of public-domain paintings and '
-      'old photographs (subject plus an art style or era); no names of people, bands, brands or places; no text in '
-      'the image. Reply with ONLY JSON: {"scenes":[{"line":0,"at":0,"query":"...","art":"...","mood":'
+      'old photographs (subject plus an art style or era), and the "emotion" of the scene, one of: '
+      '${ImagineScene.emotions.join(', ')}; no names of people, bands, brands or places; no text in '
+      'the image. Reply with ONLY JSON: {"scenes":[{"line":0,"at":0,"query":"...","art":"...","emotion":"peace","mood":'
       '"one word","palette":["#rrggbb","#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right",'
       '"transition":"dissolve","intensity":0.4}],"quotes":[]} where "at" is the second when the scene starts.';
 }

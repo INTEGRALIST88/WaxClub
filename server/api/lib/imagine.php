@@ -143,3 +143,29 @@ function imagine_art(): void
     json_out(200, ['art' => $art]);
 }
 
+const IMAGINE_EMOTIONS = ['love', 'desire', 'longing', 'loneliness', 'sadness', 'anger', 'fear', 'hope', 'joy',
+                          'euphoria', 'freedom', 'nostalgia', 'peace', 'melancholy', 'faith', 'rebellion'];
+
+// GET /v1/imagine/emotion?e=<sentimento> — as obras escolhidas para aquele sentimento (umas 20), embaralhadas
+function imagine_emotion(): void
+{
+    require_user();
+    $e = (string) ($_GET['e'] ?? '');
+    if (!in_array($e, IMAGINE_EMOTIONS, true)) {
+        fail(422, 'invalid_emotion');
+    }
+    $sql = db()->prepare('SELECT id, museum, title, artist, date_text, file, color FROM imagine_art
+                          WHERE emotion = ? ORDER BY RAND() LIMIT 40');
+    $sql->execute([$e]);
+    $art = array_map(fn(array $r): array => [
+        'id' => $r['id'],
+        'url' => IMAGINE_ART_BASE . rawurlencode($r['file']),
+        'title' => $r['title'],
+        'artist' => $r['artist'],
+        'date' => $r['date_text'],
+        'museum' => $r['museum'],
+        'color' => $r['color'],
+        'emotion' => $e,
+    ], $sql->fetchAll());
+    json_out(200, ['art' => $art]);
+}

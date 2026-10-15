@@ -57,9 +57,25 @@ class _FakeSearch implements ImagineSearch {
     return [ImaginePhoto(id: 'art-$query', url: 'https://waxclub.com.br/imagined/art/$query.webp', author: 'Painter', source: 'The Met', title: 'View')];
   }
 
+  final List<String> emotionCalls = [];
+  @override
+  Future<List<ImaginePhoto>> searchEmotion(String emotion) async {
+    emotionCalls.add(emotion);
+    if (fail) throw Exception('offline');
+    return [
+      for (var i = 1; i <= 3; i++)
+        ImaginePhoto(id: '$emotion-$i', url: 'https://waxclub.com.br/imagined/art/$emotion-$i.webp', author: 'Artist', source: 'The Met', title: 'Feeling'),
+    ];
+  }
+
   @override
   Future<void> used(ImaginePhoto photo) async {}
 }
+
+String _threeScenes(String emotion) => '{"scenes":['
+    '{"line":0,"query":"road","art":"road painting","emotion":"$emotion"},'
+    '{"line":1,"query":"sea","art":"sea painting","emotion":"$emotion"},'
+    '{"line":2,"query":"sky","art":"sky painting","emotion":"$emotion"}]}';
 
 const _reply = '''Here you go:
 {"scenes":[
@@ -79,6 +95,23 @@ void main() {
     expect(sb.scenes[1].motion, 'pan_left');
     expect(sb.quotes.map((q) => q.text), ['a line to remember']);
     expect(Storyboard.parse('no json', lineCount: 3), isNull);
+  });
+
+  test('sentimento da cena: só os da lista (o resto fica vazio)', () {
+    final sb = Storyboard.parse(
+        '{"scenes":[{"line":0,"query":"a","emotion":"Longing"},{"line":1,"query":"b","emotion":"boredom"}]}',
+        lineCount: 3)!;
+    expect(sb.scenes.map((s) => s.emotion), ['longing', '']);
+  });
+
+  test('rodízio de três fontes: foto, obra, imagem do sentimento; sem repetir de uma música para outra', () async {
+    final search = _FakeSearch();
+    final im = ImaginedMusic(ai: await _ai(_threeScenes('sadness')), searcher: search, store: MemoryTranslatorStore());
+    final a = (await im.storyboard(title: 'One', artist: 'Band', lines: ['x', 'y', 'z']))!;
+    expect(a.scenes.map((s) => s.photo!.id), ['p1', 'art-sea painting', 'sadness-1']);
+    final b = (await im.storyboard(title: 'Two', artist: 'Band', lines: ['u', 'v', 'w']))!;
+    expect(b.scenes[2].photo!.id, 'sadness-2', reason: 'a da música anterior fica de lado');
+    expect(search.emotionCalls, ['sadness'], reason: 'a lista de cada sentimento vem uma vez');
   });
 
   test('primeira cena sempre começa na linha 0', () {

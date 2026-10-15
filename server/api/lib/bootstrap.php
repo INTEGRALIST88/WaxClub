@@ -268,7 +268,8 @@ function migrations(): array
                 created_at DATETIME(3) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
-        // A3: acervo de arte em domínio público (CC0: The Met, Art Institute of Chicago), imagens em /imagined/art/
+        // A3: acervo de arte em domínio público (CC0: The Met, Art Institute of Chicago), imagens em /imagined/art/;
+        // "emotion" marca as obras escolhidas a dedo para cada sentimento (amor, saudade, raiva...)
         8 => [
             "CREATE TABLE IF NOT EXISTS imagine_art (
                 id VARCHAR(40) PRIMARY KEY,
@@ -283,6 +284,8 @@ function migrations(): array
                 width SMALLINT UNSIGNED NOT NULL,
                 height SMALLINT UNSIGNED NOT NULL,
                 color CHAR(7) NULL,
+                emotion VARCHAR(20) NULL,
+                KEY k_emotion (emotion),
                 FULLTEXT KEY ft_art (title, artist, tags, kind)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],

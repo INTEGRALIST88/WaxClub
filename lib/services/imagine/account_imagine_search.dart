@@ -15,6 +15,10 @@ class AccountImagineSearch implements ImagineSearch {
       [for (final a in await account.imagineArt(query)) ImaginePhoto.fromArt(a)];
 
   @override
+  Future<List<ImaginePhoto>> searchEmotion(String emotion) async =>
+      [for (final a in await account.imagineEmotion(emotion)) ImaginePhoto.fromArt(a)];
+
+  @override
   Future<void> used(ImaginePhoto photo) async {
     if (photo.isArt) return; // obras do acervo não têm aviso de uso
     final d = photo.download;

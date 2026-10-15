@@ -58,6 +58,7 @@ $routes = [
     ['GET', '#^/v1/imagine/search$#', 'imagine_search'],
     ['POST', '#^/v1/imagine/used$#', 'imagine_used'],
     ['GET', '#^/v1/imagine/art$#', 'imagine_art'],
+    ['GET', '#^/v1/imagine/emotion$#', 'imagine_emotion'],
 ];
 
 $pathMatched = false;
