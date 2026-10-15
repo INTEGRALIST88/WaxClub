@@ -245,6 +245,15 @@ class BrainService extends ChangeNotifier {
     return status;
   }
 
+  /// Situação vista ao usar o chip (ex.: limite do dia atingido durante uma tradução).
+  Future<void> markStatus(String id, BrainKeyStatus status) async {
+    final i = _plugged.indexWhere((p) => p.id == id);
+    if (i < 0 || _plugged[i].status == status) return;
+    _plugged[i] = _plugged[i].copyWith(status: status, checkedAt: DateTime.now());
+    await _save();
+    notifyListeners();
+  }
+
   /// Apaga tudo do celular (ex.: sair da conta). A cópia na conta continua.
   Future<void> clearLocal() async {
     _plugged.clear();

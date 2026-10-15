@@ -22,6 +22,9 @@ import '../widgets/home_greeting.dart';
 import '../../services/collection_service.dart';
 import '../../services/brain/account_brain_remote.dart';
 import '../../services/brain/brain_service.dart';
+import '../../services/brain/brain_ai.dart';
+import '../../services/ai_translator.dart';
+import '../../services/lrc_parser.dart';
 import 'waxbrain_screen.dart';
 import '../../services/user_profile_store.dart';
 import 'collection_screen.dart';
@@ -105,6 +108,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final GlobalKey _brainKey = GlobalKey();
   bool _brainAttached = false;
 
+  /// Plugin A2: tradutor de IA (letras e curiosidades) com os chips do WaxBrain.
+  late final BrainAi _brainAi = BrainAi(brain: _brain);
+  late final AiTranslator _translator = AiTranslator(ai: _brainAi);
+  String? _lyricsTranslationKey;
+
   /// Conta WaxClub (api.waxclub.com.br): sincroniza a coleção e as audições.
   late final AccountService _account = widget.account ?? AccountService();
   final int _greetingSeed = DateTime.now().millisecondsSinceEpoch;
@@ -121,6 +129,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     _engine.castService.addListener(_onCastServiceStateChanged);
     _engine.addListener(_recordPlayIfNew);
+    _engine.addListener(_maybeTranslateLyrics);
+    _translator.addListener(_onTranslatorChanged);
+    _translator.load();
     _profile.addListener(_onProfileChanged);
     _profile.load();
     _collection.load();
@@ -203,6 +214,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _initialPulseTimer?.cancel();
     _engine.castService.removeListener(_onCastServiceStateChanged);
     _engine.removeListener(_recordPlayIfNew);
+    _engine.removeListener(_maybeTranslateLyrics);
+    _translator.removeListener(_onTranslatorChanged);
+    _translator.dispose();
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
     PluginLinks.instance.pending.removeListener(_onPluginLink);
@@ -636,8 +650,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           lang: _artistLanguage(album, artist, lyrics: _engine.lyrics.map((l) => l.text).join(' ')),
         );
       }()
+          .then((c) => _translatedCuriosities(c, artist: artist, album: album))
           .then((c) {
-        if (mounted && _curiositiesKey == key) setState(() => _curiosities = c);
+        if (mounted && _curiositiesKey == key) {
+          setState(() => _curiosities = c);
+          _curiositiesSentKey = null; // a TV recebe a versão traduzida
+        }
       });
     }
     final c = _curiosities;
@@ -666,13 +684,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<List<Curiosity>> _curiositiesForItem(CollectionItem item) async {
     _albumCatalogCreated = true;
     final notes = item.discogsReleaseId == null ? null : await _albumCatalog.discogsNotes(item.discogsReleaseId!);
-    return _curiositiesService.albumFacts(
+    final facts = await _curiositiesService.albumFacts(
       artist: item.artist,
       album: item.album,
       lang: _artistLanguage(item.album, item.artist),
       discogsNotes: notes,
       discogsReleaseId: item.discogsReleaseId,
     );
+    return (await _translatedCuriosities(RecordCuriosities(album: facts), artist: item.artist, album: item.album)).album;
   }
 
   /// O automático não reconhece a música há ~90 s: oferece o Modo Manual (letra pela minutagem).
@@ -823,7 +842,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// Jukebox de plugins (idiomas, exibição, fontes de letras, IA, conexões).
   void _openPlugins() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => PluginJukeboxScreen(store: _plugins, installer: _pluginInstaller, myLyrics: _myLyrics, clouds: _clouds),
+      builder: (_) => PluginJukeboxScreen(
+        store: _plugins,
+        installer: _pluginInstaller,
+        myLyrics: _myLyrics,
+        clouds: _clouds,
+        translator: _translator,
+        brain: _brain,
+        openBrain: _openBrain,
+      ),
     ));
   }
 
@@ -840,6 +867,105 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final before = _sourcesSignature;
     _sourcesSignature = sig;
     if (before != null && before != sig) _lyricsRequestKey = null; // a ordem mudou: o build confere de novo
+    final translatorOn = _translatorOn;
+    if (translatorOn != _translatorWasOn) {
+      _translatorWasOn = translatorOn;
+      _onTranslatorChanged();
+    }
+  }
+
+  bool _translatorWasOn = false;
+
+  /// O tradutor (A2) está no prato e já tem idioma escolhido.
+  bool get _translatorOn =>
+      _translator.language != null &&
+      _plugins.catalog.any((p) => p.id == PluginCatalog.translatorId && _plugins.isActive(p));
+
+  /// Ligou/desligou o tradutor ou trocou o idioma: a letra e as curiosidades são refeitas.
+  void _onTranslatorChanged() {
+    if (!mounted) return;
+    _lyricsTranslationKey = null;
+    _curiositiesKey = null; // busca de novo (do aparelho) e traduz, ou volta ao inglês
+    _maybeTranslateLyrics();
+    setState(() {});
+  }
+
+  /// Plugin A2: traduz a letra da música atual linha por linha (uma vez por música; depois vem do
+  /// aparelho) e põe cada tradução embaixo da linha, no celular e na TV.
+  void _maybeTranslateLyrics() {
+    final track = _engine.currentTrack;
+    final lyrics = _engine.lyrics;
+    if (track == null || lyrics.isEmpty) return;
+    final lines = [for (final l in lyrics) l.text];
+    final hasTranslation = lyrics.any((l) => l.translation != null);
+    if (!_translatorOn) {
+      if (hasTranslation) _engine.applyLyricTranslations(track.title, lines, null);
+      _lyricsTranslationKey = null;
+      return;
+    }
+    final key = '${_translator.language!.code}|${track.title}|${Object.hashAll(lines)}'; // l10n-ignore
+    if (hasTranslation || _lyricsTranslationKey == key) {
+      if (hasTranslation) _prefetchRecordTranslations(); // a próxima letra pode ter chegado agora
+      return;
+    }
+    _lyricsTranslationKey = key;
+    final cached = _translator.cached('lyrics', lines); // l10n-ignore
+    if (cached != null) {
+      _engine.applyLyricTranslations(track.title, lines, cached);
+      return;
+    }
+    _translator.translateLyrics(lines, title: track.title, artist: track.artist).then((tr) {
+      if (tr != null && mounted && _lyricsTranslationKey == key) _engine.applyLyricTranslations(track.title, lines, tr);
+      _prefetchRecordTranslations();
+    });
+  }
+
+  /// Músicas já traduzidas adiantado (idioma|artista|música), para não pedir de novo.
+  final Set<String> _prefetchedTranslations = {};
+  bool _prefetchingTranslations = false;
+
+  /// Enquanto uma música toca, traduz as próximas do disco cuja letra já está no aparelho (a próxima faixa é
+  /// sempre buscada adiantado), uma de cada vez para não estourar o limite do chip grátis. Assim a tradução
+  /// aparece na hora em que cada música começa.
+  Future<void> _prefetchRecordTranslations() async {
+    if (_prefetchingTranslations || !_translatorOn) return;
+    final current = _engine.currentTrack;
+    final tracks = _engine.lockedTracklist;
+    if (current == null || tracks.isEmpty) return;
+    final at = TracklistMatcher.findIndex(tracks, current.title);
+    _prefetchingTranslations = true;
+    try {
+      for (final e in tracks.skip(at < 0 ? 0 : at + 1)) {
+        if (!mounted || !_translatorOn) return;
+        final artist = e.artist ?? _engine.lockedAlbumArtist ?? current.artist;
+        final key = '${_translator.language!.code}|$artist|${e.title}'; // l10n-ignore
+        if (_prefetchedTranslations.contains(key)) continue;
+        final lrc = _engine.cacheService.findCachedLyrics(e.title, artist);
+        if (lrc == null || lrc.trim().isEmpty) continue; // letra ainda não buscada: fica para quando vier
+        final lines = [for (final l in LrcParser.parse(lrc)) l.text];
+        if (lines.isEmpty) continue;
+        _prefetchedTranslations.add(key);
+        if (_translator.cached('lyrics', lines) != null) continue; // l10n-ignore
+        await _translator.translateLyrics(lines, title: e.title, artist: artist);
+        if (_translator.lastError == 'no_chip' || _translator.lastError == 'all_failed') return; // l10n-ignore
+      }
+    } finally {
+      _prefetchingTranslations = false;
+    }
+  }
+
+  /// Plugin A2: curiosidades e notícias traduzidas, marcadas como tradução de IA (sem o tradutor, iguais).
+  Future<RecordCuriosities> _translatedCuriosities(RecordCuriosities c, {required String artist, required String album}) async {
+    if (!_translatorOn || c.isEmpty) return c;
+    final all = [...c.album, ...c.news, ...c.track];
+    final tr = await _translator.translateTexts([for (final x in all) x.text], context: '"$album" by $artist'); // l10n-ignore (vai para a IA, não para a tela)
+    if (tr == null) return c;
+    var i = 0;
+    Curiosity t(Curiosity x) => Curiosity(tr[i++], '${x.source} · ${l10n.aiTranslatedTag}', url: x.url, date: x.date);
+    final album0 = [for (final x in c.album) t(x)];
+    final news = [for (final x in c.news) t(x)];
+    final track = [for (final x in c.track) t(x)];
+    return RecordCuriosities(album: album0, news: news, track: track);
   }
   final LocalLyricsLibrary _myLyrics = LocalLyricsLibrary();
   final List<CloudLyricsFolder> _clouds = [DropboxFolder(), OneDriveFolder(), GoogleDriveFolder()];

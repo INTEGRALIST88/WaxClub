@@ -223,6 +223,18 @@ class TvWebReceiverHtml {
     .line.gap { font-size: calc(var(--line-size) * 0.8); }
     /* letra em caixa alta quando o texto é em alfabeto latino */
     .line.upper { text-transform: uppercase; letter-spacing: 0; }
+    /* tradução da linha (plugin A2 do celular): menor, creme, logo abaixo da original */
+    .line .tr {
+      display: block;
+      font-size: 0.62em;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 1.25;
+      margin-top: 0.15em;
+      color: rgba(235, 213, 176, 0.9);
+      text-shadow: none;
+    }
 
     .placeholder {
       position: absolute;
@@ -853,6 +865,14 @@ class TvWebReceiverHtml {
         const text = (l.text || '').trim();
         div.className = 'line' + (text ? (isLatin(text) ? ' upper' : '') : ' gap');
         div.textContent = text || '♪';
+        // tradução da linha (plugin A2 do celular), embaixo da original
+        const tr = (typeof l.tr === 'string') ? l.tr.trim() : '';
+        if (text && tr) {
+          const t = document.createElement('span');
+          t.className = 'tr';
+          t.textContent = tr;
+          div.appendChild(t);
+        }
         container.appendChild(div);
         return div;
       });

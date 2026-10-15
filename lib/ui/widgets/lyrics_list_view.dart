@@ -70,7 +70,9 @@ class _LyricsListViewState extends State<LyricsListView> {
   /// Posição (fração da área visível) da borda de cima da linha para que o MEIO dela fique no centro.
   double get _centerAlignment {
     if (_viewport <= 0) return 0.42;
-    final lineHeight = _fontSize * 1.25 + 16;
+    // Com tradução, cada linha tem a original e, embaixo, a tradução (62% do tamanho)
+    final translated = widget.lyrics.any((l) => l.translation != null);
+    final lineHeight = _fontSize * 1.25 + 16 + (translated ? _fontSize * 0.62 * 1.25 + 2 : 0);
     return (0.5 - (lineHeight / 2) / _viewport).clamp(0.0, 1.0);
   }
 
@@ -158,7 +160,29 @@ class _LyricsListViewState extends State<LyricsListView> {
                   ? [Shadow(color: AppTheme.orange.withValues(alpha: 0.35), blurRadius: _fontSize * 0.9)]
                   : const [],
             ),
-            child: Text(display, textAlign: TextAlign.center),
+            child: line.translation == null
+                ? Text(display, textAlign: TextAlign.center)
+                : Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text(display, textAlign: TextAlign.center),
+                    // Tradução (plugin A2): menor, creme, logo abaixo da linha original
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        line.translation!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Inter', // l10n-ignore
+                          fontVariations: const [FontVariation('wght', 500)], // l10n-ignore
+                          fontWeight: FontWeight.w500,
+                          fontSize: _fontSize * 0.62,
+                          height: 1.25,
+                          letterSpacing: 0,
+                          color: AppTheme.cream.withValues(alpha: LyricsListView.opacityFor(distance) * 0.9),
+                          shadows: const [],
+                        ),
+                      ),
+                    ),
+                  ]),
           ),
         ),
       ),

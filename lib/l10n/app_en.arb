@@ -966,8 +966,8 @@
   "pluginCuriositiesDesc": "Short facts about the record and each track, plus recent news about the artist, always in English with the source (Wikipedia, Discogs pressing notes, news outlets), rising and fading as the music plays. Shown when there are no lyrics.",
   "pluginAiCuriositiesName": "AI curiosities",
   "pluginAiCuriositiesDesc": "Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.",
-  "pluginAiTranslateName": "AI translation",
-  "pluginAiTranslateDesc": "Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.",
+  "pluginAiTranslateName": "AI translator",
+  "pluginAiTranslateDesc": "Translates everything that isn't a menu: song lyrics (each line with its translation below it, on the phone and on the TV), curiosities and news about the record, into the language you choose. Uses a chip from your WaxBrain; translations stay on your phone.",
   "helpPlugins": "Plugins (jukebox)",
   "helpPlugins1": "Tap Plugins (the jack plug button) to open the Plugin Jukebox. Each plugin is a colored 7\" single: green for languages, cyan for display, lilac for AI and orange for connections to other services (C1 Discogs comes preinstalled). English comes preinstalled; other languages will be available on the official WaxClub website.",
   "helpPlugins2": "Tap a record or type its code (e.g. L1) on the keypad and press Select to see details and turn it on or off. Records on the platter are the ones in use; the ones in the crate are coming soon.",
@@ -1576,5 +1576,13 @@
   "jukeboxTapToChoose": "Tap a record or a strip",
   "jukeboxDetails": "Details",
   "jukeboxOn": "ON",
-  "jukeboxOff": "OFF"
+  "jukeboxOff": "OFF",
+  "aiTranslatedTag": "AI translation",
+  "translatorLanguageLabel": "Translate into",
+  "translatorChooseLanguage": "Choose a language",
+  "translatorUsesChip": "Translating with your {name} chip from the WaxBrain.",
+  "@translatorUsesChip": {"placeholders": {"name": {"type": "String"}}},
+  "translatorNeedsChip": "No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.",
+  "translatorOpenBrain": "Open the WaxBrain",
+  "translatorPrivacy": "Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models."
 }

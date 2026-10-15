@@ -944,6 +944,8 @@ class CastSyncService extends ChangeNotifier {
       'lyrics': lyrics.map((l) => {
         'ms': l.timestamp.inMilliseconds,
         'text': l.text,
+        // tradução da linha (plugin A2), mostrada embaixo dela na TV
+        if (l.translation != null) 'tr': l.translation,
       }).toList(),
     };
 

@@ -80,6 +80,9 @@ class PluginInfo {
   /// 'netease'...). O plugin não traz código: o manifesto só liga uma integração que já vem no app.
   final String? engine;
 
+  /// Embutido que vem desligado (ex.: o tradutor de IA, que precisa de um chip no WaxBrain e do idioma).
+  final bool startsOff;
+
   const PluginInfo({
     required this.id,
     required this.category,
@@ -91,6 +94,7 @@ class PluginInfo {
     this.availability = PluginAvailability.installable,
     this.locked = false,
     this.engine,
+    this.startsOff = false,
   });
 
   String get code => '${category.letter}$number';
@@ -213,14 +217,15 @@ class PluginCatalog {
           availability: PluginAvailability.comingSoon,
         ),
         PluginInfo(
-          id: 'ai.translate',
+          id: translatorId,
           category: PluginCategory.ai,
           number: 2,
           name: l10n.pluginAiTranslateName,
           author: l10n.pluginAuthorWaxClub,
           license: l10n.pluginLicenseAi,
           description: l10n.pluginAiTranslateDesc,
-          availability: PluginAvailability.comingSoon,
+          availability: PluginAvailability.builtIn,
+          startsOff: true,
         ),
         PluginInfo(
           id: discogsId,
@@ -236,6 +241,9 @@ class PluginCatalog {
 
   /// Plugin C1: conta Discogs (busca de prensagens, coleção no Discogs).
   static const String discogsId = 'connect.discogs';
+
+  /// A2: tradutor de IA (letras, curiosidades e informações do disco) com a chave do WaxBrain.
+  static const String translatorId = 'ai.translate';
 
   /// Plugin D1: curiosidades do disco e da faixa.
   static const String curiositiesId = 'display.curiosities';
@@ -378,7 +386,7 @@ class PluginStore extends ChangeNotifier {
           _active.add(builtIns.first.id);
         }
       } else {
-        _active.addAll(builtIns.map((p) => p.id));
+        _active.addAll(builtIns.where((p) => !p.startsOff).map((p) => p.id));
       }
     }
   }
@@ -556,7 +564,7 @@ class PluginStore extends ChangeNotifier {
           ..addAll(active)
           ..addAll(catalog.where((p) => p.locked).map((p) => p.id))
           ..addAll(catalog.where((p) =>
-              p.isBuiltIn && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
+              p.isBuiltIn && !p.startsOff && !p.category.exclusive && !seen.contains(p.id)).map((p) => p.id));
         // Idioma: se nenhum ativo, o padrão
         _applyLanguageDefault();
         // Antes do lançamento: fontes de letras de fábrica, uma vez (até a 1.4.9 elas não eram plugins

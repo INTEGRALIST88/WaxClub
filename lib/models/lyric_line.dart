@@ -9,11 +9,23 @@ class LyricLine {
   /// Duração estimada até a próxima linha (opcional).
   final Duration? duration;
 
+  /// Tradução da linha (plugin A2, tradutor de IA), exibida embaixo dela; nula sem tradução.
+  final String? translation;
+
   LyricLine({
     required this.timestamp,
     required this.text,
     this.duration,
+    this.translation,
   });
+
+  /// A mesma linha com a tradução (vazia = sem tradução).
+  LyricLine withTranslation(String? value) => LyricLine(
+        timestamp: timestamp,
+        text: text,
+        duration: duration,
+        translation: (value == null || value.trim().isEmpty || value.trim() == text.trim()) ? null : value.trim(),
+      );
 
   /// Indica se esta linha representa uma pausa instrumental ou silêncio.
   bool get isInstrumental => text.trim().isEmpty || text.trim() == '♪' || text.trim().toLowerCase() == '[instrumental]';

@@ -5,6 +5,8 @@ import '../../l10n/l10n.dart';
 import '../../services/cloud/cloud_folder.dart';
 import '../../services/cloud/google_drive_folder.dart';
 import '../../services/local_lyrics_library.dart';
+import '../../services/ai_translator.dart';
+import '../../services/brain/brain_service.dart';
 import 'cloud_login_screen.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
@@ -25,7 +27,22 @@ class PluginJukeboxScreen extends StatefulWidget {
   /// Letras do próprio usuário (plugin S5) e as pastas delas na nuvem (Dropbox, OneDrive, Google Drive).
   final LocalLyricsLibrary? myLyrics;
   final List<CloudLyricsFolder> clouds;
-  const PluginJukeboxScreen({super.key, required this.store, this.installer, this.myLyrics, this.clouds = const []});
+
+  /// Plugin A2 (tradutor de IA): idioma escolhido e os chips do WaxBrain, que ele usa.
+  final AiTranslator? translator;
+  final BrainService? brain;
+  final VoidCallback? openBrain;
+
+  const PluginJukeboxScreen({
+    super.key,
+    required this.store,
+    this.installer,
+    this.myLyrics,
+    this.clouds = const [],
+    this.translator,
+    this.brain,
+    this.openBrain,
+  });
 
   @override
   State<PluginJukeboxScreen> createState() => _PluginJukeboxScreenState();
@@ -66,7 +83,16 @@ class _PluginJukeboxScreenState extends State<PluginJukeboxScreen> {
       backgroundColor: _panel,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _PluginSheet(store: _store, plugin: p, installer: widget.installer, myLyrics: widget.myLyrics, clouds: widget.clouds),
+      builder: (_) => _PluginSheet(
+        store: _store,
+        plugin: p,
+        installer: widget.installer,
+        myLyrics: widget.myLyrics,
+        clouds: widget.clouds,
+        translator: widget.translator,
+        brain: widget.brain,
+        openBrain: widget.openBrain,
+      ),
     );
     if (mounted) setState(() {});
   }
@@ -502,7 +528,19 @@ class _PluginSheet extends StatefulWidget {
   final PluginInstaller? installer;
   final LocalLyricsLibrary? myLyrics;
   final List<CloudLyricsFolder> clouds;
-  const _PluginSheet({required this.store, required this.plugin, this.installer, this.myLyrics, this.clouds = const []});
+  final AiTranslator? translator;
+  final BrainService? brain;
+  final VoidCallback? openBrain;
+  const _PluginSheet({
+    required this.store,
+    required this.plugin,
+    this.installer,
+    this.myLyrics,
+    this.clouds = const [],
+    this.translator,
+    this.brain,
+    this.openBrain,
+  });
 
   @override
   State<_PluginSheet> createState() => _PluginSheetState();
@@ -576,6 +614,63 @@ class _PluginSheetState extends State<_PluginSheet> {
   };
 
   /// Pasta de letras numa nuvem: conectar, sincronizar e desconectar.
+  /// Plugin A2: idioma da tradução e o chip do WaxBrain que ela usa.
+  List<Widget> _translatorSection(AiTranslator tr) {
+    final brain = widget.brain;
+    final chip = brain?.activeChip?.chip;
+    final hasChip = brain?.hasChip ?? false;
+    return [
+      const SizedBox(height: 14),
+      Text(l10n.translatorLanguageLabel, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+      const SizedBox(height: 6),
+      DropdownButtonFormField<String>(
+        initialValue: tr.language?.code,
+        isExpanded: true,
+        dropdownColor: const Color(0xFF221B2A),
+        style: const TextStyle(color: Colors.white, fontSize: 15),
+        hint: Text(l10n.translatorChooseLanguage, style: const TextStyle(color: Colors.white54)),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: const Color(0xFF221B2A),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        items: [
+          for (final l in TranslatorLanguage.all) DropdownMenuItem(value: l.code, child: Text(l.name)),
+        ],
+        onChanged: (code) async {
+          final lang = TranslatorLanguage.byCode(code);
+          if (lang == null) return;
+          await tr.setLanguage(lang);
+          if (mounted) setState(() {});
+        },
+      ),
+      const SizedBox(height: 12),
+      Row(children: [
+        Icon(hasChip ? Icons.memory_rounded : Icons.warning_amber_rounded,
+            color: hasChip ? (chip?.color ?? Colors.greenAccent) : AppTheme.orange, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            hasChip ? l10n.translatorUsesChip(chip?.name ?? '—') : l10n.translatorNeedsChip,
+            style: TextStyle(color: hasChip ? Colors.white70 : AppTheme.orange, fontSize: 13, height: 1.35),
+          ),
+        ),
+      ]),
+      if (widget.openBrain != null) ...[
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: widget.openBrain,
+          icon: const Icon(Icons.psychology_alt_outlined, size: 18),
+          label: Text(l10n.translatorOpenBrain),
+          style: OutlinedButton.styleFrom(foregroundColor: AppTheme.cream, side: const BorderSide(color: AppTheme.cream)),
+        ),
+      ],
+      const SizedBox(height: 10),
+      Text(l10n.translatorPrivacy, style: const TextStyle(color: Colors.white38, fontSize: 11.5, height: 1.4)),
+    ];
+  }
+
   Widget _cloudCard(CloudLyricsFolder c, LocalLyricsLibrary lib) {
     final color = _cloudColors[c.cloudId] ?? const Color(0xFF3D9AE8);
     final hint = switch (c.cloudId) {
@@ -826,6 +921,7 @@ class _PluginSheetState extends State<_PluginSheet> {
             Text(status, style: const TextStyle(color: AppTheme.cream, fontWeight: FontWeight.w600)),
             if (store.connectionFor(p) case final c?) ..._connection(p, c),
             if (p.id == PluginCatalog.myLyricsId && installed && widget.myLyrics != null) ..._myLyricsSection(widget.myLyrics!),
+            if (p.id == PluginCatalog.translatorId && widget.translator != null) ..._translatorSection(widget.translator!),
             const SizedBox(height: 12),
             if (p.isInstallable && !installed && widget.installer != null) ...[
               SizedBox(

@@ -1371,11 +1371,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Summarizes facts about the record and its tracks from Discogs and Wikipedia, always with the source.';
 
   @override
-  String get pluginAiTranslateName => 'AI translation';
+  String get pluginAiTranslateName => 'AI translator';
 
   @override
   String get pluginAiTranslateDesc =>
-      'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.';
+      'Translates everything that isn\'t a menu: song lyrics (each line with its translation below it, on the phone and on the TV), curiosities and news about the record, into the language you choose. Uses a chip from your WaxBrain; translations stay on your phone.';
 
   @override
   String get helpPlugins => 'Plugins (jukebox)';
@@ -2525,4 +2525,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jukeboxOff => 'OFF';
+
+  @override
+  String get aiTranslatedTag => 'AI translation';
+
+  @override
+  String get translatorLanguageLabel => 'Translate into';
+
+  @override
+  String get translatorChooseLanguage => 'Choose a language';
+
+  @override
+  String translatorUsesChip(String name) {
+    return 'Translating with your $name chip from the WaxBrain.';
+  }
+
+  @override
+  String get translatorNeedsChip =>
+      'No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.';
+
+  @override
+  String get translatorOpenBrain => 'Open the WaxBrain';
+
+  @override
+  String get translatorPrivacy =>
+      'Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models.';
 }

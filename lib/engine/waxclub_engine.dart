@@ -664,6 +664,24 @@ class WaxClubEngine extends ChangeNotifier {
   List<LyricLine> _lyrics = [];
   List<LyricLine> get lyrics => _lyrics;
 
+  /// Plugin A2 (tradutor de IA): põe a tradução embaixo de cada linha da letra da música atual e
+  /// reenvia à TV. Ignorado se a música ou a letra mudaram enquanto a tradução era feita.
+  /// [translations] = uma por linha, na mesma ordem; nulo remove as traduções.
+  bool applyLyricTranslations(String title, List<String> lines, List<String>? translations) {
+    if (_currentTrack?.title != title || _lyrics.length != lines.length) return false;
+    for (var i = 0; i < lines.length; i++) {
+      if (_lyrics[i].text != lines[i]) return false;
+    }
+    if (translations != null && translations.length != lines.length) return false;
+    _lyrics = [for (var i = 0; i < _lyrics.length; i++) _lyrics[i].withTranslation(translations?[i])];
+    notifyListeners();
+    if (_castService.isConnected && _currentTrack != null) {
+      _castService.sendTrack(_currentTrack!, _tvLyrics, side: _sideFor(_currentTrack!.title));
+      _sendCastSyncWithTvLookahead();
+    }
+    return true;
+  }
+
   /// As curiosidades (D1) estão na frente das fontes de letras no painel e há curiosidades para esta
   /// música: a TV recebe a música sem letra (e mostra as curiosidades), mesmo que haja letra.
   bool _curiositiesFirst = false;

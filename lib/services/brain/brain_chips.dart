@@ -18,6 +18,9 @@ enum BrainKeyStatus {
       BrainKeyStatus.values.firstWhere((v) => v.name == s, orElse: () => BrainKeyStatus.ok);
 }
 
+/// Formato da API de conversa do provedor.
+enum BrainApi { openAiCompatible, gemini, anthropic }
+
 /// Um chip do WaxBrain: um provedor de IA cuja chave (API key) o usuário encaixa (modelo BYOK).
 /// Nenhum vem encaixado de fábrica.
 class BrainChip {
@@ -49,7 +52,17 @@ class BrainChip {
   final Uri Function(String key) checkUrl;
   final Map<String, String> Function(String key) checkHeaders;
 
+  /// Como o app conversa com a IA deste provedor e com qual modelo (barato/rápido por padrão).
+  final BrainApi api;
+  final String model;
+
+  /// Endereço base da API no formato OpenAI (`{base}/chat/completions`), quando [api] é openAiCompatible.
+  final String? chatBase;
+
   const BrainChip({
+    required this.api,
+    required this.model,
+    this.chatBase,
     required this.id,
     required this.name,
     required this.vendor,
@@ -75,6 +88,8 @@ class BrainChip {
   static final List<BrainChip> all = [
     BrainChip(
       id: 'gemini',
+      api: BrainApi.gemini,
+      model: 'gemini-flash-lite-latest',
       name: 'Gemini',
       vendor: 'Google AI Studio',
       free: true,
@@ -86,6 +101,9 @@ class BrainChip {
     ),
     BrainChip(
       id: 'groq',
+      api: BrainApi.openAiCompatible,
+      model: 'llama-3.3-70b-versatile',
+      chatBase: 'https://api.groq.com/openai/v1',
       name: 'Groq',
       vendor: 'GroqCloud',
       free: true,
@@ -97,6 +115,9 @@ class BrainChip {
     ),
     BrainChip(
       id: 'openrouter',
+      api: BrainApi.openAiCompatible,
+      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      chatBase: 'https://openrouter.ai/api/v1',
       name: 'OpenRouter',
       vendor: 'OpenRouter',
       free: true,
@@ -108,6 +129,9 @@ class BrainChip {
     ),
     BrainChip(
       id: 'mistral',
+      api: BrainApi.openAiCompatible,
+      model: 'mistral-small-latest',
+      chatBase: 'https://api.mistral.ai/v1',
       name: 'Mistral',
       vendor: 'Mistral AI',
       free: true,
@@ -120,6 +144,9 @@ class BrainChip {
     ),
     BrainChip(
       id: 'openai',
+      api: BrainApi.openAiCompatible,
+      model: 'gpt-4o-mini',
+      chatBase: 'https://api.openai.com/v1',
       name: 'ChatGPT',
       vendor: 'OpenAI API',
       free: false,
@@ -131,6 +158,8 @@ class BrainChip {
     ),
     BrainChip(
       id: 'anthropic',
+      api: BrainApi.anthropic,
+      model: 'claude-haiku-5-5',
       name: 'Claude',
       vendor: 'Anthropic API',
       free: false,
@@ -142,6 +171,9 @@ class BrainChip {
     ),
     BrainChip(
       id: 'xai',
+      api: BrainApi.openAiCompatible,
+      model: 'grok-3-mini',
+      chatBase: 'https://api.x.ai/v1',
       name: 'Grok',
       vendor: 'xAI API',
       free: false,

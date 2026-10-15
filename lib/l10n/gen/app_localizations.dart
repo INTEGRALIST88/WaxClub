@@ -2317,13 +2317,13 @@ abstract class AppLocalizations {
   /// No description provided for @pluginAiTranslateName.
   ///
   /// In en, this message translates to:
-  /// **'AI translation'**
+  /// **'AI translator'**
   String get pluginAiTranslateName;
 
   /// No description provided for @pluginAiTranslateDesc.
   ///
   /// In en, this message translates to:
-  /// **'Translates the news and curiosities (always in English) into your language. Will be available on the official WaxClub website.'**
+  /// **'Translates everything that isn\'t a menu: song lyrics (each line with its translation below it, on the phone and on the TV), curiosities and news about the record, into the language you choose. Uses a chip from your WaxBrain; translations stay on your phone.'**
   String get pluginAiTranslateDesc;
 
   /// No description provided for @helpPlugins.
@@ -4221,6 +4221,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OFF'**
   String get jukeboxOff;
+
+  /// No description provided for @aiTranslatedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'AI translation'**
+  String get aiTranslatedTag;
+
+  /// No description provided for @translatorLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate into'**
+  String get translatorLanguageLabel;
+
+  /// No description provided for @translatorChooseLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a language'**
+  String get translatorChooseLanguage;
+
+  /// No description provided for @translatorUsesChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating with your {name} chip from the WaxBrain.'**
+  String translatorUsesChip(String name);
+
+  /// No description provided for @translatorNeedsChip.
+  ///
+  /// In en, this message translates to:
+  /// **'No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.'**
+  String get translatorNeedsChip;
+
+  /// No description provided for @translatorOpenBrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the WaxBrain'**
+  String get translatorOpenBrain;
+
+  /// No description provided for @translatorPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics, curiosities and news are sent only to the AI chip you plugged in, with your own key. Translations are marked as AI translations, stay on this phone and are never shared. On free plans, the AI provider may use what is sent to improve its models.'**
+  String get translatorPrivacy;
 }
 
 class _AppLocalizationsDelegate
