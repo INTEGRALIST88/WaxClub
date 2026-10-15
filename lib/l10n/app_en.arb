@@ -160,6 +160,7 @@
   "removeFromCollection": "Remove from collection",
   "signInToDiscogs": "Sign in to Discogs",
   "reload": "Reload",
+  "browserForward": "Forward",
   "tryAgain": "Try again",
   "discogsTokenHint": "Sign in above: WaxClub picks up your token from the page by itself. If it doesn't, copy the token and paste it here:",
   "discogsTokenField": "Discogs personal token",

@@ -6,12 +6,14 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../services/discogs/discogs_auth_service.dart';
 import '../../services/discogs/discogs_config.dart';
 import '../theme/app_theme.dart';
+import '../widgets/lean_browser.dart';
 
-/// Tela de login do Discogs dentro do app. Retorna `true` quando a conta foi conectada e guardada.
+/// Tela de login do Discogs no navegador do app ([LeanBrowser]). Retorna `true` quando a conta foi
+/// conectada e guardada.
 ///
 /// Com as chaves do app cadastradas ([DiscogsConfig.hasAppKeys]): login OAuth na própria página do
-/// Discogs, e o retorno é capturado automaticamente. Sem elas: abre a página da conta onde o usuário
-/// gera um token pessoal e o cola no campo de baixo.
+/// Discogs, e o retorno é capturado automaticamente. Sem elas: abre a página da conta, e o token pessoal
+/// é lido da página; o campo de colar só aparece se a leitura não der certo.
 class DiscogsLoginScreen extends StatefulWidget {
   final DiscogsAuthService auth;
   const DiscogsLoginScreen({super.key, required this.auth});
@@ -24,7 +26,8 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
   WebViewController? _web;
   DiscogsRequestToken? _requestToken;
   final TextEditingController _tokenField = TextEditingController();
-  bool _loadingPage = true;
+  Uri? _url;
+  int _attempt = 0; // tentar de novo recria o navegador
   bool _busy = false;
   String? _error;
 
@@ -45,7 +48,8 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
   Future<void> _start() async {
     setState(() {
       _error = null;
-      _loadingPage = true;
+      _url = null;
+      _attempt++;
     });
     try {
       String url = DiscogsConfig.personalTokenPage;
@@ -53,39 +57,25 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
         _requestToken = await widget.auth.requestToken();
         url = _requestToken!.authorizeUrl;
       }
-      final controller = WebViewController()
-        ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setBackgroundColor(Colors.white)
-        ..setNavigationDelegate(NavigationDelegate(
-          onPageStarted: (_) => mounted ? setState(() => _loadingPage = true) : null,
-          onPageFinished: (url) {
-            if (mounted) setState(() => _loadingPage = false);
-            if (!_oauth) _captureTokenFromPage(url);
-          },
-          onNavigationRequest: (request) {
-            final verifier = DiscogsAuthService.verifierFromCallback(request.url);
-            if (verifier != null) {
-              _finishOAuth(verifier);
-              return NavigationDecision.prevent;
-            }
-            if (request.url.startsWith(DiscogsConfig.callbackUrl)) {
-              // Retorno sem verificador: o usuário recusou a autorização
-              Navigator.of(context).pop(false);
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ))
-        ..loadRequest(Uri.parse(url));
-      if (mounted) setState(() => _web = controller);
+      if (mounted) setState(() => _url = Uri.parse(url));
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
-          _loadingPage = false;
-        });
-      }
+      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */);
     }
+  }
+
+  /// Retorno do login OAuth: o app conclui e a página não abre.
+  bool _intercept(String url) {
+    final verifier = DiscogsAuthService.verifierFromCallback(url);
+    if (verifier != null) {
+      _finishOAuth(verifier);
+      return true;
+    }
+    if (url.startsWith(DiscogsConfig.callbackUrl)) {
+      // Retorno sem verificador: o usuário recusou a autorização
+      Navigator.of(context).pop(false);
+      return true;
+    }
+    return false;
   }
 
   Future<void> _finishOAuth(String verifier) async {
@@ -106,6 +96,9 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
 
   /// As instruções de gerar o token já foram mostradas nesta tela (não repete a cada recarga).
   bool _helpShown = false;
+
+  /// Campo de colar o token: escondido enquanto a captura automática pode resolver.
+  bool _showPastePanel = false;
 
   /// Depois do login, o Discogs abre a página de desenvolvedor: o app lê o token na própria página,
   /// preenche o campo e conecta sozinho. Sem token na página, explica como gerar (ou copiar e colar);
@@ -142,6 +135,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     }
     if (_helpShown) return;
     _helpShown = true;
+    setState(() => _showPastePanel = true); // captura não deu: o campo de colar aparece
     // Mostra onde tocar: rola até o aceite dos termos e destaca a caixa e o botão de gerar
     // (o aceite é do usuário; o app não marca a caixa por ele)
     try {
@@ -178,6 +172,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
+          _showPastePanel = true;
           _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
         });
       }
@@ -186,44 +181,45 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.surface,
-        foregroundColor: Colors.white,
-        title: RetroText(l10n.signInToDiscogs, fontSize: 26, depth: 3),
-        actions: [
-          if (_web != null)
-            IconButton(icon: const Icon(Icons.refresh), onPressed: () => _web!.reload(), tooltip: l10n.reload),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (_loadingPage || _busy) const LinearProgressIndicator(minHeight: 2, color: AppTheme.cream),
-          if (_error != null)
-            Container(
-              width: double.infinity,
-              color: Colors.red.withValues(alpha: 0.18),
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(child: Text(_error!, style: const TextStyle(color: Colors.white, fontSize: 13))),
-                  TextButton(onPressed: _start, child: Text(l10n.tryAgain)),
-                ],
-              ),
+    final banner = _error == null
+        ? null
+        : Container(
+            width: double.infinity,
+            color: Colors.red.withValues(alpha: 0.18),
+            padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+            child: Row(
+              children: [
+                Expanded(child: Text(_error!, style: const TextStyle(color: Colors.white, fontSize: 13))),
+                TextButton(onPressed: _start, child: Text(l10n.tryAgain)),
+              ],
             ),
-          Expanded(
-            child: _web == null
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.cream))
-                : WebViewWidget(controller: _web!),
-          ),
-          if (!_oauth) _personalTokenPanel(),
-        ],
-      ),
+          );
+    final url = _url;
+    if (url == null) {
+      // Preparando o login (OAuth pede um token ao Discogs antes de abrir a página)
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        body: SafeArea(
+          child: Column(children: [
+            if (banner != null) banner,
+            const Expanded(child: Center(child: CircularProgressIndicator(color: AppTheme.cream))),
+          ]),
+        ),
+      );
+    }
+    return LeanBrowser(
+      key: ValueKey(_attempt),
+      url: url,
+      busy: _busy,
+      interceptNavigation: _intercept,
+      onCreated: (web) => _web = web,
+      onPageFinished: (_, pageUrl) => _oauth ? null : _captureTokenFromPage(pageUrl),
+      banner: banner,
+      bottom: (!_oauth && _showPastePanel) ? _personalTokenPanel() : null,
     );
   }
 
-  /// Sem chaves do app: o usuário entra na conta, toca em "Generate new token" e cola o token aqui.
+  /// Sem chaves do app e sem captura automática: o usuário copia o token da página e cola aqui.
   Widget _personalTokenPanel() {
     return SafeArea(
       top: false,

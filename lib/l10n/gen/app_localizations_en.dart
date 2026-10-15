@@ -214,6 +214,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reload => 'Reload';
 
   @override
+  String get browserForward => 'Forward';
+
+  @override
   String get tryAgain => 'Try again';
 
   @override

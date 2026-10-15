@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.28] — 15/10/2026 (Navegador do App para Logins)
+
+* **Navegador do WaxClub (`LeanBrowser`):** os logins de terceiros abrem em tela cheia, sem barra de endereço e sem o título do app; em cima, só uma barra fina com **voltar, avançar, recarregar e fechar** (fechar volta para onde o usuário estava). As barras do Android ficam escondidas enquanto ele está aberto (aparecem ao deslizar a borda), para nenhum botão da página ficar embaixo delas. O voltar do Android volta uma página; na primeira, fecha.
+* Usam o navegador: **login do Discogs** e **login das nuvens do S5 (Dropbox, OneDrive)**. Fica disponível para os próximos plugins.
+* **Discogs:** o campo de colar o token só aparece se a captura automática não der certo (ou se a conexão falhar).
+
+---
 ## [v1.4.27] — 15/10/2026 (Captura do Token Pelo Campo Exato da Página)
 
 * **Captura mais precisa:** o token é lido direto do campo onde o Discogs o exibe (`<code><span class="select-all">`, depois de "Token atual:"); a leitura do texto da página fica como reserva, caso o Discogs mude a página.

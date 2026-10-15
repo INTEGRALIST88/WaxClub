@@ -430,6 +430,12 @@ abstract class AppLocalizations {
   /// **'Reload'**
   String get reload;
 
+  /// No description provided for @browserForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward'**
+  String get browserForward;
+
   /// No description provided for @tryAgain.
   ///
   /// In en, this message translates to:
