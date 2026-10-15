@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -111,5 +112,36 @@ void main() {
     f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: true);
     expect(f.shown, 'display.curiosities');
     dir.deleteSync(recursive: true);
+  });
+
+  test('a busca segue estritamente o painel: S4 (texto simples) na frente é consultada primeiro', () async {
+    var ovh = 'Run away from all your boredom\nRun away from all your whoredom\nYour worries and cares, goodbye\nAll it takes is';
+    final asked = <String>[];
+    final client = MockClient((req) async {
+      asked.add(req.url.host);
+      if (req.url.host == 'api.lyrics.ovh') return http.Response(jsonEncode({'lyrics': ovh}), 200);
+      if (req.url.host.contains('lrclib') && req.url.path.endsWith('/get')) {
+        return http.Response(
+            jsonEncode({'duration': 248, 'syncedLyrics': '[00:20.00] um\n[01:00.00] dois\n[02:00.00] três\n[03:50.00] quatro'}), 200);
+      }
+      return http.Response('[]', 404);
+    });
+    LyricsProviderService.sourceOrder = () => const ['lyrics.ovh', 'lrclib'];
+    LyricsProviderService.sourceEnabled = (s) => s == 'lyrics.ovh' || s == 'lrclib';
+    addTearDown(() {
+      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+      LyricsProviderService.sourceEnabled = (_) => true;
+    });
+    final service = LyricsProviderService(client: client, lrcLibService: LrcLibService(client: client));
+    final r = await service.fetchLyricsDetails(trackName: 'Slave to the Wage', artistName: 'Placebo', durationSeconds: 248);
+    expect(r?.source, 'lyrics.ovh', reason: 'a S4 está na frente: a letra dela aparece');
+    expect(service.lastAttempts, {'lyrics.ovh': LyricsAttempt.found});
+    expect(asked.any((h) => h.contains('lrclib')), isFalse, reason: 'não precisou consultar a S1');
+
+    // S4 com só 2 linhas: vermelha, e a S1 assume
+    ovh = 'linha um\nlinha dois';
+    final r2 = await service.fetchLyricsDetails(trackName: 'Slave to the Wage', artistName: 'Placebo', durationSeconds: 248);
+    expect(service.lastAttempts['lyrics.ovh'], LyricsAttempt.broken);
+    expect(r2?.source, 'lrclib');
   });
 }

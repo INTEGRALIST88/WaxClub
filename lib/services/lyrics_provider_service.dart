@@ -97,39 +97,18 @@ class LyricsProviderService {
       return r;
     }
 
-    // ════════ 0. Fonte Preferida (se especificada) ════════
-    // 'lyrics.ovh' (texto plano, sem timestamps) não é tentada antecipadamente: fica como último recurso.
-    // Texto simples do LRCLIB (casado por artista/título): último recurso, antes do Lyrics.ovh
-    LrcResponse? lrclibPlain;
+    // A busca segue estritamente a ordem do painel (da esquerda para a direita): cada fonte é avaliada na
+    // posição dela — com letra exibível (sincronizada, ou texto simples com 4+ linhas, que corre no ritmo
+    // estimado), ela é a escolhida; sem letra ou com letra quebrada, fica vermelha e a próxima é consultada.
+    final order = [for (final e in sourceOrder()) if (sourceEnabled(e)) e];
 
-    final triedSource = (preferredSource != null &&
-            preferredSource.isNotEmpty &&
-            preferredSource.toLowerCase() != 'lyrics.ovh' &&
-            preferredSource.toLowerCase() != 'local' &&
-            sourceEnabled(preferredSource.toLowerCase()))
-        ? preferredSource.toLowerCase()
-        : null;
-    if (triedSource != null) {
-      debugPrint('[LyricsCascade] 🎯 Tentando fonte preferida: "$preferredSource"...');
-      final pref = await _trySource(
-        triedSource,
-        trackName: trackName,
-        artistName: artistName,
-        albumName: albumName,
-        durationSeconds: durationSeconds,
-      );
-      final ok = judge(triedSource, pref);
-      if (ok != null) {
-        debugPrint('[LyricsCascade] ✅ Sucesso na fonte preferida "$preferredSource".');
-        return ok;
-      }
-      if (triedSource == 'lrclib') lrclibPlain = pref;
+    // A fonte que achou a letra da última vez só pula a fila se for também a primeira do painel
+    final preferred = preferredSource?.toLowerCase();
+    if (preferred != null && order.isNotEmpty && order.first == preferred) {
+      debugPrint('[LyricsCascade] 🎯 Fonte preferida "$preferred" é a primeira do painel.');
     }
 
-    // ════════ 1. Fontes ligadas, na ordem do painel (da esquerda para a direita) ════════
-    // As letras do próprio usuário (S5) e as sincronizadas da web; o texto simples fica para o fim.
-    for (final engine in sourceOrder()) {
-      if (engine == triedSource || engine == 'lyrics.ovh' || !sourceEnabled(engine)) continue;
+    for (final engine in order) {
       if (engine == 'local') {
         final mine = judge('local', fromMyLyrics(trackName, artistName, albumName: albumName), allowPlain: true);
         if (mine != null) return mine;
@@ -137,66 +116,31 @@ class LyricsProviderService {
       }
       try {
         debugPrint('[LyricsCascade] 🔍 Consultando "$engine" para "$trackName" - "$artistName"...');
-        final r = await _trySource(
+        var r = await _trySource(
           engine,
           trackName: trackName,
           artistName: artistName,
           albumName: albumName,
           durationSeconds: durationSeconds,
         );
-        final ok = judge(engine, r);
+        // LRCLIB sem versão sincronizada: o texto simples dela vale na posição dela
+        final plain = r?.plainLyrics;
+        if (engine == 'lrclib' && (r?.syncedLyrics == null || r!.syncedLyrics!.trim().isEmpty) && plain != null && plain.trim().isNotEmpty) {
+          r = LrcResponse(
+            syncedLyrics: plain.trim(),
+            durationSeconds: r?.durationSeconds ?? duration,
+            albumName: r?.albumName ?? albumName,
+            source: 'lrclib',
+          );
+        }
+        final ok = judge(engine, r, allowPlain: true);
         if (ok != null) {
-          debugPrint('[LyricsCascade] ✅ Sucesso em "$engine" (LRC sincronizado encontrado).');
+          debugPrint('[LyricsCascade] ✅ Letra de "$engine".');
           return ok;
         }
-        if (engine == 'lrclib') lrclibPlain ??= r;
       } catch (e) {
         lastAttempts[engine] = LyricsAttempt.notFound;
         debugPrint('[LyricsCascade] ⚠️ Falha em "$engine": $e');
-      }
-    }
-
-    // ════════ 4a. Texto simples do LRCLIB (ritmo estimado) ════════
-    final plainFromLrclib = lrclibPlain?.plainLyrics;
-    if (plainFromLrclib != null && plainFromLrclib.trim().isNotEmpty) {
-      final ok = judge(
-        'lrclib',
-        LrcResponse(
-          syncedLyrics: plainFromLrclib.trim(),
-          durationSeconds: lrclibPlain!.durationSeconds ?? duration,
-          albumName: lrclibPlain.albumName ?? albumName,
-          source: 'lrclib',
-        ),
-        allowPlain: true,
-      );
-      if (ok != null) {
-        debugPrint('[LyricsCascade] ℹ️ Sem LRC sincronizado em nenhuma fonte. Usando texto simples da LRCLIB com ritmo estimado.');
-        return ok;
-      }
-    }
-
-    // ════════ 4b. Fallback de Letra em Texto Plano (Lyrics.ovh) ════════
-    if (sourceEnabled('lyrics.ovh')) {
-      try {
-        debugPrint('[LyricsCascade] 🔍 Consultando fallback de texto simples (Lyrics.ovh)...');
-        final plainLyrics = await _fetchFromLyricsOvh(
-          trackName: trackName,
-          artistName: artistName,
-        );
-        final ok = judge(
-          'lyrics.ovh',
-          plainLyrics == null
-              ? null
-              : LrcResponse(syncedLyrics: plainLyrics, durationSeconds: duration, albumName: albumName, source: 'lyrics.ovh'),
-          allowPlain: true,
-        );
-        if (ok != null) {
-          debugPrint('[LyricsCascade] ℹ️ Letra em texto encontrada no Lyrics.ovh. Convertendo para ritmo estimado.');
-          return ok;
-        }
-      } catch (e) {
-        lastAttempts['lyrics.ovh'] = LyricsAttempt.notFound;
-        debugPrint('[LyricsCascade] ⚠️ Falha no Lyrics.ovh: $e');
       }
     }
 

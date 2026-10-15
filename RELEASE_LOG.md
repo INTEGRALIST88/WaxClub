@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.19] — 15/10/2026 (Busca de Letras Estritamente na Ordem do Painel)
+
+* **Bug (Placebo — Slave to the Wage):** com a S4 (Lyrics.ovh) na frente, ela ficava iluminada sem mostrar nada, a S3 vermelha e a S1/S2 com letra. Causa: a cascata sempre deixava a **Lyrics.ovh por último** (e o texto simples da LRCLIB também), qualquer que fosse a posição no painel — a S1 encontrava a letra antes e a S4 nunca era consultada (nem verde nem vermelha), mas continuava a primeira não vermelha.
+* **Agora a busca segue estritamente a ordem do painel:** cada fonte é avaliada na posição dela; com letra exibível (sincronizada, ou texto simples com 4+ linhas, no ritmo estimado) ela é a escolhida; sem letra ou quebrada, fica vermelha e a próxima é consultada. O texto simples da LRCLIB vale na posição da LRCLIB. A "fonte preferida" guardada de buscas anteriores só vale se for a primeira do painel.
+* Conferido ao vivo para a música: Lyrics.ovh 28 linhas (texto), Megalobiz sem a letra (vermelho correto), LRCLIB 44 linhas e NetEase 90 linhas sincronizadas.
+* Teste: S4 na frente é consultada primeiro (e a S1 nem é chamada); S4 com 2 linhas fica vermelha e a S1 assume.
+
+---
 ## [v1.4.18] — 15/10/2026 (Só o Primeiro do Painel é o Ativo)
 
 * **Regra do ativo corrigida:** o iluminado é **só o primeiro** plugin ligado da esquerda para a direita que **não está vermelho** — e é ele que aparece na tela. Se ele ficar vermelho (não encontrou nada ou trouxe letra quebrada), o ativo passa para o segundo, e assim por diante.
