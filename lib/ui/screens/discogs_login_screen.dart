@@ -97,15 +97,15 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
   /// As instruções de gerar o token já foram mostradas nesta tela (não repete a cada recarga).
   bool _helpShown = false;
 
-  /// Campo de colar o token: escondido enquanto a captura automática pode resolver.
-  bool _showPastePanel = false;
+  /// O token do campo foi lido da página (campo destacado e aviso "Token found").
+  bool _captured = false;
 
   /// Depois do login, o Discogs abre a página de desenvolvedor: o app lê o token na própria página,
   /// preenche o campo e conecta sozinho. Sem token na página, explica como gerar (ou copiar e colar);
   /// quando a página recarrega com o token novo, ele é capturado.
   Future<void> _captureTokenFromPage(String url) async {
     final web = _web;
-    if (web == null || _busy || !Uri.parse(url).path.startsWith(Uri.parse(DiscogsConfig.personalTokenPage).path)) return;
+    if (web == null || _busy || !DiscogsAuthService.isTokenPage(url)) return;
     String text;
     try {
       // O Discogs mostra o token em <code><span class="select-all">…</span></code>, depois de "Token atual:";
@@ -125,17 +125,18 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     if (!mounted) return;
     final token = DiscogsAuthService.tokenFromPageText(text);
     if (token != null) {
-      _tokenField.text = token;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: AppTheme.surfaceLight,
-        content: Text(l10n.discogsTokenCaptured, style: const TextStyle(color: Colors.white)),
-      ));
+      // O token aparece no campo do rodapé (destacado) antes de conectar, para o usuário ver o que foi lido
+      setState(() {
+        _tokenField.text = token;
+        _captured = true;
+      });
+      await Future.delayed(const Duration(milliseconds: 1800));
+      if (!mounted) return;
       await _savePersonalToken();
       return;
     }
     if (_helpShown) return;
     _helpShown = true;
-    setState(() => _showPastePanel = true); // captura não deu: o campo de colar aparece
     // Mostra onde tocar: rola até o aceite dos termos e destaca a caixa e o botão de gerar
     // (o aceite é do usuário; o app não marca a caixa por ele)
     try {
@@ -172,7 +173,7 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _showPastePanel = true;
+          _captured = false;
           _error = e.toString().replaceFirst('Exception: ', '') /* l10n-ignore */;
         });
       }
@@ -215,12 +216,17 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
       onCreated: (web) => _web = web,
       onPageFinished: (_, pageUrl) => _oauth ? null : _captureTokenFromPage(pageUrl),
       banner: banner,
-      bottom: (!_oauth && _showPastePanel) ? _personalTokenPanel() : null,
+      bottom: _oauth ? null : _personalTokenPanel(),
     );
   }
 
-  /// Sem chaves do app e sem captura automática: o usuário copia o token da página e cola aqui.
+  /// Rodapé do navegador (sempre visível sem as chaves do app): o token lido da página aparece aqui,
+  /// destacado, antes de conectar; se a leitura não der certo, o usuário cola o token aqui.
   Widget _personalTokenPanel() {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: _captured ? Colors.greenAccent : AppTheme.carveLight, width: _captured ? 2 : 1),
+    );
     return SafeArea(
       top: false,
       child: Container(
@@ -230,9 +236,19 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.discogsTokenHint,
-              style: TextStyle(color: Colors.white70, fontSize: 12.5),
+            Row(
+              children: [
+                if (_captured) const Padding(
+                  padding: EdgeInsets.only(right: 6),
+                  child: Icon(Icons.check_circle, color: Colors.greenAccent, size: 16),
+                ),
+                Expanded(
+                  child: Text(
+                    _captured ? l10n.discogsTokenCaptured : l10n.discogsTokenHint,
+                    style: TextStyle(color: _captured ? Colors.greenAccent : Colors.white70, fontSize: 12.5),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Row(
@@ -241,16 +257,15 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
                   child: TextField(
                     controller: _tokenField,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
+                    onChanged: (_) => _captured ? setState(() => _captured = false) : null,
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: l10n.discogsTokenField,
                       hintStyle: const TextStyle(color: Colors.white38),
                       filled: true,
                       fillColor: AppTheme.surfaceLight,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: AppTheme.carveLight),
-                      ),
+                      border: border,
+                      enabledBorder: border,
                     ),
                     onSubmitted: (_) => _savePersonalToken(),
                   ),

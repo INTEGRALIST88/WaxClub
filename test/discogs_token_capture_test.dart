@@ -19,6 +19,15 @@ void main() {
     expect(DiscogsAuthService.tokenFromPageText('Jeton actuel\n$token\n'), token);
   });
 
+  test('página do token reconhecida em qualquer idioma (antes, /pt_BR/ ficava de fora)', () {
+    expect(DiscogsAuthService.isTokenPage('https://www.discogs.com/settings/developers'), isTrue);
+    expect(DiscogsAuthService.isTokenPage('https://www.discogs.com/pt_BR/settings/developers'), isTrue);
+    expect(DiscogsAuthService.isTokenPage('https://www.discogs.com/de/settings/developers/'), isTrue);
+    expect(DiscogsAuthService.isTokenPage('https://www.discogs.com/pt_BR/settings/user'), isFalse);
+    expect(DiscogsAuthService.isTokenPage('https://www.discogs.com/login?return_to=%2Fsettings%2Fdevelopers'), isFalse);
+    expect(DiscogsAuthService.isTokenPage('https://evil.example.com/settings/developers'), isFalse);
+  });
+
   test('sem token gerado na conta: nulo (o app mostra as instruções)', () {
     expect(DiscogsAuthService.tokenFromPageText('Gerar novo token\nI have read and agree to the Discogs API Terms of Use.'),
         isNull);

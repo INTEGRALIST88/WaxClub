@@ -234,6 +234,14 @@ class DiscogsAuthService extends ChangeNotifier {
   }
 
   /// Alternativa sem chaves do app: token pessoal gerado pelo usuário em discogs.com/settings/developers.
+  /// Página de desenvolvedor do Discogs (onde fica o token), em qualquer idioma:
+  /// "/settings/developers", "/pt_BR/settings/developers", "/de/settings/developers"...
+  static bool isTokenPage(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !(uri.host == 'discogs.com' || uri.host.endsWith('.discogs.com'))) return false;
+    return RegExp(r'^(/[a-z]{2}(_[A-Z]{2})?)?/settings/developers/?$').hasMatch(uri.path);
+  }
+
   /// Token pessoal lido do texto da página de desenvolvedor do Discogs (settings/developers), que mostra
   /// "Token atual:" / "Your current token:" seguido do token (40 letras e números). Nulo se não houver.
   static String? tokenFromPageText(String text) {

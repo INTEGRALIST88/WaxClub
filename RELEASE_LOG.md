@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.29] — 15/10/2026 (Token Capturado na Página em Português e Visível no Rodapé)
+
+* **Captura do token corrigida:** a página do Discogs em português (`/pt_BR/settings/developers`, e os outros idiomas) não era reconhecida como a página do token, então o app nem tentava ler. Agora vale qualquer idioma.
+* **Campo do token sempre no rodapé do navegador** (no login com token pessoal).
+* **Token capturado aparece no campo**, com borda verde e "Token found on the page. Connecting…", por um instante antes de conectar.
+* Teste: página do token reconhecida em inglês, português e alemão; outras páginas e outros sites, não.
+
+---
 ## [v1.4.28] — 15/10/2026 (Navegador do App para Logins)
 
 * **Navegador do WaxClub (`LeanBrowser`):** os logins de terceiros abrem em tela cheia, sem barra de endereço e sem o título do app; em cima, só uma barra fina com **voltar, avançar, recarregar e fechar** (fechar volta para onde o usuário estava). As barras do Android ficam escondidas enquanto ele está aberto (aparecem ao deslizar a borda), para nenhum botão da página ficar embaixo delas. O voltar do Android volta uma página; na primeira, fecha.
