@@ -6,7 +6,6 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
 
 * **Captura mais precisa:** o token é lido direto do campo onde o Discogs o exibe (`<code><span class="select-all">`, depois de "Token atual:"); a leitura do texto da página fica como reserva, caso o Discogs mude a página.
 * **Conta sem token:** a página rola até o aceite dos termos e destaca em laranja a caixa e o botão "Generate new token"; o aviso diz isso. O aceite continua sendo do usuário (o app não marca a caixa).
-* A v1.4.26 chegou ao Drive, mas não foi instalada; esta versão inclui tudo dela.
 
 ---
 ## [v1.4.26] — 15/10/2026 (Token do Discogs Capturado da Página)
