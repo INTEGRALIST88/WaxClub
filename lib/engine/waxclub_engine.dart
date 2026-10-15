@@ -1158,10 +1158,14 @@ class WaxClubEngine extends ChangeNotifier {
   /// As fontes de letras mudaram no painel (ligou, desligou ou reordenou): busca de novo a letra da faixa
   /// que está tocando, na nova ordem e sem o cache, e já mostra no celular e na TV. Sem letra em nenhuma
   /// fonte ligada, a letra some (e entram as curiosidades, se o D1 estiver ligado).
+  /// Cada busca da recarga tem um número: uma busca antiga que termine depois de uma mais nova é ignorada.
+  int _reloadGen = 0;
+
   Future<void> reloadLyricsForCurrentTrack() async {
     final track = _currentTrack;
     if (track == null) return;
     final session = _sessionId;
+    final gen = ++_reloadGen;
     LrcResponse? r = LyricsProviderService.myLyricsFirst()
         ? LyricsProviderService.fromMyLyrics(track.title, track.artist, albumName: track.album)
         : null;
@@ -1171,7 +1175,7 @@ class WaxClubEngine extends ChangeNotifier {
       albumName: track.album,
       durationSeconds: _trackDurationSeconds?.round(),
     );
-    if (_isDisposed || session != _sessionId || _currentTrack?.title != track.title) return;
+    if (_isDisposed || session != _sessionId || gen != _reloadGen || _currentTrack?.title != track.title) return;
     final lrc = r?.syncedLyrics;
     _lyrics = (lrc == null || lrc.isEmpty) ? [] : LrcParser.parse(lrc, estimatedDurationSeconds: _trackDurationSeconds);
     _lyricsSource = (lrc == null || lrc.isEmpty) ? null : r?.source;

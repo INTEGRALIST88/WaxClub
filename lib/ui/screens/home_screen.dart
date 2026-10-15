@@ -560,38 +560,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool get _curiositiesOn =>
       _plugins.catalog.any((p) => p.id == PluginCatalog.curiositiesId && _plugins.isActive(p));
 
-  /// O que a tela mostra, pela ordem do painel: o primeiro plugin ligado, da esquerda para a direita, que
-  /// tem conteúdo para esta música (curiosidades ou letra de uma fonte S). Os que não acharam nada (ou
-  /// trouxeram letra quebrada) vão para [failed] — luz vermelha no painel.
+  /// O plugin ativo é **só o primeiro** ligado do painel, da esquerda para a direita, que não está vermelho
+  /// (não encontrou nada para esta música, ou trouxe letra quebrada). É ele que aparece na tela e que fica
+  /// iluminado. Os vermelhos à esquerda dele vão para [failed].
   ({String? shown, Set<String> failed}) _panelState() {
     if (_engine.currentTrack == null) return (shown: null, failed: const <String>{});
-    final failed = <String>{};
-    String? shown;
-    final attempts = _engine.lyricsAttempts;
-    final hasLyrics = _engine.lyrics.isNotEmpty;
     final c = _curiosities;
-    for (final p in _plugins.panelPlugins()) {
-      if (!_plugins.isActive(p)) continue;
-      if (p.id == PluginCatalog.curiositiesId) {
-        if (c == null) continue; // ainda buscando
-        if (c.isEmpty) {
-          failed.add(p.id);
-        } else {
-          shown ??= p.id;
-        }
-        continue;
-      }
-      if (p.category == PluginCategory.sources) {
-        final a = attempts[p.engine];
-        if (a == LyricsAttempt.notFound || a == LyricsAttempt.broken) {
-          failed.add(p.id);
-          continue;
-        }
-        final source = _engine.lyricsSource;
-        if (hasLyrics && (source == p.engine || (source == null && a == null))) shown ??= p.id;
-      }
-    }
-    return (shown: shown, failed: failed);
+    return PluginPanelStrip.pickFront(
+      _plugins,
+      lyricsAttempts: _engine.lyricsAttempts,
+      curiositiesFound: c == null ? null : !c.isEmpty,
+    );
+  }
+
+  /// Última fonte pedida para a música atual (evita buscar de novo a cada quadro).
+  String? _lyricsRequestKey;
+
+  /// O ativo é uma fonte de letras, mas a letra na tela veio de outra: busca a letra na ordem do painel
+  /// (a primeira fonte que tiver vira a ativa; as que não tiverem ficam vermelhas).
+  void _syncLyricsWithPanel(String? shownId) {
+    final track = _engine.currentTrack;
+    final p = shownId == null ? null : _plugins.byId(shownId);
+    if (track == null || p == null || p.category != PluginCategory.sources) return;
+    if (_engine.lyricsSource == p.engine && _engine.lyrics.isNotEmpty) return;
+    final key = '${track.title}|${track.artist}|${_plugins.lyricsEngineOrder().join(',')}'; // l10n-ignore
+    if (key == _lyricsRequestKey) return;
+    _lyricsRequestKey = key;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_engine.reloadLyricsForCurrentTrack());
+    });
   }
 
   /// 1ª faixa do lado: as curiosidades do disco (e as notícias) entram antes das da faixa.
@@ -806,9 +803,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final sig = _plugins.lyricsEngineOrder().join(',');
     final before = _sourcesSignature;
     _sourcesSignature = sig;
-    if (before != null && before != sig && _engine.currentTrack != null) {
-      unawaited(_engine.reloadLyricsForCurrentTrack());
-    }
+    if (before != null && before != sig) _lyricsRequestKey = null; // a ordem mudou: o build confere de novo
   }
   final LocalLyricsLibrary _myLyrics = LocalLyricsLibrary();
   final List<CloudLyricsFolder> _clouds = [DropboxFolder(), OneDriveFolder(), GoogleDriveFolder()];
@@ -1331,9 +1326,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final logoSize = compactBar ? 46.0 : 50.0;
         _ensureCuriosities(); // também durante a transmissão (a TV mostra as curiosidades)
         final panel = _panelState();
-        // Curiosidades na frente das letras no painel: aparecem no lugar da letra (celular e TV)
+        _syncLyricsWithPanel(panel.shown);
+        // O que aparece é só o ativo: curiosidades no lugar da letra (celular e TV) quando o D1 é o ativo;
+        // letra só quando ela é da fonte ativa (enquanto a da fonte ativa não chega, nada)
         final curiositiesFirst = panel.shown == PluginCatalog.curiositiesId;
-        _engine.curiositiesFirst = curiositiesFirst;
+        final shownPlugin = panel.shown == null ? null : _plugins.byId(panel.shown!);
+        final lyricsMatchPanel = shownPlugin != null &&
+            shownPlugin.category == PluginCategory.sources &&
+            _engine.lyricsSource == shownPlugin.engine;
+        _engine.curiositiesFirst = curiositiesFirst || !lyricsMatchPanel;
         if (_engine.manualSuggested) _offerManualMode();
         const tileSize = 40.0;
         final showTrackStrip = compactBar && _engine.currentTrack != null;
@@ -1562,7 +1563,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         // Lista vertical de letras sincronizadas
                         Positioned.fill(
                           child: LyricsListView(
-                            lyrics: curiositiesFirst ? const [] : _engine.lyrics,
+                            lyrics: lyricsMatchPanel ? _engine.lyrics : const [],
                             activeIndex: _engine.activeLineIndex,
                             onSeek: (seconds) => _engine.syncToLine(seconds),
                             emptyState: _engine.currentTrack == null

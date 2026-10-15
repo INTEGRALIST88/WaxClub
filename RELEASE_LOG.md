@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.18] — 15/10/2026 (Só o Primeiro do Painel é o Ativo)
+
+* **Regra do ativo corrigida:** o iluminado é **só o primeiro** plugin ligado da esquerda para a direita que **não está vermelho** — e é ele que aparece na tela. Se ele ficar vermelho (não encontrou nada ou trouxe letra quebrada), o ativo passa para o segundo, e assim por diante.
+  * Antes, a iluminação ia para a fonte que *forneceu* a letra atual: ao trocar de lugar, ela pulava para a 3ª ou 4ª posição e a tela não mudava.
+  * Agora, quando o ativo é uma fonte de letras e a letra na tela veio de outra, o app busca a letra na ordem do painel na hora; enquanto ela não chega, a tela não mostra a letra de outra fonte (nem a TV). A letra guardada no aparelho de uma fonte que não é a ativa também é buscada de novo.
+  * Buscas antigas que terminem depois de uma troca mais nova são ignoradas.
+* Regra isolada em `PluginPanelStrip.pickFront` e testada (D1 na frente, vermelhos pulados, arrastar para a frente, desligado não conta).
+
+---
 ## [v1.4.17] — 15/10/2026 (O Primeiro do Painel Aparece na Tela, Luz Vermelha e Letra Quebrada Descartada)
 
 * **A ordem do painel decide o que aparece, para qualquer tipo de plugin:** da esquerda para a direita, o **primeiro plugin ligado que tem conteúdo** para esta música é o que aparece na tela — se o D1 (Curiosidades) estiver na frente das fontes de letras, as curiosidades aparecem **no lugar da letra** (no celular e na TV, que recebe a música sem letra), mesmo havendo letra. Esse plugin ganha um **brilho embaixo** da caixinha (desliza junto quando reordena).

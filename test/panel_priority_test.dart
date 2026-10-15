@@ -83,4 +83,33 @@ void main() {
     expect(g.center.dx, closeTo(s2.center.dx, 20));
     expect(g.top, greaterThan(s2.bottom));
   });
+
+  test('ativo = só o primeiro ligado e não vermelho, da esquerda para a direita', () async {
+    final dir = Directory.systemTemp.createTempSync('waxclub_front_');
+    final store = PluginStore(directory: dir, bundleLyricsSources: true);
+    // ordem inicial: D1, S1, S2, S3, S4
+    var f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: true);
+    expect(f.shown, 'display.curiosities', reason: 'D1 na frente e com curiosidades');
+
+    f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: false);
+    expect(f.shown, 'lyrics.lrclib', reason: 'D1 vermelho: o segundo assume');
+    expect(f.failed, {'display.curiosities'});
+
+    f = PluginPanelStrip.pickFront(store,
+        lyricsAttempts: const {'lrclib': LyricsAttempt.notFound, 'netease': LyricsAttempt.broken}, curiositiesFound: false);
+    expect(f.shown, 'lyrics.megalobiz', reason: 'S1 e S2 vermelhos: o próximo assume');
+    expect(f.failed, {'display.curiosities', 'lyrics.lrclib', 'lyrics.netease'});
+
+    // Arrastou o S4 para a frente: ele é o ativo, mesmo que a letra atual seja de outra fonte
+    await store.movePanelPlugin(4, 0);
+    f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {'lrclib': LyricsAttempt.found}, curiositiesFound: true);
+    expect(f.shown, 'lyrics.lyricsovh');
+    expect(f.failed, isEmpty);
+
+    // Desligado não conta
+    await store.toggle(store.byId('lyrics.lyricsovh')!);
+    f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: true);
+    expect(f.shown, 'display.curiosities');
+    dir.deleteSync(recursive: true);
+  });
 }

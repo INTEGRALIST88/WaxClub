@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
+import '../../services/lyrics_provider_service.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../theme/app_theme.dart';
 
@@ -30,6 +31,37 @@ class PluginPanelStrip extends StatefulWidget {
   static const Color failedColor = Color(0xFFFF3B30);
 
   const PluginPanelStrip({super.key, required this.store, this.shownId, this.failedIds = const {}});
+
+  /// O plugin ativo é **só o primeiro** ligado do painel, da esquerda para a direita, que não está vermelho
+  /// — é ele que aparece na tela e fica iluminado. Vermelho: fonte de letras que não encontrou a letra (ou
+  /// trouxe letra quebrada) em [lyricsAttempts]; D1 sem curiosidades ([curiositiesFound] = false; nulo =
+  /// ainda buscando, e conta como ativo). Os vermelhos à esquerda do ativo vão para `failed`.
+  static ({String? shown, Set<String> failed}) pickFront(
+    PluginStore store, {
+    required Map<String, LyricsAttempt> lyricsAttempts,
+    bool? curiositiesFound,
+  }) {
+    final failed = <String>{};
+    for (final p in store.panelPlugins()) {
+      if (!store.isActive(p)) continue;
+      if (p.id == PluginCatalog.curiositiesId) {
+        if (curiositiesFound == false) {
+          failed.add(p.id);
+          continue;
+        }
+        return (shown: p.id, failed: failed);
+      }
+      if (p.category == PluginCategory.sources) {
+        final a = lyricsAttempts[p.engine];
+        if (a == LyricsAttempt.notFound || a == LyricsAttempt.broken) {
+          failed.add(p.id);
+          continue;
+        }
+        return (shown: p.id, failed: failed);
+      }
+    }
+    return (shown: null, failed: failed);
+  }
 
   /// Altura que a linha ocupa (zero sem plugins no painel).
   static double heightFor(PluginStore store) => store.panelPlugins().isEmpty ? 0 : height + 8;
