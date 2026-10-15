@@ -205,8 +205,8 @@
       <div class="panel">
         <h3>File type</h3>
         <ul>
-          <li><code>.lrc</code> — <b>synced lyrics</b> (recommended): each line starts with the time it is sung, <code>[mm:ss.xx]</code>.</li>
-          <li><code>.txt</code> — plain lyrics, no times: WaxClub spreads the lines over the song.</li>
+          <li><code>.lrc</code> — <b>synced lyrics</b>: each line starts with the time it is sung, <code>[mm:ss.xx]</code>.</li>
+          <li>Lyrics <b>without timestamps</b> (plain text, <code>.txt</code>) are not used: WaxClub only shows lyrics that follow the record.</li>
           <li>Save as <b>UTF-8</b> text (accents and other alphabets stay right). Up to 512 KB per file.</li>
         </ul>
 
@@ -239,7 +239,7 @@
           <li><b>Just a few files?</b> <b>Add lyrics files</b> lets you pick them from your phone or any cloud app — do it
             again when you add new ones.</li>
         </ol>
-        <p>No need to share folders on your home network. Your lyrics always win over the web sources for that song.</p>
+        <p>No need to share folders on your home network. Your lyrics are used in the position of the S5 plugin in your panel, like any other source.</p>
       </div>
       <div class="panel warn">
         <p style="margin:0">Only add lyrics you have the right to use. WaxClub shows them only to you, on your phone and your TV,
@@ -266,8 +266,7 @@
       ['src', 'S1', 'LRCLIB', 'avail', 'Synced lyrics (with timestamps) from the open LRCLIB database. The first web source WaxClub tries.', 'lyrics.lrclib'],
       ['src', 'S2', 'NetEase Cloud Music', 'avail', 'Huge catalog of synced lyrics, strong on international and Asian releases. Tried after LRCLIB.', 'lyrics.netease'],
       ['src', 'S3', 'Megalobiz', 'avail', 'Community archive of synced lyrics (LRC files). Tried after NetEase.', 'lyrics.megalobiz'],
-      ['src', 'S4', 'Lyrics.ovh', 'avail', 'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.', 'lyrics.lyricsovh'],
-      ['src', 'S5', 'My lyrics files', 'avail', 'Shows lyrics files you have the right to use (.lrc or .txt), kept in a Dropbox, OneDrive or Google Drive folder (updated automatically) or picked from your phone. They always win over the web sources. See “Your lyrics files” below.', 'lyrics.myfiles'],
+      ['src', 'S5', 'My lyrics files', 'avail', 'Shows synced lyrics files (.lrc with timestamps) you have the right to use, kept in a Dropbox, OneDrive or Google Drive folder (updated automatically) or picked from your phone. See “Your lyrics files” below.', 'lyrics.myfiles'],
       ['ai', 'A1', 'AI Curiosities', 'soon', 'Richer stories about the recording sessions, the musicians and the era, written by AI and clearly marked as AI-generated.'],
       ['ai', 'A2', 'AI Translation', 'soon', 'Curiosities and news translated into your language (WaxClub content is in English).'],
       ['conn', 'C1', 'Discogs', 'built', 'Connect your Discogs account to find the exact pressing of your records, add the records you identify to your Discogs collection and read the pressing notes. Your Discogs sign-in stays on your phone.'],

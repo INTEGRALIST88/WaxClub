@@ -1138,7 +1138,7 @@ class WaxClubEngine extends ChangeNotifier {
   }
 
   /// Resolução de letras em cascata estrita cache-first (D11).
-  /// Fonte da letra que está na tela ('local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'), para o
+  /// Fonte da letra que está na tela ('local', 'lrclib', 'netease', 'megalobiz'), para o
   /// painel de plugins marcar qual S está em uso; nulo sem letra ou de origem desconhecida.
   String? _lyricsSource;
   String? get lyricsSource => _lyricsSource;

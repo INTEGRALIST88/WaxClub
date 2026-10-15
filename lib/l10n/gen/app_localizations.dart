@@ -3496,24 +3496,6 @@ abstract class AppLocalizations {
   /// **'Community archive of synced lyrics (LRC files). Tried after NetEase.'**
   String get pluginMegalobizDesc;
 
-  /// No description provided for @pluginLyricsOvhName.
-  ///
-  /// In en, this message translates to:
-  /// **'Lyrics.ovh'**
-  String get pluginLyricsOvhName;
-
-  /// No description provided for @pluginLyricsOvhAuthor.
-  ///
-  /// In en, this message translates to:
-  /// **'lyrics.ovh'**
-  String get pluginLyricsOvhAuthor;
-
-  /// No description provided for @pluginLyricsOvhDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.'**
-  String get pluginLyricsOvhDesc;
-
   /// No description provided for @pluginSourceLicense.
   ///
   /// In en, this message translates to:
@@ -3643,7 +3625,7 @@ abstract class AppLocalizations {
   /// No description provided for @pluginMyLyricsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.'**
+  /// **'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as synced .lrc files (with timestamps). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone.'**
   String get pluginMyLyricsDesc;
 
   /// No description provided for @myLyricsCount.
@@ -3655,7 +3637,7 @@ abstract class AppLocalizations {
   /// No description provided for @myLyricsHowTo.
   ///
   /// In en, this message translates to:
-  /// **'Use .lrc files (UTF-8) with the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Plain .txt works too, without timestamps.'**
+  /// **'Use synced .lrc files (UTF-8) with a timestamp on each line, like [01:23.45], and the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Lyrics without timestamps are not used.'**
   String get myLyricsHowTo;
 
   /// No description provided for @myLyricsRights.
@@ -3679,7 +3661,7 @@ abstract class AppLocalizations {
   /// No description provided for @myLyricsSkipped.
   ///
   /// In en, this message translates to:
-  /// **'Not understood (missing artist/song or not .lrc/.txt): {files}'**
+  /// **'Not used (missing artist/song, no timestamps or not .lrc): {files}'**
   String myLyricsSkipped(String files);
 
   /// No description provided for @myLyricsClear.

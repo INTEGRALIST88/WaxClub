@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.20] — 15/10/2026 (Só Letra com Tempo; Lyrics.ovh Removido)
+
+* **Regra nova:** letra **sem tempo** (texto simples) conta como **não encontrada** — a fonte fica com a **luz vermelha** e a próxima do painel é consultada. O WaxClub não mostra mais letra em "ritmo estimado" (não servia para acompanhar o disco).
+  * Vale para todas as fontes: o texto simples da LRCLIB não é mais usado, e letras sem tempo guardadas no aparelho de versões antigas são buscadas de novo.
+* **Plugin S4 Lyrics.ovh removido** do app e do site (só trazia texto sem tempo). O código S4 fica livre para uma nova fonte com letras sincronizadas. Quem tinha o plugin instalado simplesmente deixa de vê-lo.
+* **S5 (My lyrics files):** só aceita arquivos **.lrc com tempo** (`[mm:ss.xx]` em cada linha); `.txt` e .lrc sem tempo são ignorados (aparecem como "não usados" na importação). Textos do app e do site atualizados; o S5 agora vale na posição dele no painel, como qualquer fonte.
+* Testes: texto simples nunca é exibível; LRCLIB só com texto fica vermelha e a próxima assume; Lyrics.ovh nem é consultado; S5 recusa .txt e .lrc sem tempo.
+
+---
 ## [v1.4.19] — 15/10/2026 (Busca de Letras Estritamente na Ordem do Painel)
 
 * **Bug (Placebo — Slave to the Wage):** com a S4 (Lyrics.ovh) na frente, ela ficava iluminada sem mostrar nada, a S3 vermelha e a S1/S2 com letra. Causa: a cascata sempre deixava a **Lyrics.ovh por último** (e o texto simples da LRCLIB também), qualquer que fosse a posição no painel — a S1 encontrava a letra antes e a S4 nunca era consultada (nem verde nem vermelha), mas continuava a primeira não vermelha.

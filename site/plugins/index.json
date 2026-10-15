@@ -31,15 +31,6 @@
       "manifest": "/plugins/lyrics.megalobiz.json"
     },
     {
-      "id": "lyrics.lyricsovh",
-      "code": "S4",
-      "name": "Lyrics.ovh",
-      "category": "S",
-      "version": "1.0.0",
-      "builtIn": false,
-      "manifest": "/plugins/lyrics.lyricsovh.json"
-    },
-    {
       "id": "lyrics.myfiles",
       "code": "S5",
       "name": "My lyrics files",

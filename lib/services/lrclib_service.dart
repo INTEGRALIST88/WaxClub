@@ -14,7 +14,7 @@ class LrcResponse {
   /// Nome do álbum associado
   final String? albumName;
 
-  /// Origem do LRC ('lrclib' | 'netease' | 'megalobiz' | 'lyrics.ovh')
+  /// Origem do LRC ('lrclib' | 'netease' | 'megalobiz')
   final String? source;
 
   /// Letra em texto simples (sem timestamps), usada como último recurso quando não há versão sincronizada.

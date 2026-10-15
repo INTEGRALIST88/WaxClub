@@ -10,7 +10,8 @@ import 'lrclib_service.dart';
 /// 1. LRCLIB (fonte primária, metadados limpos e estáveis)
 /// 2. NetEase Cloud Music (enorme catálogo com letras LRC sincronizadas, excelente para faixas nacionais/internacionais)
 /// 3. Megalobiz (arquivo colaborativo de letras sincronizadas)
-/// 4. Fallback de texto plano (Lyrics.ovh ou LRCLIB plain) formatado para exibição sincronizada estimada
+///
+/// Só vale letra **com tempo** (LRC sincronizado): texto simples conta como não encontrado (luz vermelha).
 class LyricsProviderService {
   final http.Client _client;
   final LrcLibService _lrcLibService;
@@ -22,15 +23,15 @@ class LyricsProviderService {
   LrcLibService get lrcLibService => _lrcLibService;
 
   /// Fontes de letras ligadas: cada site é um plugin da categoria Lyrics sources ('lrclib', 'netease',
-  /// 'megalobiz', 'lyrics.ovh'). O app consulta os plugins instalados e ligados; sem o app configurar,
+  /// 'megalobiz'). O app consulta os plugins instalados e ligados; sem o app configurar,
   /// todas valem (testes).
   static bool Function(String source) sourceEnabled = _allSources;
   static bool _allSources(String _) => true;
 
   /// Ordem das fontes de letras (a do painel de plugins, da esquerda para a direita); sem o app
-  /// configurar, as letras do usuário primeiro e depois LRCLIB, NetEase, Megalobiz e Lyrics.ovh.
+  /// configurar, as letras do usuário primeiro e depois LRCLIB, NetEase e Megalobiz.
   static List<String> Function() sourceOrder = _defaultOrder;
-  static List<String> _defaultOrder() => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+  static List<String> _defaultOrder() => const ['local', 'lrclib', 'netease', 'megalobiz'];
 
   /// As letras do próprio usuário vêm antes das guardadas (cache) e da web: o S5 está ligado e é a
   /// primeira fonte ligada no painel.
@@ -77,15 +78,15 @@ class LyricsProviderService {
     final duration = durationSeconds?.toDouble();
 
     /// Avalia a resposta de uma fonte: boa (usa), quebrada (vermelho) ou vazia (vermelho).
-    LrcResponse? judge(String engine, LrcResponse? r, {bool allowPlain = false}) {
+    LrcResponse? judge(String engine, LrcResponse? r) {
       final text = r?.syncedLyrics;
       if (text == null || text.trim().isEmpty) {
         lastAttempts[engine] = LyricsAttempt.notFound;
         return null;
       }
-      final timed = LyricsQuality.hasTimestamps(text);
-      if (!timed && !allowPlain) {
-        lastAttempts[engine] = LyricsAttempt.notFound; // só texto simples: fica para o fim
+      if (!LyricsQuality.hasTimestamps(text)) {
+        debugPrint('[LyricsCascade] 🚫 "$engine" só tem texto sem tempo: conta como não encontrada.');
+        lastAttempts[engine] = LyricsAttempt.notFound;
         return null;
       }
       if (!LyricsQuality.usable(text, durationSeconds: r?.durationSeconds ?? duration)) {
@@ -98,8 +99,8 @@ class LyricsProviderService {
     }
 
     // A busca segue estritamente a ordem do painel (da esquerda para a direita): cada fonte é avaliada na
-    // posição dela — com letra exibível (sincronizada, ou texto simples com 4+ linhas, que corre no ritmo
-    // estimado), ela é a escolhida; sem letra ou com letra quebrada, fica vermelha e a próxima é consultada.
+    // posição dela — com letra sincronizada exibível, ela é a escolhida; sem letra, só com texto sem tempo
+    // (não serve: nada de ritmo estimado) ou com letra quebrada, fica vermelha e a próxima é consultada.
     final order = [for (final e in sourceOrder()) if (sourceEnabled(e)) e];
 
     // A fonte que achou a letra da última vez só pula a fila se for também a primeira do painel
@@ -110,30 +111,20 @@ class LyricsProviderService {
 
     for (final engine in order) {
       if (engine == 'local') {
-        final mine = judge('local', fromMyLyrics(trackName, artistName, albumName: albumName), allowPlain: true);
+        final mine = judge('local', fromMyLyrics(trackName, artistName, albumName: albumName));
         if (mine != null) return mine;
         continue;
       }
       try {
         debugPrint('[LyricsCascade] 🔍 Consultando "$engine" para "$trackName" - "$artistName"...');
-        var r = await _trySource(
+        final r = await _trySource(
           engine,
           trackName: trackName,
           artistName: artistName,
           albumName: albumName,
           durationSeconds: durationSeconds,
         );
-        // LRCLIB sem versão sincronizada: o texto simples dela vale na posição dela
-        final plain = r?.plainLyrics;
-        if (engine == 'lrclib' && (r?.syncedLyrics == null || r!.syncedLyrics!.trim().isEmpty) && plain != null && plain.trim().isNotEmpty) {
-          r = LrcResponse(
-            syncedLyrics: plain.trim(),
-            durationSeconds: r?.durationSeconds ?? duration,
-            albumName: r?.albumName ?? albumName,
-            source: 'lrclib',
-          );
-        }
-        final ok = judge(engine, r, allowPlain: true);
+        final ok = judge(engine, r);
         if (ok != null) {
           debugPrint('[LyricsCascade] ✅ Letra de "$engine".');
           return ok;
@@ -169,17 +160,6 @@ class LyricsProviderService {
           return await _fetchFromNetEase(trackName: trackName, artistName: artistName);
         case 'megalobiz':
           return await _fetchFromMegalobiz(trackName: trackName, artistName: artistName);
-        case 'lyrics.ovh':
-          final plain = await _fetchFromLyricsOvh(trackName: trackName, artistName: artistName);
-          if (plain != null && plain.trim().isNotEmpty) {
-            return LrcResponse(
-              syncedLyrics: plain,
-              durationSeconds: durationSeconds?.toDouble(),
-              albumName: albumName,
-              source: 'lyrics.ovh',
-            );
-          }
-          return null;
         default:
           return null;
       }
@@ -338,33 +318,6 @@ class LyricsProviderService {
     }
   }
 
-  /// Consulta Lyrics.ovh para letras simples
-  Future<String?> _fetchFromLyricsOvh({
-    required String trackName,
-    required String artistName,
-  }) async {
-    try {
-      final cleanTrack = _cleanSearchTerm(trackName);
-      final cleanArtist = _cleanSearchTerm(artistName);
-      final uri = Uri.parse(
-        'https://api.lyrics.ovh/v1/${Uri.encodeComponent(cleanArtist)}/${Uri.encodeComponent(cleanTrack)}',
-      );
-      final response = await _client.get(uri).timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final lyrics = data['lyrics'] as String?;
-        if (lyrics != null && lyrics.trim().isNotEmpty) {
-          return lyrics.trim();
-        }
-      }
-      return null;
-    } catch (e) {
-      debugPrint('[LyricsCascade:LyricsOvh] Erro: $e');
-      return null;
-    }
-  }
-
   static String _cleanSearchTerm(String text) {
     return text
         .replaceAll(RegExp(r'\(.*?(remaster|live|version|edit|mono|stereo|ao vivo).*?\)', caseSensitive: false), '')
@@ -394,19 +347,16 @@ enum LyricsAttempt {
 /// Regras para considerar uma letra exibível.
 class LyricsQuality {
   static final RegExp _timed = RegExp(r'^\s*\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\](.*)$');
-  static final RegExp _tag = RegExp(r'^\s*\[[a-zA-Z#]+:.*\]\s*$');
 
   static bool hasTimestamps(String text) => RegExp(r'\[\d{1,3}:\d{2}').hasMatch(text);
 
   /// Letra que dá para mostrar:
-  /// * sincronizada: pelo menos 3 linhas com texto, e o tempo compatível com a música (a última linha não
-  ///   passa muito do fim nem acaba antes de um quarto da música);
-  /// * texto simples (sem tempo): pelo menos 4 linhas.
+  /// sincronizada, com pelo menos 3 linhas com texto e o tempo compatível com a música (a última linha não
+  /// passa muito do fim nem acaba antes de um quarto da música). Texto simples (sem tempo) não serve.
   static bool usable(String text, {double? durationSeconds}) {
     final lines = text.split(RegExp(r'\r?\n'));
     final times = <double>[];
     var timedText = 0;
-    var plain = 0;
     for (final raw in lines) {
       final m = _timed.firstMatch(raw);
       if (m != null) {
@@ -415,10 +365,8 @@ class LyricsQuality {
         if (m.group(4)!.replaceAll(RegExp(r'\[[^\]]*\]'), '').trim().isNotEmpty) timedText++;
         continue;
       }
-      if (_tag.hasMatch(raw)) continue;
-      if (raw.trim().isNotEmpty) plain++;
     }
-    if (times.isEmpty) return plain >= 4;
+    if (times.isEmpty) return false;
     if (timedText < 3) return false;
     final d = durationSeconds;
     if (d != null && d > 30) {

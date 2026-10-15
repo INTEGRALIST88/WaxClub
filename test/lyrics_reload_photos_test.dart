@@ -57,7 +57,7 @@ void main() {
   setUp(() async => dir = await Directory.systemTemp.createTemp('waxclub_reload_'));
   tearDown(() async {
     LyricsProviderService.sourceEnabled = (_) => true;
-    LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+    LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz'];
     try {
       await dir.delete(recursive: true);
     } catch (_) {}

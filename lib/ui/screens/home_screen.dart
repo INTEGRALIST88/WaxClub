@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     PluginLinks.instance.pending.removeListener(_onPluginLink);
     _plugins.removeListener(_onPluginsChanged);
     LyricsProviderService.sourceEnabled = (_) => true;
-    LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh']; // l10n-ignore
+    LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz']; // l10n-ignore
     LyricsProviderService.myLyrics = null;
     _myLyrics.dispose();
     for (final c in _clouds) {

@@ -117,7 +117,7 @@ void main() {
       expect(result.albumName, equals('Punk-O-Rama, Volume 4'));
     });
 
-    test('sem LRC em nenhuma fonte, a cascata usa o texto simples da LRCLIB antes do Lyrics.ovh', () async {
+    test('sem LRC em nenhuma fonte, o texto simples da LRCLIB não serve: sem letra e LRCLIB vermelha', () async {
       final client = MockClient((request) async {
         if (request.url.path.endsWith('/api/get')) {
           return http.Response(
@@ -128,9 +128,10 @@ void main() {
         if (request.url.path.endsWith('/api/search')) return http.Response('[]', 200);
         return http.Response('not found', 404);
       });
-      final result = await LyricsProviderService(client: client).fetchLyricsDetails(trackName: 'Rara', artistName: 'Banda');
-      expect(result?.syncedLyrics, startsWith('linha simples'));
-      expect(result?.source, equals('lrclib'));
+      final service = LyricsProviderService(client: client);
+      final result = await service.fetchLyricsDetails(trackName: 'Rara', artistName: 'Banda');
+      expect(result, isNull);
+      expect(service.lastAttempts['lrclib'], LyricsAttempt.notFound);
     });
   });
 

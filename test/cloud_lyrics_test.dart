@@ -240,13 +240,13 @@ void main() {
         return http.Response(
             jsonEncode({
               'files': [
-                {'id': 'g2', 'name': 'Elis Regina - Madalena.txt', 'mimeType': 'text/plain', 'size': '20', 'md5Checksum': 'm2'},
+                {'id': 'g2', 'name': 'Elis Regina - Madalena.lrc', 'mimeType': 'text/plain', 'size': '20', 'md5Checksum': 'm2'},
               ],
             }),
             200);
       }
       if (req.url.path.endsWith('/files/g1')) return http.Response('[00:01.00]Eu quis cantar', 200);
-      if (req.url.path.endsWith('/files/g2')) return http.Response('Oh Madalena', 200);
+      if (req.url.path.endsWith('/files/g2')) return http.Response('[00:02.00]Oh Madalena', 200);
       if (req.url.path.endsWith('/about')) return http.Response(jsonEncode({'user': {'displayName': 'Gustavo'}}), 200);
       return http.Response('', 404);
     });

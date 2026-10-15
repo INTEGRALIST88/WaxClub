@@ -160,16 +160,6 @@ class PluginCatalog {
           description: l10n.pluginMegalobizDesc,
           engine: 'megalobiz', // l10n-ignore
         ),
-        PluginInfo(
-          id: 'lyrics.lyricsovh',
-          category: PluginCategory.sources,
-          number: 4,
-          name: l10n.pluginLyricsOvhName,
-          author: l10n.pluginLyricsOvhAuthor,
-          license: l10n.pluginSourceLicense,
-          description: l10n.pluginLyricsOvhDesc,
-          engine: 'lyrics.ovh', // l10n-ignore
-        ),
         // Letras que o próprio usuário obteve legalmente e copiou para o celular (só exibição, só no aparelho)
         PluginInfo(
           id: myLyricsId,
@@ -219,7 +209,7 @@ class PluginCatalog {
   /// Plugin D1: curiosidades do disco e da faixa.
   static const String curiositiesId = 'display.curiosities';
 
-  /// Plugin S5: letras do próprio usuário (arquivos .lrc/.txt no celular).
+  /// Plugin S5: letras do próprio usuário (arquivos .lrc com tempo no celular).
   static const String myLyricsId = 'lyrics.myfiles';
 
   /// Antes do lançamento (testes): as fontes de letras da web vêm instaladas no app. **No lançamento,
@@ -227,7 +217,7 @@ class PluginCatalog {
   static const bool preLaunchBundledLyrics = true;
 
   /// Fontes de letras da web (instaladas de fábrica só antes do lançamento).
-  static const List<String> webLyricsSources = ['lyrics.lrclib', 'lyrics.netease', 'lyrics.megalobiz', 'lyrics.lyricsovh'];
+  static const List<String> webLyricsSources = ['lyrics.lrclib', 'lyrics.netease', 'lyrics.megalobiz'];
 
   /// Página de plugins no site oficial.
   static const String siteUrl = 'https://waxclub.com.br/#plugins';

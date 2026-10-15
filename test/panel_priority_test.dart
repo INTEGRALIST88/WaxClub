@@ -21,10 +21,10 @@ void main() {
       expect(LyricsQuality.usable(good), isTrue, reason: 'sem a duração, só conta as linhas');
     });
 
-    test('texto simples: pelo menos 4 linhas', () {
+    test('texto simples (sem tempo) nunca serve: nada de ritmo estimado', () {
       expect(LyricsQuality.usable('linha um\nlinha dois'), isFalse);
-      expect(LyricsQuality.usable('a\nb\nc\nd'), isTrue);
-      expect(LyricsQuality.usable('[ar:Banda]\n[ti:Música]\na\nb'), isFalse, reason: 'tags não contam');
+      expect(LyricsQuality.usable('a\nb\nc\nd\ne\nf\ng\nh'), isFalse);
+      expect(LyricsQuality.usable('[ar:Banda]\n[ti:Música]\na\nb\nc\nd'), isFalse, reason: 'tags não são tempo');
     });
   });
 
@@ -49,7 +49,7 @@ void main() {
     LyricsProviderService.sourceOrder = () => const ['lrclib', 'netease'];
     LyricsProviderService.sourceEnabled = (s) => s == 'lrclib' || s == 'netease';
     addTearDown(() {
-      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz'];
       LyricsProviderService.sourceEnabled = (_) => true;
     });
     final service = LyricsProviderService(client: client, lrcLibService: LrcLibService(client: client));
@@ -88,7 +88,7 @@ void main() {
   test('ativo = só o primeiro ligado e não vermelho, da esquerda para a direita', () async {
     final dir = Directory.systemTemp.createTempSync('waxclub_front_');
     final store = PluginStore(directory: dir, bundleLyricsSources: true);
-    // ordem inicial: D1, S1, S2, S3, S4
+    // ordem inicial: D1, S1, S2, S3
     var f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: true);
     expect(f.shown, 'display.curiosities', reason: 'D1 na frente e com curiosidades');
 
@@ -101,47 +101,46 @@ void main() {
     expect(f.shown, 'lyrics.megalobiz', reason: 'S1 e S2 vermelhos: o próximo assume');
     expect(f.failed, {'display.curiosities', 'lyrics.lrclib', 'lyrics.netease'});
 
-    // Arrastou o S4 para a frente: ele é o ativo, mesmo que a letra atual seja de outra fonte
-    await store.movePanelPlugin(4, 0);
+    // Arrastou o S3 para a frente: ele é o ativo, mesmo que a letra atual seja de outra fonte
+    await store.movePanelPlugin(3, 0);
     f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {'lrclib': LyricsAttempt.found}, curiositiesFound: true);
-    expect(f.shown, 'lyrics.lyricsovh');
+    expect(f.shown, 'lyrics.megalobiz');
     expect(f.failed, isEmpty);
 
     // Desligado não conta
-    await store.toggle(store.byId('lyrics.lyricsovh')!);
+    await store.toggle(store.byId('lyrics.megalobiz')!);
     f = PluginPanelStrip.pickFront(store, lyricsAttempts: const {}, curiositiesFound: true);
     expect(f.shown, 'display.curiosities');
     dir.deleteSync(recursive: true);
   });
 
-  test('a busca segue estritamente o painel: S4 (texto simples) na frente é consultada primeiro', () async {
-    var ovh = 'Run away from all your boredom\nRun away from all your whoredom\nYour worries and cares, goodbye\nAll it takes is';
+  test('a busca segue estritamente o painel; texto sem tempo fica vermelho e a próxima assume', () async {
+    var lrclib = <String, Object?>{'duration': 248, 'syncedLyrics': '[00:20.00] um\n[01:00.00] dois\n[02:00.00] três\n[03:50.00] quatro'};
     final asked = <String>[];
     final client = MockClient((req) async {
       asked.add(req.url.host);
-      if (req.url.host == 'api.lyrics.ovh') return http.Response(jsonEncode({'lyrics': ovh}), 200);
-      if (req.url.host.contains('lrclib') && req.url.path.endsWith('/get')) {
-        return http.Response(
-            jsonEncode({'duration': 248, 'syncedLyrics': '[00:20.00] um\n[01:00.00] dois\n[02:00.00] três\n[03:50.00] quatro'}), 200);
-      }
+      if (req.url.host.contains('lrclib') && req.url.path.endsWith('/get')) return http.Response(jsonEncode(lrclib), 200);
       return http.Response('[]', 404);
     });
-    LyricsProviderService.sourceOrder = () => const ['lyrics.ovh', 'lrclib'];
-    LyricsProviderService.sourceEnabled = (s) => s == 'lyrics.ovh' || s == 'lrclib';
+    LyricsProviderService.sourceOrder = () => const ['lrclib', 'megalobiz'];
+    LyricsProviderService.sourceEnabled = (s) => s == 'lrclib' || s == 'megalobiz';
     addTearDown(() {
-      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz'];
       LyricsProviderService.sourceEnabled = (_) => true;
     });
     final service = LyricsProviderService(client: client, lrcLibService: LrcLibService(client: client));
     final r = await service.fetchLyricsDetails(trackName: 'Slave to the Wage', artistName: 'Placebo', durationSeconds: 248);
-    expect(r?.source, 'lyrics.ovh', reason: 'a S4 está na frente: a letra dela aparece');
-    expect(service.lastAttempts, {'lyrics.ovh': LyricsAttempt.found});
-    expect(asked.any((h) => h.contains('lrclib')), isFalse, reason: 'não precisou consultar a S1');
+    expect(r?.source, 'lrclib', reason: 'a S1 está na frente: a letra dela aparece');
+    expect(service.lastAttempts, {'lrclib': LyricsAttempt.found});
+    expect(asked.any((h) => h.contains('megalobiz')), isFalse, reason: 'não precisou consultar a S3');
 
-    // S4 com só 2 linhas: vermelha, e a S1 assume
-    ovh = 'linha um\nlinha dois';
+    // A LRCLIB só com texto sem tempo: vermelha (não vira ritmo estimado), e a próxima é consultada
+    lrclib = {'duration': 248, 'syncedLyrics': null, 'plainLyrics': 'Run away\nfrom all\nyour boredom\nand more\nlines'};
+    asked.clear();
     final r2 = await service.fetchLyricsDetails(trackName: 'Slave to the Wage', artistName: 'Placebo', durationSeconds: 248);
-    expect(service.lastAttempts['lyrics.ovh'], LyricsAttempt.broken);
-    expect(r2?.source, 'lrclib');
+    expect(r2, isNull);
+    expect(service.lastAttempts['lrclib'], LyricsAttempt.notFound);
+    expect(service.lastAttempts['megalobiz'], LyricsAttempt.notFound);
+    expect(asked.any((h) => h.contains('megalobiz')), isTrue);
   });
 }

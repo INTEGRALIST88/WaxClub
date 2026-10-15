@@ -585,7 +585,7 @@ class _PluginSheetState extends State<_PluginSheet> {
 
   String? _importReport;
 
-  /// Plugin S5: escolher arquivos .lrc/.txt (celular, Google Drive, OneDrive, Dropbox) e importar.
+  /// Plugin S5: escolher arquivos .lrc (celular, Google Drive, OneDrive, Dropbox) e importar.
   Future<void> _importMyLyrics(LocalLyricsLibrary lib) async {
     setState(() => _busy = true);
     final files = await PluginLinks.instance.pickLyricsFiles();

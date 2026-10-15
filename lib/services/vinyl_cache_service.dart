@@ -31,7 +31,7 @@ class CachedTrack {
   /// Deslocamento manual da letra em milissegundos ajustado via nudge (padrão 0).
   final int lyricOffsetMs;
 
-  /// Fonte de onde a letra foi obtida ('lrclib' | 'netease' | 'megalobiz' | 'lyrics.ovh').
+  /// Fonte de onde a letra foi obtida ('lrclib' | 'netease' | 'megalobiz').
   final String? lyricsSource;
 
   CachedTrack({

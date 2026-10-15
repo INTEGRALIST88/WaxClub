@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'cloud/cloud_folder.dart';
 import 'tracklist_matcher.dart';
 
-/// Uma letra importada pelo usuário (arquivo .lrc ou .txt que ele tem o direito de usar).
+/// Uma letra importada pelo usuário (arquivo .lrc com tempo que ele tem o direito de usar).
 class LocalLyricsEntry {
   final String title;
   final String artist;
@@ -178,7 +178,7 @@ class LocalLyricsLibrary extends ChangeNotifier {
     await load();
     final files = (await folder.listAppFolder()).where((f) {
       final n = f.name.toLowerCase();
-      return (n.endsWith('.lrc') || n.endsWith('.txt')) && f.size <= maxFileBytes;
+      return n.endsWith('.lrc') && f.size <= maxFileBytes;
     }).toList();
     final cloud = folder.cloudId;
     bool mine(LocalLyricsEntry e) => e.cloud == cloud && e.cloudPath != null;
@@ -234,11 +234,12 @@ class LocalLyricsLibrary extends ChangeNotifier {
   static final RegExp _tag = RegExp(r'^\[(ar|ti|al|length):\s*(.*?)\s*\]\s*$', caseSensitive: false);
   static final RegExp _timed = RegExp(r'\[\d{1,2}:\d{2}');
 
-  /// Lê um .lrc (tags [ar:], [ti:], [al:], [length:]) ou .txt. Sem as tags, o nome do arquivo
-  /// "Artista - Música.lrc" diz de qual música é. Devolve nulo se não der para saber a música.
+  /// Lê um .lrc (tags [ar:], [ti:], [al:], [length:]). Sem as tags, o nome do arquivo
+  /// "Artista - Música.lrc" diz de qual música é. Devolve nulo se não der para saber a música ou se a
+  /// letra não tiver tempo (texto sem tempo não serve: o WaxClub não mostra letra em ritmo estimado).
   static LocalLyricsEntry? parse(String fileName, String content) {
     final lower = fileName.toLowerCase();
-    if (!lower.endsWith('.lrc') && !lower.endsWith('.txt')) return null;
+    if (!lower.endsWith('.lrc')) return null;
     if (content.length > maxFileBytes || content.trim().isEmpty) return null;
     String? artist;
     String? title;
@@ -265,7 +266,7 @@ class LocalLyricsLibrary extends ChangeNotifier {
       body.add(raw);
     }
     if (artist == null || title == null || artist.isEmpty || title.isEmpty) {
-      final base = fileName.replaceAll(RegExp(r'\.(lrc|txt)$', caseSensitive: false), '');
+      final base = fileName.replaceAll(RegExp(r'\.lrc$', caseSensitive: false), '');
       final dash = base.indexOf(' - ');
       if (dash > 0) {
         artist = (artist == null || artist.isEmpty) ? base.substring(0, dash).trim() : artist;
@@ -274,7 +275,7 @@ class LocalLyricsLibrary extends ChangeNotifier {
     }
     if (artist == null || title == null || artist.isEmpty || title.isEmpty) return null;
     final lyrics = body.join('\n').trim();
-    if (lyrics.isEmpty) return null;
+    if (lyrics.isEmpty || !hasTimestamps(lyrics)) return null;
     return LocalLyricsEntry(
       title: title,
       artist: artist,

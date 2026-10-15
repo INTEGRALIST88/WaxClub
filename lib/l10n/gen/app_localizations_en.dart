@@ -2059,16 +2059,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Community archive of synced lyrics (LRC files). Tried after NetEase.';
 
   @override
-  String get pluginLyricsOvhName => 'Lyrics.ovh';
-
-  @override
-  String get pluginLyricsOvhAuthor => 'lyrics.ovh';
-
-  @override
-  String get pluginLyricsOvhDesc =>
-      'Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.';
-
-  @override
   String get pluginSourceLicense =>
       'Lyrics © their authors and publishers; fetched from the site for personal listening';
 
@@ -2149,7 +2139,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pluginMyLyricsDesc =>
-      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.';
+      'Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as synced .lrc files (with timestamps). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone.';
 
   @override
   String myLyricsCount(int count) {
@@ -2165,7 +2155,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myLyricsHowTo =>
-      'Use .lrc files (UTF-8) with the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Plain .txt works too, without timestamps.';
+      'Use synced .lrc files (UTF-8) with a timestamp on each line, like [01:23.45], and the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Lyrics without timestamps are not used.';
 
   @override
   String get myLyricsRights =>
@@ -2188,7 +2178,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String myLyricsSkipped(String files) {
-    return 'Not understood (missing artist/song or not .lrc/.txt): $files';
+    return 'Not used (missing artist/song, no timestamps or not .lrc): $files';
   }
 
   @override

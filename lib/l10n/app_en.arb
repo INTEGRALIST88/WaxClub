@@ -1280,9 +1280,6 @@
   "pluginMegalobizName": "Megalobiz",
   "pluginMegalobizAuthor": "megalobiz.com",
   "pluginMegalobizDesc": "Community archive of synced lyrics (LRC files). Tried after NetEase.",
-  "pluginLyricsOvhName": "Lyrics.ovh",
-  "pluginLyricsOvhAuthor": "lyrics.ovh",
-  "pluginLyricsOvhDesc": "Plain lyrics without timestamps, the last resort: WaxClub spreads the lines over the song.",
   "pluginSourceLicense": "Lyrics © their authors and publishers; fetched from the site for personal listening",
   "pluginInstallAfterSignIn": "Sign in or create your WaxClub account to install the plugin {plugin}.",
   "@pluginInstallAfterSignIn": {
@@ -1339,7 +1336,7 @@
   "pluginMyLyricsName": "My lyrics files",
   "pluginMyLyricsAuthor": "You (your own files)",
   "pluginMyLyricsLicense": "Your files, your rights: only lyrics you are allowed to use; they stay on your phone and are never shared",
-  "pluginMyLyricsDesc": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as .lrc or .txt files. Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone. They always win over the web sources.",
+  "pluginMyLyricsDesc": "Shows lyrics you obtained legally (bought or licensed, written by you, in the public domain or used with permission) as synced .lrc files (with timestamps). Keep them in a Dropbox, OneDrive or Google Drive folder (updated automatically) or pick them from your phone.",
   "myLyricsCount": "{count, plural, =0{No lyrics files yet} =1{1 lyrics file on this phone} other{{count} lyrics files on this phone}}",
   "@myLyricsCount": {
     "placeholders": {
@@ -1348,7 +1345,7 @@
       }
     }
   },
-  "myLyricsHowTo": "Use .lrc files (UTF-8) with the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Plain .txt works too, without timestamps.",
+  "myLyricsHowTo": "Use synced .lrc files (UTF-8) with a timestamp on each line, like [01:23.45], and the tags [ar:Artist] and [ti:Song], or name each file \"Artist - Song.lrc\". Lyrics without timestamps are not used.",
   "myLyricsRights": "Lyrics are protected by copyright. Only add files you have the right to use; WaxClub just shows them to you while the record plays and never uploads or shares them.",
   "myLyricsImport": "Add lyrics files",
   "myLyricsImported": "{count, plural, =0{No lyrics added.} =1{1 lyrics file added.} other{{count} lyrics files added.}}",
@@ -1359,7 +1356,7 @@
       }
     }
   },
-  "myLyricsSkipped": "Not understood (missing artist/song or not .lrc/.txt): {files}",
+  "myLyricsSkipped": "Not used (missing artist/song, no timestamps or not .lrc): {files}",
   "@myLyricsSkipped": {
     "placeholders": {
       "files": {

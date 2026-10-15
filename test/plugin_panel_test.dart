@@ -19,22 +19,22 @@ void main() {
   test('painel: só plugins que mudam a tela (exibição e letras), sem os travados e os em breve', () {
     final store = PluginStore(directory: dir, bundleLyricsSources: true);
     final codes = store.panelPlugins().map((p) => p.code).toList();
-    expect(codes, ['D1', 'S1', 'S2', 'S3', 'S4'], reason: 'S5 não está instalado; L, A e C ficam de fora');
+    expect(codes, ['D1', 'S1', 'S2', 'S3'], reason: 'S5 não está instalado; L, A e C ficam de fora');
   });
 
   test('arrastar muda a ordem, fica salvo e vira a ordem da busca de letras', () async {
     final store = PluginStore(directory: dir, bundleLyricsSources: true);
     await store.load();
-    expect(store.lyricsEngineOrder(), ['lrclib', 'netease', 'megalobiz', 'lyrics.ovh']);
+    expect(store.lyricsEngineOrder(), ['lrclib', 'netease', 'megalobiz']);
 
     // NetEase (S2, posição 2) para o começo
     await store.movePanelPlugin(2, 0);
-    expect(store.panelPlugins().map((p) => p.code).toList(), ['S2', 'D1', 'S1', 'S3', 'S4']);
-    expect(store.lyricsEngineOrder(), ['netease', 'lrclib', 'megalobiz', 'lyrics.ovh']);
+    expect(store.panelPlugins().map((p) => p.code).toList(), ['S2', 'D1', 'S1', 'S3']);
+    expect(store.lyricsEngineOrder(), ['netease', 'lrclib', 'megalobiz']);
 
     // Desligada não entra na busca
     await store.toggle(store.byCode('S1')!);
-    expect(store.lyricsEngineOrder(), ['netease', 'megalobiz', 'lyrics.ovh']);
+    expect(store.lyricsEngineOrder(), ['netease', 'megalobiz']);
 
     final again = PluginStore(directory: dir, bundleLyricsSources: true);
     await again.load();
@@ -50,7 +50,7 @@ void main() {
     LyricsProviderService.sourceOrder = () => const ['netease', 'lrclib'];
     LyricsProviderService.sourceEnabled = (s) => s == 'netease' || s == 'lrclib';
     addTearDown(() {
-      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz', 'lyrics.ovh'];
+      LyricsProviderService.sourceOrder = () => const ['local', 'lrclib', 'netease', 'megalobiz'];
       LyricsProviderService.sourceEnabled = (_) => true;
     });
     await LyricsProviderService(client: client).fetchLyricsDetails(trackName: 'Song', artistName: 'Band');
@@ -67,9 +67,10 @@ void main() {
       home: Scaffold(body: SizedBox(width: 360, child: PluginPanelStrip(store: store))),
     ));
     expect(find.text('D1'), findsOneWidget);
-    expect(find.text('S4'), findsOneWidget);
+    expect(find.text('S3'), findsOneWidget);
+    expect(find.text('S4'), findsNothing);
     final w = tester.getSize(find.ancestor(of: find.text('S1'), matching: find.byType(InkWell))).width;
-    expect(w, closeTo((360 - 16) / 5 - 4, 1), reason: '5 caixinhas na largura da tela');
+    expect(w, closeTo((360 - 16) / 4 - 4, 1), reason: '4 caixinhas na largura da tela');
 
     final s1 = store.byCode('S1')!;
     expect(store.isActive(s1), isTrue);

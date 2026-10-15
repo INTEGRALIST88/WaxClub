@@ -215,11 +215,10 @@ void main() {
     engine.dispose();
   });
 
-  test('Bug 7: fonte preferida lyrics.ovh continua sendo aceita na cascata', () async {
+  test('Bug 7: o Lyrics.ovh (só texto sem tempo) saiu da cascata e nem é consultado', () async {
+    final hosts = <String>[];
     final client = MockClient((request) async {
-      if (request.url.host == 'api.lyrics.ovh') {
-        return http.Response(jsonEncode({'lyrics': 'Linha um\nLinha dois\nLinha três\nLinha quatro'}), 200);
-      }
+      hosts.add(request.url.host);
       return http.Response('not found', 404);
     });
     final service = LyricsProviderService(client: client);
@@ -230,8 +229,7 @@ void main() {
       preferredSource: 'lyrics.ovh',
     );
 
-    expect(result, isNotNull);
-    expect(result!.source, equals('lyrics.ovh'));
-    expect(result.syncedLyrics, contains('Linha um'));
+    expect(result, isNull);
+    expect(hosts, isNot(contains('api.lyrics.ovh')));
   });
 }

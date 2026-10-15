@@ -33,7 +33,7 @@ void main() {
     test('botão Install (link de app) e link para compartilhar', () {
       expect(PluginLinks.pluginIdFrom('waxclub://plugin/install?id=lyrics.netease'), 'lyrics.netease');
       expect(PluginLinks.pluginIdFrom('https://waxclub.com.br/install/?plugin=lyrics.megalobiz'), 'lyrics.megalobiz');
-      expect(PluginLinks.pluginIdFrom('https://www.waxclub.com.br/install/?plugin=lyrics.lyricsovh'), 'lyrics.lyricsovh');
+      expect(PluginLinks.pluginIdFrom('https://www.waxclub.com.br/install/?plugin=lyrics.lrclib'), 'lyrics.lrclib');
     });
 
     test('links de outros sites ou ids estranhos são ignorados', () {
@@ -47,7 +47,7 @@ void main() {
   group('manifesto (só dados)', () {
     test('todo manifesto publicado no site bate com um plugin que o app conhece', () {
       final files = Directory('site/plugins').listSync().whereType<File>().where((f) => f.path.endsWith('.json') && !f.path.endsWith('index.json'));
-      expect(files.length, 5);
+      expect(files.length, 4);
       final store = PluginStore(bundleLyricsSources: false);
       for (final f in files) {
         final m = PluginManifest.fromJson(jsonDecode(f.readAsStringSync()) as Map<String, dynamic>);
@@ -62,7 +62,7 @@ void main() {
         expect(p.isBuiltIn, isFalse);
       }
       final index = jsonDecode(File('site/plugins/index.json').readAsStringSync()) as Map<String, dynamic>;
-      expect((index['plugins'] as List).length, 5);
+      expect((index['plugins'] as List).length, 4);
     });
 
     test('formato errado, versão nova do formato e id inválido são recusados', () {
@@ -135,7 +135,7 @@ void main() {
       expect(store.isLyricsEngineOn('netease'), isFalse);
     });
 
-    test('antes do lançamento: as 4 fontes da web vêm instaladas uma vez; depois vale a escolha do usuário', () async {
+    test('antes do lançamento: as 3 fontes da web vêm instaladas uma vez; depois vale a escolha do usuário', () async {
       // Arquivo de plugins da 1.4.8 (as fontes de letras ainda não eram plugins)
       File('${dir.path}/waxclub_plugins.json').writeAsStringSync(jsonEncode({
         'version': 2,
@@ -145,7 +145,7 @@ void main() {
       }));
       final old = PluginStore(directory: dir, bundleLyricsSources: true);
       await old.load();
-      for (final e in ['lrclib', 'netease', 'megalobiz', 'lyrics.ovh']) {
+      for (final e in ['lrclib', 'netease', 'megalobiz']) {
         expect(old.isLyricsEngineOn(e), isTrue, reason: e);
       }
       expect(old.isLyricsEngineOn('local'), isFalse, reason: 'S5 é instalado pelo usuário');
@@ -179,10 +179,13 @@ void main() {
       final named = LocalLyricsLibrary.parse('Os Mutantes - Panis et Circenses.lrc', '[00:01.00]Eu quis cantar');
       expect(named!.artist, 'Os Mutantes');
       expect(named.title, 'Panis et Circenses');
-      expect(LocalLyricsLibrary.parse('Elis Regina - Como Nossos Pais.txt', 'Não quero lhe falar')!.title, 'Como Nossos Pais');
+      expect(LocalLyricsLibrary.parse('Elis Regina - Como Nossos Pais.txt', '[00:01.00]Não quero lhe falar'), isNull,
+          reason: 'só .lrc');
+      expect(LocalLyricsLibrary.parse('Elis Regina - Como Nossos Pais.lrc', 'Não quero lhe falar\nmeu grande amor'), isNull,
+          reason: 'letra sem tempo não serve');
 
       expect(LocalLyricsLibrary.parse('semtraco.lrc', '[00:01.00]linha'), isNull, reason: 'sem artista/música');
-      expect(LocalLyricsLibrary.parse('Banda - Música.pdf', 'x'), isNull, reason: 'só .lrc e .txt');
+      expect(LocalLyricsLibrary.parse('Banda - Música.pdf', 'x'), isNull, reason: 'só .lrc');
       expect(LocalLyricsLibrary.parse('Banda - Música.lrc', '[ar:Banda]\n[ti:Música]'), isNull, reason: 'sem letra');
     });
 
