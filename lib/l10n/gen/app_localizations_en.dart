@@ -231,7 +231,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discogsTokenHelpBody =>
-      'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\".\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.';
+      'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\" (highlighted in orange).\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.';
 
   @override
   String get save => 'Save';

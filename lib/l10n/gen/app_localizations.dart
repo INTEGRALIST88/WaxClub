@@ -463,7 +463,7 @@ abstract class AppLocalizations {
   /// No description provided for @discogsTokenHelpBody.
   ///
   /// In en, this message translates to:
-  /// **'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\".\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.'**
+  /// **'Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\" (highlighted in orange).\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn\'t, copy the token shown after \"Current token\" and paste it in the field below.'**
   String get discogsTokenHelpBody;
 
   /// No description provided for @save.

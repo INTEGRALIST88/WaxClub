@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.27] — 15/10/2026 (Captura do Token Pelo Campo Exato da Página)
+
+* **Captura mais precisa:** o token é lido direto do campo onde o Discogs o exibe (`<code><span class="select-all">`, depois de "Token atual:"); a leitura do texto da página fica como reserva, caso o Discogs mude a página.
+* **Conta sem token:** a página rola até o aceite dos termos e destaca em laranja a caixa e o botão "Generate new token"; o aviso diz isso. O aceite continua sendo do usuário (o app não marca a caixa).
+* A v1.4.26 chegou ao Drive, mas não foi instalada; esta versão inclui tudo dela.
+
+---
 ## [v1.4.26] — 15/10/2026 (Token do Discogs Capturado da Página)
 
 * **Login no Discogs sem copiar e colar:** depois da senha, o Discogs abre a página de desenvolvedor; o app lê o token na própria página ("Token atual:" / "Your current token:"), preenche o campo e conecta sozinho ("Token found on the page. Connecting…").

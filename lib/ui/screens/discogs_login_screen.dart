@@ -115,8 +115,12 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     if (web == null || _busy || !Uri.parse(url).path.startsWith(Uri.parse(DiscogsConfig.personalTokenPage).path)) return;
     String text;
     try {
+      // O Discogs mostra o token em <code><span class="select-all">…</span></code>, depois de "Token atual:";
+      // sem esse elemento (página mudou), lê o texto visível inteiro
       final raw = await web.runJavaScriptReturningResult(
-        "(function(){var t=document.body?document.body.innerText:'';" // l10n-ignore
+        "(function(){var s=document.querySelector('code .select-all');" // l10n-ignore
+        "if(s&&s.textContent.trim())return 'Token: '+s.textContent.trim();" // l10n-ignore
+        "var t=document.body?document.body.innerText:'';" // l10n-ignore
         "document.querySelectorAll('input,textarea,code').forEach(function(e){t+='\\n'+(e.value||e.textContent||'');});" // l10n-ignore
         'return t;})()', // l10n-ignore
       );
@@ -138,6 +142,18 @@ class _DiscogsLoginScreenState extends State<DiscogsLoginScreen> {
     }
     if (_helpShown) return;
     _helpShown = true;
+    // Mostra onde tocar: rola até o aceite dos termos e destaca a caixa e o botão de gerar
+    // (o aceite é do usuário; o app não marca a caixa por ele)
+    try {
+      await web.runJavaScript(
+        "(function(){var c=document.getElementById('token_api_tos_checkbox');" // l10n-ignore
+        "var b=document.getElementById('generate_token_button');" // l10n-ignore
+        "if(c){c.scrollIntoView({block:'center'});c.parentElement.style.outline='3px solid #f28c28';" // l10n-ignore
+        "c.parentElement.style.borderRadius='6px';}" // l10n-ignore
+        "if(b){b.style.outline='3px solid #f28c28';}})()", // l10n-ignore
+      );
+    } catch (_) {}
+    if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(

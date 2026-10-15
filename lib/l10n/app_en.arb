@@ -165,7 +165,7 @@
   "discogsTokenField": "Discogs personal token",
   "discogsTokenCaptured": "Token found on the page. Connecting…",
   "discogsTokenHelpTitle": "Generate your token",
-  "discogsTokenHelpBody": "Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\".\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn't, copy the token shown after \"Current token\" and paste it in the field below.",
+  "discogsTokenHelpBody": "Your Discogs account has no personal token yet.\n\n1. Tick \"I have read and agree to the Discogs API Terms of Use\" (highlighted in orange).\n2. Tap \"Generate new token\".\n\nWaxClub will pick it up as soon as it appears on the page. If it doesn't, copy the token shown after \"Current token\" and paste it in the field below.",
   "save": "Save",
   "helpGettingStarted": "Getting started",
   "helpGettingStarted1": "Put a record on your turntable, drop the needle and tap the microphone button. WaxClub listens for a few seconds, identifies the song and shows the lyrics in sync with the music.",
