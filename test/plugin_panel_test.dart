@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:waxclub/services/lyrics_provider_service.dart';
 import 'package:waxclub/services/plugins/plugin_catalog.dart';
+import 'package:waxclub/services/plugins/plugin_manifest.dart';
 import 'package:waxclub/ui/widgets/plugin_panel_strip.dart';
 
 void main() {
@@ -20,6 +22,18 @@ void main() {
     final store = PluginStore(directory: dir, bundleLyricsSources: true);
     final codes = store.panelPlugins().map((p) => p.code).toList();
     expect(codes, ['D1', 'S1', 'S2', 'S3'], reason: 'S5 não está instalado; L, A e C ficam de fora');
+  });
+
+  test('A2 (tradutor) e A3 (Imagined Music) entram na mesma linha quando instalados, depois das fontes', () async {
+    final store = PluginStore(directory: dir, bundleLyricsSources: true);
+    expect(store.panelPlugins().map((p) => p.code), isNot(contains('A2')), reason: 'não instalado: fora do painel');
+    for (final f in ['ai.translate', 'ai.imagined']) {
+      final m = PluginManifest.fromJson(jsonDecode(File('site/plugins/$f.json').readAsStringSync()) as Map<String, dynamic>);
+      expect(await store.installFromManifest(m), isTrue);
+    }
+    expect(store.panelPlugins().map((p) => p.code).toList(), ['D1', 'S1', 'S2', 'S3', 'A2', 'A3']);
+    final pick = PluginPanelStrip.pickFront(store, lyricsAttempts: const {});
+    expect(pick.shown, isNot(anyOf('ai.translate', 'ai.imagined')), reason: 'IA não é o que aparece no lugar da letra');
   });
 
   test('arrastar muda a ordem, fica salvo e vira a ordem da busca de letras', () async {

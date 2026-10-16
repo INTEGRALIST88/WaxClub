@@ -479,12 +479,15 @@ class PluginStore extends ChangeNotifier {
   /// hardware, como estroboscópio e horas da agulha, quando existirem).
   static const Set<PluginCategory> panelCategories = {PluginCategory.display, PluginCategory.sources};
 
+  /// Plugins de IA que também ficam no painel (mudam o que aparece na tela): tradutor (A2) e Imagined Music (A3).
+  static const Set<String> panelAiIds = {PluginCatalog.translatorId, PluginCatalog.imaginedId};
+
   /// Ordem do painel escolhida pelo usuário (arrastando). Para as fontes de letras é também a ordem da busca.
   final List<String> _order = [];
 
   /// Ordem inicial: exibição, depois as letras do próprio usuário (S5) e as fontes da web (S1 → S4).
   int _defaultRank(PluginInfo p) {
-    final cat = p.category == PluginCategory.display ? 0 : 1;
+    final cat = switch (p.category) { PluginCategory.display => 0, PluginCategory.sources => 1, _ => 2 };
     final mine = p.id == PluginCatalog.myLyricsId ? 0 : 1;
     return cat * 10000 + mine * 1000 + p.number;
   }
@@ -498,7 +501,11 @@ class PluginStore extends ChangeNotifier {
   /// direita na prioridade do usuário.
   List<PluginInfo> panelPlugins() {
     final list = catalog
-        .where((p) => panelCategories.contains(p.category) && isInstalled(p) && !p.isComingSoon && !p.locked)
+        .where((p) =>
+            (panelCategories.contains(p.category) || panelAiIds.contains(p.id)) &&
+            isInstalled(p) &&
+            !p.isComingSoon &&
+            !p.locked)
         .toList();
     list.sort((a, b) => _rank(a).compareTo(_rank(b)));
     return list;

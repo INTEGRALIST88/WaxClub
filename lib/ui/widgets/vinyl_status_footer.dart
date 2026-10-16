@@ -131,7 +131,7 @@ class _VinylStatusFooterState extends State<VinylStatusFooter> {
         child: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: widget.showLyricSync ? 12 : 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: widget.showLyricSync ? 8 : 5),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

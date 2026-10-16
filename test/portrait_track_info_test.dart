@@ -34,14 +34,15 @@ void main() {
     expect(title, findsOneWidget);
     expect(find.text('Carly Simon'), findsOneWidget, reason: 'banda logo abaixo da música');
 
-    // No alto, ao lado da capa (logo à esquerda) e acima dos botões de madeira e do painel de plugins
+    // No alto, ao lado da capa; o botão ☰ à esquerda da capa, com o topo alinhado ao dela
     final cover = tester.getRect(find.byWidgetPredicate((w) => w is Image && w.width == 66));
     final t = tester.getRect(title);
     expect(cover.width, greaterThanOrEqualTo(60), reason: 'capa um pouco maior em pé');
     expect(t.left, greaterThan(cover.right));
     expect(t.top, lessThan(cover.bottom));
-    final buttons = tester.getRect(find.bySemanticsLabel('Plugins').first);
-    expect(t.bottom, lessThan(buttons.top), reason: 'a música fica acima dos botões e dos plugins');
+    final menu = tester.getRect(find.byWidgetPredicate((w) => w is Image && w.image is AssetImage && (w.image as AssetImage).assetName == 'assets/images/btn_menu.png'));
+    expect(menu.right, lessThanOrEqualTo(cover.left), reason: 'capa um pouco à direita do ☰');
+    expect((menu.top - cover.top).abs(), lessThan(2), reason: '☰ alinhado ao topo da capa');
 
     engine.stop();
     await tester.pumpWidget(const SizedBox());

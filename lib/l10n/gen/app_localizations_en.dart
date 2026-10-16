@@ -2521,6 +2521,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jukeboxDetails => 'Details';
 
   @override
+  String get menu => 'Menu';
+
+  @override
   String get jukeboxOn => 'ON';
 
   @override

@@ -4210,6 +4210,12 @@ abstract class AppLocalizations {
   /// **'Details'**
   String get jukeboxDetails;
 
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
   /// No description provided for @jukeboxOn.
   ///
   /// In en, this message translates to:

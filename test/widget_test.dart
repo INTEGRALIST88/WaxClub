@@ -76,7 +76,7 @@ void main() {
     await closeApp(tester);
   });
 
-  testWidgets('em pé: só o logo à esquerda (sem texto) e os botões de madeira cabem na barra', (tester) async {
+  testWidgets('em pé: logo sem texto, botões de madeira no menu ☰ (um abaixo do outro, com o nome)', (tester) async {
     tester.view.physicalSize = const Size(360, 780);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -86,9 +86,21 @@ void main() {
 
     expect(tester.takeException(), isNull, reason: 'nada pode estourar na barra superior');
     expect(find.text('Vinyl Social Club'), findsNothing, reason: 'o texto ao lado do logo só aparece deitado');
-    for (final name in ['Profile', 'Identify', 'Manual', 'My Collection', 'Plugins', 'Help']) {
-      expect(find.byTooltip(name), findsOneWidget, reason: 'botão $name');
+    expect(find.byTooltip('Profile'), findsNothing, reason: 'a fileira de botões saiu da barra');
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pump(const Duration(milliseconds: 600));
+    final tops = <double>[];
+    for (final name in ['Profile', 'Identify', 'Manual', 'WaxBrain', 'My Collection', 'Plugins', 'Help']) {
+      expect(find.text(name), findsOneWidget, reason: 'item $name');
+      tops.add(tester.getRect(find.text(name)).top);
     }
+    for (var i = 1; i < tops.length; i++) {
+      expect(tops[i], greaterThan(tops[i - 1]), reason: 'um abaixo do outro');
+    }
+    expect(find.text('OFF'), findsOneWidget, reason: 'Manual mostra se está ligado');
+    await tester.tapAt(const Offset(340, 700)); // fora do menu: fecha
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('My Collection'), findsNothing);
     await closeApp(tester);
   });
 }

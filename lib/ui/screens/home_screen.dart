@@ -37,6 +37,7 @@ import '../../services/curiosities_service.dart';
 import '../widgets/chrome_play_button.dart';
 import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
+import '../widgets/wood_menu.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
@@ -108,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// WaxBrain: chaves de IA do usuário (BYOK), no cofre do celular e, criptografadas, na conta.
   final BrainService _brain = BrainService();
   final GlobalKey _brainKey = GlobalKey();
+  final GlobalKey _menuKey = GlobalKey();
   bool _brainAttached = false;
 
   /// Plugin A2: tradutor de IA (letras e curiosidades) com os chips do WaxBrain.
@@ -837,6 +839,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           WoodTileButton(asset: 'assets/images/btn_help.png', label: l10n.help, onPressed: _openHelp, size: size, key: _helpKey),
         ],
       );
+
+  /// Botão ☰ (celular em pé): abre o menu de madeira com os botões um abaixo do outro, com o nome na frente.
+  Widget _menuButton() => WoodTileButton(
+        key: _menuKey,
+        asset: 'assets/images/btn_menu.png',
+        label: l10n.menu,
+        onPressed: _openWoodMenu,
+        size: 36,
+      );
+
+  void _openWoodMenu() {
+    final manualOn = _engine.isManualMode;
+    showWoodMenu(context, anchor: _menuKey, items: [
+      WoodMenuItem(asset: 'assets/images/btn_user.png', label: l10n.profile, onTap: _openProfile),
+      WoodMenuItem(asset: 'assets/images/btn_camera.png', label: l10n.camera, onTap: _openRecordScan),
+      WoodMenuItem(
+        asset: manualOn ? 'assets/images/btn_manual_on.png' : 'assets/images/btn_manual_off.png',
+        label: l10n.manual,
+        onTap: _toggleManualMode,
+        badge: manualOn ? l10n.jukeboxOn : l10n.jukeboxOff,
+        badgeOn: manualOn,
+      ),
+      WoodMenuItem(asset: 'assets/images/btn_brain.png', label: l10n.waxBrain, onTap: _openBrain),
+      WoodMenuItem(asset: 'assets/images/btn_collection.png', label: l10n.myCollection, onTap: _openCollection),
+      WoodMenuItem(asset: 'assets/images/btn_plugins.png', label: l10n.plugins, onTap: _openPlugins),
+      WoodMenuItem(asset: 'assets/images/btn_help.png', label: l10n.help, onTap: _openHelp),
+    ]);
+  }
 
   /// Conta conectada: o WaxBrain passa a guardar uma cópia criptografada das chaves na conta (e traz as
   /// que já estavam lá); conta desconectada: segue só no celular.
@@ -1675,7 +1705,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final isListening = telemetry.isUserListening || telemetry.status == CalibrationStatus.listeningSample1;
         final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
         // Microfone cromado no centro da barra inferior
-        final micSize = isLandscape ? 50.0 : 62.0;
+        final micSize = isLandscape ? 50.0 : 48.0;
         final awaitingFlip = _engine.isAwaitingSideFlip && !telemetry.isMicActive;
         // Etapa atual (ouvindo, não identificada...) mostrada na saudação, já que o rodapé ficou enxuto
         final statusLine = (telemetry.status == CalibrationStatus.idle || telemetry.statusMessage.isEmpty)
@@ -1710,31 +1740,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               appBar: AppBar(
                 toolbarHeight: trackOnTop ? 92 : 74,
                 flexibleSpace: const _WoodTopPanel(),
-                // Em pé: linha de baixo com os botões de madeira encostados à direita e, embaixo, o painel de
-                // plugins (a música fica no alto, ao lado da capa). Deitado: botões na linha de cima.
-                bottom: !compactBar ? null : PreferredSize(
-                  preferredSize: Size.fromHeight(tileSize + 12 + panelHeight),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        height: tileSize + 12,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: _woodButtons(tileSize),
-                          ),
+                // Em pé: embaixo, só o painel de plugins (os botões de madeira ficam no menu ☰ e a música no
+                // alto, ao lado da capa). Deitado: botões na linha de cima.
+                bottom: !compactBar || panelHeight == 0
+                    ? null
+                    : PreferredSize(
+                        preferredSize: Size.fromHeight(panelHeight),
+                        child: SizedBox(
+                          height: panelHeight,
+                          child: PluginPanelStrip(store: _plugins, shownId: panel.shown, failedIds: panel.failed),
                         ),
                       ),
-                      if (panelHeight > 0) SizedBox(height: panelHeight, child: PluginPanelStrip(store: _plugins, shownId: panel.shown, failedIds: panel.failed)),                    ],
-                  ),
-                ),
-                // Logo (ou capa do disco) no canto esquerdo; o texto ao lado só aparece com o celular deitado
-                leadingWidth: logoSize + 22,
+                // Em pé: botão ☰ (alinhado ao topo da capa) e a capa um pouco à direita. Logo (ou capa do disco)
+                // no canto esquerdo; o texto ao lado só aparece com o celular deitado
+                leadingWidth: logoSize + 22 + (compactBar ? _menuButtonWidth : 0),
                 leading: Padding(
-                  padding: const EdgeInsets.only(left: 14),
-                  child: Center(
+                  padding: EdgeInsets.only(left: compactBar ? 6 : 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (compactBar)
+                        SizedBox(
+                          height: logoSize,
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            // o botão tem 4 px de folga em volta: sobe 4 para o topo bater com o da capa
+                            child: Transform.translate(offset: const Offset(0, -4), child: _menuButton()),
+                          ),
+                        ),
+                      if (compactBar) const SizedBox(width: 4),
+                      Center(
                     child: GestureDetector(
                       onTap: _engine.currentTrack == null ? _openPlayRecord : _showAlbumTracklistModal,
                       onLongPress: _exportSessionLogs,
@@ -1773,6 +1808,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                       ),
                     ),
+                  ),
+                    ],
                   ),
                 ),
                 titleSpacing: 12,
@@ -1984,7 +2021,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             // Nomes dos botões na abertura (esquerda → direita), por cima de tudo
             Positioned.fill(
-              child: IntroLabelsLayer(specs: [
+              child: IntroLabelsLayer(specs: MediaQuery.sizeOf(context).width < 600
+                  ? [IntroLabelSpec(anchor: _menuKey, text: l10n.menu, delay: Duration.zero)]
+                  : [
                 // Um botão por vez, da esquerda para a direita, alternando acima/abaixo
                 IntroLabelSpec(anchor: _userKey, text: l10n.profile, delay: Duration.zero),
                 IntroLabelSpec(anchor: _cameraKey, text: l10n.camera, delay: const Duration(milliseconds: 1200), above: true),
@@ -1993,7 +2032,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     anchor: _collectionKey, text: l10n.myCollection, delay: const Duration(milliseconds: 3600), above: true),
                 IntroLabelSpec(anchor: _pluginsKey, text: l10n.plugins, delay: const Duration(milliseconds: 4800)),
                 IntroLabelSpec(anchor: _helpKey, text: l10n.help, delay: const Duration(milliseconds: 6000), above: true),
-              ]),
+                    ]),
             ),
           ],
         );
@@ -2004,6 +2043,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 /// Painel de nogueira em destaque atrás da barra superior: o mesmo acabamento do rodapé, um tom
 /// mais claro que o fundo, com veio da madeira e friso entalhado (luz + sombra) na borda de baixo.
+/// Largura do botão ☰ na barra (36 + 4 de folga de cada lado + 4 até a capa).
+const double _menuButtonWidth = 48;
+
 class _WoodTopPanel extends StatelessWidget {
   const _WoodTopPanel();
 
