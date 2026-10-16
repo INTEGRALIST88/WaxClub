@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.41] — 15/10/2026 (Frases no Tempo e Tradutor Firme)
+
+* **A3 — frases sincronizadas com o canto:** a frase aparece exatamente quando a linha dela começa a ser cantada e some quando a linha acaba (TV e celular); cada uma uma vez, com pelo menos ~10 s entre elas, e 6 a 10 por música (não ficam aparecendo o tempo todo).
+* **A3 — fotos antecipam o verso:** a imagem de cada cena entra ~2,5 s antes do verso ser cantado, já no contexto da frase.
+* **A3 — fonte das frases:** Fraunces itálico (serifa clássica e arredondada, licença OFL), na TV e no celular.
+* **A2 tradutor — correções:**
+  * laço sem fim: quando a tradução falhava, a tela pedia de novo a cada aviso, queimando o limite do chip grátis; agora só a troca de idioma refaz, e uma falha tenta de novo em 45 s (até 2 vezes por música);
+  * resposta com a quantidade errada de linhas: pede de novo uma vez, lembrando o número exato; resposta maior permitida (letras longas);
+  * aviso no alto da letra: "Translating the lyrics…" ou por que ficou sem tradução (toque abre o WaxBrain).
+* **WaxBrain:** um pedido de IA por vez (A2 e A3 dividem o chip grátis); "muitos pedidos" (429) espera e tenta de novo o mesmo chip; um erro 400 de um pedido não desliga mais a chave; ao abrir o app, chips marcados como recusados ou no limite há mais de 30 min são testados de novo.
+* Testes: frase na hora da linha e some na próxima, espaço mínimo entre frases, imagem 2,5 s antes do verso, 429 com nova tentativa, 400 não desliga o chip, um pedido por vez.
+
+---
 ## [v1.4.40] — 15/10/2026 (Imagined Music Mais Vivo)
 
 * **A imagem troca a cada ~13 s:** cada cena virou várias tomadas, com outras fotos da mesma busca e o movimento (zoom/pan) alternando. Antes era uma foto por cena e, com o limite do Unsplash estourado, a TV ficava minutos na mesma imagem.

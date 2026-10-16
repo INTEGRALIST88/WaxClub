@@ -2,7 +2,7 @@ name: waxclub
 description: "WaxClub - Real-time karaoke lyrics synchronized with vinyl records and pitch drift compensation."
 publish_to: 'none'
 
-version: 1.4.40+24040
+version: 1.4.41+24041
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -69,6 +69,11 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
+    # Frases do Imagined Music (A3): Fraunces itálico (OFL, assets/fonts/Fraunces-OFL.txt)
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/Fraunces-Italic-Variable.ttf
+          style: italic
     # Letra retrô 3D dos destaques (música/banda, títulos em creme, saudação, marca). Berdano (RantautypeStudio,
     # todos os direitos reservados): comprar a licença comercial (app + web) antes de publicar. Fora do Git.
     - family: Berdano

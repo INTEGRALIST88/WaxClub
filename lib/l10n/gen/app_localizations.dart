@@ -4291,7 +4291,7 @@ abstract class AppLocalizations {
   /// No description provided for @translatorNeedsChip.
   ///
   /// In en, this message translates to:
-  /// **'No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.'**
+  /// **'The translator needs an AI chip. Tap to open the WaxBrain.'**
   String get translatorNeedsChip;
 
   /// No description provided for @translatorOpenBrain.
@@ -4329,6 +4329,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Imagining this song…'**
   String get imagineWorking;
+
+  /// No description provided for @translatorWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating the lyrics…'**
+  String get translatorWorking;
+
+  /// No description provided for @translatorChipFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your AI chip didn\'t answer. Trying again in a moment — tap to check the WaxBrain.'**
+  String get translatorChipFailed;
+
+  /// No description provided for @translatorBadReply.
+  ///
+  /// In en, this message translates to:
+  /// **'The translation came out garbled. Trying again in a moment.'**
+  String get translatorBadReply;
 
   /// No description provided for @imagineNeedsChip.
   ///
@@ -4375,7 +4393,7 @@ abstract class AppLocalizations {
   /// No description provided for @imagineModeImmersiveHint.
   ///
   /// In en, this message translates to:
-  /// **'Only the images, with big lines of the lyrics fading in every few seconds.'**
+  /// **'Only the images, with a line of the lyrics appearing right when it is sung.'**
   String get imagineModeImmersiveHint;
 
   /// No description provided for @imagineUsesChip.

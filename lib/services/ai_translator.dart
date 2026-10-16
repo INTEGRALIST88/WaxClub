@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
@@ -119,6 +120,9 @@ class AiTranslator extends ChangeNotifier {
   Future<void>? _loading;
   final Map<String, Future<List<String>?>> _inFlight = {};
 
+  /// Está traduzindo alguma coisa agora.
+  bool get working => _inFlight.isNotEmpty;
+
   Future<void> load() => _loading ??= _load();
 
   Future<void> _load() async {
@@ -188,15 +192,30 @@ class AiTranslator extends ChangeNotifier {
     if (hit != null) return hit;
     // Mesma tradução já pedida (ex.: a tela redesenhou): espera a mesma resposta
     // (bloco, e não "=> remove": remove() devolve o próprio Future e o whenComplete esperaria por ele mesmo)
-    return _inFlight[key] ??= _ask(key, texts, instructions.replaceAll('{lang}', lang.english)).whenComplete(() {
+    final running = _inFlight[key];
+    if (running != null) return running;
+    final job = _inFlight[key] = _ask(key, texts, instructions.replaceAll('{lang}', lang.english)).whenComplete(() {
       _inFlight.remove(key);
+      notifyListeners(); // terminou: a tela atualiza o aviso (não refaz nada)
     });
+    scheduleMicrotask(notifyListeners); // começou: "Translating…"
+    return job;
   }
 
   Future<List<String>?> _ask(String key, List<String> texts, String instructions) async {
     try {
-      final reply = await ai.complete(system: instructions, user: jsonEncode(texts), maxTokens: 4096);
-      final out = parseArray(reply, texts.length);
+      var reply = await ai.complete(system: instructions, user: jsonEncode(texts), maxTokens: 8192);
+      var out = parseArray(reply, texts.length);
+      if (out == null) {
+        // Contagem errada (a IA juntou ou cortou linhas): pede de novo, lembrando o número exato
+        debugPrint('[Translator] Resposta fora do formato; pedindo de novo com a contagem.');
+        reply = await ai.complete(
+          system: '$instructions The array MUST have exactly ${texts.length} items, one per input item, in order.',
+          user: jsonEncode(texts),
+          maxTokens: 8192,
+        );
+        out = parseArray(reply, texts.length);
+      }
       if (out == null) {
         debugPrint('[Translator] Resposta fora do formato (esperava ${texts.length} itens).');
         lastError = 'bad_reply';
@@ -207,11 +226,11 @@ class AiTranslator extends ChangeNotifier {
       return out;
     } on BrainAiException catch (e) {
       lastError = e.reason;
-      notifyListeners();
+      debugPrint('[Translator] Sem tradução: ${e.reason}');
       return null;
     } catch (e) {
       debugPrint('[Translator] Falha: $e');
-      lastError = 'failed';
+      lastError = 'all_failed';
       return null;
     }
   }

@@ -125,7 +125,7 @@ void main() {
     ]);
     final shots = sb.shots((s) => s.line * 40000, endMs: 60000);
     expect(shots.map((s) => s.photo.id), ['a1', 'a2', 'a3', 'b1']);
-    expect(shots.map((s) => s.ms), [0, 13333, 26667, 40000]);
+    expect(shots.map((s) => s.ms), [0, 13333, 26667, 37500], reason: 'a imagem da cena seguinte entra 2,5 s antes do verso');
   });
 
   test('primeira cena sempre começa na linha 0', () {

@@ -2568,7 +2568,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translatorNeedsChip =>
-      'No AI chip plugged in yet: plug one into the WaxBrain (Gemini is free) to start translating.';
+      'The translator needs an AI chip. Tap to open the WaxBrain.';
 
   @override
   String get translatorOpenBrain => 'Open the WaxBrain';
@@ -2590,6 +2590,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imagineWorking => 'Imagining this song…';
+
+  @override
+  String get translatorWorking => 'Translating the lyrics…';
+
+  @override
+  String get translatorChipFailed =>
+      'Your AI chip didn\'t answer. Trying again in a moment — tap to check the WaxBrain.';
+
+  @override
+  String get translatorBadReply =>
+      'The translation came out garbled. Trying again in a moment.';
 
   @override
   String get imagineNeedsChip =>
@@ -2619,7 +2630,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imagineModeImmersiveHint =>
-      'Only the images, with big lines of the lyrics fading in every few seconds.';
+      'Only the images, with a line of the lyrics appearing right when it is sung.';
 
   @override
   String imagineUsesChip(String name) {

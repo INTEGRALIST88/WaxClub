@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.addListener(_maybeImagine);
     _imagine.addListener(_onImagineNotify);
     _imagine.load();
-    _translator.addListener(_onTranslatorChanged);
+    _translator.addListener(_onTranslatorNotify);
     _translator.load();
     _profile.addListener(_onProfileChanged);
     _profile.load();
@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _account.attachCollection(_collection);
     _account.addListener(_onAccountForBrain);
     _account.load();
-    _brain.load();
+    _brain.load().then((_) => _brain.recheckStale());
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
     _plugins.bindConnection(PluginCatalog.discogsId, _discogsConnection);
     // Fontes de letras: cada site é um plugin (Lyrics sources); a busca consulta só os ligados
@@ -233,7 +233,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_maybeImagine);
     _imagine.removeListener(_onImagineNotify);
     _imagine.dispose();
-    _translator.removeListener(_onTranslatorChanged);
+    _translator.removeListener(_onTranslatorNotify);
+    _translateRetry?.cancel();
     _translator.dispose();
     _profile.removeListener(_onProfileChanged);
     _profile.dispose();
@@ -1002,26 +1003,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           return null;
       }
     }
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.55),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: PluginCategory.ai.color.withValues(alpha: 0.6)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (_imagine.working)
-            const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.6, color: AppTheme.cream))
-          else
-            Icon(Icons.auto_awesome, size: 14, color: PluginCategory.ai.color),
-          const SizedBox(width: 8),
-          Flexible(child: Text(text, style: const TextStyle(color: AppTheme.cream, fontSize: 12))),
-        ]),
-      ),
-    );
+    return _aiPill(text, working: _imagine.working, onTap: onTap);
   }
+
+  /// Aviso pequeno dos plugins de IA (A2/A3) no alto da letra.
+  Widget _aiPill(String text, {required bool working, VoidCallback? onTap}) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: PluginCategory.ai.color.withValues(alpha: 0.6)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (working)
+              const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.6, color: AppTheme.cream))
+            else
+              Icon(Icons.auto_awesome, size: 14, color: PluginCategory.ai.color),
+            const SizedBox(width: 8),
+            Flexible(child: Text(text, style: const TextStyle(color: AppTheme.cream, fontSize: 12))),
+          ]),
+        ),
+      );
 
   /// O Imagined Music (A3) está no prato.
   bool get _imagineOn => _plugins.catalog.any((p) => p.id == PluginCatalog.imaginedId && _plugins.isActive(p));
@@ -1123,7 +1127,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             'intensity': shots[i].scene.intensity, // l10n-ignore
           },
       ],
-      quotes: [for (final q in sb.quotes) {'ms': msOf(q.line, null), 'text': q.text}], // l10n-ignore
+      // Frase com início e fim da linha cantada: a TV mostra só enquanto ela é cantada
+      quotes: [
+        for (final q in sb.quotes)
+          {
+            'ms': msOf(q.line, null), // l10n-ignore
+            if (q.line + 1 < lyrics.length) 'endMs': msOf(q.line + 1, null), // l10n-ignore
+            'text': q.text, // l10n-ignore
+          },
+      ],
     );
   }
 
@@ -1199,6 +1211,48 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _translator.language != null &&
       _plugins.catalog.any((p) => p.id == PluginCatalog.translatorId && _plugins.isActive(p));
 
+  String? _translatorLangSeen;
+  Timer? _translateRetry;
+  int _translateRetries = 0;
+
+  /// Aviso do tradutor: só a troca de idioma refaz as traduções. Começar/terminar/falhar só redesenha o aviso
+  /// (refazer aqui pedia a tradução de novo a cada falha, num laço que queimava o limite do chip grátis).
+  void _onTranslatorNotify() {
+    if (!mounted) return;
+    final lang = _translator.language?.code;
+    if (lang != _translatorLangSeen) {
+      _translatorLangSeen = lang;
+      _onTranslatorChanged();
+    } else {
+      setState(() {});
+    }
+  }
+
+  /// Aviso do tradutor (A2) enquanto traduz a letra desta música ou por que ela ficou sem tradução.
+  Widget? _translatorStatus() {
+    if (!_translatorOn || _engine.currentTrack == null || _engine.lyrics.isEmpty) return null;
+    if (_engine.lyrics.any((l) => l.translation != null)) return null;
+    final String text;
+    VoidCallback? onTap;
+    if (_translator.working) {
+      text = l10n.translatorWorking;
+    } else {
+      switch (_translator.lastError) {
+        case 'no_chip': // l10n-ignore
+          text = l10n.translatorNeedsChip;
+          onTap = _openBrain;
+        case 'all_failed': // l10n-ignore
+          text = l10n.translatorChipFailed;
+          onTap = _openBrain;
+        case 'bad_reply': // l10n-ignore
+          text = l10n.translatorBadReply;
+        default:
+          return null;
+      }
+    }
+    return _aiPill(text, working: _translator.working, onTap: onTap);
+  }
+
   /// Ligou/desligou o tradutor ou trocou o idioma: a letra e as curiosidades são refeitas.
   void _onTranslatorChanged() {
     if (!mounted) return;
@@ -1233,7 +1287,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       return;
     }
     _translator.translateLyrics(lines, title: track.title, artist: track.artist).then((tr) {
-      if (tr != null && mounted && _lyricsTranslationKey == key) _engine.applyLyricTranslations(track.title, lines, tr);
+      if (tr != null && mounted && _lyricsTranslationKey == key) {
+        _translateRetries = 0;
+        _engine.applyLyricTranslations(track.title, lines, tr);
+      } else if (tr == null && mounted && _lyricsTranslationKey == key && _translateRetries < 2) {
+        // Falhou (limite por minuto do chip grátis, resposta fora do formato): tenta de novo daqui a pouco
+        _translateRetries++;
+        _translateRetry?.cancel();
+        _translateRetry = Timer(const Duration(seconds: 45), () {
+          if (!mounted || _lyricsTranslationKey != key) return;
+          _lyricsTranslationKey = null;
+          _maybeTranslateLyrics();
+        });
+      }
       _prefetchRecordTranslations();
     });
   }
@@ -2104,7 +2170,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         // Plugin A3: crédito ao fotógrafo do Unsplash (com link para o perfil)
                         if (_imagineCredit() case final credit?) Positioned(left: 12, bottom: 10, child: credit),
                         // Plugin A3: "Imagining this song…" ou por que ficou sem imagens
-                        if (_imagineStatus() case final status?)
+                        if (_imagineStatus() ?? _translatorStatus() case final status?)
                           Positioned(left: 16, right: 16, top: 8, child: Center(child: status)),
 
                         // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando

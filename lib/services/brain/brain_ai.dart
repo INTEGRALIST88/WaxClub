@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +20,15 @@ class BrainAi {
   final BrainService brain;
   final http.Client _client;
 
-  BrainAi({required this.brain, http.Client? client}) : _client = client ?? http.Client();
+  BrainAi({required this.brain, http.Client? client, this.retryWait = const Duration(seconds: 12)})
+      : _client = client ?? http.Client();
+
+  /// Espera antes de tentar de novo o mesmo chip depois de "muitos pedidos" (429).
+  final Duration retryWait;
+
+  // Um pedido por vez: o tradutor (A2) e o Imagined Music (A3) dividem o mesmo chip grátis, e pedidos
+  // simultâneos estouram o limite por minuto
+  Future<void> _queue = Future<void>.value();
 
   /// Regras do app em todo pedido de plugin.
   static const String appRules =
@@ -28,7 +37,13 @@ class BrainAi {
       'Do not add facts you are not sure about. Answer only with what the task asks for, with no preamble.';
 
   /// Envia o pedido ([system] + [user]) e devolve o texto da resposta.
-  Future<String> complete({required String system, required String user, int maxTokens = 2048}) async {
+  Future<String> complete({required String system, required String user, int maxTokens = 2048}) {
+    final run = _queue.then((_) => _complete(system: system, user: user, maxTokens: maxTokens));
+    _queue = run.then((_) {}, onError: (_) {});
+    return run;
+  }
+
+  Future<String> _complete({required String system, required String user, required int maxTokens}) async {
     await brain.load();
     final candidates = [
       for (final p in brain.plugged)
@@ -38,7 +53,13 @@ class BrainAi {
     for (final p in candidates) {
       final chip = p.chip!;
       try {
-        final res = await _send(chip, p.key, '$appRules\n\n$system', user, maxTokens);
+        var res = await _send(chip, p.key, '$appRules\n\n$system', user, maxTokens);
+        // Limite por minuto: espera um pouco e tenta de novo o mesmo chip antes de desistir dele
+        for (var retry = 0; res.statusCode == 429 && retry < 2; retry++) {
+          final after = int.tryParse(res.headers['retry-after'] ?? '');
+          await Future<void>.delayed(after != null && after <= 60 ? Duration(seconds: after) : retryWait);
+          res = await _send(chip, p.key, '$appRules\n\n$system', user, maxTokens);
+        }
         if (res.statusCode >= 200 && res.statusCode < 300) {
           final text = extractText(chip.api, jsonDecode(utf8.decode(res.bodyBytes)));
           if (text != null && text.trim().isNotEmpty) return text.trim();
@@ -46,7 +67,8 @@ class BrainAi {
         }
         final status = BrainService.statusForHttp(res.statusCode);
         debugPrint('[BrainAi] ${chip.id} respondeu ${res.statusCode}; tentando o próximo chip.');
-        if (status == BrainKeyStatus.limit || status == BrainKeyStatus.invalid) {
+        // Só 401/403 dizem que a chave foi recusada; 400 pode ser só este pedido (não desliga o chip)
+        if (status == BrainKeyStatus.limit || res.statusCode == 401 || res.statusCode == 403) {
           await brain.markStatus(chip.id, status);
         }
       } catch (e) {

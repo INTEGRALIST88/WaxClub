@@ -237,6 +237,9 @@ class Storyboard {
   /// Duração de cada tomada: a imagem troca mais ou menos nesse ritmo.
   static const int shotMs = 13000;
 
+  /// A imagem de uma cena entra um pouco antes do verso dela ser cantado (antecipa o contexto).
+  static const int leadMs = 2500;
+
   /// Tomadas da música: cada cena com foto é dividida em pedaços de ~13 s, até o número de fotos que ela
   /// tem (cenas longas com poucas fotos ficam mais tempo em cada uma). [startMs] dá o início de cada cena
   /// (pela linha da letra ou pelo segundo, nas instrumentais); [endMs] é o fim da música (ou nulo).
@@ -251,7 +254,10 @@ class Storyboard {
       final n = ((end - start) / shotMs).round().clamp(1, photos.length);
       final step = (end - start) / n;
       for (var k = 0; k < n; k++) {
-        out.add(ImagineShot(start + (step * k).round(), photos[k], s));
+        // a primeira tomada da cena se antecipa ao verso, sem passar da tomada anterior
+        var at = start + (step * k).round() - (k == 0 && i > 0 ? leadMs : 0);
+        if (out.isNotEmpty && at <= out.last.ms + 2000) at = out.last.ms + 2000;
+        out.add(ImagineShot(at, photos[k], s));
       }
     }
     return out;
@@ -576,7 +582,7 @@ class ImaginedMusic extends ChangeNotifier {
       '(subject plus a fitting art style or era, for example "stormy sea romantic painting" or "night street '
       'impressionism"); interpret metaphors visually. Give each scene the "emotion" it carries, one of: '
       '${ImagineScene.emotions.join(', ')}; never use names of people, bands, brands or places that '
-      'identify the song, and never ask for text in the image. Also choose 8 to 14 striking short quotes from the '
+      'identify the song, and never ask for text in the image. Also choose 6 to 10 striking short quotes from the '
       'lyrics (the exact text of a single line, up to 60 characters), spread across the whole song, for an immersive '
       'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","art":"...","emotion":"longing","mood":"one word","palette":["#rrggbb",'
       '"#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right","transition":"dissolve|cut",'

@@ -245,6 +245,18 @@ class BrainService extends ChangeNotifier {
     return status;
   }
 
+  /// Ao abrir o app: testa de novo os chips marcados como recusados ou no limite há mais de [age] — um limite
+  /// por minuto, ou um erro de um pedido só, não deve deixar o chip desligado para sempre.
+  Future<void> recheckStale({Duration age = const Duration(minutes: 30)}) async {
+    await load();
+    for (final p in List.of(_plugged)) {
+      if (p.status == BrainKeyStatus.ok) continue;
+      final at = p.checkedAt;
+      if (at != null && DateTime.now().difference(at) < age) continue;
+      await recheck(p.id);
+    }
+  }
+
   /// Situação vista ao usar o chip (ex.: limite do dia atingido durante uma tradução).
   Future<void> markStatus(String id, BrainKeyStatus status) async {
     final i = _plugged.indexWhere((p) => p.id == id);
