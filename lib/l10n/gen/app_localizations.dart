@@ -4288,6 +4288,36 @@ abstract class AppLocalizations {
   /// **'An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in now and then. Uses an AI chip from your WaxBrain; photos come from Unsplash.'**
   String get pluginImaginedDesc;
 
+  /// No description provided for @imagineWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Imagining this song…'**
+  String get imagineWorking;
+
+  /// No description provided for @imagineNeedsChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Imagined Music needs an AI chip. Tap to open the WaxBrain.'**
+  String get imagineNeedsChip;
+
+  /// No description provided for @imagineChipFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your AI chip didn\'t answer. Tap to check the WaxBrain.'**
+  String get imagineChipFailed;
+
+  /// No description provided for @imagineBadReply.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI\'s scenes came out garbled. Trying again on the next song.'**
+  String get imagineBadReply;
+
+  /// No description provided for @imagineNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get images right now. Trying again on the next song.'**
+  String get imagineNoPhotos;
+
   /// No description provided for @imagineModeLyrics.
   ///
   /// In en, this message translates to:

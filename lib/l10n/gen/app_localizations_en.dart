@@ -2566,6 +2566,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in now and then. Uses an AI chip from your WaxBrain; photos come from Unsplash.';
 
   @override
+  String get imagineWorking => 'Imagining this song…';
+
+  @override
+  String get imagineNeedsChip =>
+      'Imagined Music needs an AI chip. Tap to open the WaxBrain.';
+
+  @override
+  String get imagineChipFailed =>
+      'Your AI chip didn\'t answer. Tap to check the WaxBrain.';
+
+  @override
+  String get imagineBadReply =>
+      'The AI\'s scenes came out garbled. Trying again on the next song.';
+
+  @override
+  String get imagineNoPhotos =>
+      'Couldn\'t get images right now. Trying again on the next song.';
+
+  @override
   String get imagineModeLyrics => 'Images + lyrics';
 
   @override

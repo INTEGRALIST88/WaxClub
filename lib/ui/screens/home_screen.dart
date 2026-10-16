@@ -38,6 +38,7 @@ import '../widgets/chrome_play_button.dart';
 import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
 import '../widgets/wood_menu.dart';
+import '../widgets/immersive_quotes.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
@@ -142,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.addListener(_recordPlayIfNew);
     _engine.addListener(_maybeTranslateLyrics);
     _engine.addListener(_maybeImagine);
-    _imagine.addListener(_onImagineChanged);
+    _imagine.addListener(_onImagineNotify);
     _imagine.load();
     _translator.addListener(_onTranslatorChanged);
     _translator.load();
@@ -230,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _engine.removeListener(_recordPlayIfNew);
     _engine.removeListener(_maybeTranslateLyrics);
     _engine.removeListener(_maybeImagine);
-    _imagine.removeListener(_onImagineChanged);
+    _imagine.removeListener(_onImagineNotify);
     _imagine.dispose();
     _translator.removeListener(_onTranslatorChanged);
     _translator.dispose();
@@ -926,6 +927,67 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   bool _imagineWasOn = false;
+  ImagineMode? _imagineModeSeen;
+
+  /// Aviso do A3: só a troca de modo refaz o envio à TV. Começar/terminar um roteiro (ou falhar) só redesenha
+  /// o aviso — refazer aqui pedia o roteiro de novo a cada falha, num laço sem fim.
+  void _onImagineNotify() {
+    if (!mounted) return;
+    if (_imagineModeSeen != _imagine.mode) {
+      _imagineModeSeen = _imagine.mode;
+      _onImagineChanged();
+    } else {
+      setState(() {});
+    }
+  }
+
+  /// Modo imersivo no celular: só a imagem (sem a letra), com uma frase da letra de vez em quando.
+  bool get _immersiveOnPhone =>
+      _imagineOn && _imagine.mode == ImagineMode.immersive && _currentScene?.photo != null;
+
+  /// Aviso do A3 enquanto monta a música ou quando ela ficou sem imagens (nulo: nada a avisar).
+  Widget? _imagineStatus() {
+    if (!_imagineOn || _engine.currentTrack == null || _storyboard?.hasPhotos == true) return null;
+    final String text;
+    VoidCallback? onTap;
+    if (_imagine.working) {
+      text = l10n.imagineWorking;
+    } else {
+      switch (_imagine.lastError) {
+        case 'no_chip': // l10n-ignore
+          text = l10n.imagineNeedsChip;
+          onTap = _openBrain;
+        case 'all_failed': // l10n-ignore
+          text = l10n.imagineChipFailed;
+          onTap = _openBrain;
+        case 'bad_reply': // l10n-ignore
+          text = l10n.imagineBadReply;
+        case 'search_failed' || 'no_photos': // l10n-ignore
+          text = l10n.imagineNoPhotos;
+        default:
+          return null;
+      }
+    }
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: PluginCategory.ai.color.withValues(alpha: 0.6)),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (_imagine.working)
+            const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.6, color: AppTheme.cream))
+          else
+            Icon(Icons.auto_awesome, size: 14, color: PluginCategory.ai.color),
+          const SizedBox(width: 8),
+          Flexible(child: Text(text, style: const TextStyle(color: AppTheme.cream, fontSize: 12))),
+        ]),
+      ),
+    );
+  }
 
   /// O Imagined Music (A3) está no prato.
   bool get _imagineOn => _plugins.catalog.any((p) => p.id == PluginCatalog.imaginedId && _plugins.isActive(p));
@@ -1067,7 +1129,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ? const SizedBox.expand(key: ValueKey('no-imagine')) // l10n-ignore
           : Stack(key: ValueKey(photo.id), fit: StackFit.expand, children: [
               Image.network(photo.sized(), fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()),
-              Container(color: Colors.black.withValues(alpha: _imagine.mode == ImagineMode.immersive ? 0.35 : 0.62)),
+              Container(color: Colors.black.withValues(alpha: _immersiveOnPhone ? 0.12 : 0.62)),
             ]),
     );
   }
@@ -1958,9 +2020,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         // Plugin A3: foto da cena atual atrás da letra
                         Positioned.fill(child: IgnorePointer(child: _imagineBackdrop())),
 
-                        // Lista vertical de letras sincronizadas
+                        // Lista vertical de letras sincronizadas (some no modo imersivo do A3: só a imagem)
                         Positioned.fill(
-                          child: LyricsListView(
+                          child: AnimatedOpacity(
+                            opacity: _immersiveOnPhone ? 0 : 1,
+                            duration: const Duration(milliseconds: 900),
+                            child: IgnorePointer(
+                              ignoring: _immersiveOnPhone,
+                              child: LyricsListView(
                             lyrics: lyricsMatchPanel ? _engine.lyrics : const [],
                             activeIndex: _engine.activeLineIndex,
                             onSeek: (seconds) => _engine.syncToLine(seconds),
@@ -1974,9 +2041,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   )
                                 : _curiositiesOrNull(),
                           ),
+                            ),
+                          ),
                         ),
+                        // Plugin A3 imersivo: uma frase da letra aparece e esmaece de vez em quando
+                        if (_immersiveOnPhone && (_storyboard?.quotes.isNotEmpty ?? false))
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: ImmersiveQuotes(
+                                quotes: _storyboard!.quotes,
+                                activeLine: () => _engine.activeLineIndex,
+                              ),
+                            ),
+                          ),
                         // Plugin A3: crédito ao fotógrafo do Unsplash (com link para o perfil)
                         if (_imagineCredit() case final credit?) Positioned(left: 12, bottom: 10, child: credit),
+                        // Plugin A3: "Imagining this song…" ou por que ficou sem imagens
+                        if (_imagineStatus() case final status?)
+                          Positioned(left: 16, right: 16, top: 8, child: Center(child: status)),
 
                         // Botão Flutuante (FAB) de escuta / calibração; no fim do lado vira "Vire o disco" pulsando
                         // Fim do lado: "Flip the record" acima da barra (o microfone fica na barra)

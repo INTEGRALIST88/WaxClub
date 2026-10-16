@@ -144,6 +144,28 @@ void main() {
     expect(im.cached('Song', 'Band', ['a', 'b', 'c', 'd', 'e', 'f']), isNull);
   });
 
+  test('sem chip: avisa o motivo, avisa a tela só ao começar e ao terminar (sem laço) e não guarda', () async {
+    final store = MemoryBrainKeyStore();
+    final client = MockClient((_) async => _geminiReply('{}'));
+    final brain = BrainService(store: store, client: client);
+    await brain.load();
+    final im = ImaginedMusic(ai: BrainAi(brain: brain, client: client), searcher: _FakeSearch(), store: MemoryTranslatorStore());
+    var notes = 0;
+    im.addListener(() => notes++);
+    final sb = await im.storyboard(title: 'Song', artist: 'Band', lines: ['a', 'b']);
+    await Future<void>.delayed(Duration.zero);
+    expect(sb, isNull);
+    expect(im.lastError, 'no_chip');
+    expect(im.working, isFalse);
+    expect(notes, lessThanOrEqualTo(3), reason: 'avisos contados, sem laço de novas tentativas');
+  });
+
+  test('resposta cortada ou fora do formato: motivo bad_reply', () async {
+    final im = ImaginedMusic(ai: await _ai('{"scenes":[{"line":0,"query":"sea"'), searcher: _FakeSearch(), store: MemoryTranslatorStore());
+    expect(await im.storyboard(title: 'Song', artist: 'Band', lines: ['a']), isNull);
+    expect(im.lastError, 'bad_reply');
+  });
+
   test('modo imersivo fica guardado', () async {
     final store = MemoryTranslatorStore();
     final im = ImaginedMusic(ai: await _ai('{}'), store: store);

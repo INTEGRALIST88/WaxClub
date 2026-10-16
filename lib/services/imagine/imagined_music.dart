@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -309,7 +310,12 @@ class ImaginedMusic extends ChangeNotifier {
   ImagineMode _mode = ImagineMode.lyrics;
   ImagineMode get mode => _mode;
 
+  /// Por que a última música ficou sem imagens: 'no_chip', 'all_failed' (o chip não respondeu),
+  /// 'bad_reply' (resposta fora do formato), 'search_failed' (busca de fotos falhou), 'no_photos'.
   String? lastError;
+
+  /// Está montando o roteiro de alguma música agora.
+  bool get working => _inFlight.isNotEmpty;
   final Map<String, Storyboard> _cache = {};
   final List<String> _order = [];
   final Map<String, Future<Storyboard?>> _inFlight = {};
@@ -367,9 +373,14 @@ class ImaginedMusic extends ChangeNotifier {
     final key = keyFor(title, artist, lines);
     final hit = _cache[key];
     if (hit != null) return hit;
-    return _inFlight[key] ??= _make(key, title, artist, album, lines, durationSeconds).whenComplete(() {
+    final running = _inFlight[key];
+    if (running != null) return running;
+    final job = _inFlight[key] = _make(key, title, artist, album, lines, durationSeconds).whenComplete(() {
       _inFlight.remove(key);
+      notifyListeners(); // terminou (com ou sem imagens): a tela atualiza o aviso
     });
+    scheduleMicrotask(notifyListeners); // começou: "Imagining this song…"
+    return job;
   }
 
   Future<Storyboard?> _make(
@@ -380,23 +391,32 @@ class ImaginedMusic extends ChangeNotifier {
       reply = await ai.complete(
         system: hasLyrics ? _lyricsPrompt(title, artist) : _instrumentalPrompt(title, artist, album, duration),
         user: hasLyrics ? jsonEncode(lines) : jsonEncode({'title': title, 'artist': artist, 'album': album}),
-        maxTokens: 2048,
+        maxTokens: 4096, // 16 cenas com buscas, cores e frases passam de 2 mil tokens (a resposta vinha cortada)
       );
     } on BrainAiException catch (e) {
       lastError = e.reason;
-      notifyListeners();
+      debugPrint('[Imagine] Sem roteiro para "$title": ${e.reason}');
       return null;
     } catch (e) {
-      lastError = 'failed';
+      lastError = 'all_failed';
+      debugPrint('[Imagine] Sem roteiro para "$title": $e');
       return null;
     }
     final board = Storyboard.parse(reply, lineCount: hasLyrics ? lines.length : 0);
     if (board == null) {
       lastError = 'bad_reply';
+      debugPrint('[Imagine] Resposta fora do formato para "$title" (${reply.length} caracteres)');
       return null;
     }
-    final withPhotos = await _attachPhotos(board);
     lastError = null;
+    final withPhotos = await _attachPhotos(board);
+    if (!withPhotos.hasPhotos) {
+      lastError ??= 'no_photos';
+      debugPrint('[Imagine] Roteiro de "$title" sem nenhuma imagem ($lastError)');
+    } else {
+      lastError = null;
+      debugPrint('[Imagine] Roteiro de "$title": ${withPhotos.scenes.length} cenas, ${withPhotos.quotes.length} frases');
+    }
     // Só guarda quando há fotos: sem chave do Unsplash / limite atingido, tenta de novo na próxima vez
     if (withPhotos.hasPhotos) _remember(key, withPhotos);
     return withPhotos;

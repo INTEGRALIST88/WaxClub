@@ -944,8 +944,10 @@ class _PluginSheetState extends State<_PluginSheet> {
       status = on ? l10n.jukeboxIsOn : l10n.jukeboxIsOff;
     }
 
+    // Rola: deitado (ou com as opções do A2/A3) o conteúdo passa da altura da tela e o "Uninstall" sumia embaixo
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1027,6 +1029,7 @@ class _PluginSheetState extends State<_PluginSheet> {
                 ),
               ),
           ],
+        ),
         ),
       ),
     );

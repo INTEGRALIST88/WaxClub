@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.38] — 15/10/2026 (A3 no Celular e Correções)
+
+* **A3 Imagined Music — modo imersivo no celular:** só a imagem da cena em tela cheia (a letra some), com uma frase de destaque da letra aparecendo e esmaecendo a cada ~22 s em posições alternadas, como na TV.
+* **A3 avisa o que está acontecendo:** "Imagining this song…" enquanto a IA monta as cenas; se ficar sem imagens, diz por quê — sem chip de IA (toque abre o WaxBrain), chip não respondeu, resposta da IA fora do formato ou imagens indisponíveis.
+* **Correção — laço do A3:** quando a IA falhava, a tela pedia o roteiro de novo a cada aviso, sem parar; agora tenta de novo só na próxima música.
+* **Correção — respostas cortadas:** o limite da resposta da IA subiu (16 cenas com buscas, cores e frases não cabiam e a resposta vinha cortada).
+* **Correção — detalhes do plugin com o celular deitado:** a janela agora rola; antes o botão "Uninstall" (e as opções do A2/A3) ficavam escondidos embaixo da tela.
+* **Correção — instalar plugin com o app aberto:** o link do site ia também para as rotas do Flutter e dava erro; agora vai só para o instalador do WaxClub.
+* Testes: sem chip (motivo, sem laço), resposta cortada, frases do imersivo no celular.
+
+---
 ## [v1.4.37] — 15/10/2026 (Botões de Madeira Recortados)
 
 * **Botões de madeira e logo recortados de novo:** sem as partes claras (resto do fundo branco) nas bordas e sem a sombra cinza que sobrava no canto de baixo; cantos redondos lisos, com antisserrilhado e um contorno escuro sutil de madeira entalhada. Vale para todos os botões (menu ☰, Profile, Identify, Manual, WaxBrain, My Collection, Plugins, Help, adicionar, nuvem) e para o logo do canto e da tela inicial.
