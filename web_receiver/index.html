@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WaxClub TV — Vinyl Social Club</title>
+  <script>
+    // Modo leve (GPU fraca, ex.: Fire TV Stick): só liga com ?lite=1 ou window.WAXCLUB_LITE = true antes da
+    // carga (o app WaxClubClient faz isso). Chromecast e a página hospedada continuam com todos os efeitos.
+    // ?spin=<segundos por volta> ajusta a rotação do selo no modo leve (padrão 3.6 s = 16⅔ RPM).
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var lite = window.WAXCLUB_LITE === true || (q.has('lite') && q.get('lite') !== '0');
+      window.WAXCLUB_LITE = lite;
+      if (!lite) return;
+      document.documentElement.classList.add('lite');
+      var spin = parseFloat(q.get('spin'));
+      if (spin >= 1 && spin <= 30) document.documentElement.style.setProperty('--lite-spin', spin + 's');
+    })();
+  </script>
   <!-- Google Cast Application Framework (CAF) Receiver SDK v3 -->
   <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -504,6 +518,52 @@
 
     body.paused .lines { opacity: 0.55; }
     body.awaiting-needle .lines { opacity: 1; }
+
+    /* ─── MODO LEVE (html.lite: só o app do Fire TV liga) ───
+       O selo gira sozinho no compositor (transform). Nada que é desenhado a cada quadro pode exigir filtro,
+       máscara, modo de mescla ou camada gigante, e nada que muda de texto pode repintar a madeira ou o disco. */
+    html.lite { background: #120c08; }
+    html.lite body { background: none; }
+    /* madeira + sombreamento numa camada própria, rasterizada uma única vez */
+    html.lite body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        radial-gradient(ellipse at 42% 50%, rgba(6, 4, 3, 0.35) 0%, rgba(6, 4, 3, 0.72) 80%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' preserveAspectRatio='none'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0035 0.16' numOctaves='4' seed='11'/%3E%3CfeColorMatrix type='matrix' values='0.16 0 0 0 0.035  0.10 0 0 0 0.022  0.06 0 0 0 0.014  0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #1a110b 0%, #0d0805 100%);
+      background-size: 100% 100%;
+      will-change: transform;
+      pointer-events: none;
+    }
+    html.lite .shade { display: none; }
+    /* capa desfocada: blur(80px) refeito pela GPU a cada quadro */
+    html.lite .ambient { display: none; }
+    /* máscara da letra: superfície extra a cada quadro (as linhas distantes já são quase transparentes) */
+    html.lite .lyrics { -webkit-mask-image: none; mask-image: none; }
+    /* destaque por opacidade (compositor) em vez de cor (repintura a cada quadro da transição), sem brilho borrado */
+    html.lite .line { color: #f4f4f6; opacity: 0.16; transition: transform 0.7s var(--ease), opacity 0.6s ease; }
+    html.lite .line.d2 { opacity: 0.24; }
+    html.lite .line.d1 { opacity: 0.92; }
+    html.lite .line.d0 { color: #ffffff; opacity: 1; text-shadow: none; }
+    /* selo: camada fixa, rotação mais lenta (borda anda menos por quadro) e sombra fora da camada que gira */
+    html.lite .label { animation-duration: var(--lite-spin, 3.6s); box-shadow: none; will-change: transform; }
+    html.lite .label-flip { border-radius: 50%; box-shadow: 0 0 0 0.35vh rgba(0, 0, 0, 0.6), 0 1vh 3vh rgba(0, 0, 0, 0.6); }
+    /* anel "já tocado": repintava o disco inteiro (sulcos + sombra de 8vh) 4x por segundo */
+    html.lite .played { display: none; }
+    /* tempo sob a agulha em camada própria: a troca do segundo não repinta a agulha (drop-shadow) */
+    html.lite .needle-time { will-change: transform; }
+    /* Imagined Music: só esmaecer (sem Ken Burns), sem soft-light, sem granulação, escurecimento + vinheta numa camada */
+    html.lite .im-layer { inset: 0; animation: none !important; will-change: opacity; background-color: #0d0805; }
+    html.lite .im-tint { mix-blend-mode: normal; }
+    html.lite .im-grain { display: none; }
+    html.lite .im-vignette { display: none; }
+    html.lite .im-dim { background: radial-gradient(ellipse at 50% 50%, rgba(6, 4, 3, 0.58) 45%, rgba(3, 2, 1, 0.85) 100%); transition: none; }
+    html.lite body.imagine-immersive .im-dim { background: radial-gradient(ellipse at 50% 50%, rgba(6, 4, 3, 0.18) 45%, rgba(2, 1, 1, 0.71) 100%); }
+    /* o app nativo mantém a tela acesa: sem o vídeo de 1 quadro/s */
+    html.lite .keep-awake { display: none; }
   </style>
 </head>
 <body>
@@ -585,6 +645,8 @@
     // A posição enviada pelo celular já inclui 0.40s de antecipação; a TV antecipa mais 0.45s para a linha ativa
     const LINE_LEAD_SECONDS = 0.45;
     const SENDER_LEAD_SECONDS = 0.40;
+    // Modo leve (ver o script no <head>): efeitos baratos para GPUs fracas
+    const LITE = window.WAXCLUB_LITE === true;
 
     // Geometria do disco em vh (mesmos valores do CSS): a agulha começa no sulco externo (embaixo,
     // junto da borda) e sobe até a área lisa em volta do selo — sulcos de ~96% a ~61% do raio (EP 7").
@@ -596,6 +658,19 @@
 
     const el = (id) => document.getElementById(id);
     const vh = () => window.innerHeight / 100;
+    // Escritas repetidas a cada quadro só tocam o DOM quando o valor muda (sem estilo/layout/repintura à toa)
+    const styleCache = new WeakMap();
+    function setStyle(node, prop, value) {
+      let c = styleCache.get(node);
+      if (!c) styleCache.set(node, c = {});
+      const v = String(value);
+      if (c[prop] === v) return;
+      c[prop] = v;
+      node.style[prop] = v;
+    }
+    function setText(node, text) {
+      if (node.textContent !== text) node.textContent = text;
+    }
 
     // ─── ESTADO ───
     let lyrics = [];          // [{ ms, text }]
@@ -610,6 +685,7 @@
     let biasToastTimer = 0;
     let hasTrack = false;
     let lastPlayedUpdate = 0;
+    let lastNeedleY = null;
 
     // ─── CURIOSIDADES (sem letra) ───
     let curioSlots = [];      // [{ kind, text, source, date, start, length }]
@@ -646,7 +722,7 @@
 
     function renderCuriosity(realPos) {
       const box = el('curio');
-      if (lyrics.length || !curioSlots.length) { box.style.opacity = 0; return; }
+      if (lyrics.length || !curioSlots.length) { setStyle(box, 'opacity', 0); return; }
       let p = realPos;
       if (!(durationSec > 0)) {
         const last = curioSlots[curioSlots.length - 1];
@@ -654,7 +730,7 @@
         if (p > CURIO_LEAD && total > 0) p = CURIO_LEAD + ((p - CURIO_LEAD) % total);
       }
       const slot = curioSlots.find((s) => p >= s.start && p < s.start + s.length);
-      if (!slot) { box.style.opacity = 0; return; }
+      if (!slot) { setStyle(box, 'opacity', 0); return; }
       if (curioShown !== slot) {
         curioShown = slot;
         el('curioKind').textContent = CURIO_KIND[slot.kind] || '';
@@ -668,8 +744,8 @@
       let opacity = 1, dy = 0;
       if (t < 0.15) { const k = ease(t / 0.15); opacity = k; dy = 4 * (1 - k); }
       else if (t > 0.85) { const k = ease((t - 0.85) / 0.15); opacity = 1 - k; dy = -2 * k; }
-      box.style.opacity = opacity;
-      box.style.transform = 'translate3d(0, ' + dy + 'vh, 0)';
+      setStyle(box, 'opacity', opacity);
+      setStyle(box, 'transform', 'translate3d(0, ' + dy + 'vh, 0)');
     }
 
     // ─── RELÓGIO LOCAL: interpola a posição a 60fps entre os pacotes do celular ───
@@ -941,7 +1017,7 @@
       lastAlbumKey = albumKey || lastAlbumKey;
 
       lyrics = Array.isArray(lines) ? lines.filter(l => typeof l.ms === 'number') : [];
-      curioItems = []; curioSlots = []; curioShown = null; el('curio').style.opacity = 0;
+      curioItems = []; curioSlots = []; curioShown = null; setStyle(el('curio'), 'opacity', 0);
       const container = el('lines');
       container.textContent = '';
       lineEls = lyrics.map((l) => {
@@ -1004,12 +1080,18 @@
         const realPos = Math.max(0, pos - SENDER_LEAD_SECONDS);
         const frac = durationSec > 0 ? Math.min(1, realPos / durationSec) : 0;
         const r = radiusAt(frac);
-        el('needle').style.transform = 'translate3d(0, ' + ((CENTER_Y + r) * vh()) + 'px, 0)';
-        el('elapsed').textContent = formatTime(realPos);
+        // modo leve: agulha em pixels inteiros (anda < 1 px/s), sem novo quadro do DOM a cada vsync
+        const needleY = (CENTER_Y + r) * vh();
+        const ny = LITE ? Math.round(needleY) : needleY;
+        if (ny !== lastNeedleY) {
+          lastNeedleY = ny;
+          el('needle').style.transform = 'translate3d(0, ' + ny + 'px, 0)';
+        }
+        setText(el('elapsed'), formatTime(realPos));
         renderCuriosity(realPos);
         renderImagine(realPos);
         // O anel "já tocado" redesenha uma área grande: atualiza 4x por segundo
-        if (now - lastPlayedUpdate > 250) {
+        if (!LITE && now - lastPlayedUpdate > 250) {
           lastPlayedUpdate = now;
           el('played').style.setProperty('--needle-r', (r / DISC_R * 100).toFixed(2) + '%');
         }
@@ -1081,9 +1163,11 @@
       const lengthSec = next ? Math.max(8, Math.min(45, (next.ms - s.ms) / 1000 + 3)) : 30;
       const motion = ['zoom_in', 'zoom_out', 'pan_left', 'pan_right'].indexOf(s.motion) >= 0 ? s.motion : 'zoom_in';
       layer.style.backgroundImage = 'url("' + safeUrl(s.url).replace(/"/g, '%22') + '")';
-      layer.style.animation = 'none';
-      void layer.offsetWidth;
-      layer.style.animation = 'im-' + motion.replace('_', '-') + ' ' + lengthSec.toFixed(1) + 's linear forwards';
+      if (!LITE) {
+        layer.style.animation = 'none';
+        void layer.offsetWidth;
+        layer.style.animation = 'im-' + motion.replace('_', '-') + ' ' + lengthSec.toFixed(1) + 's linear forwards';
+      }
       const cut = s.transition === 'cut';
       layer.classList.toggle('cut', cut);
       el(imFront).classList.toggle('cut', cut);
@@ -1094,7 +1178,9 @@
       const pal = Array.isArray(s.palette) ? s.palette.filter(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); }) : [];
       const tint = el('imTint');
       tint.style.background = pal.length >= 2 ? 'linear-gradient(135deg, ' + pal.join(', ') + ')' : (pal[0] || 'transparent');
-      tint.style.opacity = (0.25 + 0.5 * (typeof s.intensity === 'number' ? s.intensity : 0.5)).toFixed(2);
+      const intensity = typeof s.intensity === 'number' ? s.intensity : 0.5;
+      // modo leve: mescla normal (sem soft-light), então bem mais fraca para dar só o tom
+      tint.style.opacity = (LITE ? 0.08 + 0.17 * intensity : 0.25 + 0.5 * intensity).toFixed(2);
       el('imCredit').textContent = (typeof s.credit === 'string' && s.credit) ? s.credit : (s.author ? 'Photo: ' + s.author + ' · Unsplash' : '');
       preloadScene(i + 1);
     }
@@ -1162,18 +1248,18 @@
       // "A seguir": próxima música prevista pelo celular
       const next = el('next');
       if (typeof data.nextTitle === 'string' && data.nextTitle.trim()) {
-        el('nextName').textContent = data.nextTitle.trim();
+        setText(el('nextName'), data.nextTitle.trim());
         next.classList.add('visible');
       } else {
         next.classList.remove('visible');
       }
 
       // Rotação medida (fator, desvio em % e incerteza)
-      el('speedValue').textContent = speed.toFixed(3) + '×';
+      setText(el('speedValue'), speed.toFixed(3) + '×');
       const pct = (speed - 1) * 100;
       let detail = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
       if (typeof data.speedStdErr === 'number') detail += '  ±' + (data.speedStdErr * 100).toFixed(1) + '%';
-      el('speedDetail').textContent = detail;
+      setText(el('speedDetail'), detail);
 
       const status = data.status || '';
       const pill = el('pill');
@@ -1218,7 +1304,7 @@
       activeIndex = -2;
       durationSec = 0;
       paused = true;
-      curioItems = []; curioSlots = []; curioShown = null; el('curio').style.opacity = 0;
+      curioItems = []; curioSlots = []; curioShown = null; setStyle(el('curio'), 'opacity', 0);
       document.body.classList.remove('has-track', 'playing', 'paused');
       el('lines').textContent = '';
       el('title').textContent = 'WaxClub';
@@ -1296,10 +1382,13 @@
         if (playing && playing.catch) playing.catch(() => {});
       } catch (_) {}
     }
-    keepScreenAwake();
-    // Reaplica ao voltar a ficar visível e periodicamente (alguns sistemas liberam o bloqueio sozinhos)
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) keepScreenAwake(); });
-    setInterval(keepScreenAwake, 60000);
+    // Modo leve: o app nativo mantém a tela acesa (o vídeo de 1 quadro/s custaria uma textura nova por segundo)
+    if (!LITE) {
+      keepScreenAwake();
+      // Reaplica ao voltar a ficar visível e periodicamente (alguns sistemas liberam o bloqueio sozinhos)
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) keepScreenAwake(); });
+      setInterval(keepScreenAwake, 60000);
+    }
 
     // ─── TRANSPORTE 1: Google Cast (Chromecast / TV com Cast) ───
     let castContext = null;
