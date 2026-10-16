@@ -52,7 +52,7 @@ BrainService _service(int Function(http.Request) status, {BrainKeyStore? store})
 
 void main() {
   test('todos os 7 chips existem, grátis primeiro, nenhum encaixado de fábrica', () async {
-    expect(BrainChip.all.map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral', 'openai', 'anthropic', 'xai']);
+    expect(BrainChip.all.map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral', 'openai', 'anthropic', 'xai', 'deepseek']);
     expect(BrainChip.all.where((c) => c.free).map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral']);
     final brain = _service((_) => 200);
     await brain.load();
@@ -63,6 +63,8 @@ void main() {
   group('chave copiada reconhecida pelo formato', () {
     test('cada provedor de formato próprio é reconhecido sozinho', () {
       expect(BrainChip.detect(_gemini)!.chip.id, 'gemini');
+      expect(BrainChip.detect('sk-${'0123456789abcdef' * 2}')!.chip.id, 'deepseek', reason: 'sk- + 32 hexadecimais é DeepSeek');
+      expect(BrainChip.detect('sk-proj-${'Ab9_' * 12}')!.chip.id, 'openai');
       expect(BrainChip.detect(_groq)!.chip.id, 'groq');
       expect(BrainChip.detect(_openrouter)!.chip.id, 'openrouter');
       expect(BrainChip.detect(_openai)!.chip.id, 'openai');

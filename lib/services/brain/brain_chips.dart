@@ -151,7 +151,7 @@ class BrainChip {
       vendor: 'OpenAI API',
       free: false,
       keyPageUrl: 'https://platform.openai.com/api-keys',
-      keyPattern: RegExp(r'^sk-(?!ant-|or-)[A-Za-z0-9_\-]{20,}$'),
+      keyPattern: RegExp(r'^sk-(?!ant-|or-)(?![a-f0-9]{32}$)[A-Za-z0-9_\-]{20,}$'), // não a do DeepSeek
       color: const Color(0xFF10A37F),
       checkUrl: (_) => Uri.parse('https://api.openai.com/v1/models'),
       checkHeaders: _bearer,
@@ -181,6 +181,21 @@ class BrainChip {
       keyPattern: RegExp(r'^xai-[A-Za-z0-9]{20,}$'),
       color: const Color(0xFFD0D0D0),
       checkUrl: (_) => Uri.parse('https://api.x.ai/v1/models'),
+      checkHeaders: _bearer,
+    ),
+    // DeepSeek: pago por uso, mas muito barato; API no formato OpenAI. Chave "sk-" + 32 hexadecimais.
+    BrainChip(
+      id: 'deepseek',
+      api: BrainApi.openAiCompatible,
+      model: 'deepseek-v4-flash', // deepseek-chat foi aposentado em jul/2026; o app confere a lista e troca sozinho
+      chatBase: 'https://api.deepseek.com',
+      name: 'DeepSeek',
+      vendor: 'DeepSeek API',
+      free: false,
+      keyPageUrl: 'https://platform.deepseek.com/api_keys',
+      keyPattern: RegExp(r'^sk-[a-f0-9]{32}$'),
+      color: const Color(0xFF4D6BFE),
+      checkUrl: (_) => Uri.parse('https://api.deepseek.com/models'),
       checkHeaders: _bearer,
     ),
   ];

@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.46] — 16/10/2026 (Chip DeepSeek)
+
+* **Novo chip no WaxBrain: DeepSeek** (pago por uso, muito barato; API no formato OpenAI). Chave "sk-" + 32 hexadecimais reconhecida sozinha (sem confundir com a do ChatGPT); modelo escolhido pela lista da DeepSeek (padrão `deepseek-v4-flash`; o antigo `deepseek-chat` foi aposentado).
+* **Mistral conferido:** chave testada pela lista de modelos, conversa no formato OpenAI, modelo escolhido pela lista (o plano grátis "Experiment" tem limite baixo por minuto — o WaxBrain espera e tenta de novo, ou passa a outro chip).
+* Testes: DeepSeek na lista de chips e chave reconhecida; chave do ChatGPT continua do ChatGPT.
+
+---
 ## [v1.4.45] — 16/10/2026 (WaxBrain Divide o Trabalho)
 
 * **Correção do A2 (e do A3):** os registros do Samsung mostraram o Gemini sobrecarregado (503) e o Groq e o OpenRouter respondendo "modelo não existe" (404) — os provedores aposentaram os modelos que o app usava (Llama 3.3, ago/2026). Agora:

@@ -28,12 +28,13 @@ class BrainModels {
     'openai': ['gpt-4o-mini', 'gpt-4.1-mini', 'gpt-5-mini', 'mini'],
     'anthropic': ['haiku', 'sonnet'],
     'xai': ['grok-3-mini', 'mini', 'grok'],
+    'deepseek': ['v4-flash', 'flash', 'chat', 'v4'],
   };
 
   static const List<String> _avoid = [
     'embed', 'tts', 'whisper', 'audio', 'image', 'vision-only', 'guard', 'moderation', 'transcribe', 'realtime',
     'search', 'live', 'native-audio', 'computer-use', 'robotics', 'aqa', 'imagen', 'veo', 'compound', 'codestral',
-    'ocr', 'dall-e', 'babbage', 'davinci', 'thinking',
+    'ocr', 'dall-e', 'babbage', 'davinci', 'thinking', 'reasoner',
   ];
 
   /// Ids de modelo de texto na resposta da lista (formatos do Gemini, Anthropic e OpenAI).
