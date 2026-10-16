@@ -17,15 +17,17 @@ class AccountImagineSearch implements ImagineSearch {
   Future<List<ImaginePhoto>> searchArt(String query) async =>
       [for (final a in await account.imagineArt(query)) ImaginePhoto.fromArt(a)];
 
-  /// Fotos do Unsplash pelas buscas fixas do sentimento, intercaladas e embaralhadas, mais as obras do
+  /// Fotos do Unsplash por uma das buscas fixas do sentimento, embaralhadas, mais as obras do
   /// acervo marcadas com o sentimento (se houver). Uma busca que falhar não derruba as outras.
   @override
   Future<List<ImaginePhoto>> searchEmotion(String emotion) async {
     final lists = <List<ImaginePhoto>>[];
     Object? lastError;
-    for (final q in ImagineScene.emotionQueries[emotion] ?? const <String>[]) {
+    // Uma busca só por sentimento (sorteada entre as do sentimento): poupa o limite do Unsplash
+    final options = ImagineScene.emotionQueries[emotion] ?? const <String>[];
+    if (options.isNotEmpty) {
       try {
-        lists.add(await search(q));
+        lists.add(await search(options[_random.nextInt(options.length)]));
       } catch (e) {
         lastError = e;
       }

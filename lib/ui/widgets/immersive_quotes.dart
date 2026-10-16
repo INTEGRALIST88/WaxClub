@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/imagine/imagined_music.dart';
 import '../theme/app_theme.dart';
 
-/// Modo imersivo do A3 no celular: a cada ~22 s uma frase de destaque da letra aparece, fica ~6,5 s e
+/// Modo imersivo do A3 no celular: a cada ~13 s uma frase de destaque da letra aparece, fica ~7 s e
 /// esmaece, alternando a posição (como na TV). Escolhe a frase já cantada mais recente que ainda não
 /// apareceu; se não houver, a próxima da lista.
 class ImmersiveQuotes extends StatefulWidget {
@@ -14,9 +14,9 @@ class ImmersiveQuotes extends StatefulWidget {
 
   const ImmersiveQuotes({super.key, required this.quotes, required this.activeLine});
 
-  static const Duration firstAfter = Duration(seconds: 6);
-  static const Duration gap = Duration(seconds: 22);
-  static const Duration shown = Duration(milliseconds: 6500);
+  static const Duration firstAfter = Duration(seconds: 5);
+  static const Duration gap = Duration(seconds: 13);
+  static const Duration shown = Duration(milliseconds: 7000);
 
   @override
   State<ImmersiveQuotes> createState() => _ImmersiveQuotesState();
@@ -92,7 +92,7 @@ class _ImmersiveQuotesState extends State<ImmersiveQuotes> {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppTheme.cream,
-              fontSize: 26,
+              fontSize: 34,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w600,
               height: 1.25,

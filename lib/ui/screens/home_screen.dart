@@ -977,7 +977,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   /// Modo imersivo no celular: só a imagem (sem a letra), com uma frase da letra de vez em quando.
   bool get _immersiveOnPhone =>
-      _imagineOn && _imagine.mode == ImagineMode.immersive && _currentScene?.photo != null;
+      _imagineOn && _imagine.mode == ImagineMode.immersive && _currentShot != null;
 
   /// Aviso do A3 enquanto monta a música ou quando ela ficou sem imagens (nulo: nada a avisar).
   Widget? _imagineStatus() {
@@ -1100,23 +1100,28 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final lyrics = _engine.lyrics;
     int msOf(int line, double? at) =>
         at != null ? (at * 1000).round() : (line >= 0 && line < lyrics.length ? lyrics[line].timestamp.inMilliseconds : 0);
+    const motions = ['zoom_in', 'pan_left', 'zoom_out', 'pan_right']; // l10n-ignore
+    final shots = _imagineShots(sb);
     cast.sendImagine(
       mode: _imagine.mode.name,
       title: _engine.currentTrack?.title,
+      // Uma entrada por tomada (~13 s cada): a TV troca a imagem em cada uma
       scenes: [
-        for (final s in sb.scenes)
-          if (s.photo != null)
-            {
-              'ms': msOf(s.line, s.atSeconds), // l10n-ignore
-              'url': s.photo!.sized(), // l10n-ignore
-              'author': s.photo!.author, // l10n-ignore
-              'credit': s.photo!.credit, // l10n-ignore
-              if (s.photo!.color != null) 'color': s.photo!.color, // l10n-ignore
-              'palette': s.palette, // l10n-ignore
-              'motion': s.motion, // l10n-ignore
-              'transition': s.transition, // l10n-ignore
-              'intensity': s.intensity, // l10n-ignore
-            },
+        for (var i = 0; i < shots.length; i++)
+          {
+            'ms': shots[i].ms, // l10n-ignore
+            'url': shots[i].photo.sized(), // l10n-ignore
+            'author': shots[i].photo.author, // l10n-ignore
+            'credit': shots[i].photo.credit, // l10n-ignore
+            if (shots[i].photo.color != null) 'color': shots[i].photo.color, // l10n-ignore
+            'palette': shots[i].scene.palette, // l10n-ignore
+            // movimento alternado entre as tomadas da mesma cena (zoom, pan...), começando pelo da cena
+            'motion': i > 0 && identical(shots[i - 1].scene, shots[i].scene) // l10n-ignore
+                ? motions[(motions.indexOf(shots[i].scene.motion) + i) % motions.length]
+                : shots[i].scene.motion,
+            'transition': i > 0 && identical(shots[i - 1].scene, shots[i].scene) ? 'dissolve' : shots[i].scene.transition, // l10n-ignore
+            'intensity': shots[i].scene.intensity, // l10n-ignore
+          },
       ],
       quotes: [for (final q in sb.quotes) {'ms': msOf(q.line, null), 'text': q.text}], // l10n-ignore
     );
@@ -1138,25 +1143,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     await _imagine.storyboard(title: next.title, artist: artist, album: _engine.lockedAlbumName, lines: lines);
   }
 
-  /// Cena atual do roteiro (a última que já começou), para o fundo do celular.
-  ImagineScene? get _currentScene {
+  /// Tomadas do roteiro (~13 s cada, várias fotos por cena), com o início de cada cena pela letra.
+  List<ImagineShot> _imagineShots(Storyboard sb) {
+    final lyrics = _engine.lyrics;
+    final duration = _engine.telemetry.trackDurationSeconds;
+    return sb.shots(
+      (s) => s.atSeconds != null
+          ? (s.atSeconds! * 1000).round()
+          : (s.line >= 0 && s.line < lyrics.length ? lyrics[s.line].timestamp.inMilliseconds : 0),
+      endMs: duration != null && duration > 0 ? (duration * 1000).round() : null,
+    );
+  }
+
+  /// Tomada atual (a última que já começou), para o fundo do celular.
+  ImagineShot? get _currentShot {
     final sb = _storyboard;
     if (sb == null) return null;
-    final lyrics = _engine.lyrics;
-    final pos = _engine.telemetry.currentPositionSeconds;
-    ImagineScene? current;
-    for (final s in sb.scenes) {
-      if (s.photo == null) continue;
-      final startsAt = s.atSeconds ?? (s.line < lyrics.length ? lyrics[s.line].timestamp.inMilliseconds / 1000.0 : 0);
-      if (startsAt <= pos + 0.5 || current == null) current = s;
+    final pos = (_engine.telemetry.currentPositionSeconds * 1000).round();
+    ImagineShot? current;
+    for (final s in _imagineShots(sb)) {
+      if (s.ms <= pos + 500 || current == null) current = s;
     }
     return current;
   }
 
   /// Fundo do celular com a foto da cena atual (escurecida para a letra) e o crédito ao fotógrafo.
   Widget _imagineBackdrop() {
-    final scene = _imagineOn ? _currentScene : null;
-    final photo = scene?.photo;
+    final photo = _imagineOn ? _currentShot?.photo : null;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 1600),
       child: photo == null
@@ -1170,7 +1183,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   /// Crédito ao fotógrafo do Unsplash (exigência da API), com link para o perfil dele.
   Widget? _imagineCredit() {
-    final photo = _imagineOn ? _currentScene?.photo : null;
+    final photo = _imagineOn ? _currentShot?.photo : null;
     if (photo == null) return null;
     return GestureDetector(
       onTap: photo.authorUrl == null ? null : () => PluginLinks.instance.openUrl(photo.authorUrl!),

@@ -2619,7 +2619,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imagineModeImmersiveHint =>
-      'Only the images, with a line of the lyrics fading in about every 30 seconds.';
+      'Only the images, with big lines of the lyrics fading in every few seconds.';
 
   @override
   String imagineUsesChip(String name) {

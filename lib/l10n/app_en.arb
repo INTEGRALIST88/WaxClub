@@ -1604,7 +1604,7 @@
   "imagineModeLyrics": "Images + lyrics",
   "imagineModeLyricsHint": "The photos play behind the scrolling lyrics.",
   "imagineModeImmersive": "Immersive",
-  "imagineModeImmersiveHint": "Only the images, with a line of the lyrics fading in about every 30 seconds.",
+  "imagineModeImmersiveHint": "Only the images, with big lines of the lyrics fading in every few seconds.",
   "imagineUsesChip": "Imagining with your {name} chip from the WaxBrain.",
   "@imagineUsesChip": {"placeholders": {"name": {"type": "String"}}},
   "imaginePhotoCredit": "Photo: {author} · Unsplash",

@@ -61,7 +61,7 @@ function imagine_search(): void
     $key = imagine_key();
     [$status, $data] = imagine_unsplash('https://api.unsplash.com/search/photos?' . http_build_query([
         'query' => $q,
-        'per_page' => 12,
+        'per_page' => 20, // várias fotos por busca: viram as tomadas das cenas (menos buscas por música)
         'orientation' => 'landscape',
         'content_filter' => 'high',
     ]), $key);

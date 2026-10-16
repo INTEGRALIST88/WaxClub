@@ -135,10 +135,10 @@ class TvWebReceiverHtml {
     /* frases da letra no modo imersivo: surgem e esmaecem devagar */
     .im-quote {
       position: fixed;
-      max-width: 62vw;
+      max-width: 72vw;
       font-family: Georgia, 'Times New Roman', serif;
       font-style: italic;
-      font-size: 5.2vh;
+      font-size: 8vh;
       line-height: 1.25;
       color: #fff7ea;
       text-shadow: 0 0.4vh 3vh rgba(0, 0, 0, 0.75);
@@ -1117,8 +1117,9 @@ class TvWebReceiverHtml {
     let imQuoteShown = -1;       // frase em exibição (índice)
     let imQuoteLastMs = -1e9;    // quando a última frase apareceu (ms da música)
     let imQuoteTimer = null;
-    const IM_QUOTE_GAP_MS = 22000;  // frases com pelo menos ~22 s entre si (o agente as espalha ~30 s)
-    const IM_QUOTE_SHOW_MS = 6500;
+    const IM_QUOTE_GAP_MS = 12000;  // frases com pelo menos ~12 s entre si
+    const IM_QUOTE_SHOW_MS = 7000;
+    const IM_QUOTE_IDLE_MS = 16000; // sem frase nova chegando: repete uma já cantada depois desse tempo
 
     function onImagine(data) {
       // Roteiro de outra música (chegou antes da troca na tela): guarda até ela aparecer
@@ -1204,23 +1205,29 @@ class TvWebReceiverHtml {
       for (let k = 0; k < imScenes.length; k++) { if (imScenes[k].ms <= t + 400) i = k; }
       if (i !== imIdx) showScene(i);
       if (imMode !== 'immersive' || !imQuotes.length) return;
-      // Frase: perto de quando é cantada, com folga entre uma e outra
+      // Frase: perto de quando é cantada, com folga entre uma e outra; se demorar a vir uma nova, repete uma
+      // das já cantadas (a mais recente que não acabou de aparecer)
+      if (t - imQuoteLastMs < IM_QUOTE_GAP_MS) return;
+      let pick = -1;
       for (let q = 0; q < imQuotes.length; q++) {
         const quote = imQuotes[q];
-        if (q === imQuoteShown) continue;
-        if (t >= quote.ms - 600 && t < quote.ms + 3000 && t - imQuoteLastMs >= IM_QUOTE_GAP_MS) {
-          imQuoteShown = q;
-          imQuoteLastMs = t;
-          const box = el('imQuote');
-          box.className = 'im-quote pos-' + (q % 3);
-          box.textContent = quote.text.trim();
-          void box.offsetWidth;
-          box.classList.add('show');
-          clearTimeout(imQuoteTimer);
-          imQuoteTimer = setTimeout(hideQuote, IM_QUOTE_SHOW_MS);
-          break;
+        if (q !== imQuoteShown && t >= quote.ms - 600 && t < quote.ms + 3000) { pick = q; break; }
+      }
+      if (pick < 0 && t - imQuoteLastMs >= IM_QUOTE_IDLE_MS && t > 8000) {
+        for (let q = imQuotes.length - 1; q >= 0; q--) {
+          if (q !== imQuoteShown && imQuotes[q].ms <= t) { pick = q; break; }
         }
       }
+      if (pick < 0) return;
+      imQuoteShown = pick;
+      imQuoteLastMs = t;
+      const box = el('imQuote');
+      box.className = 'im-quote pos-' + (Math.floor(t / 1000) % 3);
+      box.textContent = imQuotes[pick].text.trim();
+      void box.offsetWidth;
+      box.classList.add('show');
+      clearTimeout(imQuoteTimer);
+      imQuoteTimer = setTimeout(hideQuote, IM_QUOTE_SHOW_MS);
     }
 
     // ─── PACOTES DO CELULAR ───

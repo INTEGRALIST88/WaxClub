@@ -4375,7 +4375,7 @@ abstract class AppLocalizations {
   /// No description provided for @imagineModeImmersiveHint.
   ///
   /// In en, this message translates to:
-  /// **'Only the images, with a line of the lyrics fading in about every 30 seconds.'**
+  /// **'Only the images, with big lines of the lyrics fading in every few seconds.'**
   String get imagineModeImmersiveHint;
 
   /// No description provided for @imagineUsesChip.

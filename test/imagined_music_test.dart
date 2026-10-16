@@ -72,10 +72,11 @@ class _FakeSearch implements ImagineSearch {
   Future<void> used(ImaginePhoto photo) async {}
 }
 
-String _threeScenes(String emotion) => '{"scenes":['
+String _fourScenes(String emotion) => '{"scenes":['
     '{"line":0,"query":"road","art":"road painting","emotion":"$emotion"},'
     '{"line":1,"query":"sea","art":"sea painting","emotion":"$emotion"},'
-    '{"line":2,"query":"sky","art":"sky painting","emotion":"$emotion"}]}';
+    '{"line":2,"query":"sky","art":"sky painting","emotion":"$emotion"},'
+    '{"line":3,"query":"sky","art":"sky painting","emotion":"$emotion"}]}';
 
 const _reply = '''Here you go:
 {"scenes":[
@@ -104,14 +105,27 @@ void main() {
     expect(sb.scenes.map((s) => s.emotion), ['longing', '']);
   });
 
-  test('rodízio de três fontes: foto, obra, imagem do sentimento; sem repetir de uma música para outra', () async {
+  test('a foto da letra manda; obra e sentimento 1 cena em 4 cada; sentimento não repete entre músicas', () async {
     final search = _FakeSearch();
-    final im = ImaginedMusic(ai: await _ai(_threeScenes('sadness')), searcher: search, store: MemoryTranslatorStore());
-    final a = (await im.storyboard(title: 'One', artist: 'Band', lines: ['x', 'y', 'z']))!;
-    expect(a.scenes.map((s) => s.photo!.id), ['p1', 'art-sea painting', 'sadness-1']);
-    final b = (await im.storyboard(title: 'Two', artist: 'Band', lines: ['u', 'v', 'w']))!;
-    expect(b.scenes[2].photo!.id, 'sadness-2', reason: 'a da música anterior fica de lado');
+    final im = ImaginedMusic(ai: await _ai(_fourScenes('sadness')), searcher: search, store: MemoryTranslatorStore());
+    final a = (await im.storyboard(title: 'One', artist: 'Band', lines: ['x', 'y', 'z', 'q']))!;
+    expect(a.scenes.map((s) => s.photo!.id), ['p1', 'art-sea painting', 'p-sky', 'sadness-1']);
+    expect(search.queries, ['road', 'sea', 'sky'], reason: 'a mesma busca ("sky") é feita uma vez só na música');
+    final b = (await im.storyboard(title: 'Two', artist: 'Band', lines: ['u', 'v', 'w', 'k']))!;
+    expect(b.scenes[3].photo!.id, 'sadness-2', reason: 'a da música anterior fica de lado');
     expect(search.emotionCalls, ['sadness'], reason: 'a lista de cada sentimento vem uma vez');
+  });
+
+  test('tomadas: cada cena vira pedaços de ~13 s, uma foto por pedaço, até as fotos que ela tem', () {
+    ImaginePhoto p(String id) => ImaginePhoto(id: id, url: 'https://x/$id', author: 'A');
+    final sb = Storyboard(scenes: [
+      ImagineScene(line: 0, query: 'a', photo: p('a1'), more: [p('a2'), p('a3')]),
+      ImagineScene(line: 1, query: 'b', photo: p('b1')),
+      const ImagineScene(line: 2, query: 'c'), // sem foto: não entra
+    ]);
+    final shots = sb.shots((s) => s.line * 40000, endMs: 60000);
+    expect(shots.map((s) => s.photo.id), ['a1', 'a2', 'a3', 'b1']);
+    expect(shots.map((s) => s.ms), [0, 13333, 26667, 40000]);
   });
 
   test('primeira cena sempre começa na linha 0', () {
@@ -125,14 +139,15 @@ void main() {
     final im = ImaginedMusic(ai: await _ai(_reply), searcher: search, store: store);
     final lines = ['l0', 'l1', 'l2', 'l3', 'l4', 'l5'];
     final sb = (await im.storyboard(title: 'Song', artist: 'Band', lines: lines))!;
-    // cena par: foto do Unsplash; cena ímpar: obra do acervo
+    // 1ª cena: foto da letra (com as outras fotos da mesma busca para as tomadas); 2ª: obra do acervo
     expect(sb.scenes.map((s) => s.photo!.id), ['p1', 'art-crowded city night rain']);
+    expect(sb.scenes.first.more.map((p) => p.id), ['p-empty road at dawn']);
     expect(sb.scenes[1].photo!.credit, 'View — Painter · The Met');
-    expect(search.queries, ['empty road at dawn']);
+    expect(search.queries, ['empty road at dawn', 'crowded city night rain']);
     expect(im.cached('Song', 'Band', lines), isNotNull);
     await im.storyboard(title: 'Song', artist: 'Band', lines: lines);
-    expect(search.queries.length, 1, reason: 'a segunda vez vem do aparelho');
-    expect(store.files['waxclub_storyboards.json'], isNot(contains('l3')), reason: 'a letra não é guardada');
+    expect(search.queries.length, 2, reason: 'a segunda vez vem do aparelho');
+    expect(store.files['waxclub_storyboards_v2.json'], allOf(isNotNull, isNot(contains('l3'))), reason: 'a letra não é guardada');
   });
 
   test('busca de fotos falhou (sem chave do Unsplash / limite): não guarda, tenta de novo depois', () async {

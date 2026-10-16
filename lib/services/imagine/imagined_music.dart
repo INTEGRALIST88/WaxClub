@@ -106,6 +106,12 @@ class ImagineScene {
   final double intensity; // 0..1
   final ImaginePhoto? photo;
 
+  /// Mais fotos da mesma busca: a cena vira várias tomadas curtas (a imagem troca a cada ~13 s).
+  final List<ImaginePhoto> more;
+
+  /// Todas as fotos da cena, na ordem das tomadas.
+  List<ImaginePhoto> get photos => [if (photo != null) photo!, ...more];
+
   const ImagineScene({
     required this.line,
     this.atSeconds,
@@ -118,9 +124,10 @@ class ImagineScene {
     this.transition = 'dissolve',
     this.intensity = 0.5,
     this.photo,
+    this.more = const [],
   });
 
-  ImagineScene withPhoto(ImaginePhoto? p) => ImagineScene(
+  ImagineScene withPhoto(ImaginePhoto? p, [List<ImaginePhoto> more = const []]) => ImagineScene(
         line: line,
         atSeconds: atSeconds,
         query: query,
@@ -132,6 +139,7 @@ class ImagineScene {
         transition: transition,
         intensity: intensity,
         photo: p,
+        more: p == null ? const [] : more,
       );
 
   Map<String, dynamic> toJson() => {
@@ -146,6 +154,7 @@ class ImagineScene {
         'transition': transition,
         'intensity': intensity,
         if (photo != null) 'photo': photo!.toJson(),
+        if (more.isNotEmpty) 'more': [for (final p in more) p.toJson()],
       };
 
   static const _motions = {'zoom_in', 'zoom_out', 'pan_left', 'pan_right'};
@@ -154,22 +163,22 @@ class ImagineScene {
   /// sentimento (casal se beijando, raio, pessoa sozinha...). São poucas buscas no total e o servidor guarda
   /// cada uma por dias, então quase não gastam o limite do Unsplash.
   static const emotionQueries = {
-    'love': ['couple kissing', 'holding hands couple', 'heart shape'],
-    'desire': ['couple embrace close', 'red rose petals', 'passionate dance couple'],
-    'longing': ['person waiting by window', 'train station goodbye', 'old letters and photos'],
-    'loneliness': ['person alone empty street', 'lone figure on beach', 'empty bench in fog'],
-    'sadness': ['rain on window', 'person crying', 'wilted flowers'],
-    'anger': ['lightning storm', 'shattered glass', 'fire flames'],
-    'fear': ['dark forest at night', 'stormy sea waves', 'shadow in dark corridor'],
-    'hope': ['sunrise over hills', 'sunlight through clouds', 'seedling sprouting'],
-    'joy': ['friends laughing', 'children playing outdoors', 'confetti celebration'],
-    'euphoria': ['concert crowd lights', 'dance party', 'fireworks night'],
-    'freedom': ['bird flying in sky', 'open road trip', 'person arms open on mountain'],
-    'nostalgia': ['vintage photographs', 'old vinyl records', 'retro film camera'],
-    'peace': ['calm lake reflection', 'meditation at sunset', 'quiet forest morning'],
-    'melancholy': ['autumn leaves in rain', 'foggy grey city', 'looking out rainy window'],
-    'faith': ['lit candles in dark', 'light rays in cathedral', 'starry night sky'],
-    'rebellion': ['protest crowd', 'graffiti wall', 'punk concert'],
+    'love': ['couple silhouette at sunset', 'two people holding hands in warm light', 'warm golden hour couple'],
+    'desire': ['couple dancing close in dim light', 'deep red sunset sky', 'warm candle light glow'],
+    'longing': ['person looking at the horizon', 'empty road at dusk', 'rain on a window at night'],
+    'loneliness': ['lone person on an empty street at night', 'solitary tree in an open field', 'empty beach in fog'],
+    'sadness': ['rain on a window', 'grey cloudy sky over fields', 'person walking alone in the rain'],
+    'anger': ['lightning storm over the sea', 'crashing waves in a storm', 'wildfire flames at night'],
+    'fear': ['dark forest in fog', 'stormy night sky', 'dark empty alley at night'],
+    'hope': ['sunrise over green fields', 'sunlight breaking through clouds', 'spring blossoms in sunlight'],
+    'joy': ['friends laughing outdoors in the sun', 'sunflower field on a sunny day', 'children running in a meadow'],
+    'euphoria': ['concert crowd with colorful lights', 'fireworks over the night sky', 'people dancing in neon lights'],
+    'freedom': ['bird flying in a wide sky', 'open road through mountains', 'person with arms open on a hilltop'],
+    'nostalgia': ['golden hour on a quiet old street', 'faded summer field at sunset', 'warm evening light on an old house'],
+    'peace': ['calm lake reflection at dawn', 'quiet forest in the morning', 'meadow at sunset'],
+    'melancholy': ['autumn leaves in the rain', 'foggy grey city', 'dusk over a still lake'],
+    'faith': ['light rays through the clouds', 'starry night sky', 'candles glowing in the dark'],
+    'rebellion': ['crowd with raised fists', 'stormy sea with huge waves', 'city at night with neon lights'],
   };
   static final emotions = emotionQueries.keys.toList(growable: false);
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
@@ -193,8 +202,20 @@ class ImagineScene {
       transition: j['transition'] == 'cut' ? 'cut' : 'dissolve',
       intensity: intensity.clamp(0.0, 1.0),
       photo: j['photo'] is Map<String, dynamic> ? ImaginePhoto.fromJson(j['photo'] as Map<String, dynamic>) : null,
+      more: [
+        for (final p in (j['more'] as List<dynamic>? ?? const []))
+          if (p is Map<String, dynamic>) ImaginePhoto.fromJson(p),
+      ],
     );
   }
+}
+
+/// Uma tomada: uma foto na tela a partir de [ms] (milissegundos da música), dentro de uma cena.
+class ImagineShot {
+  final int ms;
+  final ImaginePhoto photo;
+  final ImagineScene scene;
+  const ImagineShot(this.ms, this.photo, this.scene);
 }
 
 /// Frase de destaque da letra (modo imersivo): aparece e esmaece perto de quando é cantada.
@@ -212,6 +233,29 @@ class Storyboard {
   const Storyboard({required this.scenes, this.quotes = const []});
 
   bool get hasPhotos => scenes.any((s) => s.photo != null);
+
+  /// Duração de cada tomada: a imagem troca mais ou menos nesse ritmo.
+  static const int shotMs = 13000;
+
+  /// Tomadas da música: cada cena com foto é dividida em pedaços de ~13 s, até o número de fotos que ela
+  /// tem (cenas longas com poucas fotos ficam mais tempo em cada uma). [startMs] dá o início de cada cena
+  /// (pela linha da letra ou pelo segundo, nas instrumentais); [endMs] é o fim da música (ou nulo).
+  List<ImagineShot> shots(int Function(ImagineScene) startMs, {int? endMs}) {
+    final withPhoto = [for (final s in scenes) if (s.photo != null) s];
+    final out = <ImagineShot>[];
+    for (var i = 0; i < withPhoto.length; i++) {
+      final s = withPhoto[i];
+      final start = startMs(s);
+      final end = i + 1 < withPhoto.length ? startMs(withPhoto[i + 1]) : (endMs ?? start + 4 * shotMs);
+      final photos = s.photos;
+      final n = ((end - start) / shotMs).round().clamp(1, photos.length);
+      final step = (end - start) / n;
+      for (var k = 0; k < n; k++) {
+        out.add(ImagineShot(start + (step * k).round(), photos[k], s));
+      }
+    }
+    return out;
+  }
 
   Map<String, dynamic> toJson() => {
         'scenes': [for (final s in scenes) s.toJson()],
@@ -303,8 +347,11 @@ class ImaginedMusic extends ChangeNotifier {
   /// Largura das imagens (decisão do usuário: 512 px).
   static const int imageWidth = 512;
 
+  /// Fotos por cena no máximo (tomadas de ~13 s).
+  static const int maxShotsPerScene = 4;
+
   static const _settingsFile = 'waxclub_imagine.json';
-  static const _cacheFile = 'waxclub_storyboards.json';
+  static const _cacheFile = 'waxclub_storyboards_v2.json'; // v2: várias fotos por cena (tomadas); os antigos são refeitos
   static const int maxCached = 200;
 
   ImagineMode _mode = ImagineMode.lyrics;
@@ -430,17 +477,33 @@ class ImaginedMusic extends ChangeNotifier {
     if (s == null) return board;
     final used = <String>{};
     final scenes = <ImagineScene>[];
+    // Cada texto de busca é pedido uma vez só por música (o agente repete a busca nas cenas de uma mesma
+    // parte); as fotos que sobram viram as outras tomadas das cenas
+    final results = <String, Future<List<ImaginePhoto>>>{};
 
-    Future<ImaginePhoto?> pickFrom(Future<List<ImaginePhoto>> Function() run, String what) async {
-      try {
-        for (final p in await run()) {
-          if (used.add(p.id)) return p;
-        }
-      } catch (e) {
-        debugPrint('[Imagine] Busca de $what falhou: $e');
-        lastError = 'search_failed';
+    Future<List<ImaginePhoto>> searchOnce(String what, String q, Future<List<ImaginePhoto>> Function() run) =>
+        results['$what|${q.toLowerCase().trim()}'] ??= run().catchError((Object e) {
+          debugPrint('[Imagine] Busca de $what "$q" falhou: $e');
+          lastError = 'search_failed';
+          return <ImaginePhoto>[];
+        });
+
+    Future<ImaginePhoto?> pickFrom(Future<List<ImaginePhoto>> list) async {
+      for (final p in await list) {
+        if (used.add(p.id)) return p;
       }
       return null;
+    }
+
+    /// Até [n] fotos ainda não usadas da mesma busca da foto principal (para as tomadas da cena).
+    Future<List<ImaginePhoto>> extras(Future<List<ImaginePhoto>>? list, int n) async {
+      if (list == null) return const [];
+      final out = <ImaginePhoto>[];
+      for (final p in await list) {
+        if (out.length >= n) break;
+        if (used.add(p.id)) out.add(p);
+      }
+      return out;
     }
 
     Future<ImaginePhoto?> feeling(String emotion) async {
@@ -467,18 +530,23 @@ class ImaginedMusic extends ChangeNotifier {
     for (var i = 0; i < board.scenes.length; i++) {
       final scene = board.scenes[i];
       final artQuery = scene.art.isNotEmpty ? scene.art : scene.query;
-      Future<ImaginePhoto?> photo() => pickFrom(() => s.search(scene.query), 'foto');
-      Future<ImaginePhoto?> art() => pickFrom(() => s.searchArt(artQuery), 'obra');
+      final photoList = searchOnce('foto', scene.query, () => s.search(scene.query));
+      Future<List<ImaginePhoto>> artList() => searchOnce('obra', artQuery, () => s.searchArt(artQuery));
+      Future<ImaginePhoto?> photo() => pickFrom(photoList);
+      Future<ImaginePhoto?> art() async => pickFrom(artList());
+      // A foto da letra manda: obra e sentimento entram de vez em quando (1 cena em 4 cada), sem tomar o lugar
       final ImaginePhoto? pick;
-      switch (i % 3) {
-        case 0:
-          pick = await photo() ?? await art() ?? await feeling(scene.emotion);
+      switch (i % 4) {
         case 1:
           pick = await art() ?? await photo() ?? await feeling(scene.emotion);
+        case 3:
+          pick = await feeling(scene.emotion) ?? await photo() ?? await art();
         default:
-          pick = await feeling(scene.emotion) ?? await art() ?? await photo();
+          pick = await photo() ?? await art() ?? await feeling(scene.emotion);
       }
-      scenes.add(scene.withPhoto(pick));
+      // As outras tomadas da cena vêm da busca da letra (o que a música descreve)
+      final more = pick == null ? const <ImaginePhoto>[] : await extras(photoList, maxShotsPerScene - 1);
+      scenes.add(scene.withPhoto(pick, more));
     }
     return Storyboard(scenes: scenes, quotes: board.quotes);
   }
@@ -499,12 +567,16 @@ class ImaginedMusic extends ChangeNotifier {
       'while a vinyl record plays. You receive the lyrics of "$title" by $artist as a JSON array of lines (index = '
       'position). Split the song into visual scenes that follow its sections and imagery (usually every 2 to 4 lines; '
       '8 to 16 scenes in total). For each scene write two short English searches: "query" for a stock photo library '
-      '(concrete, photographable subjects, setting, light and mood, for example "solitary silhouette rainy city street '
-      'night blue light") and "art" for a museum collection of public-domain paintings, prints and old photographs '
+      'and "art" for a museum collection. The "query" must show what the lyrics of that scene literally describe or '
+      'evoke — its places, nature, weather, light, colors, people and actions (if the lines talk about trees and green '
+      'fields, the query is about trees and green fields, for example "green meadow tall trees summer light"); 3 to 6 '
+      'plain words, concrete and photographable, no abstract ideas, no objects that are not in the lyrics. Use at most '
+      '6 different queries in the whole song: scenes of the same part of the song reuse the same query. The "art" search '
+      'is for a museum collection of public-domain paintings, prints and old photographs '
       '(subject plus a fitting art style or era, for example "stormy sea romantic painting" or "night street '
       'impressionism"); interpret metaphors visually. Give each scene the "emotion" it carries, one of: '
       '${ImagineScene.emotions.join(', ')}; never use names of people, bands, brands or places that '
-      'identify the song, and never ask for text in the image. Also choose 3 to 6 striking short quotes from the '
+      'identify the song, and never ask for text in the image. Also choose 8 to 14 striking short quotes from the '
       'lyrics (the exact text of a single line, up to 60 characters), spread across the whole song, for an immersive '
       'display. Reply with ONLY JSON: {"scenes":[{"line":0,"query":"...","art":"...","emotion":"longing","mood":"one word","palette":["#rrggbb",'
       '"#rrggbb","#rrggbb"],"motion":"zoom_in|zoom_out|pan_left|pan_right","transition":"dissolve|cut",'

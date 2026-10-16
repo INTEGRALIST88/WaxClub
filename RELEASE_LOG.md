@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.40] — 15/10/2026 (Imagined Music Mais Vivo)
+
+* **A imagem troca a cada ~13 s:** cada cena virou várias tomadas, com outras fotos da mesma busca e o movimento (zoom/pan) alternando. Antes era uma foto por cena e, com o limite do Unsplash estourado, a TV ficava minutos na mesma imagem.
+* **Imagens fiéis à letra:** o agente é instruído a buscar exatamente o que a letra descreve (árvores e campos verdes → árvores e campos verdes), com 3 a 6 palavras concretas e sem objetos que a letra não tem; a foto da letra manda, e obra de arte e imagem de sentimento entram só em 1 cena em 4 cada.
+* **Imagens de sentimento sem objetos fora de lugar:** buscas só de clima e paisagem (luz, céu, campos, silhuetas) — saíram câmeras, discos, cartas e afins.
+* **Muito menos buscas no Unsplash por música:** no máximo 6 buscas diferentes (repetidas nas partes da música e feitas uma vez só), 1 busca por sentimento e 20 fotos por busca no servidor.
+* **Frases do modo imersivo maiores e mais frequentes:** na TV, letra 50% maior, uma frase a cada ~12 s (repete uma já cantada se não houver nova); no celular, maiores e a cada ~13 s; o agente escolhe 8 a 14 frases por música.
+* Os roteiros já feitos são refeitos no formato novo.
+* Testes: a foto da letra manda (obra e sentimento 1 em 4), busca repetida feita uma vez, tomadas de ~13 s por cena.
+
+---
 ## [v1.4.39] — 15/10/2026 (Coleção do Discogs Importada)
 
 * **Traz a coleção do Discogs para My Collection:** antes o app só mandava ao Discogs os discos identificados no WaxClub; a coleção que já estava no Discogs nunca vinha para o app. Agora ela vem:
