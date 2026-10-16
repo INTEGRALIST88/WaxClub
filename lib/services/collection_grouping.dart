@@ -6,7 +6,7 @@ enum CollectionGrouping {
   /// Lista simples na ordem escolhida no menu (tocados, adicionados...).
   none,
 
-  /// Divisor com o nome de cada artista/banda (A→Z) e os discos dele embaixo (do mais antigo).
+  /// Divisor com o nome de cada artista/banda (A→Z) e os discos dele embaixo, em ordem alfabética.
   artist,
 
   /// Discos de A a Z, com divisores pela letra inicial.
@@ -88,10 +88,11 @@ class CollectionGrouper {
           final name = display[a]!;
           final letter = letterFor(name);
           rows.add(CollectionRow.header(name, letter));
+          // Discos do artista em ordem alfabética (mesmo título: o mais antigo primeiro)
           final albums = byArtist[a]!
             ..sort((x, y) {
-              final r = _year(x).compareTo(_year(y));
-              return r != 0 ? r : sortKey(x.album).compareTo(sortKey(y.album));
+              final r = _compareKeys(x.album, y.album);
+              return r != 0 ? r : _year(x).compareTo(_year(y));
             });
           for (final i in albums) {
             rows.add(CollectionRow.item(i, letter, n++));

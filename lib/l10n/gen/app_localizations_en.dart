@@ -2281,6 +2281,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get panelPluginOn => 'on — tap to turn off, hold and drag to reorder';
 
   @override
+  String panelToggledOn(String name) {
+    return '$name on';
+  }
+
+  @override
+  String panelToggledOff(String name) {
+    return '$name off';
+  }
+
+  @override
   String get panelPluginOff => 'off — tap to turn on, hold and drag to reorder';
 
   @override

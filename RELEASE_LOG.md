@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.44] — 16/10/2026 (Balão do Liga/Desliga e Coleção em Ordem)
+
+* **Balão discreto ao ligar/desligar um plugin** na linha da tela principal: "A2 · AI translator on" / "… off", com a luz da categoria, logo abaixo da linha; some sozinho em ~1,5 s.
+* **My Collection por artista:** os discos de cada artista agora em **ordem alfabética** (sem o artigo do começo; mesmo título, o mais antigo primeiro) — antes era pelo ano.
+* Testes: balão aparece com o estado novo e some; discos do artista em ordem alfabética.
+
+---
 ## [v1.4.43] — 16/10/2026 (Banco de Intervalos Só com Vinil)
 
 * **O banco de intervalos só aprende com disco de verdade:**

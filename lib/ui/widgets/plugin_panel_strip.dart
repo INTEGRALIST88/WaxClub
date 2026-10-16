@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../services/lyrics_provider_service.dart';
@@ -107,9 +108,42 @@ class _PluginPanelStripState extends State<PluginPanelStrip> with SingleTickerPr
 
   @override
   void dispose() {
+    _bubbleTimer?.cancel();
+    _bubble?.remove();
+    _bubble = null;
     _store.removeListener(_onStore);
     _slide.dispose();
     super.dispose();
+  }
+
+  OverlayEntry? _bubble;
+  Timer? _bubbleTimer;
+
+  /// Balão discreto logo abaixo da linha: "A2 · AI translator on" / "… off", some sozinho.
+  void _showToggleBubble(PluginInfo p, bool on) {
+    _bubbleTimer?.cancel();
+    _bubble?.remove();
+    final box = _rowKey.currentContext?.findRenderObject() as RenderBox?;
+    final overlay = Overlay.maybeOf(context);
+    if (box == null || overlay == null) return;
+    final origin = box.localToGlobal(Offset(0, box.size.height + 6));
+    final width = box.size.width;
+    final entry = OverlayEntry(
+      builder: (_) => Positioned(
+        left: origin.dx,
+        top: origin.dy,
+        width: width,
+        child: IgnorePointer(child: Center(child: _ToggleBubble(plugin: p, on: on))),
+      ),
+    );
+    _bubble = entry;
+    overlay.insert(entry);
+    _bubbleTimer = Timer(const Duration(milliseconds: 1600), () {
+      if (_bubble == entry) {
+        entry.remove();
+        _bubble = null;
+      }
+    });
   }
 
   void _onStore() {
@@ -267,7 +301,18 @@ class _PluginPanelStripState extends State<PluginPanelStrip> with SingleTickerPr
     final on = _store.isActive(p);
     final failed = on && widget.failedIds.contains(p.id);
     final shown = on && widget.shownId == p.id;
-    final chip = _PluginChip(plugin: p, on: on, failed: failed, shown: shown, onTap: () => _store.toggle(p));
+    final chip = _PluginChip(
+      plugin: p,
+      on: on,
+      failed: failed,
+      shown: shown,
+      onTap: () async {
+        // A troca de estado é imediata (gravar no aparelho vem depois): o balão já mostra o novo estado
+        final saving = _store.toggle(p);
+        if (mounted) _showToggleBubble(p, _store.isActive(p));
+        await saving;
+      },
+    );
     return Draggable<String>(
       data: p.id,
       feedback: Material(
@@ -367,6 +412,50 @@ class _PluginChip extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Balão do liga/desliga: código e nome do plugin com a luz da categoria e "on"/"off"; aparece e some.
+class _ToggleBubble extends StatelessWidget {
+  final PluginInfo plugin;
+  final bool on;
+  const _ToggleBubble({required this.plugin, required this.on});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = plugin.category.color;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 220),
+      builder: (_, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, (1 - v) * -6), child: child)),
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: on ? 0.8 : 0.35)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: on ? color : color.withValues(alpha: 0.25),
+                boxShadow: on ? [BoxShadow(color: color.withValues(alpha: 0.9), blurRadius: 6)] : null,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              on ? l10n.panelToggledOn('${plugin.code} · ${plugin.name}') : l10n.panelToggledOff('${plugin.code} · ${plugin.name}'),
+              style: const TextStyle(color: AppTheme.cream, fontSize: 12.5, fontWeight: FontWeight.w600),
+            ),
+          ]),
         ),
       ),
     );

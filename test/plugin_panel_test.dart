@@ -92,10 +92,18 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
     await tester.pump();
     expect(store.isActive(s1), isFalse);
+    // Balão discreto: "S1 · <nome> off", que some sozinho
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('S1 · ${s1.name} off'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1700));
+    expect(find.textContaining('S1 · ${s1.name} off'), findsNothing);
     await tester.tap(find.text('S1'));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
     await tester.pump();
     expect(store.isActive(s1), isTrue);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('S1 · ${s1.name} on'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 2));
   });
 
   testWidgets('arrastar para outra caixinha troca de lugar; para fora da linha pergunta se quer ejetar', (tester) async {

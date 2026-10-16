@@ -24,14 +24,14 @@ void main() {
     expect(CollectionGrouper.letterFor('A'), 'A', reason: 'nome que é só o artigo fica como está');
   });
 
-  test('por artista: divisor com o nome do artista (A→Z) e os discos dele do mais antigo ao mais novo', () {
+  test('por artista: divisor com o nome do artista (A→Z) e os discos dele em ordem alfabética', () {
     final rows = CollectionGrouper.build(items, CollectionGrouping.artist);
     final headers = rows.where((r) => r.isHeader).map((r) => r.header).toList();
     expect(headers, ['Arctic Monkeys', 'Astrud Gilberto', 'The Beatles', 'Os Mutantes', 'Prince']);
     final arctic = rows.skip(1).take(2).map((r) => r.item!.album).toList();
-    expect(arctic, ['Favourite Worst Nightmare', 'AM'], reason: '2007 antes de 2013');
+    expect(arctic, ['AM', 'Favourite Worst Nightmare'], reason: 'A antes de F (não pelo ano)');
     final beatles = rows.indexWhere((r) => r.header == 'The Beatles');
-    expect(rows[beatles + 1].item!.album, 'Revolver');
+    expect(rows[beatles + 1].item!.album, 'Abbey Road', reason: 'Abbey Road (A) antes de Revolver (R)');
     expect(rows[beatles].letter, 'B');
   });
 

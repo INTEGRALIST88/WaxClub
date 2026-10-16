@@ -3814,6 +3814,18 @@ abstract class AppLocalizations {
   /// **'on — tap to turn off, hold and drag to reorder'**
   String get panelPluginOn;
 
+  /// No description provided for @panelToggledOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} on'**
+  String panelToggledOn(String name);
+
+  /// No description provided for @panelToggledOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} off'**
+  String panelToggledOff(String name);
+
   /// No description provided for @panelPluginOff.
   ///
   /// In en, this message translates to:
