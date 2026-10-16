@@ -11,9 +11,9 @@
   "author": "WaxClub",
   "publisher": "WaxClub",
   "homepage": "https://waxclub.com.br/plugins/",
-  "origin": "Your own AI chip (WaxBrain) + photos from Unsplash",
-  "license": "Photos from Unsplash, credited to each photographer; scenes chosen by your AI chip",
-  "description": "An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow of photos that follow its verses, moods and colors, behind the lyrics on your TV. In Immersive mode, only the images play, with a striking line of the lyrics fading in about every 30 seconds. Uses an AI chip from your WaxBrain (Gemini is free); photos come from Unsplash and are credited to their photographers.",
+  "origin": "Your own AI chip (WaxBrain) + photos from Unsplash + public-domain art (The Met, Art Institute of Chicago)",
+  "license": "Photos from Unsplash, credited to each photographer; artworks in the public domain (CC0), credited to each museum; scenes chosen by your AI chip",
+  "description": "An AI visual director reads the lyrics and imagines the song: a slow, cinematic slideshow that follows its verses, moods and colors, behind the lyrics on your TV. Scenes alternate between photos, public-domain artworks and images of the feeling of each moment (love, longing, loneliness, anger...). In Immersive mode, only the images play, with a striking line of the lyrics fading in about every 30 seconds. Uses an AI chip from your WaxBrain (Gemini is free); photos come from Unsplash, credited to their photographers.",
   "builtIn": false,
   "minAppVersion": "1.4.35",
   "provides": {

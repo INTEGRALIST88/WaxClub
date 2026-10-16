@@ -2,6 +2,19 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.35] — 15/10/2026 (A3 — Imagined Music, pelo Site)
+
+* **Plugin A3 "Imagined Music"** — instalado **pelo site** (nada pré-instalado). Um agente visual (chip do WaxBrain) lê a letra inteira e monta o roteiro da música: 8 a 16 cenas que seguem os versos, cada uma com busca de foto, busca de obra de arte, sentimento, paleta, movimento e transição, e frases de destaque.
+  * **Três fontes em rodízio:** foto do **Unsplash** (pela API oficial, exibida do próprio Unsplash com crédito ao fotógrafo), **obra de arte em domínio público** do acervo do WaxClub (The Met, Art Institute of Chicago; quando o acervo estiver no servidor) e **imagem do sentimento** do trecho (16 sentimentos: amor, desejo, saudade, solidão, tristeza, raiva, medo, esperança, alegria, euforia, liberdade, nostalgia, paz, melancolia, fé, rebeldia — buscas fixas no Unsplash, sem repetir entre músicas).
+  * **Na TV:** imagens atrás da letra com esmaecer, zoom/pan lento, tingimento na paleta da cena, granulação e vinheta; o **disco fica na frente** das imagens. **Modo imersivo:** só as imagens, com uma frase da letra aparecendo e esmaecendo a cada ~30 s.
+  * **No celular:** a foto da cena atrás da letra, com o crédito.
+  * Roteiro feito uma vez por música e guardado no celular (sem a letra); a próxima música é preparada adiantada. Imagens em 512 px.
+* **Servidor (esquema 8):** `/v1/imagine/search` (Unsplash com a chave do servidor, buscas guardadas 7 dias), `/v1/imagine/used` (aviso de uso exigido pelo Unsplash), `/v1/imagine/art` e `/v1/imagine/emotion` (acervo próprio); importador do acervo (`server/tools/import_art.php`).
+* **Tradução da letra (A2) em itálico**, no celular e na TV.
+* Correção: a lista de chips do WaxBrain respondia duas vezes quando o servidor não tinha a senha de criptografia.
+* Testes: roteiro (cenas em ordem e dentro da letra, cores válidas, frases só de linhas existentes, sentimentos só da lista), rodízio das três fontes sem repetir, roteiro guardado sem a letra, busca falhou não guarda, modo imersivo guardado, 512 px, A3 instalado pelo manifesto do site.
+
+---
 ## [v1.4.33] — 15/10/2026 (A2 — Tradutor de IA, pelo Site)
 
 * **Plugin A2 "AI translator"** — instalado **pelo site** (waxclub.com.br/plugins, botão Install); nada vem pré-instalado no app. Traduz tudo o que não é menu:
