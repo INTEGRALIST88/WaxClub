@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.39] — 15/10/2026 (Coleção do Discogs Importada)
+
+* **Traz a coleção do Discogs para My Collection:** antes o app só mandava ao Discogs os discos identificados no WaxClub; a coleção que já estava no Discogs nunca vinha para o app. Agora ela vem:
+  * **sozinha** ao conectar a conta Discogs e ao abrir o app (no máximo a cada 12 h, só os discos novos);
+  * **pelo botão "Bring my Discogs collection"** na tela de sincronização (nuvem de My Collection), com aviso de quantos discos entraram.
+  * Traz capa, ano, formato, gravadora, nº de catálogo, nota e os estados de disco e capa (campos padrão do Discogs). Lê todas as pastas, 100 discos por página, respeitando o limite de pedidos do Discogs.
+  * **Não repete** discos que já estão em My Collection (mesmo disco ou mesma prensagem) e **não traz de volta** os que o usuário tirou de My Collection.
+  * **Só lê o Discogs:** nada é apagado ou alterado lá. Os discos importados seguem para a conta WaxClub em lotes de 500.
+* Testes: leitura da coleção em várias páginas (nomes de artistas como no Discogs, gravadora sem o número de homônimos, nota e estados), sem conta não lê, importação sem repetidos e sem os removidos, data guardada.
+
+---
 ## [v1.4.38] — 15/10/2026 (A3 no Celular e Correções)
 
 * **A3 Imagined Music — modo imersivo no celular:** só a imagem da cena em tela cheia (a letra some), com uma frase de destaque da letra aparecendo e esmaecendo a cada ~22 s em posições alternadas, como na TV.

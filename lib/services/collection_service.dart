@@ -215,6 +215,7 @@ class CollectionService extends ChangeNotifier {
         for (final p in (j['plays'] as List<dynamic>? ?? const [])) {
           _plays.add(PlayEvent.fromJson(p as Map<String, dynamic>));
         }
+        _discogsImportedAt = DateTime.tryParse(j['discogsImportedAt'] as String? ?? '');
         (j['removed'] as Map<String, dynamic>? ?? const {}).forEach((k, v) {
           final at = DateTime.tryParse(v as String? ?? '');
           if (at != null) _removed[k] = at;
@@ -238,6 +239,7 @@ class CollectionService extends ChangeNotifier {
         'stats': _stats.map((k, v) => MapEntry(k, v.toJson())),
         'plays': _plays.map((p) => p.toJson()).toList(),
         'removed': _removed.map((k, v) => MapEntry(k, v.toIso8601String())),
+        if (_discogsImportedAt != null) 'discogsImportedAt': _discogsImportedAt!.toIso8601String(),
       }));
       await tmp.rename(f.path);
     } catch (e) {
@@ -251,6 +253,28 @@ class CollectionService extends ChangeNotifier {
     _removed.remove(stamped.key);
     notifyListeners();
     await _save();
+  }
+
+  /// Última vez que a coleção do Discogs foi trazida para cá (nula: nunca).
+  DateTime? get discogsImportedAt => _discogsImportedAt;
+  DateTime? _discogsImportedAt;
+
+  /// Traz discos da coleção do Discogs: entram só os que ainda não estão aqui (mesmo disco ou mesma prensagem)
+  /// e que o usuário não tirou da coleção do WaxClub depois de importados. Grava uma vez só. Devolve quantos
+  /// entraram.
+  Future<int> importFromDiscogs(List<CollectionItem> items) async {
+    final releases = {for (final i in _items.values) if (i.discogsReleaseId != null) i.discogsReleaseId!};
+    var added = 0;
+    for (final item in items) {
+      if (_items.containsKey(item.key) || _removed.containsKey(item.key)) continue;
+      if (item.discogsReleaseId != null && !releases.add(item.discogsReleaseId!)) continue;
+      _items[item.key] = item.withUpdatedAt(DateTime.now());
+      added++;
+    }
+    _discogsImportedAt = DateTime.now();
+    if (added > 0) notifyListeners();
+    await _save();
+    return added;
   }
 
   Future<void> remove(String album, String artist) async {

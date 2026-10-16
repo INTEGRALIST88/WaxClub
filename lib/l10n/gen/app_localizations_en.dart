@@ -2009,6 +2009,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncDiscogsDisconnect => 'Disconnect Discogs account';
 
   @override
+  String get discogsImportButton => 'Bring my Discogs collection';
+
+  @override
+  String get discogsImportHint =>
+      'Adds the records from your Discogs collection to My Collection. Records you removed from My Collection stay out.';
+
+  @override
+  String get discogsImporting => 'Bringing your Discogs collection…';
+
+  @override
+  String discogsImported(int count) {
+    return '$count records came from your Discogs collection.';
+  }
+
+  @override
+  String get discogsImportNothingNew =>
+      'Your Discogs collection is already in My Collection.';
+
+  @override
+  String get discogsImportFailed =>
+      'Couldn\'t read your Discogs collection. Try again in a moment.';
+
+  @override
   String get syncDiscogsDisconnectTitle => 'Disconnect Discogs?';
 
   @override

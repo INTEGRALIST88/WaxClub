@@ -3412,6 +3412,42 @@ abstract class AppLocalizations {
   /// **'Disconnect Discogs account'**
   String get syncDiscogsDisconnect;
 
+  /// No description provided for @discogsImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring my Discogs collection'**
+  String get discogsImportButton;
+
+  /// No description provided for @discogsImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds the records from your Discogs collection to My Collection. Records you removed from My Collection stay out.'**
+  String get discogsImportHint;
+
+  /// No description provided for @discogsImporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Bringing your Discogs collection…'**
+  String get discogsImporting;
+
+  /// No description provided for @discogsImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records came from your Discogs collection.'**
+  String discogsImported(int count);
+
+  /// No description provided for @discogsImportNothingNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discogs collection is already in My Collection.'**
+  String get discogsImportNothingNew;
+
+  /// No description provided for @discogsImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read your Discogs collection. Try again in a moment.'**
+  String get discogsImportFailed;
+
   /// No description provided for @syncDiscogsDisconnectTitle.
   ///
   /// In en, this message translates to:

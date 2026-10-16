@@ -288,6 +288,9 @@ class PluginConnection {
   final Future<bool> Function() connect;
   final Future<void> Function() disconnect;
 
+  /// Traz a coleção do serviço para My Collection (Discogs); devolve quantos discos entraram, nulo se falhou.
+  final Future<int?> Function()? importCollection;
+
   const PluginConnection({
     required this.listenable,
     required this.isEnabled,
@@ -296,6 +299,7 @@ class PluginConnection {
     required this.accountName,
     required this.connect,
     required this.disconnect,
+    this.importCollection,
   });
 }
 

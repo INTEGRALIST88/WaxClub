@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     PluginLinks.instance.pending.addListener(_onPluginLink);
     _plugins.addListener(_onPluginsChanged);
     PluginLinks.instance.start();
-    _discogsAuth.load().then((_) => _plugins.load()).then((_) => _onPluginLink());
+    _discogsAuth.load().then((_) => _plugins.load()).then((_) => _onPluginLink()).then((_) => _autoImportDiscogs());
     _engine.castService.runInitialBackgroundDiscovery();
 
     // Lembrete periódico a cada 1 minuto (60 segundos)
@@ -471,14 +471,48 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     accountName: () => _discogsAuth.username,
     connect: _connectDiscogs,
     disconnect: _discogsAuth.logout,
+    importCollection: () => _importDiscogsCollection(),
   );
+
+  Future<int?>? _discogsImport;
+
+  /// Traz a coleção do Discogs para My Collection (só os discos novos). Roda sozinho ao conectar e ao abrir o
+  /// app (no máximo a cada 12 h); [quiet] = sem aviso quando nada entrou.
+  Future<int?> _importDiscogsCollection({bool quiet = false}) => _discogsImport ??= () async {
+        try {
+          await _collection.load();
+          final items = await _discogsCollection.fetchCollection();
+          final added = items == null ? null : await _collection.importFromDiscogs(items);
+          if (mounted && (!quiet || (added ?? 0) > 0)) {
+            final text = added == null
+                ? l10n.discogsImportFailed
+                : (added == 0 ? l10n.discogsImportNothingNew : l10n.discogsImported(added));
+            ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(text)));
+          }
+          return added;
+        } finally {
+          _discogsImport = null;
+        }
+      }();
+
+  /// Ao abrir o app: com o Discogs conectado, traz os discos novos da coleção de lá (no máximo a cada 12 h).
+  Future<void> _autoImportDiscogs() async {
+    await _collection.load();
+    if (!_discogsAuth.isEnabled) return;
+    final last = _collection.discogsImportedAt;
+    if (last != null && DateTime.now().difference(last) < const Duration(hours: 12)) return;
+    await _importDiscogsCollection(quiet: true);
+  }
 
   /// Login do Discogs pelo plugin C1; ao conectar, o plugin fica ligado.
   Future<bool> _connectDiscogs() async {
     final connected = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => DiscogsLoginScreen(auth: _discogsAuth)),
     );
-    if (connected == true) await _discogsAuth.setEnabled(true);
+    if (connected == true) {
+      await _discogsAuth.setEnabled(true);
+      _importDiscogsCollection(); // conectou: traz a coleção de lá
+    }
     return connected == true;
   }
 

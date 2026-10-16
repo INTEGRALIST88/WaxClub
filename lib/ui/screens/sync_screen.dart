@@ -135,6 +135,12 @@ class SyncScreen extends StatelessWidget {
                                   Text(l10n.syncDiscogsPluginOff,
                                       style: const TextStyle(color: Colors.white70, height: 1.4)),
                                 ],
+                                if (d.importCollection != null && d.isEnabled()) ...[
+                                  const SizedBox(height: 12),
+                                  Text(l10n.discogsImportHint, style: const TextStyle(color: Colors.white70, height: 1.4)),
+                                  const SizedBox(height: 8),
+                                  _DiscogsImportButton(run: d.importCollection!),
+                                ],
                                 const SizedBox(height: 12),
                                 OutlinedButton.icon(
                                   onPressed: () => _disconnectDiscogs(context, d),
@@ -175,4 +181,41 @@ class SyncScreen extends StatelessWidget {
       },
     );
   }
+}
+
+/// "Bring my Discogs collection": traz os discos da coleção do Discogs para My Collection (o aviso do
+/// resultado aparece na tela principal).
+class _DiscogsImportButton extends StatefulWidget {
+  final Future<int?> Function() run;
+  const _DiscogsImportButton({required this.run});
+
+  @override
+  State<_DiscogsImportButton> createState() => _DiscogsImportButtonState();
+}
+
+class _DiscogsImportButtonState extends State<_DiscogsImportButton> {
+  bool _busy = false;
+
+  Future<void> _go() async {
+    setState(() => _busy = true);
+    try {
+      await widget.run();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+        onPressed: _busy ? null : _go,
+        icon: _busy
+            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black54))
+            : const Icon(Icons.download),
+        label: Text(_busy ? l10n.discogsImporting : l10n.discogsImportButton),
+        style: FilledButton.styleFrom(
+          backgroundColor: PluginCategory.connections.color,
+          foregroundColor: Colors.black,
+          minimumSize: const Size.fromHeight(46),
+        ),
+      );
 }
