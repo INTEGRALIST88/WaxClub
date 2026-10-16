@@ -76,4 +76,18 @@ void main() {
     final finder = OwnedRecordFinder(collection: col, cache: cache);
     expect((await finder.find('Introducing the Band', 'The London Suede'))?.album, 'Dog Man Star');
   });
+
+  test('caso real: "Animal Nitrate" de "The London Suede" acha o disco do Discogs "The Best Of Suede. Beautiful Ones"', () async {
+    await col.add(CollectionItem(
+        album: 'The Best Of Suede. Beautiful Ones', artist: 'Suede', discogsReleaseId: '777', addedAt: DateTime(2026)));
+    final finder = OwnedRecordFinder(collection: col, cache: cache, fetchTracklist: (id) async => const [
+          TrackEntry(position: 1, title: 'The Drowners', number: 'A1', side: 'A'),
+          TrackEntry(position: 2, title: 'Animal Nitrate', number: 'A2', side: 'A'),
+          TrackEntry(position: 3, title: 'New Generation', number: 'B1', side: 'B'),
+        ]);
+    final owned = await finder.find('Animal Nitrate', 'The London Suede',
+        album: 'Beautiful Ones: The Best of the London Suede 1992-2018');
+    expect(owned?.album, 'The Best Of Suede. Beautiful Ones');
+    expect(owned?.tracklist.length, 3);
+  });
 }

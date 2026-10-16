@@ -2,6 +2,12 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.50] — 16/10/2026 (Sem Disco "Album")
+
+* **Correção:** quando nem o reconhecimento nem o catálogo diziam o disco, o app travava um disco provisório chamado "Album" (visto com "Animal Nitrate" do Suede). Agora esse nome provisório não trava nada.
+* Teste do caso real: "Animal Nitrate" de "The London Suede" acha o disco da coleção "The Best Of Suede. Beautiful Ones" (importado do Discogs, lista de faixas buscada na prensagem).
+
+---
 ## [v1.4.49] — 16/10/2026 (Outros Nomes do Artista)
 
 * **Letras de artistas com mais de um nome:** quando nenhuma fonte acha a letra com o nome reconhecido, o app tenta os outros nomes do artista nas mesmas fontes — nomes regionais conhecidos (Suede ↔ The London Suede, The Charlatans ↔ The Charlatans UK, The Beat ↔ The English Beat, Yazoo ↔ Yaz…), sem participações ("feat."), sem a banda de apoio ("Bob Marley & The Wailers" → "Bob Marley") e com/sem "The".

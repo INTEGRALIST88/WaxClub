@@ -570,7 +570,9 @@ class WaxClubEngine extends ChangeNotifier {
     required String artist,
     List<TrackEntry> tracklist = const [],
   }) {
-    if (albumName.isEmpty || albumName.toLowerCase() == 'unknown album') return;
+    // Nome provisório ("Album", quando nem o reconhecimento nem o catálogo dizem o disco) não trava nada
+    final lowerName = albumName.trim().toLowerCase();
+    if (lowerName.isEmpty || lowerName == 'unknown album' || lowerName == 'album') return;
     _resetManualIfRecordChanged(albumName);
     _lockedAlbumName = albumName;
     _lockedAlbumArtist = artist;
