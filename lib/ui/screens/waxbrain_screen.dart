@@ -96,7 +96,7 @@ class _WaxBrainScreenState extends State<WaxBrainScreen> with WidgetsBindingObse
                   onPressed: () {
                     _awaiting = chip;
                     Navigator.pop(ctx);
-                    PluginLinks.instance.openUrl(chip.keyPageUrl);
+                    PluginLinks.instance.openTab(chip.keyPageUrl);
                   },
                 ),
               ),

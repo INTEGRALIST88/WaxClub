@@ -47,6 +47,18 @@ class PluginLinks {
     return id;
   }
 
+  /// Abre uma página numa aba do Chrome por cima do app (com X para fechar e voltar ao WaxClub); se não der,
+  /// no navegador comum. Usada para pegar chaves de IA (o login do Google funciona nela).
+  Future<void> openTab(String url) async {
+    try {
+      final ok = await _channel.invokeMethod<bool>('openTab', {'url': url}); // l10n-ignore
+      if (ok != true) await openUrl(url);
+    } catch (e) {
+      debugPrint('[PluginLinks] Aba não abriu $url: $e');
+      await openUrl(url);
+    }
+  }
+
   /// Abre uma página no navegador (ex.: a página de plugins do site).
   Future<void> openUrl(String url) async {
     try {

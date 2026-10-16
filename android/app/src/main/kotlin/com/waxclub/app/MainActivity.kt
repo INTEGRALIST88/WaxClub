@@ -54,6 +54,25 @@ class MainActivity : FlutterActivity() {
                     result.success(link)
                 }
                 "pickLyricsFiles" -> pickLyricsFiles(result)
+                // Aba do Chrome por cima do app (Custom Tab): X no canto fecha e volta ao WaxClub; o login do
+                // Google funciona (no navegador interno ele é bloqueado). Sem Chrome, abre o navegador comum.
+                "openTab" -> {
+                    val url = call.argument<String>("url")
+                    result.success(
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            val extras = Bundle()
+                            extras.putBinder("android.support.customtabs.extra.SESSION", null)
+                            intent.putExtras(extras)
+                            intent.putExtra("android.support.customtabs.extra.TOOLBAR_COLOR", 0xFF2E1E13.toInt())
+                            intent.putExtra("android.support.customtabs.extra.TITLE_VISIBILITY", 1)
+                            startActivity(intent)
+                            true
+                        } catch (_: Exception) {
+                            false
+                        }
+                    )
+                }
                 "openUrl" -> {
                     val url = call.argument<String>("url")
                     result.success(

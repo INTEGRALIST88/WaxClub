@@ -2,6 +2,11 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.47] — 16/10/2026 (Página da Chave com Botão de Voltar)
+
+* **WaxBrain — página para pegar a chave de IA** agora abre numa **aba do Chrome por cima do app**, com **X no canto que fecha e volta ao WaxClub** (antes abria o Chrome inteiro, sem caminho de volta). O login do Google funciona nela (no navegador interno do app ele é bloqueado). Ao voltar, a chave copiada continua sendo reconhecida. Sem Chrome, abre o navegador comum.
+
+---
 ## [v1.4.46] — 16/10/2026 (Chip DeepSeek)
 
 * **Novo chip no WaxBrain: DeepSeek** (pago por uso, muito barato; API no formato OpenAI). Chave "sk-" + 32 hexadecimais reconhecida sozinha (sem confundir com a do ChatGPT); modelo escolhido pela lista da DeepSeek (padrão `deepseek-v4-flash`; o antigo `deepseek-chat` foi aposentado).
