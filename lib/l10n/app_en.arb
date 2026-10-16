@@ -1535,7 +1535,7 @@
   "waxBrain": "WaxBrain",
   "brainIntro": "Plug in an AI chip to power WaxClub's AI plugins. You use your own key (some providers have free plans), and nothing is plugged in until you choose.",
   "brainPluggedSection": "Plugged chips",
-  "brainOrderHint": "AI plugins use the first chip that's ready. Drag to change the order.",
+  "brainOrderHint": "AI plugins share these chips: each request goes to the first free chip in this order, so two plugins can work at once. Drag to change the order.",
   "brainSocketsSection": "Chip sockets",
   "brainSocketsHintEmpty": "No chip plugged in yet. Free chips need no credit card — Gemini is the easiest one to start with.",
   "brainSocketsHint": "Plug in more chips: when one reaches its usage limit, the next one takes over.",

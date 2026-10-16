@@ -4027,7 +4027,7 @@ abstract class AppLocalizations {
   /// No description provided for @brainOrderHint.
   ///
   /// In en, this message translates to:
-  /// **'AI plugins use the first chip that\'s ready. Drag to change the order.'**
+  /// **'AI plugins share these chips: each request goes to the first free chip in this order, so two plugins can work at once. Drag to change the order.'**
   String get brainOrderHint;
 
   /// No description provided for @brainSocketsSection.

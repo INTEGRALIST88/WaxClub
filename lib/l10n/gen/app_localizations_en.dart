@@ -2408,7 +2408,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get brainOrderHint =>
-      'AI plugins use the first chip that\'s ready. Drag to change the order.';
+      'AI plugins share these chips: each request goes to the first free chip in this order, so two plugins can work at once. Drag to change the order.';
 
   @override
   String get brainSocketsSection => 'Chip sockets';
