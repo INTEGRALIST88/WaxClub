@@ -608,6 +608,26 @@ class AccountService extends ChangeNotifier {
     return [for (final a in (j['art'] as List<dynamic>? ?? const [])) if (a is Map<String, dynamic>) a];
   }
 
+  // ---------- Banco coletivo de intervalos entre faixas ----------
+
+  /// Intervalos já medidos do disco [albumKey] (chave da faixa → ms).
+  Future<Map<String, int>> timingsFetch(String albumKey) async {
+    final j = await _request('GET', '/timings?album=${Uri.encodeQueryComponent(albumKey)}');
+    final t = j['tracks'];
+    return {
+      if (t is Map<String, dynamic>)
+        for (final e in t.entries)
+          if (e.value is num) e.key: (e.value as num).toInt(),
+    };
+  }
+
+  /// Envia medições de intervalo (até 50 por vez).
+  Future<void> timingsSubmit(List<Map<String, dynamic>> samples) async {
+    for (var i = 0; i < samples.length; i += 50) {
+      await _request('POST', '/timings', body: {'samples': samples.sublist(i, (i + 50).clamp(0, samples.length))});
+    }
+  }
+
   /// Obras escolhidas para um sentimento (A3), embaralhadas pelo servidor.
   Future<List<Map<String, dynamic>>> imagineEmotion(String emotion) async {
     final j = await _request('GET', '/imagine/emotion?e=${Uri.encodeQueryComponent(emotion)}');

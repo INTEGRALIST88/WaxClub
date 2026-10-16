@@ -289,6 +289,29 @@ function migrations(): array
                 FULLTEXT KEY ft_art (title, artist, tags, kind)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ],
+        // 1.4.42: banco coletivo de intervalos entre faixas (só números: início a início, mediana por faixa)
+        9 => [
+            "CREATE TABLE IF NOT EXISTS track_timing (
+                album_key CHAR(24) NOT NULL,
+                track_key CHAR(16) NOT NULL,
+                artist VARCHAR(160) NOT NULL DEFAULT '',
+                album VARCHAR(255) NOT NULL DEFAULT '',
+                title VARCHAR(255) NOT NULL DEFAULT '',
+                samples TEXT NOT NULL,
+                median_ms INT UNSIGNED NOT NULL,
+                sample_count SMALLINT UNSIGNED NOT NULL,
+                updated_at DATETIME(3) NOT NULL,
+                PRIMARY KEY (album_key, track_key)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS track_timing_log (
+                user_id BIGINT UNSIGNED NOT NULL,
+                album_key CHAR(24) NOT NULL,
+                track_key CHAR(16) NOT NULL,
+                day DATE NOT NULL,
+                PRIMARY KEY (user_id, album_key, track_key, day),
+                CONSTRAINT fk_timing_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

@@ -11,6 +11,7 @@ require __DIR__ . '/lib/curiosities.php';
 require __DIR__ . '/lib/photos.php';
 require __DIR__ . '/lib/brain.php';
 require __DIR__ . '/lib/imagine.php';
+require __DIR__ . '/lib/timing.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -59,6 +60,8 @@ $routes = [
     ['POST', '#^/v1/imagine/used$#', 'imagine_used'],
     ['GET', '#^/v1/imagine/art$#', 'imagine_art'],
     ['GET', '#^/v1/imagine/emotion$#', 'imagine_emotion'],
+    ['GET', '#^/v1/timings$#', 'timing_get'],
+    ['POST', '#^/v1/timings$#', 'timing_post'],
 ];
 
 $pathMatched = false;

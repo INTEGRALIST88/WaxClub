@@ -16,6 +16,7 @@ import '../services/shazam_service.dart';
 import '../services/tracklist_matcher.dart';
 import '../services/tracklist_provider.dart';
 import '../services/track_predictor.dart';
+import '../services/track_timing_service.dart';
 import '../services/vinyl_cache_service.dart';
 import '../services/prefetch_service.dart';
 import '../services/wikipedia_tracklist_service.dart';
@@ -279,6 +280,67 @@ class WaxClubEngine extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Banco de intervalos entre faixas (sem letras): aprende o tempo de início a início de cada faixa até a
+  /// seguinte e faz a letra da próxima entrar na hora, sem esperar o microfone ouvir.
+  TrackTimingService? trackTiming;
+
+  /// Início real (relógio) da última faixa ouvida nesta sessão, para medir o intervalo até a seguinte.
+  ({String title, DateTime start})? _lastHeardStart;
+
+  /// Intervalo aprendido (s, rotação nominal) da faixa [title] até a seguinte do mesmo lado; nulo se não houver
+  /// medição, se o disco não estiver travado ou se for a última do lado.
+  double? _learnedIntervalSeconds(String? title) {
+    final timing = trackTiming;
+    final album = _lockedAlbumName;
+    final artist = _lockedAlbumArtist;
+    final list = _lockedTracklist;
+    if (timing == null || title == null || album == null || artist == null || list.isEmpty) return null;
+    final i = TracklistMatcher.findIndex(list, title);
+    if (i < 0 || i + 1 >= list.length) return null;
+    final side = list[i].side;
+    final nextSide = list[i + 1].side;
+    if (side != null && nextSide != null && side != nextSide) return null; // última do lado: vira o disco
+    final ms = timing.intervalMs(artist, album, list[i].title);
+    return ms == null ? null : ms / 1000.0;
+  }
+
+  /// Guarda no banco o intervalo entre o início de [prevTitle] e o de [title] (relógio), se forem faixas
+  /// seguidas do mesmo lado do disco travado.
+  void _recordInterval(String prevTitle, DateTime prevStart, String title, DateTime start) {
+    final timing = trackTiming;
+    final album = _lockedAlbumName;
+    final artist = _lockedAlbumArtist;
+    final list = _lockedTracklist;
+    if (timing == null || album == null || artist == null || list.isEmpty) return;
+    final i = TracklistMatcher.findIndex(list, prevTitle);
+    final j = TracklistMatcher.findIndex(list, title);
+    if (i < 0 || j != i + 1) return;
+    final side = list[i].side;
+    final nextSide = list[j].side;
+    if (side != null && nextSide != null && side != nextSide) return;
+    final nominalMs = (start.difference(prevStart).inMilliseconds * effectiveSpeedFactor).round();
+    _logService.log('track_interval', {'track': list[i].title, 'ms': nominalMs});
+    unawaited(timing.record(
+      artist: artist,
+      album: album,
+      title: list[i].title,
+      intervalMs: nominalMs,
+      listedMs: list[i].lengthMs,
+    ));
+  }
+
+  /// Faixa reconhecida pelo microfone na posição [offsetSeconds]: calcula quando ela começou e, se a anterior
+  /// ouvida for a faixa de antes no disco, mede o intervalo entre as duas.
+  void _noteHeardStart(String title, DateTime captureStart, double offsetSeconds) {
+    if (offsetSeconds <= 0) return;
+    final start = captureStart.subtract(Duration(milliseconds: (offsetSeconds / effectiveSpeedFactor * 1000).round()));
+    final prev = _lastHeardStart;
+    _lastHeardStart = (title: title, start: start);
+    if (prev != null && TracklistMatcher.normalize(prev.title) != TracklistMatcher.normalize(title)) {
+      _recordInterval(prev.title, prev.start, title, start);
+    }
+  }
+
   // Histórico de faixas tocadas na sessão para desambiguação de álbum
   final List<TrackInfo> _sessionHistory = [];
   final List<String> _sessionConfirmedTitles = [];
@@ -469,6 +531,7 @@ class WaxClubEngine extends ChangeNotifier {
     _resetManualIfRecordChanged(albumName);
     _lockedAlbumName = albumName;
     _lockedAlbumArtist = artist;
+    unawaited(trackTiming?.prepareAlbum(artist, albumName));
     if (coverUrl != null && coverUrl.isNotEmpty) {
       _lockedAlbumCoverUrl = coverUrl;
     }
@@ -774,6 +837,7 @@ class WaxClubEngine extends ChangeNotifier {
     _refreshSpeed();
     // Música reconhecida = a agulha já está tocando
     _awaitingNeedle = false;
+    _noteHeardStart(recognized.title, captureStart, recognized.offsetSeconds);
     final now = DateTime.now();
     final elapsed = now.difference(captureStart).inMilliseconds / 1000.0;
     _baseOffset = recognized.offsetSeconds + elapsed * effectiveSpeedFactor;
@@ -922,6 +986,7 @@ class WaxClubEngine extends ChangeNotifier {
     _clearManualState();
     _resetState();
     _sessionHistory.clear();
+    _lastHeardStart = null;
     _sessionConfirmedTitles.clear();
     _consecutiveConfirmationsOnAlbum = 0;
     _currentAlbumBeingConfirmed = null;
@@ -1565,13 +1630,20 @@ class WaxClubEngine extends ChangeNotifier {
       return;
     }
 
-    if (_trackDurationSeconds == null || _trackDurationSeconds! <= 0) {
+    // Banco de intervalos: a próxima começa no início medido dela (silêncio do sulco incluído, ou nenhum
+    // nas faixas emendadas); sem medição, no fim da duração
+    final learned = _learnedIntervalSeconds(_currentTrack?.title);
+    final until = learned ?? _trackDurationSeconds;
+    if (until == null || until <= 0) {
       debugPrint('[WaxClubEngine] Duração desconhecida — sem auto-listen programado.');
       return;
     }
 
     // Calcula tempo exato até o término da música com base na rotação mecânica atual
-    final secondsUntilEnd = (_trackDurationSeconds! - _currentPositionSeconds) / effectiveSpeedFactor;
+    final secondsUntilEnd = (until - _currentPositionSeconds) / effectiveSpeedFactor;
+    if (learned != null) {
+      debugPrint('[WaxClubEngine] ⏱️ Intervalo aprendido: a próxima faixa começa em ${learned.toStringAsFixed(1)} s da atual');
+    }
 
     if (secondsUntilEnd <= 0.5) {
       debugPrint('[WaxClubEngine] Fim da música alcançado — iniciando escuta imediata da próxima faixa.');
@@ -3232,7 +3304,12 @@ class WaxClubEngine extends ChangeNotifier {
   void _scheduleManualAdvance() {
     if (_manualParked) return;
     _manualAdvanceTimer?.cancel();
-    final d = _trackDurationSeconds;
+    final listed = _trackDurationSeconds;
+    // Banco de intervalos: faixa emendada à seguinte (intervalo menor que a minutagem) troca no intervalo
+    final learned = _manualIndex >= 0 && _manualIndex < _manualTracks.length
+        ? _learnedIntervalSeconds(_manualTracks[_manualIndex].title)
+        : null;
+    final d = learned != null && listed != null && learned < listed ? learned : listed;
     if (!isManualPlaying || _tStart == null || _isPaused || d == null || d <= 0) return;
     final toEnd = (d - _currentPositionSeconds) / effectiveSpeedFactor;
     final mySession = _sessionId;
@@ -3289,6 +3366,21 @@ class WaxClubEngine extends ChangeNotifier {
     );
     _sendCastSyncWithTvLookahead();
     _manualAdvanceTimer?.cancel();
+    // Banco de intervalos: o começo da próxima já é conhecido (início da anterior + intervalo medido). Ela entra
+    // nessa hora sem esperar o microfone; se o microfone ouvir o começo antes, ele manda.
+    final learned = _learnedIntervalSeconds(_manualTracks[index].title);
+    final prevOnset = _manualParkPrevOnset;
+    if (learned != null && prevOnset != null && !_manualOnsetUncertain) {
+      final startAt = prevOnset.add(Duration(milliseconds: (learned / effectiveSpeedFactor * 1000).round()));
+      final wait = startAt.difference(DateTime.now());
+      _manualAdvanceTimer = Timer(wait.isNegative ? Duration.zero : wait, () {
+        if (_sessionId != mySession || _isDisposed || !_manualParked) return;
+        _manualUnpark();
+        _logService.log('manual_learned_start', {'next': e.title, 'interval': learned});
+        _manualStartAt(startAt);
+      });
+      return;
+    }
     _manualAdvanceTimer = Timer(Duration(milliseconds: (manualGapSeconds * 1000).round()), () => _manualParkTimeout(mySession, expectedEnd));
   }
 
@@ -3393,6 +3485,10 @@ class WaxClubEngine extends ChangeNotifier {
       'gap': b.gapSeconds,
       'position': _currentPositionSeconds,
     });
+    // Banco de intervalos: começo desta faixa (ouvido) até o começo da seguinte (ouvido agora)
+    if (onsetFromMic && onset != null && index + 1 < _manualTracks.length) {
+      _recordInterval(_manualTracks[index].title, onset, _manualTracks[index + 1].title, b.onset);
+    }
     if (onsetFromMic && onset != null && listed != null && listed > 0 && manualDurationsReliable) {
       final measured = b.silenceStart.difference(onset).inMilliseconds / 1000.0;
       final ratio = _manualTiming.addTrackMeasurement(listed, measured);
@@ -3617,6 +3713,7 @@ class WaxClubEngine extends ChangeNotifier {
     _recordService.cancelRecording();
     _prefetchService.clearSession();
     _sessionHistory.clear();
+    _lastHeardStart = null;
     _sessionConfirmedTitles.clear();
     _currentTrack = null;
     _lyrics = [];

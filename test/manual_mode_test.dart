@@ -14,6 +14,16 @@ import 'package:waxclub/services/recognition_catalog_service.dart';
 import 'package:waxclub/services/session_log_service.dart';
 import 'package:waxclub/services/shazam_service.dart';
 import 'package:waxclub/services/vinyl_cache_service.dart';
+import 'package:waxclub/services/ai_translator.dart' show MemoryTranslatorStore;
+import 'package:waxclub/services/track_timing_service.dart';
+
+/// Banco de intervalos com um valor fixo para todas as faixas (teste).
+class _FixedTiming extends TrackTimingService {
+  final int ms;
+  _FixedTiming(this.ms) : super(store: MemoryTranslatorStore());
+  @override
+  int? intervalMs(String artist, String album, String title) => ms;
+}
 
 class _FakeRecord extends AudioRecordService {
   @override
@@ -369,6 +379,34 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 600));
       expect(engine.telemetry.currentPositionSeconds, greaterThan(0.8), reason: 'contada desde o fim da minutagem');
       expect(shazam.calls, 0);
+      engine.stopManual();
+      engine.dispose();
+    });
+
+    test('intervalo aprendido: a próxima à espera começa no início medido dela, sem esperar o microfone', () async {
+      final cache = VinylCacheService(storageDirectory: dir);
+      await cache.init();
+      final engine = WaxClubEngine(
+        recordService: _MusicPlayingRecord(),
+        shazamService: _CountingShazam(),
+        lyricsService: _FakeLyrics(),
+        cacheService: cache,
+        logService: SessionLogService(storageDirectory: dir),
+      )..trackTiming = _FixedTiming(3600);
+      WaxClubEngine.manualGapSeconds = 8.0; // sem o banco, ficaria esperando o sulco até 8 s
+      final lp = [
+        const TrackEntry(position: 1, title: 'Gap A1', number: 'A1', side: 'A', lengthMs: 3000),
+        const TrackEntry(position: 2, title: 'Gap A2', number: 'A2', side: 'A', lengthMs: 3000),
+        const TrackEntry(position: 3, title: 'Gap B1', number: 'B1', side: 'B', lengthMs: 3000),
+      ];
+      await engine.prepareScannedRecord(albumTitle: 'Gaps', artist: 'Banda', tracklist: lp, source: 'discogs');
+      final started = DateTime.now();
+      expect(await engine.startManualPlayback(trackIndex: 0, useMic: false), isTrue);
+      await _waitFor(() => engine.currentTrack?.title == 'Gap A2');
+      await _waitFor(() => !engine.isManualParked);
+      final ms = DateTime.now().difference(started).inMilliseconds;
+      expect(ms, greaterThanOrEqualTo(3400), reason: 'respeita o silêncio medido (3,6 s, não os 3 s da minutagem)');
+      expect(ms, lessThan(5000), reason: 'não espera o microfone nem o prazo do sulco');
       engine.stopManual();
       engine.dispose();
     });

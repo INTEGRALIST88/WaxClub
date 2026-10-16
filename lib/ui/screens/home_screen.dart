@@ -39,6 +39,7 @@ import '../widgets/manual_start_sheet.dart';
 import '../widgets/wood_tile_button.dart';
 import '../widgets/wood_menu.dart';
 import '../widgets/immersive_quotes.dart';
+import '../../services/track_timing_service.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
@@ -109,6 +110,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   /// WaxBrain: chaves de IA do usuário (BYOK), no cofre do celular e, criptografadas, na conta.
   final BrainService _brain = BrainService();
+
+  /// Banco de intervalos entre faixas (letra da próxima na hora certa, sem esperar o microfone).
+  final TrackTimingService _trackTiming = TrackTimingService();
   final GlobalKey _brainKey = GlobalKey();
   final GlobalKey _menuKey = GlobalKey();
   bool _brainAttached = false;
@@ -152,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _collection.load();
     _account.attachCollection(_collection);
     _account.addListener(_onAccountForBrain);
+    _engine.trackTiming = _trackTiming;
     _account.load();
     _brain.load().then((_) => _brain.recheckStale());
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
@@ -907,6 +912,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// Conta conectada: o WaxBrain passa a guardar uma cópia criptografada das chaves na conta (e traz as
   /// que já estavam lá); conta desconectada: segue só no celular.
   void _onAccountForBrain() {
+    // Banco coletivo de intervalos: só com a conta conectada (sem conta, aprende só neste aparelho)
+    _trackTiming.remote = _account.isSignedIn
+        ? AccountTrackTimingRemote(fetch: _account.timingsFetch, submit: _account.timingsSubmit)
+        : null;
     if (_account.isSignedIn && !_brainAttached) {
       _brainAttached = true;
       _brain.attachRemote(AccountBrainRemote(_account));

@@ -2,6 +2,18 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.42] — 15/10/2026 (Banco de Intervalos entre Faixas)
+
+* **A letra da próxima faixa entra na hora certa, sem esperar o microfone ouvir:** o app aprende o tempo de **início a início** de cada faixa até a seguinte do mesmo lado — com o silêncio do sulco, ou nenhum nas faixas emendadas.
+  * **Medido do áudio, não da minutagem do catálogo** (que varia entre edições): quando o microfone reconhece duas faixas seguidas, o início real de cada uma sai da posição ouvida; o intervalo é convertido para a rotação nominal com a rotação medida do toca-discos.
+  * **Banco coletivo (só números, sem letras):** com a conta conectada, as medições vão para o servidor, que guarda as últimas 15 de cada faixa e entrega a mediana (uma medição por usuário, faixa e dia). Ao travar o disco, o app baixa os intervalos dele. Sem conta, aprende só no aparelho; sem internet, as medições esperam para ir depois.
+  * **Modo automático:** a troca de faixa acontece no início medido da próxima (antes, no fim da duração, sem contar o silêncio).
+  * **Modo Manual:** a próxima faixa à espera começa no início medido, sem esperar o microfone ouvir o sulco; faixas emendadas trocam no ponto certo. O microfone, quando ouve antes, continua mandando — e cada começo ouvido vira uma nova medição.
+  * Medições grosseiras (faixa pulada, agulha levantada) são descartadas; a minutagem do catálogo só serve para esse filtro largo.
+* **Servidor (esquema 9):** tabelas `track_timing` e `track_timing_log`; rotas `GET/POST /v1/timings`.
+* Testes: chaves normalizadas, mediana, descarte de absurdos, minutagem errada não descarta medição boa, banco coletivo baixado uma vez e envio das novas, envio adiado sem internet, Modo Manual começando a próxima no intervalo aprendido.
+
+---
 ## [v1.4.41] — 15/10/2026 (Frases no Tempo e Tradutor Firme)
 
 * **A3 — frases sincronizadas com o canto:** a frase aparece exatamente quando a linha dela começa a ser cantada e some quando a linha acaba (TV e celular); cada uma uma vez, com pelo menos ~10 s entre elas, e 6 a 10 por música (não ficam aparecendo o tempo todo).
