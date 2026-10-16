@@ -15,6 +15,8 @@ class BrainModels {
       case BrainApi.anthropic:
         return Uri.parse('https://api.anthropic.com/v1/models?limit=100');
       case BrainApi.openAiCompatible:
+        // GitHub Models: o catálogo fica fora do endereço de inferência
+        if (chip.id == 'github') return Uri.parse('https://models.github.ai/catalog/models');
         return Uri.parse('${chip.chatBase}/models');
     }
   }
@@ -29,6 +31,8 @@ class BrainModels {
     'anthropic': ['haiku', 'sonnet'],
     'xai': ['grok-3-mini', 'mini', 'grok'],
     'deepseek': ['v4-flash', 'flash', 'chat', 'v4'],
+    'cerebras': ['gpt-oss-120b', 'llama', 'qwen', 'glm', 'gemma'],
+    'github': ['gpt-4.1-mini', 'gpt-4o-mini', 'mini', 'llama'],
   };
 
   static const List<String> _avoid = [
@@ -50,7 +54,9 @@ class BrainModels {
         ];
       }
       final out = <String>[];
-      for (final m in (j['data'] as List<dynamic>? ?? const [])) {
+      // OpenAI: {data: [...]}; catálogo do GitHub: a lista direto
+      final list = j is List ? j : (j['data'] as List<dynamic>? ?? const []);
+      for (final m in list) {
         if (m is! Map<String, dynamic>) continue;
         final id = '${m['id'] ?? ''}';
         if (id.isEmpty) continue;

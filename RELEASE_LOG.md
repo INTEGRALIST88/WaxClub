@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.48] — 16/10/2026 (A Coleção Primeiro)
+
+* **A coleção primeiro:** quando uma música é reconhecida, o app procura em My Collection um disco do mesmo artista que tenha essa faixa (pela lista de faixas guardada ou, se faltar, pela prensagem do Discogs do disco da coleção) e usa a **capa, a lista de faixas e a letra desse disco**. Só sem ele usa o disco sugerido pelo reconhecimento. O disco escolhido à mão pelo usuário para a música continua valendo mais.
+* **Selo "+" na capa:** quando o disco tocando não está em My Collection, um "+" laranja pulsa de leve no canto da capa; tocar na capa abre o disco, com "Add to collection".
+* **WaxBrain — dois chips grátis novos:** **Cerebras** (muito rápido, cota diária) e **GitHub Models** (conta pessoal do GitHub; a chave é um token pessoal com permissão "Models: read"); modelos escolhidos pela lista de cada um.
+* WaxBrain: o texto da ordem dos chips explica que os plugins dividem os chips.
+* Testes: disco da coleção vence a edição deluxe ("Beatles" = "The Beatles"), lista buscada no Discogs e guardada, música fora da coleção não muda nada, disco da coleção com o mesmo nome sem lista; Cerebras e GitHub na lista e chaves reconhecidas.
+
+---
 ## [v1.4.47] — 16/10/2026 (Página da Chave com Botão de Voltar)
 
 * **WaxBrain — página para pegar a chave de IA** agora abre numa **aba do Chrome por cima do app**, com **X no canto que fecha e volta ao WaxClub** (antes abria o Chrome inteiro, sem caminho de volta). O login do Google funciona nela (no navegador interno do app ele é bloqueado). Ao voltar, a chave copiada continua sendo reconhecida. Sem Chrome, abre o navegador comum.

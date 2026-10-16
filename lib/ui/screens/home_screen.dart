@@ -40,6 +40,9 @@ import '../widgets/wood_tile_button.dart';
 import '../widgets/wood_menu.dart';
 import '../widgets/immersive_quotes.dart';
 import '../../services/track_timing_service.dart';
+import '../../services/owned_record_finder.dart';
+import '../widgets/not_in_collection_badge.dart';
+import '../../services/discogs/discogs_tracklist_provider.dart';
 import '../widgets/retro_text.dart';
 import '../../services/plugins/plugin_catalog.dart';
 import '../../services/plugins/plugin_links.dart';
@@ -111,6 +114,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   /// WaxBrain: chaves de IA do usuário (BYOK), no cofre do celular e, criptografadas, na conta.
   final BrainService _brain = BrainService();
 
+  void _onCollectionChangedForBadge() {
+    if (mounted) setState(() {});
+  }
+
+  /// O disco tocando agora não está em My Collection (mostra o selo "+" na capa).
+  bool get _playingRecordNotOwned {
+    final track = _engine.currentTrack;
+    if (track == null || !_collection.isLoaded) return false;
+    final album = _engine.lockedAlbumName ?? track.album;
+    final artist = _engine.lockedAlbumArtist ?? track.artist;
+    if (album == null || album.isEmpty || album == 'Album') return false; // l10n-ignore
+    return !_collection.contains(album, artist);
+  }
+
+  /// Prensagens do Discogs (lista de faixas dos discos da coleção).
+  late final DiscogsTracklistProvider _discogsTracks = DiscogsTracklistProvider(auth: _discogsAuth);
+
   /// Banco de intervalos entre faixas (letra da próxima na hora certa, sem esperar o microfone).
   final TrackTimingService _trackTiming = TrackTimingService();
   final GlobalKey _brainKey = GlobalKey();
@@ -157,6 +177,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _account.attachCollection(_collection);
     _account.addListener(_onAccountForBrain);
     _engine.trackTiming = _trackTiming;
+    _collection.addListener(_onCollectionChangedForBadge);
+    // A coleção primeiro: música reconhecida que está num disco de My Collection usa a capa e as faixas dele
+    final owned = OwnedRecordFinder(
+      collection: _collection,
+      cache: _engine.cacheService,
+      fetchTracklist: (id) async {
+        final release = await _discogsTracks.fetchRelease(id);
+        return release == null ? const <TrackEntry>[] : await _discogsTracks.loadTracklist(release);
+      },
+    );
+    _engine.ownedRecordFinder = (title, artist, album) => owned.find(title, artist, album: album);
     _account.load();
     _brain.load().then((_) => _brain.recheckStale());
     // Plugin C1 (Connections): conta Discogs; o estado fica no próprio serviço do Discogs
@@ -255,6 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _plugins.dispose();
     _account.detachCollection(_collection);
     _account.removeListener(_onAccountForBrain);
+    _collection.removeListener(_onCollectionChangedForBadge);
     _brain.dispose();
     if (widget.account == null) _account.dispose();
     _collection.dispose();
@@ -1957,7 +1989,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: GestureDetector(
                       onTap: _engine.currentTrack == null ? _openPlayRecord : _showAlbumTracklistModal,
                       onLongPress: _exportSessionLogs,
-                      child: AnimatedSwitcher(
+                      child: Stack(clipBehavior: Clip.none, children: [
+                      AnimatedSwitcher(
                         duration: const Duration(milliseconds: 500),
                         transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
                         child: ((_engine.lockedAlbumCoverUrl ?? _engine.currentTrack?.coverUrl) != null &&
@@ -1991,6 +2024,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 ),
                               ),
                       ),
+                      // Disco tocando que não está em My Collection: selo "+" pulsando de leve no canto da capa
+                      // (tocar na capa abre o disco, com "Add to collection")
+                      if (_playingRecordNotOwned)
+                        const Positioned(right: -5, bottom: -5, child: NotInCollectionBadge()),
+                      ]),
                     ),
                   ),
                     ],

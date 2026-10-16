@@ -1467,6 +1467,7 @@
     }
   },
   "panelPluginOn": "on — tap to turn off, hold and drag to reorder",
+  "notInCollectionBadge": "Not in your collection — tap the cover to add it",
   "panelToggledOn": "{name} on",
   "@panelToggledOn": {"placeholders": {"name": {"type": "String"}}},
   "panelToggledOff": "{name} off",

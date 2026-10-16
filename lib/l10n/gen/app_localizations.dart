@@ -3814,6 +3814,12 @@ abstract class AppLocalizations {
   /// **'on — tap to turn off, hold and drag to reorder'**
   String get panelPluginOn;
 
+  /// No description provided for @notInCollectionBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in your collection — tap the cover to add it'**
+  String get notInCollectionBadge;
+
   /// No description provided for @panelToggledOn.
   ///
   /// In en, this message translates to:

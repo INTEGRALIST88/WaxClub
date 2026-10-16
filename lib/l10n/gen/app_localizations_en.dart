@@ -2281,6 +2281,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get panelPluginOn => 'on — tap to turn off, hold and drag to reorder';
 
   @override
+  String get notInCollectionBadge =>
+      'Not in your collection — tap the cover to add it';
+
+  @override
   String panelToggledOn(String name) {
     return '$name on';
   }

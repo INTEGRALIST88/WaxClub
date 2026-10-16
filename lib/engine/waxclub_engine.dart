@@ -17,6 +17,7 @@ import '../services/tracklist_matcher.dart';
 import '../services/tracklist_provider.dart';
 import '../services/track_predictor.dart';
 import '../services/track_timing_service.dart';
+import '../services/owned_record_finder.dart';
 import '../services/vinyl_cache_service.dart';
 import '../services/prefetch_service.dart';
 import '../services/wikipedia_tracklist_service.dart';
@@ -279,6 +280,10 @@ class WaxClubEngine extends ChangeNotifier {
     await _castService.disconnect(stopTvApp: true);
     notifyListeners();
   }
+
+  /// "A coleção primeiro": acha em My Collection o disco que tem a música reconhecida (capa, faixas e letra
+  /// desse disco); nulo = sem coleção.
+  Future<OwnedRecord?> Function(String title, String artist, String? album)? ownedRecordFinder;
 
   /// Banco de intervalos entre faixas (sem letras): aprende o tempo de início a início de cada faixa até a
   /// seguinte e faz a letra da próxima entrar na hora, sem esperar o microfone ouvir.
@@ -1161,9 +1166,25 @@ class WaxClubEngine extends ChangeNotifier {
 
       // Verifica primeiro o álbum preferencial do usuário para esta música
       final userPrefAlbum = _cacheService.getPreferredAlbum(recognized.title, recognized.artist);
-      // Trilha de novela: disco padrão quando nenhum disco preferido foi definido para a música
-      final soundtrack = userPrefAlbum == null ? _soundtracks.findFor(recognized.title, recognized.artist) : null;
-      final searchAlbum = userPrefAlbum ?? recognized.album; // a letra é da gravação original, não da trilha
+      // Depois, a coleção: um disco de My Collection com esta música vale mais que o sugerido pelo reconhecimento
+      OwnedRecord? owned;
+      final finder = ownedRecordFinder;
+      if (userPrefAlbum == null && finder != null) {
+        try {
+          owned = await finder(recognized.title, recognized.artist, recognized.album).timeout(const Duration(seconds: 10));
+        } catch (e) {
+          debugPrint('[WaxClubEngine] Coleção não consultada: $e');
+        }
+        if (_sessionId != mySession || _isDisposed) return;
+        if (owned != null) {
+          debugPrint('[WaxClubEngine] 📀 "${recognized.title}" está no disco da coleção "${owned.album}": capa, faixas e letra dele.');
+          _logService.log('owned_record', {'track': recognized.title, 'album': owned.album});
+        }
+      }
+      // Trilha de novela: disco padrão quando nenhum disco preferido (nem da coleção) foi definido para a música
+      final soundtrack =
+          userPrefAlbum == null && owned == null ? _soundtracks.findFor(recognized.title, recognized.artist) : null;
+      final searchAlbum = userPrefAlbum ?? owned?.album ?? recognized.album; // a letra é da gravação original
 
       _sessionConfirmedTitles.add(recognized.title);
       _currentAlbumBeingConfirmed = searchAlbum;
@@ -1187,8 +1208,9 @@ class WaxClubEngine extends ChangeNotifier {
 
       _trackDurationSeconds ??= _estimateTrackDuration(recognized, _lyrics);
 
-      final officialAlbum = userPrefAlbum ?? resolved.album ?? recognized.album;
-      final cachedCover = recognized.coverUrl ??
+      final officialAlbum = userPrefAlbum ?? owned?.album ?? resolved.album ?? recognized.album;
+      final cachedCover = owned?.coverUrl ??
+          recognized.coverUrl ??
           _cacheService.findCachedDisc(officialAlbum ?? '', recognized.artist)?.coverUrl ??
           _cacheService.findCachedTrack(recognized.title, recognized.artist)?.coverUrl;
 
@@ -1196,9 +1218,12 @@ class WaxClubEngine extends ChangeNotifier {
       final cachedDisc = _cacheService.findCachedDisc(officialAlbum ?? '', recognized.artist) ??
           _cacheService.findDiscWithTrack(recognized.title, recognized.artist);
 
-      final initialAlbum = cachedDisc?.album ?? officialAlbum ?? 'Album';
-      final initialCover = cachedDisc?.coverUrl ?? cachedCover;
-      final initialTracklist = cachedDisc?.tracklist ?? const <TrackEntry>[];
+      // Disco da coleção: nome, capa e faixas dele (a capa do usuário vale mais que a do reconhecimento)
+      final initialAlbum = owned?.album ?? cachedDisc?.album ?? officialAlbum ?? 'Album';
+      final initialCover = owned?.coverUrl ?? cachedDisc?.coverUrl ?? cachedCover;
+      final initialTracklist = (owned != null && owned.tracklist.isNotEmpty)
+          ? owned.tracklist
+          : (cachedDisc?.tracklist ?? const <TrackEntry>[]);
 
       if (soundtrack != null) {
         debugPrint('[WaxClubEngine] 📼 "${recognized.title}" está na trilha "${soundtrack.album}": disco assumido.');

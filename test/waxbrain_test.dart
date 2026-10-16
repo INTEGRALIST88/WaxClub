@@ -52,8 +52,11 @@ BrainService _service(int Function(http.Request) status, {BrainKeyStore? store})
 
 void main() {
   test('todos os 7 chips existem, grátis primeiro, nenhum encaixado de fábrica', () async {
-    expect(BrainChip.all.map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral', 'openai', 'anthropic', 'xai', 'deepseek']);
-    expect(BrainChip.all.where((c) => c.free).map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral']);
+    expect(BrainChip.all.map((c) => c.id),
+        ['gemini', 'groq', 'openrouter', 'mistral', 'cerebras', 'github', 'openai', 'anthropic', 'xai', 'deepseek']);
+    expect(BrainChip.all.where((c) => c.free).map((c) => c.id), ['gemini', 'groq', 'openrouter', 'mistral', 'cerebras', 'github']);
+    expect(BrainChip.detect('csk-${'a1' * 16}')!.chip.id, 'cerebras');
+    expect(BrainChip.detect('github_pat_${'A1b_' * 10}')!.chip.id, 'github');
     final brain = _service((_) => 200);
     await brain.load();
     expect(brain.plugged, isEmpty);
