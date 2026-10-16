@@ -58,6 +58,21 @@ class _FakeLyricsService extends LyricsProviderService {
   }
 }
 
+/// Prefetch com a letra da próxima faixa já pronta em memória (veio da LRCLIB).
+class _ReadyPrefetchService extends PrefetchService {
+  _ReadyPrefetchService({required super.cacheService, super.lyricsService});
+
+  @override
+  PrefetchedTrack? getPrefetched(String title, [String? artist]) => PrefetchedTrack(
+        title: title,
+        artist: artist,
+        lrc: '[00:01.00] Next line 1\n[00:05.00] Next line 2',
+        source: 'network',
+        lyricsSource: 'lrclib',
+        at: DateTime.now(),
+      );
+}
+
 /// Prefetch cuja resolução de capa só termina quando o teste mandar (simula rede lenta).
 class _SlowCoverPrefetchService extends PrefetchService {
   final Completer<AlbumResolutionResult?> pending = Completer();
@@ -111,6 +126,16 @@ void main() {
         castService: CastSyncService(),
         prefetchService: prefetchService,
       );
+
+  test('letra da próxima faixa vinda da memória já aparece: sabe de qual fonte veio (o painel a mostra)', () async {
+    final prefetch = _ReadyPrefetchService(cacheService: cacheService, lyricsService: lyricsService);
+    final engine = buildEngine(prefetchService: prefetch);
+    final shown = await engine.showPredictedTrackForTest(const TrackInfo(title: 'So Young', artist: 'Suede', offsetSeconds: 0));
+    expect(shown, isNotNull);
+    expect(engine.lyrics, isNotEmpty);
+    expect(engine.lyricsSource, 'lrclib', reason: 'sem a fonte, a letra só aparecia depois da confirmação pelo microfone');
+    engine.dispose();
+  });
 
   test('Bug 1: velocidade persistida do toca-discos sobrevive ao startListening', () async {
     await cacheService.saveTurntableSpeed(1.015);

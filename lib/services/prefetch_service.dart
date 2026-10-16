@@ -19,6 +19,10 @@ class PrefetchedTrack {
   final String? lrc;
   final double? durationSeconds;
   final String? source;
+
+  /// De qual fonte de letras veio ('lrclib', 'netease'...): sem ela, o painel não reconhece a letra como da
+  /// fonte ativa e a letra da próxima faixa só aparecia depois da confirmação pelo microfone.
+  final String? lyricsSource;
   final DateTime at;
 
   const PrefetchedTrack({
@@ -27,6 +31,7 @@ class PrefetchedTrack {
     this.lrc,
     this.durationSeconds,
     this.source,
+    this.lyricsSource,
     required this.at,
   });
 }
@@ -254,6 +259,7 @@ class PrefetchService {
             artist: artist,
             lrc: diskLrc,
             source: 'cache',
+            lyricsSource: _cacheService.getLyricsSource(trackTitle, artist),
             at: DateTime.now(),
           );
           onLyricsReady?.call(cand);
@@ -284,6 +290,7 @@ class PrefetchService {
             lrc: lrcDetails.syncedLyrics,
             durationSeconds: lrcDetails.durationSeconds,
             source: 'network',
+            lyricsSource: lrcDetails.source,
             at: DateTime.now(),
           );
 

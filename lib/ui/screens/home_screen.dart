@@ -125,7 +125,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final album = _engine.lockedAlbumName ?? track.album;
     final artist = _engine.lockedAlbumArtist ?? track.artist;
     if (album == null || album.isEmpty || album == 'Album') return false; // l10n-ignore
-    return !_collection.contains(album, artist);
+    if (_collection.contains(album, artist)) return false;
+    // Mesmo disco com outro nome do artista ("The London Suede" × "Suede")
+    final key = TracklistMatcher.normalize(album);
+    return !_collection.items().any(
+        (i) => TracklistMatcher.normalize(i.album) == key && OwnedRecordFinder.sameArtist(i.artist, artist));
   }
 
   /// Prensagens do Discogs (lista de faixas dos discos da coleção).

@@ -2,6 +2,13 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.51] — 16/10/2026 (Letra da Próxima na Hora)
+
+* **Correção — letra da próxima faixa:** no modo preditivo o app já mostrava a próxima faixa no fim da anterior, mas a letra dela (pronta em memória) ficava escondida até a confirmação pelo microfone: a letra da memória não dizia de qual fonte viera, e o painel só mostra letra da fonte ativa. Agora a letra entra junto com a faixa; a escuta só confirma e ajusta.
+* **Correção — "+" em disco da coleção:** o disco da coleção era travado com o nome do artista do reconhecimento ("The London Suede") e não batia com o da coleção ("Suede"). Agora trava com o nome da coleção, e o selo "+" também reconhece os outros nomes do artista.
+* Teste: letra da próxima vinda da memória já sabe a fonte.
+
+---
 ## [v1.4.50] — 16/10/2026 (Sem Disco "Album")
 
 * **Correção — a coleção primeiro de verdade:** o app guarda sozinho um "disco preferido" depois de reconhecer 3 faixas seguidas do mesmo disco; essa preferência automática passava na frente da coleção (o Suede tocado antes ficou preso à coletânea do reconhecimento). Ordem agora: 1) disco escolhido à mão pelo usuário; 2) disco de My Collection com a música; 3) disco aprendido sozinho; 4) o do reconhecimento.

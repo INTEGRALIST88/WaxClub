@@ -319,6 +319,10 @@ class WaxClubEngine extends ChangeNotifier {
     unawaited(_recordIntervalIfVinyl(prevTitle, prevStart, title, start));
   }
 
+  /// Teste: mostra uma faixa prevista (como na troca automática de faixa), sem começar a contar.
+  @visibleForTesting
+  Future<TrackInfo?> showPredictedTrackForTest(TrackInfo track) => _showPredictedTrack(track, _sessionId, startTicker: false);
+
   /// Teste: registra o intervalo entre duas faixas seguidas como se o microfone as tivesse ouvido.
   @visibleForTesting
   Future<void> recordIntervalForTest(String prevTitle, DateTime prevStart, String title, DateTime start) async {
@@ -1243,7 +1247,8 @@ class WaxClubEngine extends ChangeNotifier {
         _lockAlbum(
           albumName: initialAlbum,
           coverUrl: initialCover,
-          artist: recognized.artist,
+          // Disco da coleção: com o nome do artista como está na coleção ("Suede", não "The London Suede")
+          artist: owned?.artist ?? recognized.artist,
           tracklist: initialTracklist,
         );
         if (userPrefAlbum != null) {
@@ -1408,6 +1413,7 @@ class WaxClubEngine extends ChangeNotifier {
         durationSeconds: prefetched.durationSeconds,
         album: track.album,
         source: 'memory',
+        lyricsSource: prefetched.lyricsSource,
       );
     }
 
