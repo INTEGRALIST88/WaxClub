@@ -2,6 +2,15 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.43] — 16/10/2026 (Banco de Intervalos Só com Vinil)
+
+* **O banco de intervalos só aprende com disco de verdade:**
+  * **Celular tocando música** (Spotify, YouTube Music ou qualquer app do próprio aparelho): a medição não é gravada — o som não vem do disco.
+  * **Rotação perfeita demais:** toca-discos sempre oscila um pouco de faixa para faixa; quatro faixas seguidas cravadas em 1,000x (±0,04%) indicam fonte digital, e as medições da sessão deixam de ser gravadas.
+  * A mediana no servidor (últimas 15 medições, uma por pessoa por faixa por dia) isola o que escapar.
+* Testes: medição do disco gravada; celular tocando música não grava; rotação perfeita não grava; oscilação de toca-discos real não é confundida com digital.
+
+---
 ## [v1.4.42] — 15/10/2026 (Banco de Intervalos entre Faixas)
 
 * **A letra da próxima faixa entra na hora certa, sem esperar o microfone ouvir:** o app aprende o tempo de **início a início** de cada faixa até a seguinte do mesmo lado — com o silêncio do sulco, ou nenhum nas faixas emendadas.

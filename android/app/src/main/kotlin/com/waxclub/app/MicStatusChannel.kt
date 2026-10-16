@@ -20,7 +20,8 @@ object MicStatusChannel {
             val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val configs = am.activeRecordingConfigurations
             val silenced = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && configs.any { it.isClientSilenced }
-            mapOf("silenced" to silenced, "recordings" to configs.size, "sdk" to Build.VERSION.SDK_INT)
+            // musicActive: algum app do próprio celular está tocando música (Spotify, YouTube Music...)
+            mapOf("silenced" to silenced, "recordings" to configs.size, "sdk" to Build.VERSION.SDK_INT, "musicActive" to am.isMusicActive)
         } catch (e: Exception) {
             Log.w("WaxClub", "Mic status unavailable: ${e.message}")
             mapOf("silenced" to false, "recordings" to 0, "sdk" to Build.VERSION.SDK_INT)

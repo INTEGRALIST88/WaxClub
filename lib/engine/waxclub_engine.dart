@@ -307,6 +307,44 @@ class WaxClubEngine extends ChangeNotifier {
   /// Guarda no banco o intervalo entre o início de [prevTitle] e o de [title] (relógio), se forem faixas
   /// seguidas do mesmo lado do disco travado.
   void _recordInterval(String prevTitle, DateTime prevStart, String title, DateTime start) {
+    if (looksDigital) {
+      _logService.log('track_interval_skipped', {'reason': 'speed_too_perfect'});
+      return;
+    }
+    unawaited(_recordIntervalIfVinyl(prevTitle, prevStart, title, start));
+  }
+
+  /// Teste: registra o intervalo entre duas faixas seguidas como se o microfone as tivesse ouvido.
+  @visibleForTesting
+  Future<void> recordIntervalForTest(String prevTitle, DateTime prevStart, String title, DateTime start) async {
+    if (!looksDigital) await _recordIntervalIfVinyl(prevTitle, prevStart, title, start);
+  }
+
+  /// Teste: rotação medida de uma faixa (como no fim de cada faixa).
+  @visibleForTesting
+  void addTrackSpeedForTest(double speed) => _sessionTrackSpeeds.add(speed);
+
+  /// Rotação de cada faixa já medida nesta sessão (para notar uma fonte digital).
+  final List<double> _sessionTrackSpeeds = [];
+
+  /// Rotação perfeita demais em várias faixas seguidas (toca-discos sempre oscila um pouco): provavelmente
+  /// o som vem de streaming/CD, não do disco — as medições de intervalo não vão para o banco.
+  bool get looksDigital {
+    if (_sessionTrackSpeeds.length < 4) return false;
+    final recent = _sessionTrackSpeeds.sublist(_sessionTrackSpeeds.length - 4);
+    final lo = recent.reduce(math.min);
+    final hi = recent.reduce(math.max);
+    return recent.every((s) => (s - 1.0).abs() < 0.0004) && hi - lo < 0.0003;
+  }
+
+  Future<void> _recordIntervalIfVinyl(String prevTitle, DateTime prevStart, String title, DateTime start) async {
+    // Música tocando no próprio celular (Spotify, YouTube Music...): não é o disco
+    final mic = await _micBusyService.check();
+    if (mic?.phonePlaying == true) {
+      debugPrint('[TrackTiming] Medição ignorada: o celular está tocando música (não é o disco).');
+      _logService.log('track_interval_skipped', {'reason': 'phone_playing'});
+      return;
+    }
     final timing = trackTiming;
     final album = _lockedAlbumName;
     final artist = _lockedAlbumArtist;
@@ -813,6 +851,7 @@ class WaxClubEngine extends ChangeNotifier {
     _trackFit.clear();
     if (estimate == null || _isPitchLocked) return;
     _turntable.addTrackEstimate(estimate);
+    _sessionTrackSpeeds.add(estimate.speed);
     _cacheService.saveTurntableSpeed(_turntable.mean, stdDev: _turntable.stdDev);
     debugPrint('[WaxClubEngine] 💾 Rotação da faixa $estimate incorporada: toca-discos ${_turntable.mean.toStringAsFixed(4)}x ±${(_turntable.stdDev * 100).toStringAsFixed(2)}%');
     _logService.log('turntable_speed_updated', {
@@ -987,6 +1026,7 @@ class WaxClubEngine extends ChangeNotifier {
     _resetState();
     _sessionHistory.clear();
     _lastHeardStart = null;
+    _sessionTrackSpeeds.clear();
     _sessionConfirmedTitles.clear();
     _consecutiveConfirmationsOnAlbum = 0;
     _currentAlbumBeingConfirmed = null;
@@ -3714,6 +3754,7 @@ class WaxClubEngine extends ChangeNotifier {
     _prefetchService.clearSession();
     _sessionHistory.clear();
     _lastHeardStart = null;
+    _sessionTrackSpeeds.clear();
     _sessionConfirmedTitles.clear();
     _currentTrack = null;
     _lyrics = [];

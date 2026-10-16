@@ -9,7 +9,10 @@ class MicStatus {
   /// Capturas ativas no aparelho, incluindo a do WaxClub.
   final int recordings;
 
-  const MicStatus({required this.silenced, required this.recordings});
+  /// Algum app do próprio celular está tocando música (Spotify, YouTube Music...): o som não vem do disco.
+  final bool phonePlaying;
+
+  const MicStatus({required this.silenced, required this.recordings, this.phonePlaying = false});
 
   /// Outros apps gravando ao mesmo tempo que o WaxClub.
   int get otherRecordings => recordings > 1 ? recordings - 1 : 0;
@@ -40,6 +43,7 @@ class MicBusyService {
       return MicStatus(
         silenced: r['silenced'] == true,
         recordings: (r['recordings'] as num?)?.toInt() ?? 0,
+        phonePlaying: r['musicActive'] == true,
       );
     } on MissingPluginException {
       return null;
