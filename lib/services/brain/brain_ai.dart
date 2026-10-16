@@ -14,21 +14,32 @@ class BrainAiException implements Exception {
 }
 
 /// Executor de IA do WaxClub: os plugins de IA não têm código, só um pedido (prompt); este executor o
-/// envia ao primeiro chip pronto do WaxBrain e, se o chip estiver no limite, recusar a chave ou não
-/// responder, passa ao próximo. Sempre com a moldura de regras do app, que o plugin não consegue tirar.
+/// envia a um chip do WaxBrain, sempre com a moldura de regras do app, que o plugin não consegue tirar.
+///
+/// Divisão do trabalho: cada chip atende um pedido por vez. Com mais de um chip encaixado, pedidos ao mesmo
+/// tempo (tradutor A2 e Imagined Music A3, por exemplo) vão para chips diferentes, na ordem de prioridade.
+/// Se um chip estiver no limite ("muitos pedidos"), sobrecarregado ou fora do ar, ele descansa um pouco e o
+/// pedido passa para o próximo; com um chip só, espera e tenta de novo. Modelo aposentado pelo provedor: o
+/// app consulta a lista de modelos dele e troca sozinho.
 class BrainAi {
   final BrainService brain;
   final http.Client _client;
 
-  BrainAi({required this.brain, http.Client? client, this.retryWait = const Duration(seconds: 12)})
+  BrainAi({required this.brain, http.Client? client, this.retryWait = const Duration(seconds: 15)})
       : _client = client ?? http.Client();
 
-  /// Espera antes de tentar de novo o mesmo chip depois de "muitos pedidos" (429).
+  /// Descanso de um chip depois de limite/sobrecarga (quando o provedor não diz quanto esperar).
   final Duration retryWait;
 
-  // Um pedido por vez: o tradutor (A2) e o Imagined Music (A3) dividem o mesmo chip grátis, e pedidos
-  // simultâneos estouram o limite por minuto
-  Future<void> _queue = Future<void>.value();
+  /// Tentativas por chip em um mesmo pedido (limite, sobrecarga, modelo trocado).
+  static const int triesPerChip = 3;
+
+  /// Tempo máximo esperando um chip livre antes de desistir do pedido.
+  static const Duration maxWait = Duration(seconds: 150);
+
+  final Set<String> _busy = {};
+  final Map<String, DateTime> _restUntil = {};
+  final List<Completer<void>> _waiting = [];
 
   /// Regras do app em todo pedido de plugin.
   static const String appRules =
@@ -36,55 +47,101 @@ class BrainAi {
       'Never produce hateful, sexual, violent or otherwise harmful content beyond what the source text itself contains. '
       'Do not add facts you are not sure about. Answer only with what the task asks for, with no preamble.';
 
-  /// Envia o pedido ([system] + [user]) e devolve o texto da resposta.
-  Future<String> complete({required String system, required String user, int maxTokens = 2048}) {
-    final run = _queue.then((_) => _complete(system: system, user: user, maxTokens: maxTokens));
-    _queue = run.then((_) {}, onError: (_) {});
-    return run;
+  /// Chips em uso agora (para testes e diagnóstico).
+  Set<String> get busyChips => Set.unmodifiable(_busy);
+
+  void _wake() {
+    for (final c in List.of(_waiting)) {
+      if (!c.isCompleted) c.complete();
+    }
+    _waiting.clear();
   }
 
-  Future<String> _complete({required String system, required String user, required int maxTokens}) async {
+  /// Envia o pedido ([system] + [user]) e devolve o texto da resposta.
+  Future<String> complete({required String system, required String user, int maxTokens = 2048}) async {
     await brain.load();
-    final candidates = [
-      for (final p in brain.plugged)
-        if (p.status != BrainKeyStatus.invalid && p.chip != null) p,
-    ];
-    if (candidates.isEmpty) throw const BrainAiException('no_chip');
-    for (final p in candidates) {
+    final tries = <String, int>{};
+    final given = <String>{}; // chips que já não servem para este pedido
+    final deadline = DateTime.now().add(maxWait);
+    var anyCandidate = false;
+    while (true) {
+      final candidates = [
+        for (final p in brain.plugged)
+          if (p.status != BrainKeyStatus.invalid && p.chip != null && !given.contains(p.id)) p,
+      ];
+      if (candidates.isEmpty) throw BrainAiException(anyCandidate ? 'all_failed' : 'no_chip');
+      anyCandidate = true;
+      final now = DateTime.now();
+      bool resting(PluggedChip p) => _restUntil[p.id]?.isAfter(now) ?? false;
+      final free = candidates.where((p) => !_busy.contains(p.id) && !resting(p)).toList();
+      if (free.isEmpty) {
+        if (now.isAfter(deadline)) throw const BrainAiException('all_failed');
+        // Todos ocupados ou descansando: espera um liberar (ou o descanso mais curto acabar)
+        final restEnds = [for (final p in candidates) if (resting(p)) _restUntil[p.id]!];
+        restEnds.sort();
+        final wait = restEnds.isEmpty ? const Duration(seconds: 5) : restEnds.first.difference(now);
+        final c = Completer<void>();
+        _waiting.add(c);
+        await Future.any([c.future, Future<void>.delayed(wait.isNegative ? Duration.zero : wait)]);
+        _waiting.remove(c);
+        continue;
+      }
+      final p = free.first;
       final chip = p.chip!;
+      _busy.add(p.id);
       try {
-        var res = await _send(chip, p.key, '$appRules\n\n$system', user, maxTokens);
-        // Limite por minuto: espera um pouco e tenta de novo o mesmo chip antes de desistir dele
-        for (var retry = 0; res.statusCode == 429 && retry < 2; retry++) {
-          final after = int.tryParse(res.headers['retry-after'] ?? '');
-          await Future<void>.delayed(after != null && after <= 60 ? Duration(seconds: after) : retryWait);
-          res = await _send(chip, p.key, '$appRules\n\n$system', user, maxTokens);
-        }
+        final res = await _send(chip, p.key, p.modelInUse, '$appRules\n\n$system', user, maxTokens);
         if (res.statusCode >= 200 && res.statusCode < 300) {
           final text = extractText(chip.api, jsonDecode(utf8.decode(res.bodyBytes)));
-          if (text != null && text.trim().isNotEmpty) return text.trim();
+          if (text != null && text.trim().isNotEmpty) {
+            _restUntil.remove(p.id);
+            if (p.status != BrainKeyStatus.ok) unawaited(brain.markStatus(p.id, BrainKeyStatus.ok));
+            return text.trim();
+          }
+          given.add(p.id); // resposta vazia (ex.: bloqueio de conteúdo): outro chip
           continue;
         }
-        final status = BrainService.statusForHttp(res.statusCode);
-        debugPrint('[BrainAi] ${chip.id} respondeu ${res.statusCode}; tentando o próximo chip.');
-        // Só 401/403 dizem que a chave foi recusada; 400 pode ser só este pedido (não desliga o chip)
-        if (status == BrainKeyStatus.limit || res.statusCode == 401 || res.statusCode == 403) {
-          await brain.markStatus(chip.id, status);
+        final code = res.statusCode;
+        final n = tries[p.id] = (tries[p.id] ?? 0) + 1;
+        debugPrint('[BrainAi] ${chip.id} (${p.modelInUse}) respondeu $code (tentativa $n).');
+        if (code == 401 || code == 403) {
+          await brain.markStatus(p.id, BrainKeyStatus.invalid); // chave recusada
+          given.add(p.id);
+        } else if (code == 404) {
+          // Modelo aposentado/inexistente: escolhe outro pela lista do provedor e tenta de novo
+          final before = p.modelInUse;
+          final now2 = await brain.refreshModel(p.id);
+          if (now2 == null || now2 == before || n >= triesPerChip) given.add(p.id);
+        } else if (code == 429 || code == 402 || code >= 500) {
+          // Limite ou sobrecarga: o chip descansa e o pedido vai para o próximo (ou espera, se for o único)
+          final after = int.tryParse(res.headers['retry-after'] ?? '');
+          _restUntil[p.id] = DateTime.now().add(after != null && after <= 90 ? Duration(seconds: after) : retryWait);
+          if (n >= triesPerChip) {
+            if (code == 429 || code == 402) unawaited(brain.markStatus(p.id, BrainKeyStatus.limit));
+            given.add(p.id);
+          }
+        } else {
+          given.add(p.id); // 400 e afins: este pedido não serve para este chip (a chave continua valendo)
         }
       } catch (e) {
-        debugPrint('[BrainAi] ${chip.id} sem resposta ($e); tentando o próximo chip.');
+        debugPrint('[BrainAi] ${chip.id} sem resposta ($e).');
+        final n = tries[p.id] = (tries[p.id] ?? 0) + 1;
+        _restUntil[p.id] = DateTime.now().add(retryWait);
+        if (n >= triesPerChip) given.add(p.id);
+      } finally {
+        _busy.remove(p.id);
+        _wake();
       }
     }
-    throw const BrainAiException('all_failed');
   }
 
-  Future<http.Response> _send(BrainChip chip, String key, String system, String user, int maxTokens) {
+  Future<http.Response> _send(BrainChip chip, String key, String model, String system, String user, int maxTokens) {
     const timeout = Duration(seconds: 60);
     switch (chip.api) {
       case BrainApi.gemini:
         return _client
             .post(
-              Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/${chip.model}:generateContent?key=$key'),
+              Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key'),
               headers: {'Content-Type': 'application/json'},
               body: jsonEncode({
                 'systemInstruction': {
@@ -110,7 +167,7 @@ class BrainAi {
               Uri.parse('https://api.anthropic.com/v1/messages'),
               headers: {'Content-Type': 'application/json', ...chip.checkHeaders(key)},
               body: jsonEncode({
-                'model': chip.model,
+                'model': model,
                 'max_tokens': maxTokens,
                 'system': system,
                 'messages': [
@@ -125,7 +182,7 @@ class BrainAi {
               Uri.parse('${chip.chatBase}/chat/completions'),
               headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $key'},
               body: jsonEncode({
-                'model': chip.model,
+                'model': model,
                 'temperature': 0.3,
                 'max_tokens': maxTokens,
                 'messages': [

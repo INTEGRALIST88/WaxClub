@@ -73,7 +73,7 @@ void main() {
       expect(system, endsWith('Translate.'));
     });
 
-    test('chip no limite (429): marca o chip e passa ao próximo', () async {
+    test('chip no limite (429): descansa e o pedido passa ao próximo (não é marcado por uma recusa só)', () async {
       final client = MockClient((req) async {
         if (req.url.host.contains('googleapis')) return http.Response('{}', 429);
         return _openAiReply('from groq');
@@ -81,7 +81,7 @@ void main() {
       final brain = await _brainWith([('gemini', _gemini), ('groq', _groq)], client);
       final ai = BrainAi(brain: brain, client: client);
       expect(await ai.complete(system: 's', user: 'u'), 'from groq');
-      expect(brain.plugged.first.status, BrainKeyStatus.limit);
+      expect(brain.plugged.first.status, BrainKeyStatus.ok, reason: 'limite por minuto é passageiro');
     });
 
     test('resposta de cada formato de API', () {

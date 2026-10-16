@@ -102,7 +102,7 @@ class BrainChip {
     BrainChip(
       id: 'groq',
       api: BrainApi.openAiCompatible,
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b', // Llama 3.3 saiu do Groq em ago/2026; o app confere a lista e troca sozinho
       chatBase: 'https://api.groq.com/openai/v1',
       name: 'Groq',
       vendor: 'GroqCloud',
@@ -116,7 +116,7 @@ class BrainChip {
     BrainChip(
       id: 'openrouter',
       api: BrainApi.openAiCompatible,
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      model: 'google/gemma-4-31b-it:free', // os grátis do OpenRouter mudam; o app escolhe pela lista dele
       chatBase: 'https://openrouter.ai/api/v1',
       name: 'OpenRouter',
       vendor: 'OpenRouter',

@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.45] — 16/10/2026 (WaxBrain Divide o Trabalho)
+
+* **Correção do A2 (e do A3):** os registros do Samsung mostraram o Gemini sobrecarregado (503) e o Groq e o OpenRouter respondendo "modelo não existe" (404) — os provedores aposentaram os modelos que o app usava (Llama 3.3, ago/2026). Agora:
+  * **o app descobre os modelos sozinho:** consulta a lista de modelos de cada provedor ao encaixar o chip, ao abrir o app e quando um modelo some (404), e escolhe o melhor disponível (no OpenRouter, só os grátis); o modelo escolhido fica guardado;
+  * **sobrecarga (5xx) e limite (429):** o chip descansa ~15 s (ou o tempo que o provedor pedir) e o pedido passa para o próximo; com um chip só, espera e tenta de novo (até 3 vezes); só recusas seguidas marcam o chip como "no limite".
+* **Divisão do trabalho entre as IAs:** cada chip atende um pedido por vez; com mais de um chip, pedidos ao mesmo tempo (tradutor A2 e Imagined Music A3) vão para chips diferentes, pela ordem de prioridade do WaxBrain. Se a cota de um acaba, o próximo assume.
+* Padrões atualizados: Groq `openai/gpt-oss-120b`; OpenRouter escolhido pela lista de grátis.
+* **WaxClubClient (Fire TV) v0.2.1:** receptor atualizado (Imagined Music com tomadas, frases sincronizadas, fonte nova).
+* Testes: dois chips trabalhando ao mesmo tempo, 503 passando ao próximo chip, 404 trocando de modelo pela lista do provedor (e guardando), 429 passageiro não marca o chip.
+
+---
 ## [v1.4.44] — 16/10/2026 (Balão do Liga/Desliga e Coleção em Ordem)
 
 * **Balão discreto ao ligar/desligar um plugin** na linha da tela principal: "A2 · AI translator on" / "… off", com a luz da categoria, logo abaixo da linha; some sozinho em ~1,5 s.

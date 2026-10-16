@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'brain_chips.dart';
+import 'brain_models.dart';
 
 /// Um chip encaixado no WaxBrain (a chave fica só no cofre do celular e, criptografada, na conta).
 class PluggedChip {
@@ -12,19 +13,31 @@ class PluggedChip {
   final BrainKeyStatus status;
   final DateTime? checkedAt;
 
-  const PluggedChip({required this.id, required this.key, this.status = BrainKeyStatus.ok, this.checkedAt});
+  /// Modelo escolhido pela lista do provedor (nulo: o padrão do chip).
+  final String? model;
+
+  const PluggedChip({required this.id, required this.key, this.status = BrainKeyStatus.ok, this.checkedAt, this.model});
+
+  /// Modelo usado nos pedidos.
+  String get modelInUse => model ?? chip?.model ?? '';
 
   BrainChip? get chip => BrainChip.byId(id);
   String get hint => BrainChip.hintOf(key);
 
-  PluggedChip copyWith({BrainKeyStatus? status, DateTime? checkedAt}) =>
-      PluggedChip(id: id, key: key, status: status ?? this.status, checkedAt: checkedAt ?? this.checkedAt);
+  PluggedChip copyWith({BrainKeyStatus? status, DateTime? checkedAt, String? model}) => PluggedChip(
+        id: id,
+        key: key,
+        status: status ?? this.status,
+        checkedAt: checkedAt ?? this.checkedAt,
+        model: model ?? this.model,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'key': key,
         'status': status.name,
         if (checkedAt != null) 'checkedAt': checkedAt!.toIso8601String(),
+        if (model != null) 'model': model,
       };
 
   factory PluggedChip.fromJson(Map<String, dynamic> j) => PluggedChip(
@@ -32,6 +45,7 @@ class PluggedChip {
         key: j['key'] as String,
         status: BrainKeyStatus.parse(j['status'] as String?),
         checkedAt: DateTime.tryParse(j['checkedAt'] as String? ?? ''),
+        model: j['model'] as String?,
       );
 }
 
@@ -211,6 +225,7 @@ class BrainService extends ChangeNotifier {
     notifyListeners();
     final position = _plugged.indexWhere((p) => p.id == chip.id);
     unawaited(_remoteDo((r) => r.put(chip.id, k, position, status)));
+    if (status == BrainKeyStatus.ok) unawaited(refreshModel(chip.id));
     return status;
   }
 
@@ -245,15 +260,46 @@ class BrainService extends ChangeNotifier {
     return status;
   }
 
+  /// Confere a lista de modelos do provedor e escolhe o melhor disponível para o chip (o atual fica se ainda
+  /// existir). Devolve o modelo, ou nulo se a lista não vier.
+  Future<String?> refreshModel(String id) async {
+    final i = _plugged.indexWhere((p) => p.id == id);
+    final chip = BrainChip.byId(id);
+    if (i < 0 || chip == null) return null;
+    final p = _plugged[i];
+    try {
+      final res = await _client
+          .get(BrainModels.listUrl(chip, p.key), headers: {'Accept': 'application/json', ...chip.checkHeaders(p.key)})
+          .timeout(const Duration(seconds: 15));
+      if (res.statusCode < 200 || res.statusCode >= 300) return null;
+      final picked = BrainModels.pick(chip, BrainModels.parse(chip, utf8.decode(res.bodyBytes)), current: p.model);
+      if (picked == null) return null;
+      if (picked != p.modelInUse) debugPrint('[WaxBrain] ${chip.id}: modelo ${p.modelInUse} → $picked');
+      final j = _plugged.indexWhere((q) => q.id == id);
+      if (j >= 0 && _plugged[j].model != picked) {
+        _plugged[j] = _plugged[j].copyWith(model: picked);
+        await _save();
+        notifyListeners();
+      }
+      return picked;
+    } catch (e) {
+      debugPrint('[WaxBrain] Lista de modelos de ${chip.id} indisponível: $e');
+      return null;
+    }
+  }
+
   /// Ao abrir o app: testa de novo os chips marcados como recusados ou no limite há mais de [age] — um limite
   /// por minuto, ou um erro de um pedido só, não deve deixar o chip desligado para sempre.
   Future<void> recheckStale({Duration age = const Duration(minutes: 30)}) async {
     await load();
     for (final p in List.of(_plugged)) {
-      if (p.status == BrainKeyStatus.ok) continue;
-      final at = p.checkedAt;
-      if (at != null && DateTime.now().difference(at) < age) continue;
-      await recheck(p.id);
+      if (p.status != BrainKeyStatus.ok) {
+        final at = p.checkedAt;
+        if (at != null && DateTime.now().difference(at) < age) continue;
+        await recheck(p.id);
+      }
+      // modelo ainda existe no provedor? (eles aposentam modelos sem aviso)
+      if (BrainChip.byId(p.id) != null) await refreshModel(p.id);
     }
   }
 
