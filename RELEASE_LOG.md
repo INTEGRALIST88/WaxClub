@@ -4,6 +4,7 @@ Este arquivo documenta o histórico oficial de versões, datas e melhorias imple
 
 ## [v1.4.50] — 16/10/2026 (Sem Disco "Album")
 
+* **Correção — a coleção primeiro de verdade:** o app guarda sozinho um "disco preferido" depois de reconhecer 3 faixas seguidas do mesmo disco; essa preferência automática passava na frente da coleção (o Suede tocado antes ficou preso à coletânea do reconhecimento). Ordem agora: 1) disco escolhido à mão pelo usuário; 2) disco de My Collection com a música; 3) disco aprendido sozinho; 4) o do reconhecimento.
 * **Correção:** quando nem o reconhecimento nem o catálogo diziam o disco, o app travava um disco provisório chamado "Album" (visto com "Animal Nitrate" do Suede). Agora esse nome provisório não trava nada.
 * Teste do caso real: "Animal Nitrate" de "The London Suede" acha o disco da coleção "The Best Of Suede. Beautiful Ones" (importado do Discogs, lista de faixas buscada na prensagem).
 

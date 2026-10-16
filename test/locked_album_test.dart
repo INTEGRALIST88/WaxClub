@@ -11,6 +11,7 @@ import 'package:waxclub/services/lyrics_provider_service.dart';
 import 'package:waxclub/services/session_log_service.dart';
 import 'package:waxclub/services/shazam_service.dart';
 import 'package:waxclub/services/vinyl_cache_service.dart';
+import 'package:waxclub/services/owned_record_finder.dart';
 
 class FakeAudioRecordService extends AudioRecordService {
   @override
@@ -88,6 +89,54 @@ void main() {
         tempDir.deleteSync(recursive: true);
       }
     } catch (_) {}
+  });
+
+  test('a coleção vence o disco aprendido sozinho (mas não o escolhido à mão pelo usuário)', () async {
+    // O app tinha aprendido sozinho a coletânea do reconhecimento como disco preferido destas músicas
+    await cacheService.setPreferredAlbum('Animal Nitrate', 'The London Suede', 'Beautiful Ones: The Best of the London Suede');
+    final engine = WaxClubEngine(
+      recordService: recordService,
+      shazamService: shazamService,
+      lyricsService: lyricsService,
+      cacheService: cacheService,
+      logService: logService,
+      castService: CastSyncService(),
+    );
+    engine.ownedRecordFinder = (title, artist, album) async => const OwnedRecord(
+          album: 'The Best Of Suede. Beautiful Ones',
+          artist: 'Suede',
+          coverUrl: 'https://my/suede.jpg',
+          tracklist: [
+            TrackEntry(position: 1, title: 'The Drowners', side: 'A'),
+            TrackEntry(position: 2, title: 'Animal Nitrate', side: 'A'),
+          ],
+        );
+    shazamService.nextResult = const TrackInfo(
+      title: 'Animal Nitrate',
+      artist: 'The London Suede',
+      album: 'Beautiful Ones: The Best of the London Suede 1992-2018',
+      offsetSeconds: 25.0,
+      durationMs: 206000,
+    );
+    await engine.startListening();
+    expect(engine.lockedAlbumName, 'The Best Of Suede. Beautiful Ones', reason: 'o disco da coleção, não o aprendido');
+    expect(engine.lockedAlbumCoverUrl, 'https://my/suede.jpg');
+    expect(engine.lockedTracklist.length, 2);
+    engine.dispose();
+
+    // Escolhido à mão pelo usuário ("Change record"): esse vale mais que a coleção
+    await cacheService.setPreferredAlbum('Animal Nitrate', 'The London Suede', 'Coming Up', source: 'user');
+    final engine2 = WaxClubEngine(
+      recordService: recordService,
+      shazamService: shazamService,
+      lyricsService: lyricsService,
+      cacheService: cacheService,
+      logService: logService,
+      castService: CastSyncService(),
+    )..ownedRecordFinder = (title, artist, album) async => const OwnedRecord(album: 'The Best Of Suede. Beautiful Ones', artist: 'Suede');
+    await engine2.startListening();
+    expect(engine2.lockedAlbumName, 'Coming Up');
+    engine2.dispose();
   });
 
   test('Disco travado retém nome do álbum e capa física mesmo se Shazam retornar dados diferentes', () async {

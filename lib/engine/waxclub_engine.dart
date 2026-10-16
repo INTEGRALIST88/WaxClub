@@ -1166,12 +1166,14 @@ class WaxClubEngine extends ChangeNotifier {
         isMicActive: false,
       );
 
-      // Verifica primeiro o álbum preferencial do usuário para esta música
-      final userPrefAlbum = _cacheService.getPreferredAlbum(recognized.title, recognized.artist);
-      // Depois, a coleção: um disco de My Collection com esta música vale mais que o sugerido pelo reconhecimento
+      // Ordem: 1) disco escolhido à mão pelo usuário para esta música; 2) disco de My Collection com a música;
+      // 3) disco aprendido sozinho pelo app (3 faixas seguidas do mesmo disco); 4) o do reconhecimento.
+      final savedPref = _cacheService.getPreferredAlbum(recognized.title, recognized.artist);
+      final prefByUser = savedPref != null &&
+          _cacheService.getPreferredAlbumSource(recognized.title, recognized.artist) == 'user'; // l10n-ignore
       OwnedRecord? owned;
       final finder = ownedRecordFinder;
-      if (userPrefAlbum == null && finder != null) {
+      if (!prefByUser && finder != null) {
         try {
           owned = await finder(recognized.title, recognized.artist, recognized.album).timeout(const Duration(seconds: 10));
         } catch (e) {
@@ -1181,8 +1183,12 @@ class WaxClubEngine extends ChangeNotifier {
         if (owned != null) {
           debugPrint('[WaxClubEngine] 📀 "${recognized.title}" está no disco da coleção "${owned.album}": capa, faixas e letra dele.');
           _logService.log('owned_record', {'track': recognized.title, 'album': owned.album});
+        } else {
+          debugPrint('[WaxClubEngine] 📀 "${recognized.title}" não está em nenhum disco da coleção.');
         }
       }
+      // A preferência aprendida sozinha só vale sem disco da coleção
+      final userPrefAlbum = owned == null ? savedPref : (prefByUser ? savedPref : null);
       // Trilha de novela: disco padrão quando nenhum disco preferido (nem da coleção) foi definido para a música
       final soundtrack =
           userPrefAlbum == null && owned == null ? _soundtracks.findFor(recognized.title, recognized.artist) : null;
