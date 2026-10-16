@@ -2,6 +2,17 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.36] — 15/10/2026 (Menu ☰ e Barras Menores)
+
+* **Celular em pé — menu ☰:** botão de madeira com três barras cromadas no canto esquerdo da barra de cima, alinhado ao topo da capa (a capa foi um pouco para a direita). Tocar abre um balão de nogueira com os botões um abaixo do outro, menores, com o nome na frente — Profile, Identify, Manual (com ON/OFF), WaxBrain, My Collection, Plugins e Help —, que entram em sequência. Tocar num item abre a função; tocar fora fecha. A fileira de botões saiu da barra, que ficou ~50 px mais baixa. Na primeira abertura, o nome aparece só no ☰.
+* **Celular deitado:** sem mudança (botões na barra).
+* **Painel de plugins:** o **A2 (tradutor)** e o **A3 (Imagined Music)** entram na mesma linha, depois das fontes de letra, quando instalados; tocar liga/desliga e arrastar ordena, como os outros.
+* **Barra de baixo menor:** microfone de 62 para 48 px e menos espaço em volta (~25 px a menos em pé).
+* **Receptor da TV:** modo leve para TVs fracas (Fire TV Stick), ligado só pelo app do Fire TV (`?lite=1`): disco girando mais devagar (3,6 s por volta) sem engasgos, sem desfoque de fundo, letras destacadas por opacidade, Imagined Music só com esmaecer. Em todas as TVs, o relógio e os textos só são redesenhados quando mudam.
+* **WaxClubClient (Fire TV) v0.2.0:** receptor atualizado (tradução, curiosidades e Imagined Music agora chegam à TV — antes eram descartados), modo leve, aceleração de hardware sem fundos extras e recuperação se o sistema fechar o navegador interno.
+* Testes: menu ☰ (itens um abaixo do outro, ON/OFF do Manual, fecha ao tocar fora), ☰ alinhado ao topo da capa, A2/A3 no painel só quando instalados.
+
+---
 ## [v1.4.35] — 15/10/2026 (A3 — Imagined Music, pelo Site)
 
 * **Plugin A3 "Imagined Music"** — instalado **pelo site** (nada pré-instalado). Um agente visual (chip do WaxBrain) lê a letra inteira e monta o roteiro da música: 8 a 16 cenas que seguem os versos, cada uma com busca de foto, busca de obra de arte, sentimento, paleta, movimento e transição, e frases de destaque.
