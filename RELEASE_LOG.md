@@ -2,6 +2,11 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.37] — 15/10/2026 (Botões de Madeira Recortados)
+
+* **Botões de madeira e logo recortados de novo:** sem as partes claras (resto do fundo branco) nas bordas e sem a sombra cinza que sobrava no canto de baixo; cantos redondos lisos, com antisserrilhado e um contorno escuro sutil de madeira entalhada. Vale para todos os botões (menu ☰, Profile, Identify, Manual, WaxBrain, My Collection, Plugins, Help, adicionar, nuvem) e para o logo do canto e da tela inicial.
+
+---
 ## [v1.4.36] — 15/10/2026 (Menu ☰ e Barras Menores)
 
 * **Celular em pé — menu ☰:** botão de madeira com três barras cromadas no canto esquerdo da barra de cima, alinhado ao topo da capa (a capa foi um pouco para a direita). Tocar abre um balão de nogueira com os botões um abaixo do outro, menores, com o nome na frente — Profile, Identify, Manual (com ON/OFF), WaxBrain, My Collection, Plugins e Help —, que entram em sequência. Tocar num item abre a função; tocar fora fecha. A fileira de botões saiu da barra, que ficou ~50 px mais baixa. Na primeira abertura, o nome aparece só no ☰.
