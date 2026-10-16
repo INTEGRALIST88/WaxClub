@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'artist_names.dart';
 import 'local_lyrics_library.dart';
 import 'lrclib_service.dart';
 
@@ -133,6 +134,31 @@ class LyricsProviderService {
       } catch (e) {
         lastAttempts[engine] = LyricsAttempt.notFound;
         debugPrint('[LyricsCascade] ⚠️ Falha em "$engine": $e');
+      }
+    }
+
+    // Nada com o nome reconhecido: tenta os outros nomes do artista ("The London Suede" → "Suede",
+    // "Bob Marley & The Wailers" → "Bob Marley"...), nas mesmas fontes e na mesma ordem
+    for (final alt in ArtistNames.variants(artistName)) {
+      for (final engine in order) {
+        if (engine == 'local') continue;
+        try {
+          debugPrint('[LyricsCascade] 🔁 Outro nome do artista: "$engine" para "$trackName" - "$alt"...');
+          final r = await _trySource(
+            engine,
+            trackName: trackName,
+            artistName: alt,
+            albumName: albumName,
+            durationSeconds: durationSeconds,
+          );
+          final ok = judge(engine, r);
+          if (ok != null) {
+            debugPrint('[LyricsCascade] ✅ Letra de "$engine" com o nome "$alt".');
+            return ok;
+          }
+        } catch (e) {
+          debugPrint('[LyricsCascade] ⚠️ Falha em "$engine" ("$alt"): $e');
+        }
       }
     }
 

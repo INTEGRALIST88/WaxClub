@@ -76,12 +76,22 @@ class LrcLibService {
 
       // A rota exata falhou OU só trouxe texto simples (ex.: a versão de um álbum sem LRC, enquanto outra
       // edição da mesma música tem LRC sincronizado): tenta a busca ampla antes de desistir do sincronizado.
-      final searched = await _fallbackSearchDetails(
+      var searched = await _fallbackSearchDetails(
         trackName: trackName,
         artistName: artistName,
         durationSeconds: durationSeconds?.toDouble() ?? exact?.durationSeconds,
       );
       if (searched != null && _hasText(searched.syncedLyrics)) return searched;
+      // Pelo título só (sem filtrar o artista na busca): acha a música guardada com outro nome do artista
+      // ("Suede" × "The London Suede"); o resultado ainda precisa ter artista compatível e duração parecida
+      final byTitle = await _fallbackSearchDetails(
+        trackName: trackName,
+        artistName: artistName,
+        durationSeconds: durationSeconds?.toDouble() ?? exact?.durationSeconds,
+        titleOnly: true,
+      );
+      if (byTitle != null && _hasText(byTitle.syncedLyrics)) return byTitle;
+      searched ??= byTitle;
 
       // Sem versão sincronizada em lugar nenhum: devolve o texto simples encontrado (sem marcar como LRC)
       final plain = _hasText(exact?.plainLyrics) ? exact : searched;
@@ -132,6 +142,7 @@ class LrcLibService {
     required String trackName,
     required String artistName,
     double? durationSeconds,
+    bool titleOnly = false,
   }) async {
     try {
       final cleanTrack = _cleanSearchTerm(trackName);
@@ -139,7 +150,7 @@ class LrcLibService {
 
       final uri = Uri.parse('$_baseUrl/search').replace(queryParameters: {
         'track_name': cleanTrack,
-        'artist_name': cleanArtist,
+        if (!titleOnly) 'artist_name': cleanArtist,
       });
       final response = await _client.get(uri, headers: {
         'User-Agent': 'WaxClub/1.0 (https://github.com/waxclub)',
@@ -153,9 +164,13 @@ class LrcLibService {
         if (item is! Map<String, dynamic>) continue;
         final title = item['trackName'] as String? ?? '';
         final artist = item['artistName'] as String? ?? '';
-        if (TracklistMatcher.isSameTitle(title, trackName) && TracklistMatcher.isSameArtist(artist, artistName)) {
-          matching.add(item);
+        if (!TracklistMatcher.isSameTitle(title, trackName) || !TracklistMatcher.isSameArtist(artist, artistName)) continue;
+        // Busca só pelo título: exige também a duração parecida (evita outra gravação com nome parecido)
+        if (titleOnly && durationSeconds != null) {
+          final dur = (item['duration'] as num?)?.toDouble();
+          if (dur == null || (dur - durationSeconds).abs() > 6) continue;
         }
+        matching.add(item);
       }
       if (matching.isEmpty) return null;
 

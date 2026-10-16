@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/track_entry.dart';
+import 'artist_names.dart';
 import 'collection_grouping.dart';
 import 'collection_service.dart';
 import 'tracklist_matcher.dart';
@@ -33,11 +34,14 @@ class OwnedRecordFinder {
 
   static String _artistKey(String artist) => CollectionGrouper.sortKey(artist);
 
-  /// Mesmo artista (sem diferenciar maiúsculas, acentos e o artigo: "The Beatles" = "Beatles").
+  /// Mesmo artista (sem diferenciar maiúsculas, acentos e o artigo: "The Beatles" = "Beatles"), inclusive pelos
+  /// outros nomes conhecidos ("Suede" = "The London Suede").
   static bool sameArtist(String a, String b) {
     final ka = _artistKey(a);
     final kb = _artistKey(b);
-    return ka.isNotEmpty && ka == kb;
+    if (ka.isEmpty || kb.isEmpty) return false;
+    if (ka == kb) return true;
+    return ArtistNames.variants(a).any((v) => _artistKey(v) == kb) || ArtistNames.variants(b).any((v) => _artistKey(v) == ka);
   }
 
   Future<OwnedRecord?> find(String title, String artist, {String? album}) async {

@@ -2,6 +2,14 @@
 
 Este arquivo documenta o histórico oficial de versões, datas e melhorias implementadas no projeto **WaxClub — Vinyl Social Club** (nome oficial a partir da v1.3.2). As entradas anteriores registram os nomes usados na época de cada versão: VyniLyric (v1.2.03 a v1.3.1), VinyLyric e VinylSync Lyrics.
 
+## [v1.4.49] — 16/10/2026 (Outros Nomes do Artista)
+
+* **Letras de artistas com mais de um nome:** quando nenhuma fonte acha a letra com o nome reconhecido, o app tenta os outros nomes do artista nas mesmas fontes — nomes regionais conhecidos (Suede ↔ The London Suede, The Charlatans ↔ The Charlatans UK, The Beat ↔ The English Beat, Yazoo ↔ Yaz…), sem participações ("feat."), sem a banda de apoio ("Bob Marley & The Wailers" → "Bob Marley") e com/sem "The".
+* **LRCLIB pelo título:** busca também só pelo título da música e aceita o resultado com artista compatível ("London Suede" contém "Suede") e duração parecida (evita a versão ao vivo).
+* **A coleção primeiro** reconhece o disco pelo outro nome do artista ("The London Suede" acha o "Suede" da coleção).
+* Testes: nomes alternativos, "Echo & The Bunnymen" não vira "Echo", LRCLIB acha pelo título a versão de estúdio, coleção pelo outro nome.
+
+---
 ## [v1.4.48] — 16/10/2026 (A Coleção Primeiro)
 
 * **A coleção primeiro:** quando uma música é reconhecida, o app procura em My Collection um disco do mesmo artista que tenha essa faixa (pela lista de faixas guardada ou, se faltar, pela prensagem do Discogs do disco da coleção) e usa a **capa, a lista de faixas e a letra desse disco**. Só sem ele usa o disco sugerido pelo reconhecimento. O disco escolhido à mão pelo usuário para a música continua valendo mais.

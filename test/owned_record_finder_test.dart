@@ -65,4 +65,15 @@ void main() {
     final finder = OwnedRecordFinder(collection: col, cache: cache);
     expect((await finder.find('Stray', 'Lush', album: 'Spooky'))?.coverUrl, 'https://my/spooky.jpg');
   });
+
+  test('outro nome do artista: "The London Suede" acha o disco "Suede" da coleção', () async {
+    await col.add(CollectionItem(album: 'Dog Man Star', artist: 'Suede', addedAt: DateTime(2026)));
+    await cache.saveTracklist(
+        album: 'Dog Man Star',
+        artist: 'Suede',
+        entries: const [TrackEntry(position: 1, title: 'Introducing the Band', number: 'A1', side: 'A')],
+        source: 'discogs');
+    final finder = OwnedRecordFinder(collection: col, cache: cache);
+    expect((await finder.find('Introducing the Band', 'The London Suede'))?.album, 'Dog Man Star');
+  });
 }
